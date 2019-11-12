@@ -1,0 +1,15 @@
+{
+  "name": "unicorn_trap",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ghom",
+  "license": "ISC",
+  "dependencies": {
+    "color-engine": "^1.0.4",
+    "discord.js": "^11.5.1"
+  }
+}
