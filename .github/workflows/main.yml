@@ -1,0 +1,22 @@
+name: Publish Docker
+on: 
+  push:
+    branches: 
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Docker login
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+      - name: Build
+        run: docker build -t ${{ secrets.NAME }} .
+      - name: Tags
+        run: |
+          docker tag ${{ secrets.NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:${{ github.sha }}
+          docker tag ${{ secrets.NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:${{ secrets.TAG }}
+      - name: Push
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:${{ secrets.TAG }}
