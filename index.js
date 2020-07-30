@@ -6,12 +6,12 @@ const writeFile = promisify(fs.writeFile)
 const client  = new Discord.Client()
 const prefix = '}'
 
-var save = JSON.parse(fs.readFileSync(__dirname+"/save.json"))
-var data = JSON.parse(fs.readFileSync(__dirname+"/data.json"))
-var progress = false
-var activity = {}
+const save = require("./data/save.json")
+const data = require("./data.json")
+let progress = false
+const activity = {}
 
-client.login(data.token)
+client.login(process.env.TOKEN)
 
 client.on("error", err=>{});
 
