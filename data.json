@@ -1,0 +1,17 @@
+{
+	"guild":{
+		"colors": [
+			"#FFFFFF",
+			"#FFFFFF"
+		],
+		"auto":false,
+		"mode":"GRADIENT",
+		"backup":{}
+	},
+	"modes":{
+		"GRADIENT":"Dégradé linéaire de l'index de début à l'index de fin.",
+		"REFLECT":"Dégradé linéaine jusqu'au rôle du milieu, puis dégradé inversé.",
+		"RANDOM":"Ne tient pas compte des index, couleurs aléatoires.",
+		"RAINBOW":"Ne tient pas compte des index, couleurs de l'arc-en-ciel."
+	}
+}
