@@ -1,5 +1,5 @@
 import Discord from "discord.js"
-import * as utils from "../utils"
+import * as utils from "../app/utils"
 import * as command from "../app/command"
 
 const info: command.Command = {

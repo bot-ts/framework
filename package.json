@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/CamilleAbella/Unicorn-Trap#readme",
   "dependencies": {
-    "color-engine": "^2.0.0",
+    "color-engine": "^2.0.1",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "enmap": "^5.8.0"

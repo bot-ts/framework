@@ -4,7 +4,7 @@ import dotenv from "dotenv"
 dotenv.config()
 
 import client from "./app/client"
-import * as utils from "./utils"
+import * as utils from "./app/utils"
 import * as command from "./app/command"
 
 client.on("message", async function (message) {
