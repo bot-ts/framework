@@ -5,19 +5,19 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "start": "tsc && node .",
     "watch": "tsc-watch --onSuccess \"node .\"",
-    "prettier": "npx prettier --write src"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CamilleAbella/bot.ts.git"
+    "prettier": "prettier --write src"
   },
   "prettier": {
     "semi": false
   },
-  "keywords": [],
   "author": "ghom",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CamilleAbella/bot.ts.git"
+  },
   "bugs": {
     "url": "https://github.com/CamilleAbella/bot.ts/issues"
   },
@@ -34,6 +34,7 @@
     "@types/ws": "^7.2.9",
     "prettier": "^2.1.2",
     "tsc-watch": "^4.2.9",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "make-bot.ts": "^1.0.0"
   }
 }
