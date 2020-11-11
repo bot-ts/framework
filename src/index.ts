@@ -1,57 +1,32 @@
 import Discord from "discord.js"
 import dotenv from "dotenv"
+import fs from "fs/promises"
+import path from "path"
 
 dotenv.config()
 
-import client from "./app/client"
-import * as utils from "./app/utils"
-import * as command from "./app/command"
+const client = new Discord.Client()
 
-client.on("message", async function (message) {
-  if (!command.isCommandMessage(message)) return
+client.login(process.env.TOKEN).catch(console.error)
 
-  if (message.content.startsWith(utils.prefix)) {
-    message.content = message.content.slice(utils.prefix.length)
-  } else {
-    return
-  }
+import * as app from "./app"
 
-  const key = message.content.split(/\s+/)[0]
-  const cmd = command.commands.resolve(key)
+fs.readdir(app.commandsPath)
+  .then((files) =>
+    files.forEach((filename) => {
+      app.commands.add(require(path.join(app.commandsPath, filename)))
+    })
+  )
+  .catch(console.error)
 
-  if (!cmd) return
-
-  if (cmd.botOwner) {
-    if (process.env.BOT_OWNER !== message.member.id) {
-      return await message.channel.send(
-        new Discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor("You must be my owner.", utils.avatar(message.client.user))
-      )
-    }
-  }
-
-  if (cmd.guildOwner) {
-    if (message.guild.owner !== message.member) {
-      return await message.channel.send(
-        new Discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor(
-            "You must be the guild owner.",
-            utils.avatar(message.client.user)
-          )
-      )
-    }
-  }
-
-  message.content = message.content.slice(key.length).trim()
-
-  try {
-    await cmd.run(message)
-  } catch (error) {
-    console.error(error)
-    message.channel
-      .send(utils.code(`Error: ${error.message ?? "unknown"}`, "js"))
-      .catch(console.error)
-  }
-})
+fs.readdir(app.listenersPath)
+  .then((files) =>
+    files.forEach((filename) => {
+      const listener: app.Listener<any> = require(path.join(
+        app.listenersPath,
+        filename
+      ))
+      client[listener.once ? "once" : "on"](listener.event, listener.call)
+    })
+  )
+  .catch(console.error)

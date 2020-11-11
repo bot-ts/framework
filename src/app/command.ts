@@ -1,5 +1,4 @@
 import Discord from "discord.js"
-import fs from "fs/promises"
 import path from "path"
 
 export function isCommandMessage(
@@ -12,49 +11,53 @@ export function isCommandMessage(
   )
 }
 
+export function resolve(
+  resolvable: CommandResolvable | undefined
+): Command | undefined {
+  return typeof resolvable === "function" ? resolvable() : resolvable
+}
+
 export type CommandMessage = Discord.Message & {
   channel: Discord.TextChannel
   guild: Discord.Guild
   member: Discord.GuildMember
 }
 
+export type CommandResolvable = Command | (() => Command)
+
 export interface Command {
   name: string
-  aliases: string[]
-  loading: boolean
-  coolDown: number
-  description: string
-  longDescription: string
-  examples: string[]
-  guildOwner: boolean
-  botOwner: boolean
-  userPermissions: Discord.PermissionString[]
-  botPermissions: Discord.PermissionString[]
+  aliases?: string[]
+  loading?: boolean
+  coolDown?: number
+  description?: string
+  longDescription?: string
+  examples?: string[]
+  guildOwner?: boolean
+  botOwner?: boolean
+  userPermissions?: Discord.PermissionString[]
+  botPermissions?: Discord.PermissionString[]
   run: (message: CommandMessage) => unknown
 }
 
-export class Commands extends Discord.Collection<string, Command> {
+export class Commands extends Discord.Collection<string, CommandResolvable> {
   public resolve(key: string): Command | undefined {
-    return this.find((command) => {
+    const resolvable = this.find((resolvable) => {
+      const command = resolve(resolvable) as Command
       return (
-        key === command.name || command.aliases.some((alias) => key === alias)
+        key === command.name ||
+        !!command.aliases?.some((alias) => key === alias)
       )
     })
+    return resolve(resolvable)
   }
 
-  public add(command: Command) {
+  public add(command: CommandResolvable) {
     this.set(command.name, command)
   }
 }
 
 export const commands = new Commands()
 
-export const commandsPath = path.join(__dirname, "..", "commands")
-
-fs.readdir(commandsPath)
-  .then((files) =>
-    files.forEach((filename) => {
-      commands.add(require(path.join(commandsPath, filename)))
-    })
-  )
-  .catch(console.error)
+export const commandsPath =
+  process.env.COMMANDS_PATH ?? path.join(__dirname, "..", "commands")

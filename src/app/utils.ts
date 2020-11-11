@@ -1,18 +1,10 @@
 import Discord from "discord.js"
+import * as database from "./database"
 
-export const prefix = process.env.PREFIX ?? "}"
-
-export function avatar(
-  user: Discord.User | null,
-  size: Discord.ImageSize = 128
-) {
-  return user?.displayAvatarURL({ dynamic: true, size })
-}
-
-export function memberColor(
-  member: Discord.GuildMember | null
-): Discord.ColorResolvable {
-  return member?.roles.color?.color ?? "BLURPLE"
+export function prefix(guild?: Discord.Guild): string {
+  let prefix = process.env.PREFIX ?? "."
+  if (guild) prefix = database.prefixes.get(guild.id) ?? prefix
+  return prefix
 }
 
 export function code(text: string, lang: string = ""): string {

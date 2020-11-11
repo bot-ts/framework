@@ -1,71 +1,71 @@
-import Discord from "discord.js"
-import * as command from "../app/command"
-import * as utils from "../app/utils"
+import * as app from "../app"
 
-const help: command.Command = {
+const command: app.CommandResolvable = () => ({
   name: "help",
-  aliases: ["h", "halp", "aide", "usage"],
+  aliases: ["h", "usage"],
   botPermissions: ["SEND_MESSAGES"],
-  userPermissions: [],
-  coolDown: 0,
   description: "Help menu",
-  longDescription: "Display all commands of bot.",
-  examples: ["help", "help colors", "help invite"],
-  loading: false,
-  botOwner: false,
-  guildOwner: false,
+  longDescription: "Display all commands of bot or detail a target command.",
+  examples: ["help", ...app.commands.map((cmd) => "help " + cmd.name)],
   async run(message) {
     if (message.content.length > 0) {
-      const cmd = command.commands.resolve(message.content)
+      const cmd = app.commands.resolve(message.content)
 
       if (cmd) {
         await message.channel.send(
-          new Discord.MessageEmbed()
-            .setColor(utils.memberColor(message.guild.me))
+          new app.MessageEmbed()
+            .setColor("BLURPLE")
             .setAuthor(
               `Command: ${cmd.name}`,
-              utils.avatar(message.client.user)
+              message.client.user?.displayAvatarURL()
             )
-            .setTitle(`aliases: ${cmd.aliases.join(", ")}`)
-            .setDescription(cmd.longDescription)
+            .setTitle(`aliases: ${cmd.aliases?.join(", ") ?? "none"}`)
+            .setDescription(
+              cmd.longDescription ?? cmd.description ?? "no description"
+            )
             .addField(
               "examples:",
               cmd.examples
-                .map((example) => utils.code(utils.prefix + example))
-                .join("\n"),
+                ?.map((example) =>
+                  app.code(app.prefix(message.guild) + example)
+                )
+                .join("\n") ?? "none",
               false
             )
             .addField(
               "needed permissions:",
-              `**Bot**: ${cmd.botPermissions.join(", ") || "none"}\n` +
-                `**User**: ${cmd.userPermissions.join(", ") || "none"}`,
+              `**Bot**: ${cmd.botPermissions?.join(", ") || "none"}\n` +
+                `**User**: ${cmd.userPermissions?.join(", ") || "none"}`,
               false
             )
         )
       } else {
         await message.channel.send(
-          new Discord.MessageEmbed()
+          new app.MessageEmbed()
             .setColor("RED")
             .setAuthor(
               `Unknown command "${message.content}"`,
-              utils.avatar(message.client.user)
+              message.client.user?.displayAvatarURL()
             )
         )
       }
     } else {
       await message.channel.send(
-        new Discord.MessageEmbed()
-          .setColor(utils.memberColor(message.guild.me))
-          .setAuthor("Command list", utils.avatar(message.client.user))
+        new app.MessageEmbed()
+          .setColor("BLURPLE")
+          .setAuthor("Command list", message.client.user?.displayAvatarURL())
           .setDescription(
-            command.commands.map((cmd) => {
-              return `**${utils.prefix}${cmd.name}** - ${cmd.description}`
+            app.commands.map((resolvable) => {
+              const cmd = app.resolve(resolvable) as app.Command
+              return `**${app.prefix(message.guild)}${cmd.name}** - ${
+                cmd.description ?? "no description"
+              }`
             })
           )
-          .setFooter(`${utils.prefix}help <command>`)
+          .setFooter(`${app.prefix(message.guild)}help <command>`)
       )
     }
   },
-}
+})
 
-module.exports = help
+module.exports = command
