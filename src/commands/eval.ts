@@ -5,7 +5,7 @@ const command: app.Command = {
   name: "eval",
   aliases: ["js", "code", "run", "="],
   async run(message) {
-    if (message.author.id !== process.env.BOT_OWNER) return
+    if (message.author.id !== process.env.OWNER) return
 
     if (
       message.content.split("\n").length === 1 &&

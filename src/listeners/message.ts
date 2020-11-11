@@ -19,7 +19,7 @@ const listener: app.Listener<"message"> = {
     if (!cmd) return
 
     if (cmd.botOwner) {
-      if (process.env.BOT_OWNER !== message.member.id) {
+      if (process.env.OWNER !== message.member.id) {
         return await message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
