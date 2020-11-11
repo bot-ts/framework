@@ -52,8 +52,9 @@ export class Commands extends Discord.Collection<string, CommandResolvable> {
     return resolve(resolvable)
   }
 
-  public add(command: CommandResolvable) {
-    this.set(command.name, command)
+  public add(resolvable: CommandResolvable) {
+    const command = resolve(resolvable) as Command
+    this.set(command.name, resolvable)
   }
 }
 

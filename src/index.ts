@@ -5,9 +5,17 @@ import path from "path"
 
 dotenv.config()
 
+for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
+  if (!process.env[key] || /[{}\s]/.test(process.env[key] as string)) {
+    throw new Error("You need to add " + key + " value in your .env file.")
+  }
+}
+
 const client = new Discord.Client()
 
-client.login(process.env.TOKEN).catch(console.error)
+client.login(process.env.TOKEN).catch(() => {
+  throw new Error("Invalid Discord token given.")
+})
 
 import * as app from "./app"
 
