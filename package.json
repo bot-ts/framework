@@ -1,7 +1,7 @@
 {
   "name": "bot.ts",
   "version": "1.0.0",
-  "description": "A Discord bot for role color management",
+  "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
