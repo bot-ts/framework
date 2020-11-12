@@ -6,7 +6,7 @@ const command: app.CommandResolvable = () => ({
   botPermissions: ["SEND_MESSAGES"],
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
-  examples: ["help", ...app.commands.map((cmd) => "help " + cmd.name)],
+  examples: ["help", ...app.commands.map((cmd, key) => "help " + key)],
   async run(message) {
     if (message.content.length > 0) {
       const cmd = app.commands.resolve(message.content)
