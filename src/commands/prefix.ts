@@ -2,6 +2,7 @@ import * as app from "../app"
 
 const command: app.Command = {
   name: "prefix",
+  guildOwner: true,
   async run(message) {
     if (!message.content)
       return message.channel.send(
