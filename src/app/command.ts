@@ -38,6 +38,7 @@ export interface Command {
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
   run: (message: CommandMessage) => unknown
+  subs?: Command[]
 }
 
 export class Commands extends Discord.Collection<string, CommandResolvable> {

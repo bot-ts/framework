@@ -1,6 +1,8 @@
 import Discord from "discord.js"
 import * as database from "./database"
 
+export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
+
 export function prefix(guild?: Discord.Guild): string {
   let prefix = process.env.PREFIX as string
   if (guild) prefix = database.prefixes.get(guild.id) ?? prefix
