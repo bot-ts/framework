@@ -9,6 +9,18 @@ export function prefix(guild?: Discord.Guild): string {
   return prefix
 }
 
-export function code(text: string, lang: string = ""): string {
-  return "```" + lang + "\n" + text + "\n```"
+/**
+ * inject the code in the code block and return code block
+ */
+export function toCodeBlock(code: string, lang: string = ""): string {
+  return "```" + lang + "\n" + code + "\n```"
+}
+
+/**
+ * extract the code from code block and return code
+ */
+export function fromCodeBlock(codeBlock: string): null | string {
+  const match = codeRegex.exec(codeBlock)
+  if (match) return match[1]
+  return null
 }

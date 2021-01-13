@@ -27,7 +27,7 @@ const command: app.CommandResolvable = () => ({
               "examples:",
               cmd.examples
                 ?.map((example) =>
-                  app.code(app.prefix(message.guild) + example)
+                  app.toCodeBlock(app.prefix(message.guild) + example)
                 )
                 .join("\n") ?? "none",
               false
@@ -40,7 +40,7 @@ const command: app.CommandResolvable = () => ({
             )
             .addField(
               "sub commands:",
-              cmd.subs?.map((command) => command.name).join(", "),
+              cmd.subs?.map((command) => command.name).join(", ") || "none",
               false
             )
         )

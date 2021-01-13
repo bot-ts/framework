@@ -16,16 +16,24 @@ const listener: app.Listener<"message"> = {
     let key = message.content.split(/\s+/)[0]
     let cmd = app.commands.resolve(key)
 
-    if (!cmd) return
+    if (!cmd) return null
 
-    if (cmd.subs) {
-      const subKey = message.content.split(/\s+/)[1]
+    {
+      let cursor = 0
+      let depth = 0
 
-      for (const sub of cmd.subs) {
-        if (sub.name === subKey) {
-          key += ` ${subKey}`
-          cmd = sub
-          break
+      while (cmd.subs && cursor < cmd.subs.length) {
+        const subKey = message.content.split(/\s+/)[depth + 1]
+
+        for (const sub of cmd.subs) {
+          if (sub.name === subKey) {
+            key += ` ${subKey}`
+            cursor = 0
+            cmd = sub
+            depth++
+            break
+          }
+          cursor++
         }
       }
     }
@@ -63,7 +71,7 @@ const listener: app.Listener<"message"> = {
     } catch (error) {
       message.channel
         .send(
-          app.code(
+          app.toCodeBlock(
             `Error: ${error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"}`,
             "js"
           )
