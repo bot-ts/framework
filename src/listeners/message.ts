@@ -13,10 +13,22 @@ const listener: app.Listener<"message"> = {
       return
     }
 
-    const key = message.content.split(/\s+/)[0]
+    let key = message.content.split(/\s+/)[0]
     let cmd = app.commands.resolve(key)
 
     if (!cmd) return
+
+    if (cmd.subs) {
+      const subKey = message.content.split(/\s+/)[1]
+
+      for (const sub of cmd.subs) {
+        if (sub.name === subKey) {
+          key += ` ${subKey}`
+          cmd = sub
+          break
+        }
+      }
+    }
 
     if (cmd.botOwner) {
       if (process.env.OWNER !== message.member.id) {

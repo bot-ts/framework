@@ -38,6 +38,11 @@ const command: app.CommandResolvable = () => ({
                 `**User**: ${cmd.userPermissions?.join(", ") || "none"}`,
               false
             )
+            .addField(
+              "sub commands:",
+              cmd.subs?.map((command) => command.name).join(", "),
+              false
+            )
         )
       } else {
         await message.channel.send(
@@ -66,6 +71,30 @@ const command: app.CommandResolvable = () => ({
       )
     }
   },
+  subs: [
+    {
+      name: "count",
+      examples: ["help count"],
+      async run(message) {
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setColor("BLURPLE")
+            .setAuthor("Command count", message.client.user?.displayAvatarURL())
+            .setDescription(
+              `There are currently ${
+                app.commands.size
+              } commands and ${app.commands.reduce<number>(
+                (acc, resolvableCommand) => {
+                  const command = app.resolve(resolvableCommand)
+                  if (command && command.subs) return acc + command.subs.length
+                  return acc
+                }
+              )} sub-commands`
+            )
+        )
+      },
+    },
+  ],
 })
 
 module.exports = command
