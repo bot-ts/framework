@@ -7,7 +7,7 @@ Discord bot template in TypeScript includes:
 - Very practical file structure (all the app parts are includes and exported from [app.ts](./src/app.ts))
 - [Yargs](http://yargs.js.org/) based argument system for commands
 - Some basic [commands](./src/commands) and [listeners](./src/listeners)
-- Watching script in [package.json](./package.json) (including the watcher)
+- Some scripts in [package.json](./package.json) (including a TypeScript watcher)
 - [Enmap](https://enmap.evie.dev/) database
 - Some [utils](./src/app/utils.ts)...
 
