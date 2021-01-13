@@ -28,6 +28,11 @@ Discord bot template in TypeScript includes:
 | watch  | `tsc-watch --onSuccess "node ."` | Build, run and watch the `./src/*.ts` files to start over |
 | format | `prettier --write src`           | Beatify files in `./src` using a `--no-semi` config       |
 
+### Generate files
+
+- command: `make command [name]`
+- listener: `make listener [event]`
+
 ## Annexes
 
 - [`make-bot.ts` CLI on NPM](https://www.npmjs.com/package/make-bot.ts)
