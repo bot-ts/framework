@@ -18,6 +18,7 @@ Discord bot template in TypeScript includes:
 1. Remove the "template" word from `template.env`.
 2. Replace the `{{ value }}` values inside it.
 3. Custom the "name", "version" and "author" values in [package.json](./package.json)
+4. Install dependencies with `npm install` or `yarn install`
 
 ### Scripts
 
