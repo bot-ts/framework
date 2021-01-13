@@ -26,12 +26,14 @@
     "discord-eval.ts": "^1.0.14",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
-    "enmap": "^5.8.0"
+    "enmap": "^5.8.0",
+    "yargs": "^16.1.0"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
     "@types/node": "^14.14.6",
     "@types/ws": "^7.2.9",
+    "@types/yargs": "^15.0.12",
     "make-bot.ts": "latest",
     "prettier": "^2.1.2",
     "tsc-watch": "^4.2.9",
