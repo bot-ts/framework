@@ -121,6 +121,9 @@ const listener: app.Listener<"message"> = {
                 case "regex":
                   message.args[arg.name] = regexParser(value())
                   break
+                case "array":
+                  message.args[arg.name] = value().split(/[,;|]/)
+                  break
               }
             } catch (error) {
               return await message.channel.send(

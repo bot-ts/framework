@@ -8,7 +8,7 @@ export interface Arg {
   alias?: string
   default?: string
   required?: boolean
-  castValue?: "number" | "date" | "json" | "boolean" | "regex"
+  castValue?: "number" | "date" | "json" | "boolean" | "regex" | "array"
   checkValue?: RegExp
   description?: string
 }
