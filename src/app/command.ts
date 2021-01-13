@@ -1,5 +1,17 @@
 import Discord from "discord.js"
 import path from "path"
+import yargsParser from "yargs-parser"
+
+export interface Arg {
+  name: string
+  flag?: boolean
+  alias?: string
+  default?: string
+  required?: boolean
+  castValue?: "number" | "date" | "json" | "boolean" | "regex"
+  checkValue?: RegExp
+  description?: string
+}
 
 export function isCommandMessage(
   message: Discord.Message
@@ -21,6 +33,7 @@ export type CommandMessage = Discord.Message & {
   channel: Discord.TextChannel
   guild: Discord.Guild
   member: Discord.GuildMember
+  args: yargsParser.Arguments
 }
 
 export type CommandResolvable = Command | (() => Command)
@@ -37,6 +50,7 @@ export interface Command {
   botOwner?: boolean
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
+  args?: Arg[]
   run: (message: CommandMessage) => unknown
   subs?: Command[]
 }

@@ -1,4 +1,5 @@
 import * as app from "../app"
+import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"message"> = {
   event: "message",
@@ -65,6 +66,73 @@ const listener: app.Listener<"message"> = {
     }
 
     message.content = message.content.slice(key.length).trim()
+    message.args = yargsParser(message.content)
+
+    if (cmd.args) {
+      for (const arg of cmd.args) {
+        const value = () => message.args[arg.name]
+
+        if (arg.required) {
+          let given = message.args.hasOwnProperty(arg.name)
+
+          if (!given && arg.alias)
+            given = message.args.hasOwnProperty(arg.alias)
+
+          if (!given)
+            return await message.channel.send(
+              new app.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `Missing argument "${arg.name}"`,
+                  message.client.user?.displayAvatarURL()
+                )
+                .setDescription(
+                  arg.description
+                    ? "Description: " + arg.description
+                    : `Exemple: \`--${arg.name}=someValue\``
+                )
+            )
+        }
+
+        if (arg.flag) message.args[arg.name] = !!value()
+        else {
+          if (arg.default && value() === undefined) {
+            message.args[arg.name] = arg.default
+          }
+
+          if (arg.castValue) {
+            switch (arg.castValue) {
+              case "boolean":
+              // todo: continue casting of boolean
+              case "date":
+              // todo: continue casting of date
+              case "json":
+              // todo: continue casting of json
+              case "number":
+              // todo: continue casting of number
+              case "regex":
+              // todo: continue casting of regex
+            }
+          }
+
+          if (arg.checkValue) {
+            if (!arg.checkValue.test(value())) {
+              return await message.channel.send(
+                new app.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor(
+                    `Bad argument pattern "${arg.name}".`,
+                    message.client.user?.displayAvatarURL()
+                  )
+                  .setDescription(
+                    `Expected pattern: \`${arg.checkValue.source}\``
+                  )
+              )
+            }
+          }
+        }
+      }
+    }
 
     try {
       await cmd.run(message)
