@@ -1,5 +1,6 @@
 import * as app from "../app"
 import yargsParser from "yargs-parser"
+import regexParser from "regex-parser"
 
 const listener: app.Listener<"message"> = {
   event: "message",
@@ -101,17 +102,40 @@ const listener: app.Listener<"message"> = {
           }
 
           if (arg.castValue) {
-            switch (arg.castValue) {
-              case "boolean":
-              // todo: continue casting of boolean
-              case "date":
-              // todo: continue casting of date
-              case "json":
-              // todo: continue casting of json
-              case "number":
-              // todo: continue casting of number
-              case "regex":
-              // todo: continue casting of regex
+            try {
+              switch (arg.castValue) {
+                case "boolean":
+                  message.args[arg.name] = Boolean(value())
+                  break
+                case "date":
+                  message.args[arg.name] = new Date(value())
+                  break
+                case "json":
+                  message.args[arg.name] = JSON.parse(value())
+                  break
+                case "number":
+                  message.args[arg.name] = Number(value())
+                  if (Number.isNaN(value()))
+                    throw new Error("The value is not a Number!")
+                  break
+                case "regex":
+                  message.args[arg.name] = regexParser(value())
+                  break
+              }
+            } catch (error) {
+              return await message.channel.send(
+                new app.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor(
+                    `Bad argument type "${arg.name}".`,
+                    message.client.user?.displayAvatarURL()
+                  )
+                  .setDescription(
+                    `Cannot cast the value of the "${arg.name}" argument to \`${
+                      arg.castValue
+                    }\`\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
+                  )
+              )
             }
           }
 

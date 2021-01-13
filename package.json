@@ -28,6 +28,7 @@
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "enmap": "^5.8.0",
+    "regex-parser": "^2.2.11",
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
