@@ -32,4 +32,4 @@ Discord bot template in TypeScript includes:
 
 - [`make-bot.ts` CLI on NPM](https://www.npmjs.com/package/make-bot.ts)
 - Author Discord server: [Les Laboratoires JS](https://discord.gg/3vC2XWK)
-- [I want to use this template ?](https://github.com/CamilleAbella/bot.ts/generate)
+- [You want to use this template ?](https://github.com/CamilleAbella/bot.ts/generate)
