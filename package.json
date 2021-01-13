@@ -1,18 +1,18 @@
 {
   "name": "bot.ts",
   "version": "1.0.0",
+  "author": "ghom",
   "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "tsc && node .",
     "watch": "tsc-watch --onSuccess \"node .\"",
-    "prettier": "prettier --write src"
+    "format": "prettier --write src"
   },
   "prettier": {
     "semi": false
   },
-  "author": "ghom",
   "license": "ISC",
   "repository": {
     "type": "git",
