@@ -67,7 +67,7 @@ const listener: app.Listener<"message"> = {
     }
 
     message.content = message.content.slice(key.length).trim()
-    message.args = yargsParser(message.content)
+    message.args = yargsParser(message.content) as app.CommandMessage["args"]
 
     if (cmd.args) {
       for (const arg of cmd.args) {
@@ -76,8 +76,13 @@ const listener: app.Listener<"message"> = {
         if (arg.required) {
           let given = message.args.hasOwnProperty(arg.name)
 
-          if (!given && arg.alias)
-            given = message.args.hasOwnProperty(arg.alias)
+          if (!given && arg.aliases)
+            given =
+              typeof arg.aliases === "string"
+                ? message.args.hasOwnProperty(arg.aliases)
+                : arg.aliases.some((alias) =>
+                    message.args.hasOwnProperty(alias)
+                  )
 
           if (!given)
             return await message.channel.send(
@@ -124,6 +129,9 @@ const listener: app.Listener<"message"> = {
                 case "array":
                   message.args[arg.name] = value().split(/[,;|]/)
                   break
+                default:
+                  message.args[arg.name] = await arg.castValue(value())
+                  break
               }
             } catch (error) {
               return await message.channel.send(
@@ -134,25 +142,37 @@ const listener: app.Listener<"message"> = {
                     message.client.user?.displayAvatarURL()
                   )
                   .setDescription(
-                    `Cannot cast the value of the "${arg.name}" argument to \`${
-                      arg.castValue
-                    }\`\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
+                    `Cannot cast the value of the "${arg.name}" argument to ${
+                      typeof arg.castValue === "function"
+                        ? "custom type"
+                        : "`" + arg.castValue + "`"
+                    }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
                   )
               )
             }
           }
 
           if (arg.checkValue) {
-            if (!arg.checkValue.test(value())) {
+            if (
+              typeof arg.checkValue === "function"
+                ? !(await arg.checkValue(value()))
+                : !arg.checkValue.test(value())
+            ) {
               return await message.channel.send(
                 new app.MessageEmbed()
                   .setColor("RED")
                   .setAuthor(
-                    `Bad argument pattern "${arg.name}".`,
+                    `Bad "${arg.name}" argument ${
+                      typeof arg.checkValue === "function"
+                        ? "tested"
+                        : "pattern"
+                    } "${arg.name}".`,
                     message.client.user?.displayAvatarURL()
                   )
                   .setDescription(
-                    `Expected pattern: \`${arg.checkValue.source}\``
+                    typeof arg.checkValue === "function"
+                      ? app.toCodeBlock(arg.checkValue.toString(), "js")
+                      : `Expected pattern: \`${arg.checkValue.source}\``
                   )
               )
             }
@@ -160,6 +180,8 @@ const listener: app.Listener<"message"> = {
         }
       }
     }
+
+    message.args.rest = message.args._.join(" ")
 
     try {
       await cmd.run(message)

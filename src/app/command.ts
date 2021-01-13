@@ -5,11 +5,18 @@ import yargsParser from "yargs-parser"
 export interface Arg {
   name: string
   flag?: boolean
-  alias?: string
+  aliases?: string[] | string
   default?: string
   required?: boolean
-  castValue?: "number" | "date" | "json" | "boolean" | "regex" | "array"
-  checkValue?: RegExp
+  castValue?:
+    | "number"
+    | "date"
+    | "json"
+    | "boolean"
+    | "regex"
+    | "array"
+    | ((value: string) => unknown)
+  checkValue?: RegExp | ((value: string) => boolean | Promise<boolean>)
   description?: string
 }
 
@@ -33,7 +40,9 @@ export type CommandMessage = Discord.Message & {
   channel: Discord.TextChannel
   guild: Discord.Guild
   member: Discord.GuildMember
-  args: yargsParser.Arguments
+  args: yargsParser.Arguments & {
+    rest: string
+  }
 }
 
 export type CommandResolvable = Command | (() => Command)

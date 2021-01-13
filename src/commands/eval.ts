@@ -4,9 +4,8 @@ import util from "util"
 import * as app from "../app"
 
 const exec = util.promisify(cp.exec)
-const regex = /--(?:install|use|add|with|npm|dep) +([a-z-_.]+)(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?/i
 
-const packageJson = require("../../package.json")
+const packageJson = require(app.rootPath("package.json"))
 
 const alreadyInstalled = (pack: string): boolean =>
   packageJson.dependencies.hasOwnProperty(pack) ||
@@ -16,14 +15,22 @@ const command: app.Command = {
   name: "js",
   botOwner: true,
   aliases: ["eval", "code", "run", "=", "test"],
+  description: "JS code emulator",
+  args: [
+    {
+      name: "packages",
+      aliases: ["use", "u", "req", "require", "import", "i"],
+      castValue: "array",
+      description: "NPM packages I want to includes in my code",
+    },
+  ],
   async run(message) {
-    const match = regex.exec(message.content)
     const installed = new Set<string>()
 
-    if (match) {
-      message.content = message.content.replace(regex, "").trim()
-
-      const given = new Set<string>(match.slice(1).filter((p) => p))
+    if (message.args.packages) {
+      const given = new Set<string>(
+        message.args.packages.filter((p: string) => p)
+      )
 
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
@@ -46,33 +53,33 @@ const command: app.Command = {
       }
     }
 
-    if (app.codeRegex.test(message.content))
-      message.content = message.content.replace(app.codeRegex, "$1")
+    if (app.codeRegex.test(message.args.rest))
+      message.args.rest = message.args.rest.replace(app.codeRegex, "$1")
 
     if (
-      message.content.split("\n").length === 1 &&
-      !/const|let|return/.test(message.content)
+      message.args.rest.split("\n").length === 1 &&
+      !/const|let|return/.test(message.args.rest)
     ) {
-      message.content = "return " + message.content
+      message.args.rest = "return " + message.args.rest
     }
 
-    message.content = `
+    message.args.rest = `
       ${
-        message.content.includes("app")
+        message.args.rest.includes("app")
           ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
           : ""
       } ${
-      match
+      message.args.packages
         ? `const req = {${[...installed]
             .map((pack) => `"${pack}": require("${pack}")`)
             .join(", ")}};`
         : ""
-    } ${message.content}`
+    } ${message.args.rest}`
 
     await discordEval(
-      message.content,
+      message.args.rest,
       message,
-      message.content.includes("@muted")
+      message.args.rest.includes("@muted")
     )
 
     for (const pack of installed) {

@@ -1,3 +1,4 @@
+import { join } from "path"
 import Discord from "discord.js"
 import * as database from "./database"
 
@@ -23,4 +24,8 @@ export function fromCodeBlock(codeBlock: string): null | string {
   const match = codeRegex.exec(codeBlock)
   if (match) return match[1]
   return null
+}
+
+export function rootPath(...path: string[]): string {
+  return join(process.cwd(), ...path)
 }
