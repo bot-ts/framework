@@ -73,16 +73,25 @@ const listener: app.Listener<"message"> = {
       for (const arg of cmd.args) {
         const value = () => message.args[arg.name]
 
+        let name = arg.name
+
         if (arg.required) {
           let given = message.args.hasOwnProperty(arg.name)
 
-          if (!given && arg.aliases)
-            given =
-              typeof arg.aliases === "string"
-                ? message.args.hasOwnProperty(arg.aliases)
-                : arg.aliases.some((alias) =>
-                    message.args.hasOwnProperty(alias)
-                  )
+          if (!given && arg.aliases) {
+            if (typeof arg.aliases === "string") {
+              name = arg.aliases
+              given = message.args.hasOwnProperty(arg.aliases)
+            } else {
+              for (const alias of arg.aliases) {
+                if (message.args.hasOwnProperty(alias)) {
+                  name = alias
+                  given = true
+                  break
+                }
+              }
+            }
+          }
 
           if (!given)
             return await message.channel.send(
@@ -100,12 +109,11 @@ const listener: app.Listener<"message"> = {
             )
         }
 
-        if (arg.flag)
-          message.args[arg.name] = message.args.hasOwnProperty(arg.name)
+        if (arg.flag) message.args[name] = message.args.hasOwnProperty(name)
         else {
           if (value() === undefined) {
             if (arg.default) {
-              message.args[arg.name] =
+              message.args[name] =
                 typeof arg.default === "function"
                   ? await arg.default()
                   : arg.default
@@ -114,7 +122,7 @@ const listener: app.Listener<"message"> = {
                 new app.MessageEmbed()
                   .setColor("RED")
                   .setAuthor(
-                    `Missing value for "${arg.name}" argument`,
+                    `Missing value for "${name}" argument`,
                     message.client.user?.displayAvatarURL()
                   )
                   .setDescription(
@@ -132,7 +140,7 @@ const listener: app.Listener<"message"> = {
                 new app.MessageEmbed()
                   .setColor("RED")
                   .setAuthor(
-                    `Bad "${arg.name}" argument ${
+                    `Bad "${name}" argument ${
                       typeof arg.checkValue === "function"
                         ? "tested"
                         : "pattern"
@@ -152,28 +160,28 @@ const listener: app.Listener<"message"> = {
             try {
               switch (arg.castValue) {
                 case "boolean":
-                  message.args[arg.name] = Boolean(value())
+                  message.args[name] = Boolean(value())
                   break
                 case "date":
-                  message.args[arg.name] = new Date(value())
+                  message.args[name] = new Date(value())
                   break
                 case "json":
-                  message.args[arg.name] = JSON.parse(value())
+                  message.args[name] = JSON.parse(value())
                   break
                 case "number":
-                  message.args[arg.name] = Number(value())
+                  message.args[name] = Number(value())
                   if (Number.isNaN(value()))
                     throw new Error("The value is not a Number!")
                   break
                 case "regex":
-                  message.args[arg.name] = regexParser(value())
+                  message.args[name] = regexParser(value())
                   break
                 case "array":
-                  if (value() === undefined) message.args[arg.name] = []
-                  else message.args[arg.name] = value().split(/[,;|]/)
+                  if (value() === undefined) message.args[name] = []
+                  else message.args[name] = value().split(/[,;|]/)
                   break
                 default:
-                  message.args[arg.name] = await arg.castValue(value())
+                  message.args[name] = await arg.castValue(value())
                   break
               }
             } catch (error) {
@@ -181,11 +189,11 @@ const listener: app.Listener<"message"> = {
                 new app.MessageEmbed()
                   .setColor("RED")
                   .setAuthor(
-                    `Bad argument type "${arg.name}".`,
+                    `Bad argument type "${name}".`,
                     message.client.user?.displayAvatarURL()
                   )
                   .setDescription(
-                    `Cannot cast the value of the "${arg.name}" argument to ${
+                    `Cannot cast the value of the "${name}" argument to ${
                       typeof arg.castValue === "function"
                         ? "custom type"
                         : "`" + arg.castValue + "`"

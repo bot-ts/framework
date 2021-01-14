@@ -27,7 +27,7 @@ const command: app.Command = {
   async run(message) {
     const installed = new Set<string>()
 
-    if (message.args.packages) {
+    if (message.args.packages.length > 0) {
       const given = new Set<string>(
         message.args.packages.filter((p: string) => p)
       )
@@ -69,7 +69,7 @@ const command: app.Command = {
           ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
           : ""
       } ${
-      message.args.packages
+      message.args.packages.length > 0
         ? `const req = {${[...installed]
             .map((pack) => `"${pack}": require("${pack}")`)
             .join(", ")}};`
