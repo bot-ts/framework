@@ -23,6 +23,12 @@ const command: app.Command = {
       castValue: "array",
       description: "NPM packages I want to includes in my code",
     },
+    {
+      name: "muted",
+      aliases: ["mute", "silent"],
+      flag: true,
+      description: "Disable message feedback",
+    },
   ],
   async run(message) {
     const installed = new Set<string>()
@@ -76,11 +82,7 @@ const command: app.Command = {
         : ""
     } ${message.args.rest}`
 
-    await discordEval(
-      message.args.rest,
-      message,
-      message.args.rest.includes("@muted")
-    )
+    await discordEval(message.args.rest, message, message.args.muted)
 
     for (const pack of installed) {
       if (alreadyInstalled(pack)) continue
