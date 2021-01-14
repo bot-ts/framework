@@ -53,8 +53,8 @@ const command: app.Command = {
       }
     }
 
-    if (app.codeRegex.test(message.args.rest))
-      message.args.rest = message.args.rest.replace(app.codeRegex, "$1")
+    if (app.codeBlockRegex.test(message.args.rest))
+      message.args.rest = message.args.rest.replace(app.codeBlockRegex, "$1")
 
     if (
       message.args.rest.split("\n").length === 1 &&

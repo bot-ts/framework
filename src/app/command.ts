@@ -6,7 +6,7 @@ export interface Arg {
   name: string
   flag?: boolean
   aliases?: string[] | string
-  default?: string
+  default?: string | (() => string | Promise<string>)
   required?: boolean
   castValue?:
     | "number"

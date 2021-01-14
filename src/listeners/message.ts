@@ -100,10 +100,52 @@ const listener: app.Listener<"message"> = {
             )
         }
 
-        if (arg.flag) message.args[arg.name] = !!value()
+        if (arg.flag)
+          message.args[arg.name] = message.args.hasOwnProperty(arg.name)
         else {
-          if (arg.default && value() === undefined) {
-            message.args[arg.name] = arg.default
+          if (value() === undefined) {
+            if (arg.default) {
+              message.args[arg.name] =
+                typeof arg.default === "function"
+                  ? await arg.default()
+                  : arg.default
+            } else if (arg.castValue !== "array") {
+              return await message.channel.send(
+                new app.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor(
+                    `Missing value for "${arg.name}" argument`,
+                    message.client.user?.displayAvatarURL()
+                  )
+                  .setDescription(
+                    "Please add a `arg.default` value or activate the `arg.flag` property."
+                  )
+              )
+            }
+          } else if (arg.checkValue) {
+            if (
+              typeof arg.checkValue === "function"
+                ? !(await arg.checkValue(value()))
+                : !arg.checkValue.test(value())
+            ) {
+              return await message.channel.send(
+                new app.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor(
+                    `Bad "${arg.name}" argument ${
+                      typeof arg.checkValue === "function"
+                        ? "tested"
+                        : "pattern"
+                    } "${arg.name}".`,
+                    message.client.user?.displayAvatarURL()
+                  )
+                  .setDescription(
+                    typeof arg.checkValue === "function"
+                      ? app.toCodeBlock(arg.checkValue.toString(), "js")
+                      : `Expected pattern: \`${arg.checkValue.source}\``
+                  )
+              )
+            }
           }
 
           if (arg.castValue) {
@@ -127,7 +169,8 @@ const listener: app.Listener<"message"> = {
                   message.args[arg.name] = regexParser(value())
                   break
                 case "array":
-                  message.args[arg.name] = value().split(/[,;|]/)
+                  if (value() === undefined) message.args[arg.name] = []
+                  else message.args[arg.name] = value().split(/[,;|]/)
                   break
                 default:
                   message.args[arg.name] = await arg.castValue(value())
@@ -147,32 +190,6 @@ const listener: app.Listener<"message"> = {
                         ? "custom type"
                         : "`" + arg.castValue + "`"
                     }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
-                  )
-              )
-            }
-          }
-
-          if (arg.checkValue) {
-            if (
-              typeof arg.checkValue === "function"
-                ? !(await arg.checkValue(value()))
-                : !arg.checkValue.test(value())
-            ) {
-              return await message.channel.send(
-                new app.MessageEmbed()
-                  .setColor("RED")
-                  .setAuthor(
-                    `Bad "${arg.name}" argument ${
-                      typeof arg.checkValue === "function"
-                        ? "tested"
-                        : "pattern"
-                    } "${arg.name}".`,
-                    message.client.user?.displayAvatarURL()
-                  )
-                  .setDescription(
-                    typeof arg.checkValue === "function"
-                      ? app.toCodeBlock(arg.checkValue.toString(), "js")
-                      : `Expected pattern: \`${arg.checkValue.source}\``
                   )
               )
             }
