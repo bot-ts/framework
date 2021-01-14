@@ -74,40 +74,37 @@ const listener: app.Listener<"message"> = {
         const value = () => message.args[arg.name]
 
         let name = arg.name
+        let given = message.args.hasOwnProperty(arg.name)
 
-        if (arg.required) {
-          let given = message.args.hasOwnProperty(arg.name)
-
-          if (!given && arg.aliases) {
-            if (typeof arg.aliases === "string") {
-              name = arg.aliases
-              given = message.args.hasOwnProperty(arg.aliases)
-            } else {
-              for (const alias of arg.aliases) {
-                if (message.args.hasOwnProperty(alias)) {
-                  name = alias
-                  given = true
-                  break
-                }
+        if (!given && arg.aliases) {
+          if (typeof arg.aliases === "string") {
+            name = arg.aliases
+            given = message.args.hasOwnProperty(arg.aliases)
+          } else {
+            for (const alias of arg.aliases) {
+              if (message.args.hasOwnProperty(alias)) {
+                name = alias
+                given = true
+                break
               }
             }
           }
-
-          if (!given)
-            return await message.channel.send(
-              new app.MessageEmbed()
-                .setColor("RED")
-                .setAuthor(
-                  `Missing argument "${arg.name}"`,
-                  message.client.user?.displayAvatarURL()
-                )
-                .setDescription(
-                  arg.description
-                    ? "Description: " + arg.description
-                    : `Exemple: \`--${arg.name}=someValue\``
-                )
-            )
         }
+
+        if (arg.required && !given)
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Missing argument "${arg.name}"`,
+                message.client.user?.displayAvatarURL()
+              )
+              .setDescription(
+                arg.description
+                  ? "Description: " + arg.description
+                  : `Exemple: \`--${arg.name}=someValue\``
+              )
+          )
 
         if (arg.flag) message.args[name] = message.args.hasOwnProperty(name)
         else {
