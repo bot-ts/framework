@@ -1,12 +1,6 @@
-import Enmap from "enmap"
-import Discord from "discord.js"
-
-/** Enmap[Guild, Prefix] */
-export const prefixes = new Enmap<Discord.Snowflake, string>({
-  name: "prefixes",
-})
-
-// /** Enmap[Guild, Member[]] */
-// export const muted = new Enmap<Discord.Snowflake, Discord.Snowflake[]>({
-//  name: "muted"
-// })
+export const prefixes = {
+  get(id: string): string | undefined {
+    return undefined
+  },
+  set(id: string, prefix: string): void {},
+}

@@ -7,7 +7,7 @@ const listener: app.Listener<"message"> = {
   async call(message) {
     if (!app.isCommandMessage(message)) return
 
-    const prefix = app.prefix(message.guild)
+    const prefix = await app.prefix(message.guild)
 
     if (message.content.startsWith(prefix)) {
       message.content = message.content.slice(prefix.length)

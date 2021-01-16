@@ -18,7 +18,7 @@ const command: app.Command = {
         `Invalid given prefix. (max 10 char and no space)`
       )
 
-    app.prefixes.set(message.guild.id, prefix)
+    await app.prefixes.set(message.guild.id, prefix)
 
     await message.channel.send(
       `The new prefix of "**${message.guild}**" id \`${prefix}\``
