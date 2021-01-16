@@ -6,7 +6,7 @@ export interface Arg {
   name: string
   flag?: boolean
   aliases?: string[] | string
-  default?: string | (() => string | Promise<string>)
+  default?: string | ((message: CommandMessage) => string | Promise<string>)
   required?: boolean
   castValue?:
     | "number"
@@ -15,8 +15,10 @@ export interface Arg {
     | "boolean"
     | "regex"
     | "array"
-    | ((value: string) => unknown)
-  checkValue?: RegExp | ((value: string) => boolean | Promise<boolean>)
+    | ((value: string, message: CommandMessage) => unknown)
+  checkValue?:
+    | RegExp
+    | ((value: string, message: CommandMessage) => boolean | Promise<boolean>)
   description?: string
 }
 

@@ -115,7 +115,7 @@ const listener: app.Listener<"message"> = {
             if (arg.default) {
               message.args[arg.name] =
                 typeof arg.default === "function"
-                  ? await arg.default()
+                  ? await arg.default(message)
                   : arg.default
             } else if (arg.castValue !== "array") {
               return await message.channel.send(
@@ -133,7 +133,7 @@ const listener: app.Listener<"message"> = {
           } else if (arg.checkValue) {
             if (
               typeof arg.checkValue === "function"
-                ? !(await arg.checkValue(value()))
+                ? !(await arg.checkValue(value(), message))
                 : !arg.checkValue.test(value())
             ) {
               return await message.channel.send(
@@ -181,7 +181,7 @@ const listener: app.Listener<"message"> = {
                   else message.args[arg.name] = value().split(/[,;|]/)
                   break
                 default:
-                  message.args[arg.name] = await arg.castValue(value())
+                  message.args[arg.name] = await arg.castValue(value(), message)
                   break
               }
             } catch (error) {
