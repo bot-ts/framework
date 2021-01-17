@@ -1,6 +1,5 @@
 import * as app from "../app"
 import yargsParser from "yargs-parser"
-import regexParser from "regex-parser"
 
 const listener: app.Listener<"message"> = {
   event: "message",
@@ -69,6 +68,59 @@ const listener: app.Listener<"message"> = {
     message.content = message.content.slice(key.length).trim()
     message.args = yargsParser(message.content) as app.CommandMessage["args"]
     message.args.rest = message.args._.join(" ")
+    message.positional = message.args._.slice(0)
+
+    if (cmd.positional) {
+      for (const positional of cmd.positional) {
+        const index = cmd.positional.indexOf(positional)
+
+        const getValue = () => message.positional[positional.name]
+        const setValue = (value: any) => {
+          message.positional[positional.name] = value
+          message.positional[index] = value
+        }
+
+        const given = message.positional[index] !== undefined
+
+        message.positional[positional.name] = message.positional[index]
+
+        if (!given) {
+          if (positional.default !== undefined) {
+            setValue(
+              typeof positional.default === "function"
+                ? await positional.default(message)
+                : positional.default
+            )
+          } else if (positional.required) {
+            return await message.channel.send(
+              new app.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `Missing positional "${positional.name}"`,
+                  message.client.user?.displayAvatarURL()
+                )
+                .setDescription(
+                  positional.description
+                    ? "Description: " + positional.description
+                    : `Example: \`--${positional.name}=someValue\``
+                )
+            )
+          }
+        } else if (positional.checkValue) {
+          await app.checkValue(positional, "positional", getValue(), message)
+        }
+
+        if (positional.castValue) {
+          await app.castValue(
+            positional,
+            "positional",
+            getValue(),
+            message,
+            setValue
+          )
+        }
+      }
+    }
 
     if (cmd.args) {
       for (const arg of cmd.args) {
@@ -103,7 +155,7 @@ const listener: app.Listener<"message"> = {
               .setDescription(
                 arg.description
                   ? "Description: " + arg.description
-                  : `Exemple: \`--${arg.name}=someValue\``
+                  : `Example: \`--${arg.name}=someValue\``
               )
           )
 
@@ -113,7 +165,7 @@ const listener: app.Listener<"message"> = {
           message.args[arg.name] = message.args[usedName]
 
           if (value() === undefined) {
-            if (arg.default) {
+            if (arg.default !== undefined) {
               message.args[arg.name] =
                 typeof arg.default === "function"
                   ? await arg.default(message)
@@ -132,76 +184,17 @@ const listener: app.Listener<"message"> = {
               )
             }
           } else if (arg.checkValue) {
-            if (
-              typeof arg.checkValue === "function"
-                ? !(await arg.checkValue(value(), message))
-                : !arg.checkValue.test(value())
-            ) {
-              return await message.channel.send(
-                new app.MessageEmbed()
-                  .setColor("RED")
-                  .setAuthor(
-                    `Bad argument ${
-                      typeof arg.checkValue === "function"
-                        ? "tested "
-                        : "pattern"
-                    } "${usedName}".`,
-                    message.client.user?.displayAvatarURL()
-                  )
-                  .setDescription(
-                    typeof arg.checkValue === "function"
-                      ? app.toCodeBlock(arg.checkValue.toString(), "js")
-                      : `Expected pattern: \`${arg.checkValue.source}\``
-                  )
-              )
-            }
+            await app.checkValue(arg, "argument", value(), message)
           }
 
           if (arg.castValue) {
-            try {
-              switch (arg.castValue) {
-                case "boolean":
-                  message.args[arg.name] = Boolean(value())
-                  break
-                case "date":
-                  message.args[arg.name] = new Date(value())
-                  break
-                case "json":
-                  message.args[arg.name] = JSON.parse(value())
-                  break
-                case "number":
-                  message.args[arg.name] = Number(value())
-                  if (Number.isNaN(value()))
-                    throw new Error("The value is not a Number!")
-                  break
-                case "regex":
-                  message.args[arg.name] = regexParser(value())
-                  break
-                case "array":
-                  if (value() === undefined) message.args[arg.name] = []
-                  else message.args[arg.name] = value().split(/[,;|]/)
-                  break
-                default:
-                  message.args[arg.name] = await arg.castValue(value(), message)
-                  break
-              }
-            } catch (error) {
-              return await message.channel.send(
-                new app.MessageEmbed()
-                  .setColor("RED")
-                  .setAuthor(
-                    `Bad argument type "${usedName}".`,
-                    message.client.user?.displayAvatarURL()
-                  )
-                  .setDescription(
-                    `Cannot cast the value of the "${usedName}" argument to ${
-                      typeof arg.castValue === "function"
-                        ? "custom type"
-                        : "`" + arg.castValue + "`"
-                    }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
-                  )
-              )
-            }
+            await app.castValue(
+              arg,
+              "argument",
+              value(),
+              message,
+              (value) => (message.args[arg.name] = value)
+            )
           }
         }
       }

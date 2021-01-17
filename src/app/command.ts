@@ -1,8 +1,10 @@
 import Discord from "discord.js"
 import path from "path"
 import yargsParser from "yargs-parser"
+import regexParser from "regex-parser"
+import * as app from "../app"
 
-export interface Arg {
+export interface Argument {
   name: string
   flag?: boolean
   aliases?: string[] | string
@@ -20,6 +22,107 @@ export interface Arg {
     | RegExp
     | ((value: string, message: CommandMessage) => boolean | Promise<boolean>)
   description?: string
+}
+
+export interface Positional extends Omit<Argument, "flag" | "aliases"> {}
+
+export async function checkValue(
+  subject: Pick<Argument, "checkValue" | "name">,
+  subjectType: "positional" | "argument",
+  value: string,
+  message: CommandMessage
+): Promise<unknown> {
+  if (!subject.checkValue) return
+
+  if (
+    typeof subject.checkValue === "function"
+      ? !(await subject.checkValue(value, message))
+      : !subject.checkValue.test(value)
+  ) {
+    return await message.channel.send(
+      new app.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          `Bad ${subjectType} ${
+            typeof subject.checkValue === "function" ? "tested " : "pattern"
+          } "${subject.name}".`,
+          message.client.user?.displayAvatarURL()
+        )
+        .setDescription(
+          typeof subject.checkValue === "function"
+            ? app.toCodeBlock(subject.checkValue.toString(), "js")
+            : `Expected pattern: \`${subject.checkValue.source}\``
+        )
+    )
+  }
+}
+
+export async function castValue(
+  subject: Pick<Argument, "castValue" | "name">,
+  subjectType: "positional" | "argument",
+  baseValue: string | undefined,
+  message: CommandMessage,
+  setValue: (value: any) => unknown
+): Promise<unknown> {
+  if (!subject.castValue) return
+
+  const empty = new Error("The value is empty!")
+
+  try {
+    switch (subject.castValue) {
+      case "boolean":
+        setValue(Boolean(baseValue))
+        break
+      case "date":
+        if (!baseValue) {
+          throw empty
+        } else if (baseValue === "now") {
+          setValue(new Date())
+        } else if (/^[1-9]\d*$/.test(baseValue)) {
+          setValue(Number(baseValue))
+        } else {
+          setValue(new Date(baseValue))
+        }
+        break
+      case "json":
+        if (baseValue) setValue(JSON.parse(baseValue))
+        else throw empty
+        break
+      case "number":
+        setValue(Number(baseValue))
+        if (Number.isNaN(baseValue))
+          throw new Error("The value is not a Number!")
+        break
+      case "regex":
+        if (baseValue) setValue(regexParser(baseValue))
+        else throw empty
+        break
+      case "array":
+        if (baseValue === undefined) setValue([])
+        else setValue(baseValue.split(/[,;|]/))
+        break
+      default:
+        if (baseValue === undefined) throw empty
+        else setValue(await subject.castValue(baseValue, message))
+        break
+    }
+  } catch (error) {
+    return await message.channel.send(
+      new app.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          `Bad ${subjectType} type "${subject.name}".`,
+          message.client.user?.displayAvatarURL()
+        )
+        .setDescription(
+          `Cannot cast the value of the "${subject.name}" ${subjectType} to ${
+            typeof subject.castValue === "function"
+              ? "{*custom type*}"
+              : "`" + subject.castValue + "`"
+          }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
+        )
+    )
+  }
 }
 
 export function isCommandMessage(
@@ -45,6 +148,9 @@ export type CommandMessage = Discord.Message & {
   args: yargsParser.Arguments & {
     rest: string
   }
+  positional: any[] & {
+    [name: string]: any
+  }
 }
 
 export type CommandResolvable = Command | (() => Command)
@@ -61,7 +167,8 @@ export interface Command {
   botOwner?: boolean
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
-  args?: Arg[]
+  positional?: Positional[]
+  args?: Argument[]
   run: (message: CommandMessage) => unknown
   subs?: Command[]
 }
