@@ -68,6 +68,7 @@ const listener: app.Listener<"message"> = {
 
     message.content = message.content.slice(key.length).trim()
     message.args = yargsParser(message.content) as app.CommandMessage["args"]
+    message.args.rest = message.args._.join(" ")
 
     if (cmd.args) {
       for (const arg of cmd.args) {
@@ -205,8 +206,6 @@ const listener: app.Listener<"message"> = {
         }
       }
     }
-
-    message.args.rest = message.args._.join(" ")
 
     try {
       await cmd.run(message)
