@@ -82,6 +82,13 @@ const listener: app.Listener<"message"> = {
 
         const given = message.positional[index] !== undefined
 
+        if (/^(?:".+"|'.+')$/.test(message.positional[index])) {
+          message.positional[index] = message.positional[index].slice(
+            1,
+            message.positional[index].length - 2
+          )
+        }
+
         message.positional[positional.name] = message.positional[index]
 
         if (!given) {
