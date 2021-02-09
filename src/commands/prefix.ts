@@ -3,25 +3,27 @@ import * as app from "../app"
 const command: app.Command = {
   name: "prefix",
   guildOwner: true,
+  positional: [
+    {
+      name: "prefix",
+      checkValue: (value) => value.length < 10 && /^\S/.test(value),
+      description: "The new prefix",
+    },
+  ],
   async run(message) {
-    if (!message.content)
+    const prefix = message.positional.prefix
+
+    if (!prefix)
       return message.channel.send(
-        `My current prefix in "**${message.guild}**" is \`${app.prefix(
+        `My current prefix in "**${message.guild}**" is \`${await app.prefix(
           message.guild
         )}\``
-      )
-
-    const prefix = message.content
-
-    if (/\s/.test(prefix) || prefix.length > 10)
-      return message.channel.send(
-        `Invalid given prefix. (max 10 char and no space)`
       )
 
     await app.prefixes.set(message.guild.id, prefix)
 
     await message.channel.send(
-      `The new prefix of "**${message.guild}**" id \`${prefix}\``
+      `The new prefix of "**${message.guild}**" is \`${prefix}\``
     )
   },
 }
