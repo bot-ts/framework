@@ -8,7 +8,7 @@ Discord bot template in TypeScript includes:
 - [Yargs](http://yargs.js.org/) based argument system for commands
 - Some basic [commands](./src/commands) and [listeners](./src/listeners) (including an advanced "eval" command)
 - Some scripts in [package.json](./package.json) (including a TypeScript watcher)
-- [Enmap](https://enmap.evie.dev/) database (not deactivatable for the moment, add your own tables [here](./src/app/database.ts))
+- ~~[Enmap](https://enmap.evie.dev/) database [here](./src/app/database.ts)~~ (a a very versatile database provider in TypeScript is currently in development)
 - Some [utils](./src/app/utils.ts)...
 
 ## Usage
