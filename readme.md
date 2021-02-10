@@ -65,6 +65,12 @@ return 42 + "0"
 ```
 `````
 
+If your code contains `async/await`, it works at top level like on Deno!
+
+```shell
+.eval await fetch("https://api.mathjs.org/v4/?expr=42+0")
+```
+
 #### Arguments:
 
 You can install and use NPM packages in your eval with the `--use` argument. You can then use the imported packages via the `req` object:
