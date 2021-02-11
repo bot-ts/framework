@@ -45,14 +45,14 @@ const listener: app.Listener<"message"> = {
     // coolDown
     {
       const coolDownId = `${cmd.name}:${message.channel.id}`
-      const coolDown = app.coolDowns.ensure(coolDownId, {
+      const coolDown = app.cache.ensure("CD-" + coolDownId, {
         time: 0,
         trigger: false,
       })
 
       if (cmd.coolDown && coolDown.trigger) {
         if (Date.now() > coolDown.time + cmd.coolDown) {
-          app.coolDowns.set(coolDownId, {
+          app.cache.set("CD-" + coolDownId, {
             time: 0,
             trigger: false,
           })
