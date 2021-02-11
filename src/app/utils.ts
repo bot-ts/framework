@@ -31,22 +31,22 @@ export function rootPath(...path: string[]): string {
 }
 
 export const cache = new (class {
-  private data: {[key: string]: any} = {}
+  private data: { [key: string]: any } = {}
 
   get<T>(key: string): T | undefined {
     return this.data[key]
   }
 
-  set(key: string, value: any){
+  set(key: string, value: any) {
     this.data[key] = value
   }
 
   ensure<T>(key: string, defaultValue: T): T {
     let value = this.get<T>(key)
-    if(value === undefined){
+    if (value === undefined) {
       value = defaultValue
       this.set(key, value)
     }
     return value
   }
-})
+})()

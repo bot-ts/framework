@@ -62,10 +62,10 @@ const listener: app.Listener<"message"> = {
               .setColor("RED")
               .setAuthor(
                 `Please wait ${Math.ceil(
-                  (coolDown.time + cmd.coolDown - Date.now()) / 1000,
+                  (coolDown.time + cmd.coolDown - Date.now()) / 1000
                 )} seconds...`,
-                message.client.user?.displayAvatarURL(),
-              ),
+                message.client.user?.displayAvatarURL()
+              )
           )
         }
       }
