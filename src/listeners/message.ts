@@ -39,6 +39,38 @@ const listener: app.Listener<"message"> = {
       }
     }
 
+    // turn ON/OFF
+    if (key !== "turn" && !app.cache.ensure("turn", true)) return
+
+    // coolDown
+    {
+      const coolDownId = `${cmd.name}:${message.channel.id}`
+      const coolDown = app.coolDowns.ensure(coolDownId, {
+        time: 0,
+        trigger: false,
+      })
+
+      if (cmd.coolDown && coolDown.trigger) {
+        if (Date.now() > coolDown.time + cmd.coolDown) {
+          app.coolDowns.set(coolDownId, {
+            time: 0,
+            trigger: false,
+          })
+        } else {
+          return message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Please wait ${Math.ceil(
+                  (coolDown.time + cmd.coolDown - Date.now()) / 1000,
+                )} seconds...`,
+                message.client.user?.displayAvatarURL(),
+              ),
+          )
+        }
+      }
+    }
+
     if (cmd.botOwner) {
       if (process.env.OWNER !== message.member.id) {
         return await message.channel.send(
