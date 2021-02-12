@@ -76,13 +76,13 @@ If your code contains `async/await`, it works at top level like on Deno!
 You can install and use NPM packages in your eval with the `--use` argument. You can then use the imported packages via the `req` object:
 
 ```shell
-.eval --use=prettier,esbuild,make-bot.ts
+.eval --use prettier,esbuild,make-bot.ts
 req.prettier // ok
 req["make-bot.ts"] // ok
 return 42 + "0"
 ```
 
-If you want to run your code in silence, use the `--muted` flag.
+If you want to run your code in silence, use the `--muted` flag (or just `-m`).
 
 ```shell
 .eval --muted
