@@ -15,7 +15,7 @@ const command: app.Command = {
 
     if (!prefix)
       return message.channel.send(
-        `My current prefix in "**${message.guild}**" is \`${await app.prefix(
+        `My current prefix for "**${message.guild}**" is \`${await app.prefix(
           message.guild
         )}\``
       )
@@ -23,7 +23,7 @@ const command: app.Command = {
     await app.prefixes.set(message.guild.id, prefix)
 
     await message.channel.send(
-      `The new prefix of "**${message.guild}**" is \`${prefix}\``
+      `My new prefix for "**${message.guild}**" is \`${prefix}\``
     )
   },
 }
