@@ -24,6 +24,7 @@ const command: app.Command = {
       description: "NPM packages I want to includes in my code",
     },
     {
+      flag: "m",
       name: "muted",
       aliases: ["mute", "silent"],
       isFlag: true,
