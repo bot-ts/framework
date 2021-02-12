@@ -7,11 +7,17 @@ const command: app.CommandResolvable = () => ({
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
   examples: ["help", ...app.commands.map((cmd, key) => "help " + key)],
+  positional: [
+    {
+      name: "command",
+      description: "The target command to detail."
+    }
+  ],
   async run(message) {
     const prefix = await app.prefix(message.guild)
 
-    if (message.content.length > 0) {
-      const cmd = app.commands.resolve(message.content)
+    if (message.positional.command) {
+      const cmd = app.commands.resolve(message.positional.command)
 
       if (cmd) {
         await message.channel.send(
@@ -49,7 +55,7 @@ const command: app.CommandResolvable = () => ({
           new app.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              `Unknown command "${message.content}"`,
+              `Unknown command "${message.positional.command}"`,
               message.client.user?.displayAvatarURL()
             )
         )
