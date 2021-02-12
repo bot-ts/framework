@@ -1,6 +1,5 @@
 import { join } from "path"
 import Discord from "discord.js"
-import { Command } from "./command"
 import * as database from "./database"
 
 export async function prefix(guild?: Discord.Guild): Promise<string> {
@@ -9,8 +8,12 @@ export async function prefix(guild?: Discord.Guild): Promise<string> {
   return prefix
 }
 
-export async function getCommandPattern(cmd: Command): string {
-  const prefix =
+export function scrap<T, A extends any[] = any[]>(
+  item: T | ((...args: A) => T),
+  ...args: A
+): T {
+  // @ts-ignore
+  return typeof item === "function" ? item(...args) : item
 }
 
 export const codeBlockRegex = /^```(?:\S+)?\s(.+[^\\])```$/is

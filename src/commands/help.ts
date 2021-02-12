@@ -1,4 +1,5 @@
 import * as app from "../app"
+import { prefix } from "../app"
 
 const command: app.CommandResolvable = () => ({
   name: "help",
@@ -10,8 +11,8 @@ const command: app.CommandResolvable = () => ({
   positional: [
     {
       name: "command",
-      description: "The target command to detail."
-    }
+      description: "The target command to detail.",
+    },
   ],
   async run(message) {
     const prefix = await app.prefix(message.guild)
@@ -20,6 +21,36 @@ const command: app.CommandResolvable = () => ({
       const cmd = app.commands.resolve(message.positional.command)
 
       if (cmd) {
+        let pattern = prefix + cmd.name
+
+        if (cmd.positional) {
+          for (const positional of cmd.positional) {
+            const dft =
+              positional.default !== undefined
+                ? `="${await app.scrap(positional.default, message)}"`
+                : ""
+            pattern += positional.required
+              ? ` <${positional.name}${dft}>`
+              : ` [${positional.name}${dft}]`
+          }
+        }
+
+        if (cmd.args) {
+          for (const arg of cmd.args) {
+            if (arg.isFlag) {
+              pattern += ` [-${arg.flag ?? `-${arg.name}`}]`
+            } else {
+              const dft =
+                arg.default !== undefined
+                  ? `="${app.scrap(arg.default, message)}"`
+                  : ""
+              pattern += arg.required
+                ? ` <${arg.name}${dft}>`
+                : ` [${arg.name}${dft}]`
+            }
+          }
+        }
+
         await message.channel.send(
           new app.MessageEmbed()
             .setColor("BLURPLE")
@@ -28,13 +59,16 @@ const command: app.CommandResolvable = () => ({
               message.client.user?.displayAvatarURL()
             )
             .setTitle(`aliases: ${cmd.aliases?.join(", ") ?? "none"}`)
-            .setDescription(cmd.longDescription ?? cmd.description ?? "no description")
-            .addField("pattern", app.toCodeBlock(await app.getCommandPattern(cmd)))
+            .setDescription(
+              cmd.longDescription ?? cmd.description ?? "no description"
+            )
+            .addField("pattern", app.toCodeBlock(pattern))
             .addField(
               "examples:",
-              cmd.examples
-                ?.map((example) => app.toCodeBlock(prefix + example))
-                .join("\n") ?? "none",
+              app.toCodeBlock(
+                cmd.examples?.map((example) => prefix + example).join("\n") ??
+                  "none"
+              ),
               false
             )
             .addField(
@@ -45,7 +79,14 @@ const command: app.CommandResolvable = () => ({
             )
             .addField(
               "sub commands:",
-              cmd.subs?.map((command) => `${command.name}: ${command.description ?? "no description"}`).join("\n") || "none",
+              cmd.subs
+                ?.map(
+                  (command) =>
+                    `**${command.name}**: ${
+                      command.description ?? "no description"
+                    }`
+                )
+                .join("\n") || "none",
               false
             )
         )

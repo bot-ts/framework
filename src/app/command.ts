@@ -6,7 +6,8 @@ import * as app from "../app"
 
 export interface Argument {
   name: string
-  flag?: boolean
+  flag?: string
+  isFlag?: boolean
   aliases?: string[] | string
   default?: string | ((message: CommandMessage) => string | Promise<string>)
   required?: boolean
@@ -24,7 +25,7 @@ export interface Argument {
   description?: string
 }
 
-export interface Positional extends Omit<Argument, "flag" | "aliases"> {}
+export interface Positional extends Omit<Argument, "isFlag" | "aliases" | "flag"> {}
 
 export async function checkValue(
   subject: Pick<Argument, "checkValue" | "name">,
