@@ -3,6 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "prefix",
   guildOwner: true,
+  description: "Edit or show the bot prefix",
   positional: [
     {
       name: "prefix",
