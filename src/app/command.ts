@@ -25,7 +25,8 @@ export interface Argument {
   description?: string
 }
 
-export interface Positional extends Omit<Argument, "isFlag" | "aliases" | "flag"> {}
+export interface Positional
+  extends Omit<Argument, "isFlag" | "aliases" | "flag"> {}
 
 export async function checkValue(
   subject: Pick<Argument, "checkValue" | "name">,
