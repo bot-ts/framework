@@ -90,7 +90,8 @@ const command: app.CommandResolvable = () => ({
                   const command = app.resolve(resolvableCommand)
                   if (command && command.subs) return acc + command.subs.length
                   return acc
-                }
+                },
+                0
               )} sub-commands`
             )
         )
