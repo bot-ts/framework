@@ -28,9 +28,8 @@ const command: app.CommandResolvable = () => ({
               message.client.user?.displayAvatarURL()
             )
             .setTitle(`aliases: ${cmd.aliases?.join(", ") ?? "none"}`)
-            .setDescription(
-              cmd.longDescription ?? cmd.description ?? "no description"
-            )
+            .setDescription(cmd.longDescription ?? cmd.description ?? "no description")
+            .addField("pattern", app.toCodeBlock(await app.getCommandPattern(cmd)))
             .addField(
               "examples:",
               cmd.examples
@@ -46,7 +45,7 @@ const command: app.CommandResolvable = () => ({
             )
             .addField(
               "sub commands:",
-              cmd.subs?.map((command) => command.name).join(", ") || "none",
+              cmd.subs?.map((command) => `${command.name}: ${command.description ?? "no description"}`).join("\n") || "none",
               false
             )
         )

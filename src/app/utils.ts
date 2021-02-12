@@ -1,5 +1,6 @@
 import { join } from "path"
 import Discord from "discord.js"
+import { Command } from "./command"
 import * as database from "./database"
 
 export async function prefix(guild?: Discord.Guild): Promise<string> {
@@ -8,7 +9,11 @@ export async function prefix(guild?: Discord.Guild): Promise<string> {
   return prefix
 }
 
-export const codeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is
+export async function getCommandPattern(cmd: Command): string {
+  const prefix =
+}
+
+export const codeBlockRegex = /^```(?:\S+)?\s(.+[^\\])```$/is
 
 /**
  * inject the code in the code block and return code block
