@@ -1,5 +1,4 @@
 import * as app from "../app"
-import { prefix } from "../app"
 
 const command: app.CommandResolvable = () => ({
   name: "help",
