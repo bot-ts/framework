@@ -59,19 +59,19 @@ const command: app.Command = {
       }
     }
 
-    if (app.codeBlockRegex.test(message.args.rest))
-      message.args.rest = message.args.rest.replace(app.codeBlockRegex, "$1")
+    if (app.codeBlockRegex.test(message.rest))
+      message.rest = message.rest.replace(app.codeBlockRegex, "$1")
 
     if (
-      message.args.rest.split("\n").length === 1 &&
-      !/const|let|return/.test(message.args.rest)
+      message.rest.split("\n").length === 1 &&
+      !/const|let|return/.test(message.rest)
     ) {
-      message.args.rest = "return " + message.args.rest
+      message.rest = "return " + message.rest
     }
 
-    message.args.rest = `
+    message.rest = `
       ${
-        message.args.rest.includes("app")
+        message.rest.includes("app")
           ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
           : ""
       } ${
@@ -80,9 +80,9 @@ const command: app.Command = {
             .map((pack) => `"${pack}": require("${pack}")`)
             .join(", ")}};`
         : ""
-    } ${message.args.rest}`
+    } ${message.rest}`
 
-    await discordEval(message.args.rest, message, message.args.muted)
+    await discordEval(message.rest, message, message.args.muted)
 
     for (const pack of installed) {
       if (alreadyInstalled(pack)) continue
