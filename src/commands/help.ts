@@ -8,6 +8,8 @@ const command: app.CommandResolvable = () => ({
   longDescription: "Display all commands of bot or detail a target command.",
   examples: ["help", ...app.commands.map((cmd, key) => "help " + key)],
   async run(message) {
+    const prefix = await app.prefix(message.guild)
+
     if (message.content.length > 0) {
       const cmd = app.commands.resolve(message.content)
 
@@ -26,9 +28,7 @@ const command: app.CommandResolvable = () => ({
             .addField(
               "examples:",
               cmd.examples
-                ?.map((example) =>
-                  app.toCodeBlock(app.prefix(message.guild) + example)
-                )
+                ?.map((example) => app.toCodeBlock(prefix + example))
                 .join("\n") ?? "none",
               false
             )
@@ -60,14 +60,16 @@ const command: app.CommandResolvable = () => ({
           .setColor("BLURPLE")
           .setAuthor("Command list", message.client.user?.displayAvatarURL())
           .setDescription(
-            app.commands.map((resolvable) => {
-              const cmd = app.resolve(resolvable) as app.Command
-              return `**${app.prefix(message.guild)}${cmd.name}** - ${
-                cmd.description ?? "no description"
-              }`
-            })
+            app.commands
+              .map((resolvable) => {
+                const cmd = app.resolve(resolvable) as app.Command
+                return `**${prefix}${cmd.name}** - ${
+                  cmd.description ?? "no description"
+                }`
+              })
+              .join("\n")
           )
-          .setFooter(`${app.prefix(message.guild)}help <command>`)
+          .setFooter(`${prefix}help <command>`)
       )
     }
   },

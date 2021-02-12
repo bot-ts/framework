@@ -12,9 +12,9 @@ const alreadyInstalled = (pack: string): boolean =>
   packageJson.devDependencies.hasOwnProperty(pack)
 
 const command: app.Command = {
-  name: "js",
+  name: "eval",
   botOwner: true,
-  aliases: ["eval", "code", "run", "="],
+  aliases: ["js", "code", "run", "="],
   description: "JS code emulator",
   args: [
     {

@@ -4,6 +4,29 @@ const command: app.Command = {
   name: "test",
   aliases: ["?", "debug", "catch"],
   description: "Testing command for debug.",
+  positional: [
+    {
+      name: "expected",
+    },
+  ],
+  args: [
+    {
+      name: "array",
+      castValue: "array",
+    },
+    {
+      name: "number",
+      castValue: "number",
+    },
+    {
+      name: "regex",
+      castValue: "regex",
+    },
+    {
+      name: "boolean",
+      castValue: "boolean",
+    },
+  ],
   async run(message) {
     await message.reply(
       new app.MessageEmbed()
@@ -20,7 +43,14 @@ const command: app.Command = {
         )
         .addField(
           "positional",
-          app.toCodeBlock(JSON.stringify(message.positional, null, 2), "json"),
+          app.toCodeBlock(
+            JSON.stringify(
+              Object.fromEntries(Object.entries(message.positional)),
+              null,
+              2
+            ),
+            "json"
+          ),
           true
         )
     )
