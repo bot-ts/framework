@@ -14,7 +14,7 @@ const alreadyInstalled = (pack: string): boolean =>
 const command: app.Command = {
   name: "js",
   botOwner: true,
-  aliases: ["eval", "code", "run", "=", "test"],
+  aliases: ["eval", "code", "run", "="],
   description: "JS code emulator",
   args: [
     {

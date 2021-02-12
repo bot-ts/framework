@@ -99,8 +99,13 @@ const listener: app.Listener<"message"> = {
 
     message.content = message.content.slice(key.length).trim()
     message.args = yargsParser(message.content) as app.CommandMessage["args"]
-    message.args.rest = message.args._.join(" ")
-    message.positional = message.args._.slice(0)
+    message.rest = message.args._?.join(" ") ?? ""
+    message.positional = (message.args._?.slice(0) ?? []).map((positional) => {
+      if (/^(?:".+"|'.+')$/.test(positional))
+        return positional.slice(1, positional.length - 1)
+      return positional
+    })
+    delete message.args._
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {
@@ -113,13 +118,6 @@ const listener: app.Listener<"message"> = {
         }
 
         const given = message.positional[index] !== undefined
-
-        if (/^(?:".+"|'.+')$/.test(message.positional[index])) {
-          message.positional[index] = message.positional[index].slice(
-            1,
-            message.positional[index].length - 2
-          )
-        }
 
         message.positional[positional.name] = message.positional[index]
 

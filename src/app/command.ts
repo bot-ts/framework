@@ -141,16 +141,17 @@ export function resolve(
   return typeof resolvable === "function" ? resolvable() : resolvable
 }
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
 export type CommandMessage = Discord.Message & {
   channel: Discord.TextChannel
   guild: Discord.Guild
   member: Discord.GuildMember
-  args: yargsParser.Arguments & {
-    rest: string
-  }
+  args: PartialBy<yargsParser.Arguments, "_">
   positional: any[] & {
     [name: string]: any
   }
+  rest: string
 }
 
 export type CommandResolvable = Command | (() => Command)
