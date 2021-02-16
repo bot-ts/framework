@@ -120,7 +120,6 @@ const listener: app.Listener<"message"> = {
           return positional
         }
       )
-      delete message.args._
     }
 
     if (cmd.positional) {
@@ -172,6 +171,10 @@ const listener: app.Listener<"message"> = {
             setValue
           )
         }
+
+        message.rest = message.rest
+          .replace(message.args._?.[index] ?? "", "")
+          .trim()
       }
     }
 
@@ -257,6 +260,8 @@ const listener: app.Listener<"message"> = {
         }
       }
     }
+
+    delete message.args._
 
     try {
       await cmd.run(message)
