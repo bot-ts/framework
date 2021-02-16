@@ -79,12 +79,12 @@ const command: app.CommandResolvable = () => ({
             .addField(
               "sub commands:",
               cmd.subs
-                ?.map(
-                  (command) =>
-                    `**${command.name}**: ${
-                      command.description ?? "no description"
-                    }`
-                )
+                ?.map((subResolvable) => {
+                  const sub = app.resolve(subResolvable)
+                  return `**${sub.name}**: ${
+                    sub.description ?? "no description"
+                  }`
+                })
                 .join("\n") || "none",
               false
             )

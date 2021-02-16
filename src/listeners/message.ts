@@ -19,6 +19,7 @@ const listener: app.Listener<"message"> = {
 
     if (!cmd) return null
 
+    // check sub commands
     {
       let cursor = 0
       let depth = 0
@@ -26,13 +27,23 @@ const listener: app.Listener<"message"> = {
       while (cmd.subs && cursor < cmd.subs.length) {
         const subKey = message.content.split(/\s+/)[depth + 1]
 
-        for (const sub of cmd.subs) {
+        for (let sub of cmd.subs) {
+          sub = app.resolve(sub)
           if (sub.name === subKey) {
             key += ` ${subKey}`
             cursor = 0
             cmd = sub
             depth++
             break
+          } else if (sub.aliases) {
+            for (const alias of sub.aliases) {
+              if (alias === subKey) {
+                key += ` ${subKey}`
+                cursor = 0
+                cmd = sub
+                depth++
+              }
+            }
           }
           cursor++
         }

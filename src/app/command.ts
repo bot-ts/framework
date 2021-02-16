@@ -151,9 +151,7 @@ export function isCommandMessage(
   )
 }
 
-export function resolve(
-  resolvable: CommandResolvable | undefined
-): Command | undefined {
+export function resolve(resolvable: CommandResolvable): Command {
   return typeof resolvable === "function" ? resolvable() : resolvable
 }
 
@@ -187,7 +185,7 @@ export interface Command {
   positional?: Positional[]
   args?: Argument[]
   run: (message: CommandMessage) => unknown
-  subs?: Command[]
+  subs?: CommandResolvable[]
 }
 
 export class Commands extends Discord.Collection<string, CommandResolvable> {
@@ -199,7 +197,7 @@ export class Commands extends Discord.Collection<string, CommandResolvable> {
         !!command.aliases?.some((alias) => key === alias)
       )
     })
-    return resolve(resolvable)
+    return resolvable ? resolve(resolvable) : undefined
   }
 
   public add(resolvable: CommandResolvable) {
