@@ -65,8 +65,8 @@ export async function castValue(
   baseValue: string | undefined,
   message: CommandMessage,
   setValue: (value: any) => unknown
-): Promise<unknown> {
-  if (!subject.castValue) return
+): Promise<boolean> {
+  if (!subject.castValue) return true
 
   const empty = new Error("The value is empty!")
 
@@ -92,7 +92,7 @@ export async function castValue(
         break
       case "number":
         setValue(Number(baseValue))
-        if (Number.isNaN(baseValue))
+        if (!/-?[1-9]\d*/.test(baseValue ?? ""))
           throw new Error("The value is not a Number!")
         break
       case "regex":
@@ -109,7 +109,7 @@ export async function castValue(
         break
     }
   } catch (error) {
-    return await message.channel.send(
+    await message.channel.send(
       new app.MessageEmbed()
         .setColor("RED")
         .setAuthor(
@@ -124,7 +124,10 @@ export async function castValue(
           }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
         )
     )
+
+    return false
   }
+  return true
 }
 
 export function validateArguments(command: Command): void | never {

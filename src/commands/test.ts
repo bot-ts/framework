@@ -55,6 +55,16 @@ const command: app.Command = {
         )
     )
   },
+  subs: [
+    {
+      name: "sub",
+      aliases: ["sb"],
+      description: "Just a sub command",
+      async run(message) {
+        return message.channel.send("I'm a sub command!")
+      },
+    },
+  ],
 }
 
 module.exports = command

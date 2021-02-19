@@ -163,13 +163,15 @@ const listener: app.Listener<"message"> = {
         }
 
         if (positional.castValue) {
-          await app.castValue(
+          const casted = await app.castValue(
             positional,
             "positional",
             getValue(),
             message,
             setValue
           )
+
+          if (!casted) return
         }
 
         message.rest = message.rest
@@ -249,13 +251,15 @@ const listener: app.Listener<"message"> = {
           }
 
           if (arg.castValue) {
-            await app.castValue(
+            const casted = await app.castValue(
               arg,
               "argument",
               value(),
               message,
               (value) => (message.args[arg.name] = value)
             )
+
+            if (!casted) return
           }
         }
       }
