@@ -95,7 +95,7 @@ export async function castValue(
         break
       case "number":
         setValue(Number(baseValue))
-        if (!/-?[1-9]\d*/.test(baseValue ?? ""))
+        if (!/-?(?:0|[1-9]\d*)/.test(baseValue ?? ""))
           throw new Error("The value is not a Number!")
         break
       case "regex":
