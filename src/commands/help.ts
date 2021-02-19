@@ -61,7 +61,7 @@ const command: app.CommandResolvable = () => ({
             .setDescription(
               cmd.longDescription ?? cmd.description ?? "no description"
             )
-            .addField("pattern", app.toCodeBlock(pattern))
+            .addField("pattern", app.toCodeBlock(pattern), false)
             .addField(
               "examples:",
               app.toCodeBlock(
@@ -74,7 +74,7 @@ const command: app.CommandResolvable = () => ({
               "needed permissions:",
               `**Bot**: ${cmd.botPermissions?.join(", ") || "none"}\n` +
                 `**User**: ${cmd.userPermissions?.join(", ") || "none"}`,
-              false
+              true
             )
             .addField(
               "sub commands:",
@@ -86,7 +86,7 @@ const command: app.CommandResolvable = () => ({
                   }`
                 })
                 .join("\n") || "none",
-              false
+              true
             )
         )
       } else {
