@@ -16,6 +16,7 @@ const command: app.Command = {
   botOwner: true,
   aliases: ["js", "code", "run", "="],
   description: "JS code evaluator",
+  loading: true,
   args: [
     {
       name: "packages",

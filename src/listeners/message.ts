@@ -312,6 +312,8 @@ const listener: app.Listener<"message"> = {
       }
     }
 
+    if (cmd.loading) message.channel.startTyping().catch()
+
     delete message.args._
 
     try {
