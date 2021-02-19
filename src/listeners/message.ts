@@ -159,7 +159,14 @@ const listener: app.Listener<"message"> = {
             )
           }
         } else if (positional.checkValue) {
-          await app.checkValue(positional, "positional", getValue(), message)
+          const checked = await app.checkValue(
+            positional,
+            "positional",
+            getValue(),
+            message
+          )
+
+          if (!checked) return
         }
 
         if (positional.castValue) {
@@ -247,7 +254,14 @@ const listener: app.Listener<"message"> = {
               )
             }
           } else if (arg.checkValue) {
-            await app.checkValue(arg, "argument", value(), message)
+            const checked = await app.checkValue(
+              arg,
+              "argument",
+              value(),
+              message
+            )
+
+            if (!checked) return
           }
 
           if (arg.castValue) {

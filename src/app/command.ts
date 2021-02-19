@@ -33,15 +33,15 @@ export async function checkValue(
   subjectType: "positional" | "argument",
   value: string,
   message: CommandMessage
-): Promise<unknown> {
-  if (!subject.checkValue) return
+): Promise<boolean> {
+  if (!subject.checkValue) return true
 
   if (
     typeof subject.checkValue === "function"
       ? !(await subject.checkValue(value, message))
       : !subject.checkValue.test(value)
   ) {
-    return await message.channel.send(
+    await message.channel.send(
       new app.MessageEmbed()
         .setColor("RED")
         .setAuthor(
@@ -56,7 +56,10 @@ export async function checkValue(
             : `Expected pattern: \`${subject.checkValue.source}\``
         )
     )
+
+    return false
   }
+  return true
 }
 
 export async function castValue(
