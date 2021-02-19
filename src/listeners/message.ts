@@ -82,8 +82,8 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    if (cmd.botOwner) {
-      if (process.env.OWNER !== message.member.id) {
+    if (cmd.botOwner)
+      if (process.env.OWNER !== message.member.id)
         return await message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
@@ -92,11 +92,12 @@ const listener: app.Listener<"message"> = {
               message.client.user?.displayAvatarURL()
             )
         )
-      }
-    }
 
-    if (cmd.guildOwner) {
-      if (message.guild.owner !== message.member) {
+    if (cmd.guildOwner)
+      if (
+        message.guild.owner !== message.member &&
+        process.env.OWNER !== message.member.id
+      )
         return await message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
@@ -105,8 +106,40 @@ const listener: app.Listener<"message"> = {
               message.client.user?.displayAvatarURL()
             )
         )
-      }
-    }
+
+    if (cmd.botPermissions)
+      for (const permission of cmd.botPermissions)
+        if (
+          !message.guild.me?.hasPermission(permission, {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+        )
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `I need the \`${permission}\` permission to run this command.`,
+                message.client.user?.displayAvatarURL()
+              )
+          )
+
+    if (cmd.userPermissions)
+      for (const permission of cmd.userPermissions)
+        if (
+          !message.member.hasPermission(permission, {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+        )
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `You need the \`${permission}\` permission to run this command.`,
+                message.client.user?.displayAvatarURL()
+              )
+          )
 
     // parse CommandMessage arguments
     {
