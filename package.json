@@ -25,6 +25,7 @@
   "dependencies": {
     "@types/yargs-parser": "^20.2.0",
     "chalk": "^4.1.0",
+    "dayjs": "^1.10.4",
     "discord-eval.ts": "^1.0.14",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",

@@ -1,5 +1,10 @@
 import { join } from "path"
 
+import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
+import toObject from "dayjs/plugin/toObject"
+
 /**
  * Resolve `T` value from `T | (() => T)`
  * @param item - resolvable
@@ -70,3 +75,17 @@ export const CODE = {
     return "```" + (lang ?? "") + "\n" + content + "\n```"
   },
 }
+;(() => {
+  return import(`dayjs/locale/${process.env.LOCALE}`).then(() =>
+    dayjs.locale(process.env.LOCALE)
+  )
+})()
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(toObject)
+dayjs.utc(1)
+
+if (process.env.TIMEZONE) dayjs.tz.setDefault(process.env.TIMEZONE)
+
+export { dayjs }
