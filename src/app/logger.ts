@@ -36,3 +36,12 @@ export function warn(text: string, section?: string) {
 export function success(text: string, section?: string) {
   console.log(loggerPattern(text, "success", section))
 }
+
+export function createLogger(section?: string) {
+  return {
+    log: (text: string) => log(text, section),
+    error: (text: string) => error(text, section),
+    warn: (text: string) => warn(text, section),
+    success: (text: string) => success(text, section),
+  }
+}
