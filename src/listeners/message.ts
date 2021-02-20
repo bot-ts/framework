@@ -3,7 +3,7 @@ import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"message"> = {
   event: "message",
-  async call(message) {
+  async run(message) {
     if (!app.isCommandMessage(message)) return
 
     const prefix = await app.prefix(message.guild)
@@ -119,7 +119,7 @@ const listener: app.Listener<"message"> = {
             new app.MessageEmbed()
               .setColor("RED")
               .setAuthor(
-                `I need the \`${permission}\` permission to run this command.`,
+                `I need the \`${permission}\` permission to call this command.`,
                 message.client.user?.displayAvatarURL()
               )
           )
@@ -136,7 +136,7 @@ const listener: app.Listener<"message"> = {
             new app.MessageEmbed()
               .setColor("RED")
               .setAuthor(
-                `You need the \`${permission}\` permission to run this command.`,
+                `You need the \`${permission}\` permission to call this command.`,
                 message.client.user?.displayAvatarURL()
               )
           )

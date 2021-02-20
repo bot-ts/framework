@@ -3,7 +3,7 @@ import * as app from "../app"
 const listener: app.Listener<"ready"> = {
   event: "ready",
   once: true,
-  async call() {
+  async run() {
     app.log("Ok i'm ready!")
   },
 }

@@ -3,7 +3,7 @@ import path from "path"
 
 export type Listener<EventName extends keyof Discord.ClientEvents> = {
   event: EventName
-  call: (...args: Discord.ClientEvents[EventName]) => unknown
+  run: (...args: Discord.ClientEvents[EventName]) => unknown
   once?: boolean
 }
 
