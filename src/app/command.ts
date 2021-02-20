@@ -52,7 +52,10 @@ export async function checkValue(
         )
         .setDescription(
           typeof subject.checkValue === "function"
-            ? app.toCodeBlock(subject.checkValue.toString(), "js")
+            ? app.CODE.stringify({
+                content: subject.checkValue.toString(),
+                lang: "js",
+              })
             : `Expected pattern: \`${subject.checkValue.source}\``
         )
     )
@@ -124,7 +127,10 @@ export async function castValue(
             typeof subject.castValue === "function"
               ? "{*custom type*}"
               : "`" + subject.castValue + "`"
-          }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
+          }\n${app.CODE.stringify({
+            content: `Error: ${error.message}`,
+            lang: "js",
+          })}`
         )
     )
 

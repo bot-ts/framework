@@ -32,25 +32,30 @@ const command: app.Command = {
       new app.MessageEmbed()
         .setTitle("Command debugging")
         .setDescription(
-          `content: ${app.toCodeBlock(message.content)}rest: ${app.toCodeBlock(
-            message.rest
-          )}`
+          `content: ${app.CODE.stringify({
+            content: message.content,
+          })}rest: ${app.CODE.stringify({
+            content: message.rest,
+          })}`
         )
         .addField(
           "args",
-          app.toCodeBlock(JSON.stringify(message.args, null, 2), "json"),
+          app.CODE.stringify({
+            content: JSON.stringify(message.args, null, 2),
+            lang: "json",
+          }),
           true
         )
         .addField(
           "positional",
-          app.toCodeBlock(
-            JSON.stringify(
+          app.CODE.stringify({
+            content: JSON.stringify(
               Object.fromEntries(Object.entries(message.positional)),
               null,
               2
             ),
-            "json"
-          ),
+            lang: "json",
+          }),
           true
         )
     )

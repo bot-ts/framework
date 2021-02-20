@@ -45,20 +45,28 @@ export const cache = new (class {
   }
 })()
 
-export const codeBlockRegex = /^```(?:\S+)?\s(.+[^\\])```$/is
-
-/**
- * inject the code in the code block and return code block
- */
-export function toCodeBlock(code: string, lang: string = ""): string {
-  return "```" + lang + "\n" + code + "\n```"
+export interface Code {
+  lang?: string
+  content: string
 }
 
-/**
- * extract the code from code block and return code
- */
-export function fromCodeBlock(codeBlock: string): null | string {
-  const match = codeBlockRegex.exec(codeBlock)
-  if (match) return match[1]
-  return null
+export const CODE = {
+  pattern: /^```(\S+)?\s(.+[^\\])```$/is,
+  /**
+   * extract the code from code block and return code
+   */
+  parse(raw: string): Code | undefined {
+    const match = this.pattern.exec(raw)
+    if (!match) return
+    return {
+      lang: match[1],
+      content: match[2],
+    }
+  },
+  /**
+   * inject the code in the code block and return code block
+   */
+  stringify({ lang, content }: Code): string {
+    return "```" + (lang ?? "") + "\n" + content + "\n```"
+  },
 }

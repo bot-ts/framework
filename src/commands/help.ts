@@ -61,13 +61,18 @@ const command: app.CommandResolvable = () => ({
             .setDescription(
               cmd.longDescription ?? cmd.description ?? "no description"
             )
-            .addField("pattern", app.toCodeBlock(pattern), false)
+            .addField(
+              "pattern",
+              app.CODE.stringify({ content: pattern }),
+              false
+            )
             .addField(
               "examples:",
-              app.toCodeBlock(
-                cmd.examples?.map((example) => prefix + example).join("\n") ??
-                  "none"
-              ),
+              app.CODE.stringify({
+                content:
+                  cmd.examples?.map((example) => prefix + example).join("\n") ??
+                  "none",
+              }),
               false
             )
             .addField(

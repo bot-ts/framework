@@ -321,10 +321,12 @@ const listener: app.Listener<"message"> = {
     } catch (error) {
       message.channel
         .send(
-          app.toCodeBlock(
-            `Error: ${error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"}`,
-            "js"
-          )
+          app.CODE.stringify({
+            content: `Error: ${
+              error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
+            }`,
+            lang: "js",
+          })
         )
         .catch(console.error)
     }
