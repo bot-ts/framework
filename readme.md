@@ -9,7 +9,7 @@ Discord bot template in TypeScript includes:
 - Some basic [commands](./src/commands) and [listeners](./src/listeners) (including an advanced "eval" command)
 - Some scripts in [package.json](./package.json) (including a TypeScript watcher)
 - ~~[Enmap](https://enmap.evie.dev/) database [here](./src/app/database.ts)~~ (a a very versatile database provider in TypeScript is currently in development)
-- Some [utils](./src/app/utils.ts)...
+- Efficient [pagination](./src/app/pagination.ts) system (example in [help](./src/commands/help.ts#L108) command)
 
 ## Usage
 
