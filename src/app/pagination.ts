@@ -13,7 +13,7 @@ export class Paginator extends Events.EventEmitter {
   static paginations: Paginator[] = []
 
   private pageIndex = 0
-  private deactivation: NodeJS.Timeout
+  private deactivation?: NodeJS.Timeout
   messageID: string | undefined
   emojis: PaginatorEmojis = {
     previous: "◀️",
@@ -123,14 +123,14 @@ export class Paginator extends Events.EventEmitter {
   }
 
   private resetDeactivationTimeout() {
-    clearTimeout(this.deactivation)
+    clearTimeout(this.deactivation as NodeJS.Timeout)
     return setTimeout(() => this.deactivate().catch(), this.idlTime)
   }
 
   public async deactivate() {
     if (!this.messageID) return
 
-    clearTimeout(this.deactivation)
+    clearTimeout(this.deactivation as NodeJS.Timeout)
 
     // remove reactions if message is not deleted
     const message = await this.channel.messages.cache.get(this.messageID)
