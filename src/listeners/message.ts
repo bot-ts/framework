@@ -274,17 +274,7 @@ const listener: app.Listener<"message"> = {
                   ? await arg.default(message)
                   : arg.default
             } else if (arg.castValue !== "array") {
-              return await message.channel.send(
-                new app.MessageEmbed()
-                  .setColor("RED")
-                  .setAuthor(
-                    `Missing value for "${usedName}" argument`,
-                    message.client.user?.displayAvatarURL()
-                  )
-                  .setDescription(
-                    "Please add a `arg.default` value or activate the `arg.isFlag` property."
-                  )
-              )
+              message.args[arg.name] = null
             }
           } else if (arg.checkValue) {
             const checked = await app.checkValue(
@@ -297,7 +287,7 @@ const listener: app.Listener<"message"> = {
             if (!checked) return
           }
 
-          if (arg.castValue) {
+          if (value() !== null && arg.castValue) {
             const casted = await app.castValue(
               arg,
               "argument",
