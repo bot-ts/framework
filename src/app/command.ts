@@ -185,7 +185,6 @@ export type CommandResolvable = Command | (() => Command)
 export interface Command {
   name: string
   aliases?: string[]
-  loading?: boolean
   coolDown?: number
   description?: string
   longDescription?: string
