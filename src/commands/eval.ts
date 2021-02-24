@@ -73,7 +73,7 @@ const command: app.Command = {
     message.rest = `
       ${
         message.rest.includes("app")
-          ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
+          ? 'const _path = require("path");const _root = process.cwd();const _app_path = _path.join(_root, "dist", "app.js");const app = require(_app_path);'
           : ""
       } ${
       message.args.packages.length > 0
