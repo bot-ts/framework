@@ -44,8 +44,8 @@ export class Paginator extends Events.EventEmitter {
     customEmojis?: Partial<PaginatorEmojis>
   ) {
     super()
-    
-    if(pages.length === 0) return
+
+    if (pages.length === 0) return
 
     if (idlTime) this.idlTime = idlTime
 
