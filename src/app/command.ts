@@ -53,7 +53,7 @@ export async function checkValue(
         .setDescription(
           typeof subject.checkValue === "function"
             ? app.CODE.stringify({
-                content: subject.checkValue.toString(),
+                content: app.CODE.format(subject.checkValue.toString()),
                 lang: "js",
               })
             : `Expected pattern: \`${subject.checkValue.source}\``

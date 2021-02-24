@@ -1,5 +1,6 @@
 import { join } from "path"
 
+import prettier from "prettier"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
@@ -73,6 +74,15 @@ export const CODE = {
    */
   stringify({ lang, content }: Code): string {
     return "```" + (lang ?? "") + "\n" + content + "\n```"
+  },
+  /**
+   * format the code using prettier and return it
+   */
+  format(raw: string, options?: prettier.Options): string {
+    return prettier.format(raw, {
+      semi: false,
+      ...(options ?? {}),
+    })
   },
 }
 ;(() => {
