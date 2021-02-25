@@ -140,17 +140,100 @@ export async function castValue(
 }
 
 export function validateArguments(command: Command): void | never {
-  if (command.args) {
-    for (const arg of command.args) {
-      if (arg.isFlag && arg.flag) {
-        if (arg.flag.length !== 1) {
-          throw new Error(
-            `The "${arg.name}" flag length of "${command.name}" command must be equal to 1`
-          )
-        }
+  const help: Argument = {
+    name: "help",
+    flag: "h",
+    isFlag: true,
+    description: "Get help from the command",
+  }
+
+  if (!command.args) command.args = [help]
+  else command.args.push(help)
+
+  for (const arg of command.args) {
+    if (arg.isFlag && arg.flag) {
+      if (arg.flag.length !== 1) {
+        throw new Error(
+          `The "${arg.name}" flag length of "${command.name}" command must be equal to 1`
+        )
       }
     }
   }
+}
+
+export async function help(
+  message: CommandMessage,
+  cmd: Command,
+  prefix: string
+): Promise<void> {
+  let pattern = prefix + cmd.name
+
+  if (cmd.positional) {
+    for (const positional of cmd.positional) {
+      const dft =
+        positional.default !== undefined
+          ? `="${await app.scrap(positional.default, message)}"`
+          : ""
+      pattern += positional.required
+        ? ` <${positional.name}${dft}>`
+        : ` [${positional.name}${dft}]`
+    }
+  }
+
+  if (cmd.args) {
+    for (const arg of cmd.args) {
+      if (arg.isFlag) {
+        pattern += ` [-${arg.flag ?? `-${arg.name}`}]`
+      } else {
+        const dft =
+          arg.default !== undefined
+            ? `="${app.scrap(arg.default, message)}"`
+            : ""
+        pattern += arg.required
+          ? ` <${arg.name}${dft}>`
+          : ` [${arg.name}${dft}]`
+      }
+    }
+  }
+
+  await message.channel.send(
+    new app.MessageEmbed()
+      .setColor("BLURPLE")
+      .setAuthor(
+        `Command: ${cmd.name}`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setTitle(`aliases: ${cmd.aliases?.join(", ") ?? "none"}`)
+      .setDescription(
+        cmd.longDescription ?? cmd.description ?? "no description"
+      )
+      .addField("pattern", app.CODE.stringify({ content: pattern }), false)
+      .addField(
+        "examples:",
+        app.CODE.stringify({
+          content:
+            cmd.examples?.map((example) => prefix + example).join("\n") ??
+            "none",
+        }),
+        false
+      )
+      .addField(
+        "needed permissions:",
+        `**Bot**: ${cmd.botPermissions?.join(", ") || "none"}\n` +
+          `**User**: ${cmd.userPermissions?.join(", ") || "none"}`,
+        true
+      )
+      .addField(
+        "sub commands:",
+        cmd.subs
+          ?.map((subResolvable) => {
+            const sub = app.resolve(subResolvable)
+            return `**${sub.name}**: ${sub.description ?? "no description"}`
+          })
+          .join("\n") || "none",
+        true
+      )
+  )
 }
 
 export function isCommandMessage(

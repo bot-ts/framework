@@ -304,6 +304,8 @@ const listener: app.Listener<"message"> = {
 
     delete message.args._
 
+    if (message.args.help) return app.help(message, cmd, prefix)
+
     try {
       await cmd.run(message)
     } catch (error) {
