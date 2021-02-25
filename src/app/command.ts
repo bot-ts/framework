@@ -139,7 +139,10 @@ export async function castValue(
   return true
 }
 
-export function validateArguments(command: Command): void | never {
+export function validateArguments(
+  command: Command,
+  path?: string
+): void | never {
   const help: Argument = {
     name: "help",
     flag: "h",
@@ -150,15 +153,21 @@ export function validateArguments(command: Command): void | never {
   if (!command.args) command.args = [help]
   else command.args.push(help)
 
-  for (const arg of command.args) {
-    if (arg.isFlag && arg.flag) {
-      if (arg.flag.length !== 1) {
+  for (const arg of command.args)
+    if (arg.isFlag && arg.flag)
+      if (arg.flag.length !== 1)
         throw new Error(
-          `The "${arg.name}" flag length of "${command.name}" command must be equal to 1`
+          `The "${arg.name}" flag length of "${
+            path ? path + "/" + command.name : command.name
+          }" command must be equal to 1`
         )
-      }
-    }
-  }
+
+  if (command.subs)
+    for (const sub of command.subs)
+      validateArguments(
+        resolve(sub),
+        path ? path + "/" + command.name : command.name
+      )
 }
 
 export async function help(
