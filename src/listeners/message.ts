@@ -15,7 +15,11 @@ const listener: app.Listener<"message"> = {
     }
 
     let key = message.content.split(/\s+/)[0]
-    let cmd = app.commands.resolve(key)
+
+    // turn ON/OFF
+    if (key !== "turn" && !app.cache.ensure<boolean>("turn", true)) return
+
+    let cmd: app.Command = app.commands.resolve(key) as app.Command
 
     if (!cmd) return null
 
@@ -27,8 +31,7 @@ const listener: app.Listener<"message"> = {
       while (cmd.subs && cursor < cmd.subs.length) {
         const subKey = message.content.split(/\s+/)[depth + 1]
 
-        for (let sub of cmd.subs) {
-          sub = app.resolve(sub)
+        for (const sub of cmd.subs) {
           if (sub.name === subKey) {
             key += ` ${subKey}`
             cursor = 0
@@ -50,8 +53,23 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    // turn ON/OFF
-    if (key !== "turn" && !app.cache.ensure("turn", true)) return
+    // parse CommandMessage arguments
+    {
+      message.content = message.content.slice(key.length).trim()
+      message.args = yargsParser(message.content) as app.CommandMessage["args"]
+      message.rest = message.args._?.join(" ") ?? ""
+      message.positional = (message.args._?.slice(0) ?? []).map(
+        (positional) => {
+          if (/^(?:".+"|'.+')$/.test(positional))
+            return positional.slice(1, positional.length - 1)
+          return positional
+        }
+      )
+    }
+
+    // handle help argument
+    if (message.args.help || message.args.h)
+      return app.help(message, cmd, prefix)
 
     // coolDown
     {
@@ -140,20 +158,6 @@ const listener: app.Listener<"message"> = {
                 message.client.user?.displayAvatarURL()
               )
           )
-
-    // parse CommandMessage arguments
-    {
-      message.content = message.content.slice(key.length).trim()
-      message.args = yargsParser(message.content) as app.CommandMessage["args"]
-      message.rest = message.args._?.join(" ") ?? ""
-      message.positional = (message.args._?.slice(0) ?? []).map(
-        (positional) => {
-          if (/^(?:".+"|'.+')$/.test(positional))
-            return positional.slice(1, positional.length - 1)
-          return positional
-        }
-      )
-    }
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {
@@ -303,8 +307,6 @@ const listener: app.Listener<"message"> = {
     }
 
     delete message.args._
-
-    if (message.args.help) return app.help(message, cmd, prefix)
 
     try {
       await cmd.run(message)

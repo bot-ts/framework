@@ -1,12 +1,11 @@
 import * as app from "../app"
 
-const command: app.CommandResolvable = () => ({
+const command: app.Command = {
   name: "help",
   aliases: ["h", "usage"],
   botPermissions: ["SEND_MESSAGES"],
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
-  examples: ["help", ...app.commands.map((cmd, key) => "help " + key)],
   positional: [
     {
       name: "command",
@@ -34,8 +33,7 @@ const command: app.CommandResolvable = () => ({
     } else {
       new app.Paginator(
         app.Paginator.divider(
-          app.commands.map((resolvable) => {
-            const cmd = app.resolve(resolvable)
+          app.commands.map((cmd) => {
             return `**${prefix}${cmd.name}** - ${
               cmd.description ?? "no description"
             }`
@@ -65,19 +63,15 @@ const command: app.CommandResolvable = () => ({
             .setDescription(
               `There are currently ${
                 app.commands.size
-              } commands and ${app.commands.reduce<number>(
-                (acc, resolvableCommand) => {
-                  const command = app.resolve(resolvableCommand)
-                  if (command && command.subs) return acc + command.subs.length
-                  return acc
-                },
-                0
-              )} sub-commands`
+              } commands and ${app.commands.reduce<number>((acc, command) => {
+                if (command && command.subs) return acc + command.subs.length
+                return acc
+              }, 0)} sub-commands`
             )
         )
       },
     },
   ],
-})
+}
 
 module.exports = command

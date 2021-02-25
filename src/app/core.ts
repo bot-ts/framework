@@ -99,3 +99,20 @@ dayjs.utc(1)
 if (process.env.TIMEZONE) dayjs.tz.setDefault(process.env.TIMEZONE)
 
 export { dayjs }
+
+export function resizeText(
+  text: string | number,
+  size: number,
+  before = false
+): string {
+  text = String(text)
+  if (text.length < size) {
+    return before
+      ? " ".repeat(size - text.length) + text
+      : text + " ".repeat(size - text.length)
+  } else if (text.length > size) {
+    return before ? text.slice(text.length - size, size) : text.slice(0, size)
+  } else {
+    return text
+  }
+}
