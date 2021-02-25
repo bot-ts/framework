@@ -1,13 +1,14 @@
 import chalk from "chalk"
 import dayjs from "dayjs"
 
-export type LogLevel = "warn" | "info" | "success" | "error"
 export const logLevelColors = {
   warn: "#ffa600",
   error: "#ff0000",
   info: "#00ffff",
   success: "#00ff00",
 }
+
+export type LogLevel = keyof typeof logLevelColors
 
 export const loggerPattern = (
   text: string,
