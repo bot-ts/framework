@@ -1,7 +1,10 @@
 import Discord from "discord.js"
 import dotenv from "dotenv"
+import chalk from "chalk"
 import fs from "fs/promises"
+import figlet from "figlet"
 import path from "path"
+import boxen from "boxen"
 
 dotenv.config()
 
@@ -35,6 +38,12 @@ fs.readdir(app.listenersPath)
         filename
       ))
       client[listener.once ? "once" : "on"](listener.event, listener.run)
+      app.log(
+        `loaded event ${chalk.yellow(
+          listener.once ? "once" : "on"
+        )} ${chalk.blue(listener.event)}`,
+        "handler"
+      )
     })
   )
   .catch(console.error)

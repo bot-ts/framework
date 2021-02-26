@@ -69,7 +69,7 @@ const listener: app.Listener<"message"> = {
 
     // handle help argument
     if (message.args.help || message.args.h)
-      return app.help(message, cmd, prefix)
+      return app.sendCommandDetails(message, cmd, prefix)
 
     // coolDown
     {

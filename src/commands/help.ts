@@ -19,7 +19,7 @@ const command: app.Command = {
       const cmd = app.commands.resolve(message.positional.command)
 
       if (cmd) {
-        return app.help(message, cmd, prefix)
+        return app.sendCommandDetails(message, cmd, prefix)
       } else {
         await message.channel.send(
           new app.MessageEmbed()

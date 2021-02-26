@@ -1,8 +1,10 @@
 import Discord from "discord.js"
 import path from "path"
 import tims from "tims"
+import chalk from "chalk"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
+
 import * as app from "../app"
 
 export interface Argument {
@@ -164,12 +166,17 @@ export function validateArguments(
           }" command must be equal to 1`
         )
 
+  app.log(
+    `loaded command ${chalk.blue((path ? path + " " : "") + command.name)}`,
+    "handler"
+  )
+
   if (command.subs)
     for (const sub of command.subs)
       validateArguments(sub, path ? path + " " + command.name : command.name)
 }
 
-export async function help(
+export async function sendCommandDetails(
   message: CommandMessage,
   cmd: Command,
   prefix: string
@@ -293,8 +300,6 @@ export type CommandMessage = Discord.Message & {
   rest: string
 }
 
-export type CommandResolvable = Command | (() => Command)
-
 export interface Command {
   name: string
   aliases?: string[]
@@ -352,5 +357,13 @@ export class Commands extends Discord.Collection<string, Command> {
 
 export const commands = new Commands()
 
+export type Listener<EventName extends keyof Discord.ClientEvents> = {
+  event: EventName
+  run: (...args: Discord.ClientEvents[EventName]) => unknown
+  once?: boolean
+}
+
 export const commandsPath =
   process.env.COMMANDS_PATH ?? path.join(__dirname, "..", "commands")
+export const listenersPath =
+  process.env.LISTENERS_PATH ?? path.join(__dirname, "..", "listeners")
