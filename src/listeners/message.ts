@@ -335,6 +335,7 @@ const listener: app.Listener<"message"> = {
     try {
       await cmd.run(message)
     } catch (error) {
+      app.error(error, "handler", true)
       message.channel
         .send(
           app.CODE.stringify({
@@ -344,7 +345,9 @@ const listener: app.Listener<"message"> = {
             lang: "js",
           })
         )
-        .catch(console.error)
+        .catch((error) => {
+          app.error(error, "system")
+        })
     }
   },
 }

@@ -26,8 +26,15 @@ export function log(text: string, section?: string) {
   console.log(loggerPattern(text, "info", section))
 }
 
-export function error(text: string, section?: string) {
-  console.error(loggerPattern(text, "error", section))
+export function error(text: string | Error, section?: string, full?: boolean) {
+  console.error(
+    loggerPattern(
+      text instanceof Error ? text.message.split("\n")[0] : text,
+      "error",
+      section
+    )
+  )
+  if (full && text instanceof Error) console.error(text)
 }
 
 export function warn(text: string, section?: string) {
@@ -41,7 +48,7 @@ export function success(text: string, section?: string) {
 export function createLogger(section?: string) {
   return {
     log: (text: string) => log(text, section),
-    error: (text: string) => error(text, section),
+    error: (text: string, full?: boolean) => error(text, section, full),
     warn: (text: string) => warn(text, section),
     success: (text: string) => success(text, section),
   }
