@@ -13,7 +13,7 @@ const command: app.Command = {
     },
   ],
   async run(message) {
-    const prefix = await app.prefix(message.guild)
+    const prefix = await app.prefix(message.guild ?? undefined)
 
     if (message.positional.command) {
       const cmd = app.commands.resolve(message.positional.command)

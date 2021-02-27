@@ -6,7 +6,7 @@ const listener: app.Listener<"message"> = {
   async run(message) {
     if (!app.isCommandMessage(message)) return
 
-    const prefix = await app.prefix(message.guild)
+    const prefix = await app.prefix(message.guild ?? undefined)
 
     if (message.content.startsWith(prefix)) {
       message.content = message.content.slice(prefix.length)
@@ -100,8 +100,80 @@ const listener: app.Listener<"message"> = {
       }
     }
 
+    if (app.isGuildMessage(message)) {
+      if (cmd.dmOnly)
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              "This command must be used in DM.",
+              message.client.user?.displayAvatarURL()
+            )
+        )
+
+      if (cmd.guildOwner)
+        if (
+          message.guild.owner !== message.member &&
+          process.env.OWNER !== message.member.id
+        )
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                "You must be the guild owner.",
+                message.client.user?.displayAvatarURL()
+              )
+          )
+
+      if (cmd.botPermissions)
+        for (const permission of cmd.botPermissions)
+          if (
+            !message.guild.me?.hasPermission(permission, {
+              checkAdmin: true,
+              checkOwner: true,
+            })
+          )
+            return await message.channel.send(
+              new app.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `I need the \`${permission}\` permission to call this command.`,
+                  message.client.user?.displayAvatarURL()
+                )
+            )
+
+      if (cmd.userPermissions)
+        for (const permission of cmd.userPermissions)
+          if (
+            !message.member.hasPermission(permission, {
+              checkAdmin: true,
+              checkOwner: true,
+            })
+          )
+            return await message.channel.send(
+              new app.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `You need the \`${permission}\` permission to call this command.`,
+                  message.client.user?.displayAvatarURL()
+                )
+            )
+    }
+
+    if (cmd.guildOnly) {
+      if (app.isDirectMessage(message))
+        return await message.channel.send(
+          new app.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              "This command must be used in a guild.",
+              message.client.user?.displayAvatarURL()
+            )
+        )
+    }
+
     if (cmd.botOwner)
-      if (process.env.OWNER !== message.member.id)
+      if (process.env.OWNER !== message.author.id)
         return await message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
@@ -110,54 +182,6 @@ const listener: app.Listener<"message"> = {
               message.client.user?.displayAvatarURL()
             )
         )
-
-    if (cmd.guildOwner)
-      if (
-        message.guild.owner !== message.member &&
-        process.env.OWNER !== message.member.id
-      )
-        return await message.channel.send(
-          new app.MessageEmbed()
-            .setColor("RED")
-            .setAuthor(
-              "You must be the guild owner.",
-              message.client.user?.displayAvatarURL()
-            )
-        )
-
-    if (cmd.botPermissions)
-      for (const permission of cmd.botPermissions)
-        if (
-          !message.guild.me?.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
-          return await message.channel.send(
-            new app.MessageEmbed()
-              .setColor("RED")
-              .setAuthor(
-                `I need the \`${permission}\` permission to call this command.`,
-                message.client.user?.displayAvatarURL()
-              )
-          )
-
-    if (cmd.userPermissions)
-      for (const permission of cmd.userPermissions)
-        if (
-          !message.member.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
-          return await message.channel.send(
-            new app.MessageEmbed()
-              .setColor("RED")
-              .setAuthor(
-                `You need the \`${permission}\` permission to call this command.`,
-                message.client.user?.displayAvatarURL()
-              )
-          )
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {

@@ -1,8 +1,9 @@
 import * as app from "../app"
 
-const command: app.Command = {
+const command: app.Command<app.GuildMessage> = {
   name: "prefix",
   guildOwner: true,
+  guildOnly: true,
   description: "Edit or show the bot prefix",
   positional: [
     {

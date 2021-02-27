@@ -132,9 +132,10 @@ export class Paginator extends Events.EventEmitter {
 
     clearTimeout(this.deactivation as NodeJS.Timeout)
 
-    // remove reactions if message is not deleted
+    // remove reactions if message is not deleted and if is in guild
     const message = await this.channel.messages.cache.get(this.messageID)
-    if (message) await message.reactions.removeAll()
+    if (message && message.channel.type === "text")
+      await message.reactions?.removeAll()
 
     Paginator.paginations = Paginator.paginations.filter((paginator) => {
       return paginator.messageID !== this.messageID

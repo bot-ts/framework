@@ -7,12 +7,30 @@ import regexParser from "regex-parser"
 
 import * as app from "../app"
 
-export interface Argument {
+export type CommandMessage = Discord.Message & {
+  args: PartialBy<yargsParser.Arguments, "_">
+  positional: any[] & {
+    [name: string]: any
+  }
+  rest: string
+}
+
+export type GuildMessage = CommandMessage & {
+  channel: Discord.TextChannel & Discord.GuildChannel
+  guild: Discord.Guild
+  member: Discord.GuildMember
+}
+
+export type DirectMessage = CommandMessage & {
+  channel: Discord.DMChannel
+}
+
+export interface Argument<Message extends CommandMessage> {
   name: string
   flag?: string
   isFlag?: boolean
   aliases?: string[] | string
-  default?: string | ((message: CommandMessage) => string | Promise<string>)
+  default?: string | ((message: Message) => string | Promise<string>)
   required?: boolean
   castValue?:
     | "number"
@@ -21,21 +39,86 @@ export interface Argument {
     | "boolean"
     | "regex"
     | "array"
-    | ((value: string, message: CommandMessage) => unknown)
+    | ((value: string, message: Message) => unknown)
   checkValue?:
     | RegExp
-    | ((value: string, message: CommandMessage) => boolean | Promise<boolean>)
+    | ((value: string, message: Message) => boolean | Promise<boolean>)
   description?: string
 }
 
-export interface Positional
-  extends Omit<Argument, "isFlag" | "aliases" | "flag"> {}
+export interface Positional<Message extends CommandMessage>
+  extends Omit<Argument<Message>, "isFlag" | "aliases" | "flag"> {}
 
-export async function checkValue(
-  subject: Pick<Argument, "checkValue" | "name">,
+export interface Command<Message extends CommandMessage = CommandMessage> {
+  name: string
+  aliases?: string[]
+  /**
+   * Cool down of command (in ms)
+   */
+  coolDown?: number
+  /**
+   * Short description displayed in help menu
+   */
+  description?: string
+  /**
+   * Description displayed in command detail
+   */
+  longDescription?: string
+  examples?: string[]
+  guildOwner?: boolean
+  guildOnly?: boolean
+  botOwner?: boolean
+  dmOnly?: boolean
+  userPermissions?: Discord.PermissionString[]
+  botPermissions?: Discord.PermissionString[]
+  /**
+   * Yargs positional
+   */
+  positional?: Positional<Message>[]
+  /**
+   * Yargs arguments (e.g. `--myArgument`)
+   */
+  args?: Argument<Message>[]
+  run: (message: Message) => unknown
+  /**
+   * Sub-commands
+   */
+  subs?: Command<Message>[]
+  /**
+   * This path is automatically setup on bot running.
+   */
+  path?: string
+}
+
+export type Listener<EventName extends keyof Discord.ClientEvents> = {
+  event: EventName
+  run: (...args: Discord.ClientEvents[EventName]) => unknown
+  once?: boolean
+}
+
+export class Commands extends Discord.Collection<string, Command<any>> {
+  public resolve<Message extends CommandMessage>(
+    key: string
+  ): Command<Message> | undefined {
+    return this.find((command) => {
+      return (
+        key === command.name ||
+        !!command.aliases?.some((alias) => key === alias)
+      )
+    })
+  }
+
+  public add<Message extends CommandMessage>(command: Command<Message>) {
+    validateArguments(command)
+    this.set(command.name, command)
+  }
+}
+
+export async function checkValue<Message extends CommandMessage>(
+  subject: Pick<Argument<Message>, "checkValue" | "name">,
   subjectType: "positional" | "argument",
   value: string,
-  message: CommandMessage
+  message: Message
 ): Promise<boolean> {
   if (!subject.checkValue) return true
 
@@ -68,11 +151,11 @@ export async function checkValue(
   return true
 }
 
-export async function castValue(
-  subject: Pick<Argument, "castValue" | "name">,
+export async function castValue<Message extends CommandMessage>(
+  subject: Pick<Argument<Message>, "castValue" | "name">,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
-  message: CommandMessage,
+  message: Message,
   setValue: (value: any) => unknown
 ): Promise<boolean> {
   if (!subject.castValue) return true
@@ -142,11 +225,11 @@ export async function castValue(
   return true
 }
 
-export function validateArguments(
-  command: Command,
+export function validateArguments<Message extends CommandMessage>(
+  command: Command<Message>,
   path?: string
 ): void | never {
-  const help: Argument = {
+  const help: Argument<Message> = {
     name: "help",
     flag: "h",
     isFlag: true,
@@ -176,9 +259,9 @@ export function validateArguments(
       validateArguments(sub, path ? path + " " + command.name : command.name)
 }
 
-export async function sendCommandDetails(
-  message: CommandMessage,
-  cmd: Command,
+export async function sendCommandDetails<Message extends CommandMessage>(
+  message: Message,
+  cmd: Command<Message>,
   prefix: string
 ): Promise<void> {
   let pattern = `${prefix}${cmd.path ? cmd.path + " " : ""}${cmd.name}`
@@ -280,88 +363,24 @@ export async function sendCommandDetails(
 export function isCommandMessage(
   message: Discord.Message
 ): message is CommandMessage {
-  return (
-    !message.system &&
-    !!message.guild &&
-    message.channel instanceof Discord.TextChannel
-  )
+  return !message.system && !!message.channel
+}
+
+export function isGuildMessage(
+  message: CommandMessage
+): message is GuildMessage {
+  return !!message.guild && message.channel instanceof Discord.GuildChannel
+}
+
+export function isDirectMessage(
+  message: CommandMessage
+): message is DirectMessage {
+  return message.channel instanceof Discord.DMChannel
 }
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type CommandMessage = Discord.Message & {
-  channel: Discord.TextChannel
-  guild: Discord.Guild
-  member: Discord.GuildMember
-  args: PartialBy<yargsParser.Arguments, "_">
-  positional: any[] & {
-    [name: string]: any
-  }
-  rest: string
-}
-
-export interface Command {
-  name: string
-  aliases?: string[]
-  /**
-   * Cool down of command (in ms)
-   */
-  coolDown?: number
-  /**
-   * Short description displayed in help menu
-   */
-  description?: string
-  /**
-   * Description displayed in command detail
-   */
-  longDescription?: string
-  examples?: string[]
-  guildOwner?: boolean
-  botOwner?: boolean
-  userPermissions?: Discord.PermissionString[]
-  botPermissions?: Discord.PermissionString[]
-  /**
-   * Yargs positional
-   */
-  positional?: Positional[]
-  /**
-   * Yargs arguments (e.g. `--myArgument`)
-   */
-  args?: Argument[]
-  run: (message: CommandMessage) => unknown
-  /**
-   * Sub-commands
-   */
-  subs?: Command[]
-  /**
-   * This path is automatically setup on bot running.
-   */
-  path?: string
-}
-
-export class Commands extends Discord.Collection<string, Command> {
-  public resolve(key: string): Command | undefined {
-    return this.find((command) => {
-      return (
-        key === command.name ||
-        !!command.aliases?.some((alias) => key === alias)
-      )
-    })
-  }
-
-  public add(command: Command) {
-    validateArguments(command)
-    this.set(command.name, command)
-  }
-}
-
 export const commands = new Commands()
-
-export type Listener<EventName extends keyof Discord.ClientEvents> = {
-  event: EventName
-  run: (...args: Discord.ClientEvents[EventName]) => unknown
-  once?: boolean
-}
 
 export const commandsPath =
   process.env.COMMANDS_PATH ?? path.join(__dirname, "..", "commands")
