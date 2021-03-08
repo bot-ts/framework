@@ -9,7 +9,7 @@ const command: app.Command = {
   coolDown: 5000,
   async run(message) {
     const toEdit = await message.channel.send("The process is running...")
-    cp.exec(message.rest, (err, stdout, stderr) => {
+    cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
       if (err) {
         const errorMessage = `An error has occurred. ${app.CODE.stringify({
           content: err.stack ?? err.message,
