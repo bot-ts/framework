@@ -22,7 +22,14 @@ const command: app.Command<app.GuildMessage> = {
         )}\``
       )
 
-    await app.prefixes.set(message.guild.id, prefix)
+    await app
+      .prefixes()
+      .insert({
+        guild_id: message.guild.id,
+        prefix: prefix,
+      })
+      .onConflict("guild_id")
+      .merge()
 
     await message.channel.send(
       `My new prefix for "**${message.guild}**" is \`${prefix}\``

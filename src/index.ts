@@ -2,9 +2,7 @@ import Discord from "discord.js"
 import dotenv from "dotenv"
 import chalk from "chalk"
 import fs from "fs/promises"
-import figlet from "figlet"
 import path from "path"
-import boxen from "boxen"
 
 dotenv.config()
 
@@ -14,24 +12,20 @@ for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
   }
 }
 
-const client = new Discord.Client()
-
-client.login(process.env.TOKEN).catch(() => {
-  throw new Error("Invalid Discord token given.")
-})
-
 import * as app from "./app"
 
-fs.readdir(app.commandsPath)
-  .then((files) =>
+const client = new Discord.Client()
+
+;(async () => {
+  await app._createTables()
+
+  await fs.readdir(app.commandsPath).then((files) =>
     files.forEach((filename) => {
       app.commands.add(require(path.join(app.commandsPath, filename)))
     })
   )
-  .catch(console.error)
 
-fs.readdir(app.listenersPath)
-  .then((files) =>
+  await fs.readdir(app.listenersPath).then((files) =>
     files.forEach((filename) => {
       const listener: app.Listener<any> = require(path.join(
         app.listenersPath,
@@ -46,4 +40,8 @@ fs.readdir(app.listenersPath)
       )
     })
   )
-  .catch(console.error)
+
+  client.login(process.env.TOKEN).catch(() => {
+    throw new Error("Invalid Discord token given.")
+  })
+})().catch(app.error)
