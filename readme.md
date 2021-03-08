@@ -8,7 +8,7 @@ Discord bot template in TypeScript includes:
 - [Yargs](http://yargs.js.org/) based argument system for commands
 - Some basic [commands](./src/commands) and [listeners](./src/listeners) (including an advanced "eval" command)
 - Some scripts in [package.json](./package.json) (including a TypeScript watcher)
-- ~~[Enmap](https://enmap.evie.dev/) database [here](./src/app/database.ts)~~ (a a very versatile database provider in TypeScript is currently in development)
+- [Knex](http://knexjs.org/) database [here](./src/app/database.ts) provider, configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3)
 - Efficient [pagination](./src/app/pagination.ts) system (example in [help](./src/commands/help.ts#L108) command)
 
 ## Usage
@@ -33,7 +33,7 @@ Discord bot template in TypeScript includes:
 
 - command: `make command [name]`
 - listener: `make listener [event: ClientEvent]`
-- database: `make database [database: enmap|ghomap]`
+- database: `make database [database: sqlite3]`
 
 ## Annexes
 
