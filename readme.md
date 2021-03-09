@@ -2,23 +2,25 @@
 
 Discord bot template in TypeScript includes:
 
-- Advanced command handler
+- Advanced [file handler](./src/app/handler.ts) that includes everything you need
 - [CLI](https://www.npmjs.com/package/make-bot.ts) to generate command and listener files
 - Very practical file structure (all the app parts are includes and exported from [app.ts](./src/app.ts))
 - [Yargs](http://yargs.js.org/) based argument system for commands
 - Some basic [commands](./src/commands) and [listeners](./src/listeners) (including an advanced "eval" command)
 - Some scripts in [package.json](./package.json) (including a TypeScript watcher)
-- [Knex](http://knexjs.org/) database [here](./src/app/database.ts) provider, configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3)
+- [Knex](http://knexjs.org/) database provider [here](./src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3)
 - Efficient [pagination](./src/app/pagination.ts) system (example in [help](./src/commands/help.ts#L108) command)
 
 ## Usage
 
 ### Initialize
 
-1. Remove the "template" word from `template.env`.
-2. Replace the `{{ value }}` values inside it.
-3. Custom the "name", "version" and "author" values in [package.json](./package.json)
-4. Install dependencies with `npm install` or `yarn install`
+> **⚠** This guide is **deprecated**, visit the [documentation](https://ghom.gitbook.io/bot-ts/) instead **⚠**
+
+1. ~~Remove the "template" word from `template.env`.~~
+2. ~~Replace the `{{ value }}` values inside it.~~
+3. ~~Custom the "name", "version" and "author" values in [package.json](./package.json)~~
+4. ~~Install dependencies with `npm install` or `yarn install`~~
 
 ### Scripts
 
@@ -37,7 +39,7 @@ Discord bot template in TypeScript includes:
 
 ## Annexes
 
-- [documentation](https://github.com/CamilleAbella/bot.ts/blob/master/docs/index.md)
+- bot.ts [documentation](https://ghom.gitbook.io/bot-ts/)
 - [`make-bot.ts` CLI on NPM](https://www.npmjs.com/package/make-bot.ts)
-- Author Discord server: [Les Laboratoires JS](https://discord.gg/3vC2XWK)
-- [You want to use this template ?](https://github.com/CamilleAbella/bot.ts/generate)
+- Discord server: [Les Laboratoires JS](https://discord.gg/3vC2XWK)
+- You want to [use this template](https://github.com/CamilleAbella/bot.ts/generate) ?
