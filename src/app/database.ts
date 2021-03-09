@@ -1,13 +1,7 @@
 import knex from "knex"
 import { Knex } from "knex"
-import path from "path"
 import chalk from "chalk"
-import fs from "fs"
 import * as logger from "./logger"
-
-const dataDirectory = path.join(process.cwd(), "data")
-
-if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
 /**
  * Welcome to the database file!
@@ -15,10 +9,14 @@ if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
  */
 
 export const db = knex({
-  client: "sqlite3",
+  client: "pg",
   useNullAsDefault: true,
   connection: {
-    filename: path.join(process.cwd(), "data", "sqlite3.db"),
+    port: +(process.env.PORT ?? 5432),
+    host: process.env.HOST ?? "localhost",
+    user: process.env.USER ?? "postgres",
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE ?? "postgres",
   },
 })
 
@@ -30,7 +28,11 @@ async function _createTable(
     await db.schema.createTable("prefixes", modifier)
     logger.log(`created table ${chalk.blue(name)}`, "database")
   } catch (error) {
-    logger.warn(`ignored table ${chalk.blue(name)}`, "database")
+    if (error.message.includes("already exists")) {
+      logger.log(`loaded table ${chalk.blue(name)}`, "database")
+    } else {
+      logger.error(error, "database")
+    }
   }
 }
 
