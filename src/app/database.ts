@@ -9,14 +9,14 @@ import * as logger from "./logger"
  */
 
 export const db = knex({
-  client: "pg",
+  client: "mysql2",
   useNullAsDefault: true,
   connection: {
-    port: +(process.env.PORT ?? 5432),
-    host: process.env.HOST ?? "localhost",
-    user: process.env.USER ?? "postgres",
+    port: +(process.env.PORT ?? 3306),
+    host: process.env.HOST ?? "127.0.0.1",
+    user: process.env.USER ?? "root",
     password: process.env.PASSWORD,
-    database: process.env.DATABASE ?? "postgres",
+    database: process.env.DATABASE ?? "database",
   },
 })
 
