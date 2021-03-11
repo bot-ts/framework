@@ -111,7 +111,7 @@ export function resizeText(
       ? " ".repeat(size - text.length) + text
       : text + " ".repeat(size - text.length)
   } else if (text.length > size) {
-    return before ? text.slice(text.length - size, size) : text.slice(0, size)
+    return text.slice(0, size)
   } else {
     return text
   }

@@ -1,5 +1,4 @@
-import knex from "knex"
-import { Knex } from "knex"
+import { Knex, knex } from "knex"
 import chalk from "chalk"
 import * as logger from "./logger"
 
