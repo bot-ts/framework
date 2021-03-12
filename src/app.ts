@@ -1,3 +1,4 @@
+// ⛔ This file is auto-generated, please don't edit it
 export * from "discord.js"
 export * from "./app/pagination"
 export * from "./app/database"
