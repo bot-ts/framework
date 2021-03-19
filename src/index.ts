@@ -44,4 +44,4 @@ const client = new Discord.Client()
   client.login(process.env.TOKEN).catch(() => {
     throw new Error("Invalid Discord token given.")
   })
-})().catch(app.error)
+})().catch((error) => app.error(error, "system", true))
