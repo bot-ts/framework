@@ -210,7 +210,11 @@ const listener: app.Listener<"message"> = {
                 .setDescription(
                   positional.description
                     ? "Description: " + positional.description
-                    : `Example: \`--${positional.name}=someValue\``
+                    : `Run the following command to learn more: ${app.CODE.stringify(
+                        {
+                          content: `${key} --help`,
+                        }
+                      )}`
                 )
             )
           }
