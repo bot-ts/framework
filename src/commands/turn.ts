@@ -2,6 +2,7 @@ import * as app from "../app"
 
 const command: app.Command = {
   name: "turn",
+  aliases: ["power"],
   botOwner: true,
   description: "Turn on/off command handling",
   positional: [
@@ -14,7 +15,7 @@ const command: app.Command = {
     },
   ],
   async run(message) {
-    const turn = message.positional.mode === "on"
+    const turn = message.args.mode === "on"
     app.cache.set("turn", turn)
     return message.channel.send(
       `Command handling ${turn ? "activated" : "disabled"} `

@@ -15,8 +15,8 @@ const command: app.Command = {
   async run(message) {
     const prefix = await app.prefix(message.guild ?? undefined)
 
-    if (message.positional.command) {
-      const cmd = app.commands.resolve(message.positional.command)
+    if (message.args.command) {
+      const cmd = app.commands.resolve(message.args.command)
 
       if (cmd) {
         return app.sendCommandDetails(message, cmd, prefix)
@@ -25,7 +25,7 @@ const command: app.Command = {
           new app.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              `Unknown command "${message.positional.command}"`,
+              `Unknown command "${message.args.command}"`,
               message.client.user?.displayAvatarURL()
             )
         )

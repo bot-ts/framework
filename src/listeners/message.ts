@@ -8,11 +8,12 @@ const listener: app.Listener<"message"> = {
 
     const prefix = await app.prefix(message.guild ?? undefined)
 
-    if (message.content.startsWith(prefix)) {
-      message.content = message.content.slice(prefix.length)
-    } else {
-      return
+    const cut = function (key: string) {
+      message.content = message.content.slice(key.length).trim()
     }
+
+    if (message.content.startsWith(prefix)) cut(prefix)
+    else return
 
     let key = message.content.split(/\s+/)[0]
 
@@ -53,19 +54,17 @@ const listener: app.Listener<"message"> = {
       }
     }
 
+    cut(key)
+
     // parse CommandMessage arguments
-    {
-      message.content = message.content.slice(key.length).trim()
-      message.args = yargsParser(message.content) as app.CommandMessage["args"]
-      message.rest = message.args._?.join(" ") ?? ""
-      message.positional = (message.args._?.slice(0) ?? []).map(
-        (positional) => {
-          if (/^(?:".+"|'.+')$/.test(positional))
-            return positional.slice(1, positional.length - 1)
-          return positional
-        }
-      )
-    }
+    const parsedArgs = yargsParser(message.content)
+    const restPositional = parsedArgs._ ?? []
+
+    message.args = (parsedArgs._?.slice(0) ?? []).map((positional) => {
+      if (/^(?:".+"|'.+')$/.test(positional))
+        return positional.slice(1, positional.length - 1)
+      return positional
+    })
 
     // handle help argument
     if (message.args.help || message.args.h)
@@ -187,23 +186,19 @@ const listener: app.Listener<"message"> = {
       for (const positional of cmd.positional) {
         const index = cmd.positional.indexOf(positional)
 
-        const getValue = () => message.positional[positional.name]
+        const getValue = () => message.args[positional.name]
         const setValue = (value: any) => {
-          message.positional[positional.name] = value
-          message.positional[index] = value
+          message.args[positional.name] = value
+          message.args[index] = value
         }
 
-        const given = message.positional[index] !== undefined
+        const given = message.args[index] !== undefined
 
-        message.positional[positional.name] = message.positional[index]
+        message.args[positional.name] = message.args[index]
 
         if (!given) {
           if (positional.default !== undefined) {
-            setValue(
-              typeof positional.default === "function"
-                ? await positional.default(message)
-                : positional.default
-            )
+            setValue(await app.scrap(positional.default, message))
           } else if (positional.required) {
             return await message.channel.send(
               new app.MessageEmbed()
@@ -242,9 +237,7 @@ const listener: app.Listener<"message"> = {
           if (!casted) return
         }
 
-        message.rest = message.rest
-          .replace(message.args._?.[index] ?? "", "")
-          .trim()
+        restPositional.shift()
       }
     }
 
@@ -252,28 +245,7 @@ const listener: app.Listener<"message"> = {
       for (const arg of cmd.args) {
         const value = () => message.args[arg.name]
 
-        let usedName = arg.name
-        let given = message.args.hasOwnProperty(arg.name)
-
-        if (!given && arg.aliases) {
-          if (typeof arg.aliases === "string") {
-            usedName = arg.aliases
-            given = message.args.hasOwnProperty(arg.aliases)
-          } else {
-            for (const alias of arg.aliases) {
-              if (message.args.hasOwnProperty(alias)) {
-                usedName = alias
-                given = true
-                break
-              }
-            }
-          }
-        }
-
-        if (!given && arg.isFlag && arg.flag) {
-          usedName = arg.flag
-          given = message.args.hasOwnProperty(arg.flag)
-        }
+        let { given, usedName } = app.resolveGivenArgument(message, arg)
 
         if (arg.required && !given)
           return await message.channel.send(
@@ -290,47 +262,57 @@ const listener: app.Listener<"message"> = {
               )
           )
 
-        if (arg.isFlag)
-          message.args[arg.name] = message.args.hasOwnProperty(usedName)
-        else {
-          message.args[arg.name] = message.args[usedName]
+        message.args[arg.name] = message.args[usedName]
 
-          if (value() === undefined) {
-            if (arg.default !== undefined) {
-              message.args[arg.name] =
-                typeof arg.default === "function"
-                  ? await arg.default(message)
-                  : arg.default
-            } else if (arg.castValue !== "array") {
-              message.args[arg.name] = null
-            }
-          } else if (arg.checkValue) {
-            const checked = await app.checkValue(
-              arg,
-              "argument",
-              value(),
-              message
-            )
-
-            if (!checked) return
+        if (value() === undefined) {
+          if (arg.default !== undefined) {
+            message.args[arg.name] =
+              typeof arg.default === "function"
+                ? await arg.default(message)
+                : arg.default
+          } else if (arg.castValue !== "array") {
+            message.args[arg.name] = null
           }
+        } else if (arg.checkValue) {
+          const checked = await app.checkValue(
+            arg,
+            "argument",
+            value(),
+            message
+          )
 
-          if (value() !== null && arg.castValue) {
-            const casted = await app.castValue(
-              arg,
-              "argument",
-              value(),
-              message,
-              (value) => (message.args[arg.name] = value)
-            )
+          if (!checked) return
+        }
 
-            if (!casted) return
-          }
+        if (value() !== null && arg.castValue) {
+          const casted = await app.castValue(
+            arg,
+            "argument",
+            value(),
+            message,
+            (value) => (message.args[arg.name] = value)
+          )
+
+          if (!casted) return
         }
       }
     }
 
-    delete message.args._
+    if (cmd.flags) {
+      for (const flag of cmd.flags) {
+        const value = () => message.args[cmd.name]
+
+        let { given, usedName } = app.resolveGivenArgument(message, flag)
+
+        if (!given) message.args[usedName] = false
+
+        message.args[flag.name] = message.args[usedName]
+
+        if (value() === undefined) message.args[flag.name] = false
+      }
+    }
+
+    message.rest = restPositional.join(" ")
 
     try {
       await cmd.run(message)

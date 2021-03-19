@@ -13,7 +13,7 @@ const command: app.Command<app.GuildMessage> = {
     },
   ],
   async run(message) {
-    const prefix = message.positional.prefix
+    const prefix = message.args.prefix
 
     if (!prefix)
       return message.channel.send(

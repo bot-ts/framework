@@ -23,11 +23,12 @@ const command: app.Command = {
       castValue: "array",
       description: "NPM packages I want to includes in my code",
     },
+  ],
+  flags: [
     {
-      flag: "m",
       name: "muted",
       aliases: ["mute", "silent"],
-      isFlag: true,
+      flag: "m",
       description: "Disable message feedback",
     },
   ],

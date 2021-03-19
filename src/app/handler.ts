@@ -2,17 +2,13 @@ import Discord from "discord.js"
 import path from "path"
 import tims from "tims"
 import chalk from "chalk"
-import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
 
 export type CommandMessage = Discord.Message & {
-  args: PartialBy<yargsParser.Arguments, "_">
-  positional: any[] & {
-    [name: string]: any
-  }
+  args: { [name: string]: any } & any[]
   rest: string
 }
 
@@ -28,8 +24,6 @@ export type DirectMessage = CommandMessage & {
 
 export interface Argument<Message extends CommandMessage> {
   name: string
-  flag?: string
-  isFlag?: boolean
   aliases?: string[] | string
   default?: string | ((message: Message) => string | Promise<string>)
   required?: boolean
@@ -48,7 +42,12 @@ export interface Argument<Message extends CommandMessage> {
 }
 
 export interface Positional<Message extends CommandMessage>
-  extends Omit<Argument<Message>, "isFlag" | "aliases" | "flag"> {}
+  extends Omit<Argument<Message>, "aliases"> {}
+
+export interface Flag<Message extends CommandMessage>
+  extends Pick<Argument<Message>, "name" | "aliases" | "description"> {
+  flag: string
+}
 
 export interface Command<Message extends CommandMessage = CommandMessage> {
   name: string
@@ -77,9 +76,13 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
    */
   positional?: Positional<Message>[]
   /**
-   * Yargs arguments (e.g. `--myArgument`)
+   * Yargs arguments (e.g. `--myArgument=value`)
    */
   args?: Argument<Message>[]
+  /**
+   * Yargs flag arguments (e.g. `--myFlag -f`)
+   */
+  flags?: Flag<Message>[]
   run: (message: Message) => unknown
   /**
    * Sub-commands
@@ -113,6 +116,31 @@ export class Commands extends Discord.Collection<string, Command<any>> {
     validateArguments(command)
     this.set(command.name, command)
   }
+}
+
+export function resolveGivenArgument<Message extends CommandMessage>(
+  message: Message,
+  arg: Argument<Message>
+): { given: boolean; usedName: string } {
+  let usedName = arg.name
+  let given = message.args.hasOwnProperty(arg.name)
+
+  if (!given && arg.aliases) {
+    if (typeof arg.aliases === "string") {
+      usedName = arg.aliases
+      given = message.args.hasOwnProperty(arg.aliases)
+    } else {
+      for (const alias of arg.aliases) {
+        if (message.args.hasOwnProperty(alias)) {
+          usedName = alias
+          given = true
+          break
+        }
+      }
+    }
+  }
+
+  return { given, usedName }
 }
 
 export async function checkValue<Message extends CommandMessage>(
@@ -230,22 +258,21 @@ export function validateArguments<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
 ): void | never {
-  const help: Argument<Message> = {
+  const help: Flag<Message> = {
     name: "help",
     flag: "h",
-    isFlag: true,
     description: "Get help from the command",
   }
   command.path = path
 
-  if (!command.args) command.args = [help]
-  else command.args.push(help)
+  if (!command.flags) command.flags = [help]
+  else command.flags.push(help)
 
-  for (const arg of command.args)
-    if (arg.isFlag && arg.flag)
-      if (arg.flag.length !== 1)
+  for (const flag of command.flags)
+    if (flag.flag)
+      if (flag.flag.length !== 1)
         throw new Error(
-          `The "${arg.name}" flag length of "${
+          `The "${flag.name}" flag length of "${
             path ? path + " " + command.name : command.name
           }" command must be equal to 1`
         )
@@ -287,19 +314,21 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 
   if (cmd.args) {
     for (const arg of cmd.args) {
-      if (arg.isFlag) {
-        flagList.push(`[-${arg.flag ?? `-${arg.name}`}]`)
-      } else {
-        const dft =
-          arg.default !== undefined
-            ? `="${core.scrap(arg.default, message)}"`
-            : ""
-        argumentList.push(
-          arg.required
-            ? `--${arg.name}${dft}`
-            : `--${arg.name}${dft || "=null"}`
-        )
-      }
+      const dft =
+        arg.default !== undefined
+          ? `="${core.scrap(arg.default, message)}"`
+          : ""
+      argumentList.push(
+        arg.required
+          ? `\`--${arg.name}${dft}\` ${arg.description ?? ""}`
+          : `\`[--${arg.name}${dft}]\` ${arg.description ?? ""}`
+      )
+    }
+  }
+
+  if (cmd.flags) {
+    for (const flag of cmd.flags) {
+      flagList.push(`[--${flag.name}]`)
     }
   }
 
@@ -311,21 +340,21 @@ export async function sendCommandDetails<Message extends CommandMessage>(
   const embed = new Discord.MessageEmbed()
     .setColor("BLURPLE")
     .setAuthor("Command details", message.client.user?.displayAvatarURL())
-    .setTitle(`${pattern} ${[...positionalList, ...flagList].join(" ")}`)
+    .setTitle(
+      `${pattern} ${[...positionalList, ...flagList].join(" ")} ${
+        cmd.args ? "[OPTIONS]" : ""
+      }`
+    )
     .setDescription(cmd.longDescription ?? cmd.description ?? "no description")
+
+  if (argumentList.length > 0)
+    embed.addField("options", argumentList.join("\n"), false)
 
   if (cmd.aliases)
     embed.addField(
       "aliases",
       cmd.aliases.map((alias) => `\`${alias}\``).join(", "),
       true
-    )
-
-  if (argumentList.length > 0)
-    embed.addField(
-      "options",
-      core.CODE.stringify({ content: argumentList.join(" "), lang: "shell" }),
-      false
     )
 
   if (cmd.examples)
@@ -344,7 +373,11 @@ export async function sendCommandDetails<Message extends CommandMessage>(
     embed.addField("user permissions", cmd.userPermissions.join(", "), true)
 
   if (specialPermissions.length > 0)
-    embed.addField("special permissions", specialPermissions.join(", "), true)
+    embed.addField(
+      "special permissions",
+      specialPermissions.map((perm) => `\`${perm}\``).join(", "),
+      true
+    )
 
   if (cmd.coolDown)
     embed.addField("cool down", tims.duration(cmd.coolDown), true)
