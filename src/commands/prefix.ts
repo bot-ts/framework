@@ -1,4 +1,5 @@
 import * as app from "../app"
+import prefixes from "../tables/prefixes"
 
 const command: app.Command<app.GuildMessage> = {
   name: "prefix",
@@ -22,8 +23,7 @@ const command: app.Command<app.GuildMessage> = {
         )}\``
       )
 
-    await app
-      .prefixes()
+    await prefixes.query
       .insert({
         guild_id: message.guild.id,
         prefix: prefix,

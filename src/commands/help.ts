@@ -55,6 +55,7 @@ const command: app.Command = {
     {
       name: "count",
       examples: ["help count"],
+      description: "Count of loaded commands",
       async run(message) {
         return message.channel.send(
           new app.MessageEmbed()

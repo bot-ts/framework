@@ -6,23 +6,25 @@ import regexParser from "regex-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
+import * as hooks from "../hooks/handler"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
   rest: string
-}
+} & hooks.CommandMessage
 
 export type GuildMessage = CommandMessage & {
   channel: Discord.TextChannel & Discord.GuildChannel
   guild: Discord.Guild
   member: Discord.GuildMember
-}
+} & hooks.GuildMessage
 
 export type DirectMessage = CommandMessage & {
   channel: Discord.DMChannel
-}
+} & hooks.DirectMessage
 
-export interface Argument<Message extends CommandMessage> {
+export interface Argument<Message extends CommandMessage>
+  extends hooks.Argument<Message> {
   name: string
   aliases?: string[] | string
   default?: string | ((message: Message) => string | Promise<string>)
@@ -43,14 +45,17 @@ export interface Argument<Message extends CommandMessage> {
 }
 
 export interface Positional<Message extends CommandMessage>
-  extends Omit<Argument<Message>, "aliases"> {}
+  extends Omit<Argument<Message>, "aliases">,
+    hooks.Positional<Message> {}
 
 export interface Flag<Message extends CommandMessage>
-  extends Pick<Argument<Message>, "name" | "aliases" | "description"> {
+  extends Pick<Argument<Message>, "name" | "aliases" | "description">,
+    hooks.Flag<Message> {
   flag: string
 }
 
-export interface Command<Message extends CommandMessage = CommandMessage> {
+export interface Command<Message extends CommandMessage = CommandMessage>
+  extends hooks.Command<Message> {
   name: string
   aliases?: string[]
   /**
@@ -99,7 +104,7 @@ export type Listener<EventName extends keyof Discord.ClientEvents> = {
   event: EventName
   run: (...args: Discord.ClientEvents[EventName]) => unknown
   once?: boolean
-}
+} & hooks.Listener<EventName>
 
 export class Commands extends Discord.Collection<string, Command<any>> {
   public resolve<Message extends CommandMessage>(
@@ -432,6 +437,6 @@ export function isDirectMessage(
 export const commands = new Commands()
 
 export const commandsPath =
-  process.env.COMMANDS_PATH ?? path.join(__dirname, "..", "commands")
+  process.env.COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 export const listenersPath =
-  process.env.LISTENERS_PATH ?? path.join(__dirname, "..", "listeners")
+  process.env.LISTENERS_PATH ?? path.join(process.cwd(), "dist", "listeners")

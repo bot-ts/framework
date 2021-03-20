@@ -17,14 +17,25 @@ import * as app from "./app"
 const client = new Discord.Client()
 
 ;(async () => {
-  await app._createTables()
+  // load tables
+  await fs.readdir(app.tablesPath).then((files) => {
+    return Promise.all(
+      files.map(async (filename) => {
+        const tableFile = await import(path.join(app.tablesPath, filename))
+        const table: app.Table<any> = tableFile.default
+        app.tables.set(table.options.name, await table.make())
+      })
+    )
+  })
 
+  // load commands
   await fs.readdir(app.commandsPath).then((files) =>
     files.forEach((filename) => {
       app.commands.add(require(path.join(app.commandsPath, filename)))
     })
   )
 
+  // load listeners
   await fs.readdir(app.listenersPath).then((files) =>
     files.forEach((filename) => {
       const listener: app.Listener<any> = require(path.join(
@@ -41,6 +52,7 @@ const client = new Discord.Client()
     })
   )
 
+  // start client
   client.login(process.env.TOKEN).catch(() => {
     throw new Error("Invalid Discord token given.")
   })

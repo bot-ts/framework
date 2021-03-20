@@ -23,35 +23,30 @@ export const db = knex({
   },
 })
 
-async function _createTable(
-  name: string,
-  modifier: (table: Knex.CreateTableBuilder) => void
-) {
-  try {
-    await db.schema.createTable("prefixes", modifier)
-    logger.log(`created table ${chalk.blue(name)}`, "database")
-  } catch (error) {
-    logger.warn(`ignored table ${chalk.blue(name)}`, "database")
+export interface TableOptions {
+  name: string
+  colMaker: (table: Knex.CreateTableBuilder) => void
+}
+
+export class Table<Type> {
+  constructor(public readonly options: TableOptions) {}
+
+  get query() {
+    return db<Type>(this.options.name)
+  }
+
+  async make(): Promise<this> {
+    try {
+      await db.schema.createTable(this.options.name, this.options.colMaker)
+      logger.log(`created table ${chalk.blue(this.options.name)}`, "database")
+    } catch (error) {
+      logger.log(`loaded table ${chalk.blue(this.options.name)}`, "database")
+    }
+    return this
   }
 }
 
-/**
- * This function is auto-loaded on bot start. <br>
- * Please use the `_createTable()` method for error catching.
- */
-export async function _createTables() {
-  await _createTable("prefixes", (table) => {
-    table.string("guild_id").unique()
-    table.string("prefix")
-  })
+export const tablesPath =
+  process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
 
-  // place here your own tables!
-}
-
-export const prefixes = () => db<Prefix>("prefixes")
-
-export interface Prefix {
-  id: number
-  guild_id: string
-  prefix: string
-}
+export const tables = new Map<string, Table<any>>()
