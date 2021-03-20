@@ -38,7 +38,8 @@ export interface Argument<Message extends CommandMessage> {
   checkValue?:
     | RegExp
     | ((value: string, message: Message) => boolean | Promise<boolean>)
-  description?: string
+  description: string
+  typeDescription?: string
 }
 
 export interface Positional<Message extends CommandMessage>
@@ -59,7 +60,7 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * Short description displayed in help menu
    */
-  description?: string
+  description: string
   /**
    * Description displayed in command detail
    */
@@ -287,6 +288,18 @@ export function validateArguments<Message extends CommandMessage>(
       validateArguments(sub, path ? path + " " + command.name : command.name)
 }
 
+export function getTypeDescriptionOf<Message extends CommandMessage>(
+  arg: Argument<Message>
+) {
+  if (arg.typeDescription) return arg.typeDescription
+  if (!arg.castValue) return "string"
+  if (typeof arg.castValue === "string") {
+    if (arg.castValue === "array") return "Array<string>"
+    return arg.castValue
+  }
+  return "any"
+}
+
 export async function sendCommandDetails<Message extends CommandMessage>(
   message: Message,
   cmd: Command<Message>,
@@ -320,8 +333,12 @@ export async function sendCommandDetails<Message extends CommandMessage>(
           : ""
       argumentList.push(
         arg.required
-          ? `\`--${arg.name}${dft}\` ${arg.description ?? ""}`
-          : `\`[--${arg.name}${dft}]\` ${arg.description ?? ""}`
+          ? `\`--${arg.name}${dft}\` (\`${getTypeDescriptionOf(arg)}\`) ${
+              arg.description ?? ""
+            }`
+          : `\`[--${arg.name}${dft}]\` (\`${getTypeDescriptionOf(arg)}\`) ${
+              arg.description ?? ""
+            }`
       )
     }
   }
@@ -411,8 +428,6 @@ export function isDirectMessage(
 ): message is DirectMessage {
   return message.channel instanceof Discord.DMChannel
 }
-
-type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export const commands = new Commands()
 
