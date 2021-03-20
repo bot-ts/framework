@@ -51,7 +51,7 @@
     "esbuild": "^0.9.4",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
-    "make-bot.ts": "^1.3.7",
+    "make-bot.ts": "^1.4.0",
     "typescript": "^4.0.5"
   },
   "engines": {
