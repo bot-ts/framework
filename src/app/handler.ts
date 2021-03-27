@@ -6,6 +6,7 @@ import regexParser from "regex-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
+import yargsParser from "yargs-parser"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
@@ -120,28 +121,31 @@ export class Commands extends Discord.Collection<string, Command<any>> {
 }
 
 export function resolveGivenArgument<Message extends CommandMessage>(
-  message: Message,
+  parsedArgs: yargsParser.Arguments,
   arg: Argument<Message>
-): { given: boolean; usedName: string } {
+): { given: boolean; usedName: string; value: any } {
   let usedName = arg.name
-  let given = message.args.hasOwnProperty(arg.name)
+  let given = parsedArgs.hasOwnProperty(arg.name)
+  let value = parsedArgs[arg.name]
 
   if (!given && arg.aliases) {
     if (typeof arg.aliases === "string") {
       usedName = arg.aliases
-      given = message.args.hasOwnProperty(arg.aliases)
+      given = parsedArgs.hasOwnProperty(arg.aliases)
+      value = parsedArgs[arg.aliases]
     } else {
       for (const alias of arg.aliases) {
-        if (message.args.hasOwnProperty(alias)) {
+        if (parsedArgs.hasOwnProperty(alias)) {
           usedName = alias
           given = true
+          value = parsedArgs[alias]
           break
         }
       }
     }
   }
 
-  return { given, usedName }
+  return { given, usedName, value }
 }
 
 export async function checkValue<Message extends CommandMessage>(

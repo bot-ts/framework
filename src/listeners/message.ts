@@ -186,20 +186,18 @@ const listener: app.Listener<"message"> = {
       for (const positional of cmd.positional) {
         const index = cmd.positional.indexOf(positional)
 
-        const getValue = () => message.args[positional.name]
-        const setValue = (value: any) => {
+        const set = (value: any) => {
           message.args[positional.name] = value
           message.args[index] = value
         }
 
-        const given = message.args[index] !== undefined
+        const value = parsedArgs._[index]
+        const given = value !== undefined
 
-        message.args[positional.name] = message.args[index]
+        set(value)
 
         if (!given) {
-          if (positional.default !== undefined) {
-            setValue(await app.scrap(positional.default, message))
-          } else if (positional.required) {
+          if (positional.required) {
             return await message.channel.send(
               new app.MessageEmbed()
                 .setColor("RED")
@@ -217,12 +215,16 @@ const listener: app.Listener<"message"> = {
                       )}`
                 )
             )
+          } else if (positional.default !== undefined) {
+            set(await app.scrap(positional.default, message))
+          } else {
+            set(null)
           }
         } else if (positional.checkValue) {
           const checked = await app.checkValue(
             positional,
             "positional",
-            getValue(),
+            value,
             message
           )
 
@@ -233,9 +235,9 @@ const listener: app.Listener<"message"> = {
           const casted = await app.castValue(
             positional,
             "positional",
-            getValue(),
+            value,
             message,
-            setValue
+            set
           )
 
           if (!casted) return
@@ -247,9 +249,11 @@ const listener: app.Listener<"message"> = {
 
     if (cmd.args) {
       for (const arg of cmd.args) {
-        const value = () => message.args[arg.name]
+        const set = (value: any) => (message.args[arg.name] = value)
 
-        let { given, usedName } = app.resolveGivenArgument(message, arg)
+        let { given, value } = app.resolveGivenArgument(parsedArgs, arg)
+
+        if (value === true) value = undefined
 
         if (arg.required && !given)
           return await message.channel.send(
@@ -266,33 +270,29 @@ const listener: app.Listener<"message"> = {
               )
           )
 
-        message.args[arg.name] = message.args[usedName]
+        set(value)
 
-        if (value() === undefined) {
+        if (value === undefined) {
           if (arg.default !== undefined) {
-            message.args[arg.name] =
+            set(
               typeof arg.default === "function"
                 ? await arg.default(message)
                 : arg.default
+            )
           } else if (arg.castValue !== "array") {
-            message.args[arg.name] = null
+            set(null)
           }
         } else if (arg.checkValue) {
-          const checked = await app.checkValue(
-            arg,
-            "argument",
-            value(),
-            message
-          )
+          const checked = await app.checkValue(arg, "argument", value, message)
 
           if (!checked) return
         }
 
-        if (value() !== null && arg.castValue) {
+        if (value !== null && arg.castValue) {
           const casted = await app.castValue(
             arg,
             "argument",
-            value(),
+            value,
             message,
             (value) => (message.args[arg.name] = value)
           )
@@ -304,15 +304,11 @@ const listener: app.Listener<"message"> = {
 
     if (cmd.flags) {
       for (const flag of cmd.flags) {
-        const value = () => message.args[cmd.name]
+        const set = (value: boolean) => (message.args[flag.name] = value)
 
-        let { given, usedName } = app.resolveGivenArgument(message, flag)
+        let { given, value } = app.resolveGivenArgument(parsedArgs, flag)
 
-        if (!given) message.args[usedName] = false
-
-        message.args[flag.name] = message.args[usedName]
-
-        if (value() === undefined) message.args[flag.name] = false
+        set(given ? value ?? false : false)
       }
     }
 
