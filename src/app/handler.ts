@@ -51,6 +51,12 @@ export interface Flag<Message extends CommandMessage>
   flag: string
 }
 
+export function isFlag<Message extends CommandMessage>(
+  arg: Argument<Message>
+): arg is Flag<Message> {
+  return arg.hasOwnProperty("flag")
+}
+
 export interface Command<Message extends CommandMessage = CommandMessage> {
   name: string
   aliases?: string[]
@@ -122,7 +128,7 @@ export class Commands extends Discord.Collection<string, Command<any>> {
 
 export function resolveGivenArgument<Message extends CommandMessage>(
   parsedArgs: yargsParser.Arguments,
-  arg: Argument<Message>
+  arg: Argument<Message> | Flag<Message>
 ): { given: boolean; usedName: string; value: any } {
   let usedName = arg.name
   let given = parsedArgs.hasOwnProperty(arg.name)
@@ -143,6 +149,12 @@ export function resolveGivenArgument<Message extends CommandMessage>(
         }
       }
     }
+  }
+
+  if (!given && isFlag(arg)) {
+    given = parsedArgs.hasOwnProperty(arg.flag)
+    value = parsedArgs[arg.flag]
+    usedName = arg.flag
   }
 
   return { given, usedName, value }

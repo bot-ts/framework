@@ -308,7 +308,14 @@ const listener: app.Listener<"message"> = {
 
         let { given, value } = app.resolveGivenArgument(parsedArgs, flag)
 
-        set(given ? value ?? false : false)
+        if (!given) set(false)
+        else if (typeof value === "boolean") set(value)
+        else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
+        else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)
+        else {
+          set(true)
+          restPositional.unshift(value)
+        }
       }
     }
 
