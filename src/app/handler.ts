@@ -6,25 +6,23 @@ import regexParser from "regex-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
-import * as hooks from "../hooks/handler"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
   rest: string
-} & hooks.CommandMessage
+}
 
 export type GuildMessage = CommandMessage & {
   channel: Discord.TextChannel & Discord.GuildChannel
   guild: Discord.Guild
   member: Discord.GuildMember
-} & hooks.GuildMessage
+}
 
 export type DirectMessage = CommandMessage & {
   channel: Discord.DMChannel
-} & hooks.DirectMessage
+}
 
-export interface Argument<Message extends CommandMessage>
-  extends hooks.Argument<Message> {
+export interface Argument<Message extends CommandMessage> {
   name: string
   aliases?: string[] | string
   default?: string | ((message: Message) => string | Promise<string>)
@@ -45,17 +43,14 @@ export interface Argument<Message extends CommandMessage>
 }
 
 export interface Positional<Message extends CommandMessage>
-  extends Omit<Argument<Message>, "aliases">,
-    hooks.Positional<Message> {}
+  extends Omit<Argument<Message>, "aliases"> {}
 
 export interface Flag<Message extends CommandMessage>
-  extends Pick<Argument<Message>, "name" | "aliases" | "description">,
-    hooks.Flag<Message> {
+  extends Pick<Argument<Message>, "name" | "aliases" | "description"> {
   flag: string
 }
 
-export interface Command<Message extends CommandMessage = CommandMessage>
-  extends hooks.Command<Message> {
+export interface Command<Message extends CommandMessage = CommandMessage> {
   name: string
   aliases?: string[]
   /**
@@ -104,7 +99,7 @@ export type Listener<EventName extends keyof Discord.ClientEvents> = {
   event: EventName
   run: (...args: Discord.ClientEvents[EventName]) => unknown
   once?: boolean
-} & hooks.Listener<EventName>
+}
 
 export class Commands extends Discord.Collection<string, Command<any>> {
   public resolve<Message extends CommandMessage>(
