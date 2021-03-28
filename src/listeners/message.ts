@@ -274,11 +274,7 @@ const listener: app.Listener<"message"> = {
 
         if (value === undefined) {
           if (arg.default !== undefined) {
-            set(
-              typeof arg.default === "function"
-                ? await arg.default(message)
-                : arg.default
-            )
+            set(await app.scrap(arg.default, message))
           } else if (arg.castValue !== "array") {
             set(null)
           }
@@ -294,7 +290,7 @@ const listener: app.Listener<"message"> = {
             "argument",
             value,
             message,
-            (value) => (message.args[arg.name] = value)
+            set
           )
 
           if (!casted) return
@@ -306,7 +302,7 @@ const listener: app.Listener<"message"> = {
       for (const flag of cmd.flags) {
         const set = (value: boolean) => (message.args[flag.name] = value)
 
-        let { given, value } = app.resolveGivenArgument(parsedArgs, flag)
+        const { given, value } = app.resolveGivenArgument(parsedArgs, flag)
 
         if (!given) set(false)
         else if (typeof value === "boolean") set(value)
