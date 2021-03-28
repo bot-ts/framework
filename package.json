@@ -7,6 +7,7 @@
   "scripts": {
     "build": "gulp build",
     "start": "npm run build && node .",
+    "watch": "watch \"npm run start\" src",
     "format": "prettier --write src"
   },
   "prettier": {
@@ -52,7 +53,8 @@
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
     "make-bot.ts": "^1.4.2",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "watch": "^1.0.2"
   },
   "engines": {
     "node": ">=14",
