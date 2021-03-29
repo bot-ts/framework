@@ -1,7 +1,12 @@
 const gulp = require("gulp")
 const esbuild = require("gulp-esbuild")
+const del = require("del")
 
-exports.build = function(){
+function clean() {
+  return del(["dist/**/*"])
+}
+
+function build(){
   return gulp.src("src/**/*.ts")
     .pipe(esbuild({
       sourcemap: "inline",
@@ -13,3 +18,7 @@ exports.build = function(){
     }))
     .pipe(gulp.dest("dist"))
 }
+
+exports.clean = clean
+exports.build = build
+exports.cleanAndBuild = gulp.series(clean, build)

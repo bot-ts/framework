@@ -5,7 +5,7 @@
   "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
   "scripts": {
-    "build": "gulp build",
+    "build": "gulp cleanAndBuild",
     "start": "npm run build && node .",
     "watch": "watch \"npm run start\" src",
     "format": "prettier --write src"

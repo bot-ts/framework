@@ -1,5 +1,5 @@
 import * as app from "../app"
-import prefixes from "../tables/prefixes"
+import guilds from "../tables/guilds"
 
 const command: app.Command<app.GuildMessage> = {
   name: "prefix",
@@ -23,12 +23,12 @@ const command: app.Command<app.GuildMessage> = {
         )}\``
       )
 
-    await prefixes.query
+    await guilds.query
       .insert({
-        guild_id: message.guild.id,
+        id: message.guild.id,
         prefix: prefix,
       })
-      .onConflict("guild_id")
+      .onConflict("id")
       .merge()
 
     await message.channel.send(
