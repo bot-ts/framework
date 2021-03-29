@@ -1,16 +1,16 @@
 import Discord from "discord.js"
 
-import prefixes from "../tables/prefixes"
+import guilds from "../tables/guilds"
 
 export async function prefix(guild?: Discord.Guild): Promise<string> {
   let prefix = process.env.PREFIX as string
   if (guild) {
-    const prefixData = await prefixes.query
-      .where("guild_id", guild.id)
-      .select()
+    const guildData = await guilds.query
+      .where("id", guild.id)
+      .select("prefix")
       .first()
-    if (prefixData) {
-      prefix = prefixData.prefix
+    if (guildData) {
+      return guildData.prefix ?? prefix
     }
   }
   return prefix

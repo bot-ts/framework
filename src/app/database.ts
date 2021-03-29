@@ -25,7 +25,7 @@ export const db = knex({
 
 export interface TableOptions {
   name: string
-  colMaker: (table: Knex.CreateTableBuilder) => void
+  setup: (table: Knex.CreateTableBuilder) => void
 }
 
 export class Table<Type> {
@@ -37,7 +37,7 @@ export class Table<Type> {
 
   async make(): Promise<this> {
     try {
-      await db.schema.createTable(this.options.name, this.options.colMaker)
+      await db.schema.createTable(this.options.name, this.options.setup)
       logger.log(`created table ${chalk.blue(this.options.name)}`, "database")
     } catch (error) {
       logger.log(`loaded table ${chalk.blue(this.options.name)}`, "database")
