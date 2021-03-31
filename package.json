@@ -49,7 +49,7 @@
     "esbuild": "^0.9.4",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
-    "make-bot.ts": "^1.4.6",
+    "make-bot.ts": "^1.4.7",
     "typescript": "^4.0.5",
     "watch": "^1.0.2"
   },
