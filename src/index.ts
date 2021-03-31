@@ -18,13 +18,21 @@ const client = new Discord.Client()
 
 ;(async () => {
   // load tables
-  await fs.readdir(app.tablesPath).then((files) => {
-    return Promise.all(
+  await fs.readdir(app.tablesPath).then(async (files) => {
+    const tables = await Promise.all(
       files.map(async (filename) => {
         const tableFile = await import(path.join(app.tablesPath, filename))
-        const table: app.Table<any> = tableFile.default
-        app.tables.set(table.options.name, await table.make())
+        return tableFile.default as app.Table<any>
       })
+    )
+    return Promise.all(
+      tables
+        .sort((a, b) => {
+          return (b.options.priority ?? 0) - (a.options.priority ?? 0)
+        })
+        .map(async (table) => {
+          app.tables.set(table.options.name, await table.make())
+        })
     )
   })
 
