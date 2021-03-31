@@ -3,12 +3,11 @@ import { Knex } from "knex"
 import path from "path"
 import chalk from "chalk"
 import fs from "fs"
-
 import * as logger from "./logger"
 
 const dataDirectory = path.join(process.cwd(), "data")
 
-if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+if(!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
 /**
  * Welcome to the database file!
@@ -19,8 +18,8 @@ export const db = knex({
   client: "sqlite3",
   useNullAsDefault: true,
   connection: {
-    filename: path.join(process.cwd(), "data", "sqlite3.db"),
-  },
+    filename: path.join(process.cwd(), "data", "sqlite3.db")
+  }
 })
 
 export interface TableOptions {

@@ -33,8 +33,6 @@
     "dotenv": "^8.2.0",
     "figlet": "^1.5.0",
     "knex": "^0.95.1",
-    "mysql2": "^2.2.5",
-    "pg": "^8.5.1",
     "prettier": "^2.1.2",
     "regex-parser": "^2.2.11",
     "sqlite3": "^5.0.2",
@@ -51,7 +49,7 @@
     "esbuild": "^0.9.4",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
-    "make-bot.ts": "^1.4.4",
+    "make-bot.ts": "^1.4.5",
     "typescript": "^4.0.5",
     "watch": "^1.0.2"
   },
