@@ -23,6 +23,10 @@ export type DirectMessage = CommandMessage & {
   channel: Discord.DMChannel
 }
 
+export type Middleware<Message extends CommandMessage> = (
+  message: Message
+) => Promise<true | string> | boolean | string
+
 export interface Argument<Message extends CommandMessage> {
   name: string
   aliases?: string[] | string
@@ -72,6 +76,11 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
    * Description displayed in command detail
    */
   longDescription?: string
+  /**
+   * If a middleware return `true`, continue. <br>
+   * If a middleware return a string, abort the command and send the returned string as error message.
+   */
+  middlewares?: Middleware<Message>[]
   examples?: string[]
   guildOwner?: boolean
   guildOnly?: boolean

@@ -182,6 +182,18 @@ const listener: app.Listener<"message"> = {
             )
         )
 
+    if (cmd.middlewares)
+      for (const middleware of cmd.middlewares) {
+        const result: string | boolean = await middleware(message)
+
+        if (typeof result === "string")
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(result, message.client.user?.displayAvatarURL())
+          )
+      }
+
     if (cmd.positional) {
       for (const positional of cmd.positional) {
         const index = cmd.positional.indexOf(positional)
