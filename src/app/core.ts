@@ -41,6 +41,10 @@ export const cache = new (class {
     this.data[key] = value
   }
 
+  delete(key: string) {
+    delete this.data[key]
+  }
+
   ensure<T>(key: string, defaultValue: T): T {
     let value = this.get<T>(key)
     if (value === undefined) {
