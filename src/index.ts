@@ -12,17 +12,17 @@ for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
   }
 }
 
-import * as app from "./app"
-
 const client = new Discord.Client()
 
 ;(async () => {
+  const app = await import("./app")
+
   // load tables
   await fs.readdir(app.tablesPath).then(async (files) => {
     const tables = await Promise.all(
       files.map(async (filename) => {
         const tableFile = await import(path.join(app.tablesPath, filename))
-        return tableFile.default as app.Table<any>
+        return tableFile.default
       })
     )
     return Promise.all(
@@ -46,10 +46,7 @@ const client = new Discord.Client()
   // load listeners
   await fs.readdir(app.listenersPath).then((files) =>
     files.forEach((filename) => {
-      const listener: app.Listener<any> = require(path.join(
-        app.listenersPath,
-        filename
-      ))
+      const listener = require(path.join(app.listenersPath, filename))
       client[listener.once ? "once" : "on"](listener.event, listener.run)
       app.log(
         `loaded event ${chalk.yellow(
@@ -64,4 +61,6 @@ const client = new Discord.Client()
   client.login(process.env.TOKEN).catch(() => {
     throw new Error("Invalid Discord token given.")
   })
-})().catch((error) => app.error(error, "system", true))
+})().catch((error) =>
+  import("./app/logger").then((logger) => logger.error(error, "system", true))
+)
