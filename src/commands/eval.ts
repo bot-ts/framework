@@ -54,7 +54,7 @@ const command: app.Command = {
         } else {
           let log
           try {
-            log = await message.channel.send(`⏳ **${pack}** - install...`)
+            log = await message.channel.send(`\\⏳ **${pack}** - install...`)
             await exec(`npm i ${pack}@latest`)
             await log.edit(`\\✔ **${pack}** - installed`)
             installed.add(pack)
@@ -119,7 +119,7 @@ const command: app.Command = {
       if (alreadyInstalled(pack)) continue
       let log
       try {
-        log = await message.channel.send(`⏳ **${pack}** - uninstall...`)
+        log = await message.channel.send(`\\⏳ **${pack}** - uninstall...`)
         await exec(`npm remove --purge ${pack}`)
         await log.edit(`\\✔ **${pack}** - uninstalled`)
       } catch (error) {
