@@ -50,6 +50,10 @@ export interface Option<Message extends CommandMessage> extends Argument {
     | "boolean"
     | "regex"
     | "array"
+    | "user"
+    | "member"
+    | "channel"
+    | "message"
     | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
@@ -304,6 +308,30 @@ export async function castValue<Message extends CommandMessage>(
       case "array":
         if (baseValue === undefined) setValue([])
         else setValue(baseValue.split(/[,;|]/))
+        break
+      case "channel":
+        if (baseValue) {
+          const match = /^(?:<#(\d+)>|(\d+))$/.exec(baseValue)
+          if (match) {
+            const id = match[1] ?? match[2]
+            const channel = message.client.channels.cache.get(id)
+            if (channel) setValue(channel)
+            else throw new Error("Unknown channel")
+          } else throw new Error("Invalid channel value")
+        } else throw empty
+        break
+      case "member":
+        if (baseValue) {
+          if (isGuildMessage(message)) {
+          } else
+            throw new Error(
+              'The "GuildMember" casting is only available in a guild!'
+            )
+        } else throw empty
+        break
+      case "message":
+        break
+      case "user":
         break
       default:
         if (baseValue === undefined) throw empty
