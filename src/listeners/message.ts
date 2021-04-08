@@ -12,7 +12,7 @@ const listener: app.Listener<"message"> = {
       message.content = message.content.slice(key.length).trim()
     }
 
-    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}>`)
+    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}> `)
 
     if (message.content.startsWith(prefix)) cut(prefix)
     else if (mentionRegex.test(message.content))
