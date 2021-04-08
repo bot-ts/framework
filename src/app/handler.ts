@@ -316,13 +316,20 @@ export async function castValue<Message extends CommandMessage>(
             const id = match[1] ?? match[2]
             const channel = message.client.channels.cache.get(id)
             if (channel) setValue(channel)
-            else throw new Error("Unknown channel")
-          } else throw new Error("Invalid channel value")
+            else throw new Error("Unknown channel!")
+          } else throw new Error("Invalid channel value!")
         } else throw empty
         break
       case "member":
         if (baseValue) {
           if (isGuildMessage(message)) {
+            const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
+            if (match) {
+              const id = match[1] ?? match[2]
+              const member = message.guild.members.cache.get(id)
+              if (member) setValue(member)
+              else throw new Error("Unknown member!")
+            } else throw new Error("Invalid member value!")
           } else
             throw new Error(
               'The "GuildMember" casting is only available in a guild!'
@@ -332,6 +339,15 @@ export async function castValue<Message extends CommandMessage>(
       case "message":
         break
       case "user":
+        if (baseValue) {
+          const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
+          if (match) {
+            const id = match[1] ?? match[2]
+            const channel = await message.client.users.fetch(id, false)
+            if (channel) setValue(channel)
+            else throw new Error("Unknown member!")
+          } else throw new Error("Invalid member value!")
+        } else throw empty
         break
       default:
         if (baseValue === undefined) throw empty

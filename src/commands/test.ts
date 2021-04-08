@@ -5,14 +5,14 @@ const command: app.Command = {
   description: "",
   positional: [
     {
-      name: "channel",
-      description: "Just a channel",
-      castValue: "channel",
+      name: "member",
+      description: "Just a member",
+      castValue: "member",
       required: true,
     },
   ],
   async run(message) {
-    return message.args.channel.send("Coucou")
+    return message.channel.send(message.args.member.toString())
   },
 }
 
