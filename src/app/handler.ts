@@ -337,6 +337,20 @@ export async function castValue<Message extends CommandMessage>(
         } else throw empty
         break
       case "message":
+        if (baseValue) {
+          const match = /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
+            baseValue
+          )
+          if (match) {
+            const [, channelID, messageID] = match
+            const channel = message.client.channels.cache.get(channelID)
+            if (channel) {
+              if (channel.isText()) {
+                setValue(await channel.messages.fetch(messageID, false))
+              } else throw new Error("Invalid channel type!")
+            } else throw new Error("Unknown channel!")
+          } else throw new Error("Invalid message link!")
+        } else throw empty
         break
       case "user":
         if (baseValue) {
