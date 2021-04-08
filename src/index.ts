@@ -7,7 +7,7 @@ import path from "path"
 dotenv.config()
 
 for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
-  if (!process.env[key] || /[{}\s]/.test(process.env[key] as string)) {
+  if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
     throw new Error("You need to add " + key + " value in your .env file.")
   }
 }
