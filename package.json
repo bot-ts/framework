@@ -23,15 +23,14 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
-    "@types/boxen": "^3.0.1",
-    "@types/yargs-parser": "^20.2.0",
     "boxen": "^4.2.0",
     "chalk": "^4.1.0",
     "dayjs": "^1.10.4",
-    "discord-eval.ts": "^1.0.14",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "figlet": "^1.5.0",
+    "ghom-eval": "^1.0.2",
+    "ghom-prettify": "^2.0.1",
     "knex": "^0.95.1",
     "prettier": "^2.1.2",
     "regex-parser": "^2.2.11",
@@ -40,6 +39,8 @@
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
+    "@types/boxen": "^3.0.1",
+    "@types/yargs-parser": "^20.2.0",
     "@types/dotenv": "^8.2.0",
     "@types/figlet": "^1.2.1",
     "@types/node": "^14.14.6",

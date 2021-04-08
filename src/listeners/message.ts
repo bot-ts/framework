@@ -12,7 +12,11 @@ const listener: app.Listener<"message"> = {
       message.content = message.content.slice(key.length).trim()
     }
 
+    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}>`)
+
     if (message.content.startsWith(prefix)) cut(prefix)
+    else if (mentionRegex.test(message.content))
+      cut(message.content.split(" ")[0])
     else return
 
     let key = message.content.split(/\s+/)[0]
@@ -71,16 +75,25 @@ const listener: app.Listener<"message"> = {
       return app.sendCommandDetails(message, cmd, prefix)
 
     // coolDown
-    {
-      const coolDownId = `${cmd.name}:${message.channel.id}`
-      const coolDown = app.cache.ensure("CD-" + coolDownId, {
+    if (cmd.coolDown) {
+      const slug = app.slug("coolDown", cmd.name, message.channel.id)
+      const coolDown = app.cache.ensure<app.CoolDown>(slug, {
         time: 0,
         trigger: false,
       })
 
-      if (cmd.coolDown && coolDown.trigger) {
-        if (Date.now() > coolDown.time + cmd.coolDown) {
-          app.cache.set("CD-" + coolDownId, {
+      message.triggerCoolDown = () => {
+        app.cache.set(slug, {
+          time: Date.now(),
+          trigger: true,
+        })
+      }
+
+      if (coolDown.trigger) {
+        const coolDownTime = await app.scrap(cmd.coolDown, message)
+
+        if (Date.now() > coolDown.time + coolDownTime) {
+          app.cache.set(slug, {
             time: 0,
             trigger: false,
           })
@@ -90,17 +103,24 @@ const listener: app.Listener<"message"> = {
               .setColor("RED")
               .setAuthor(
                 `Please wait ${Math.ceil(
-                  (coolDown.time + cmd.coolDown - Date.now()) / 1000
+                  (coolDown.time + coolDownTime - Date.now()) / 1000
                 )} seconds...`,
                 message.client.user?.displayAvatarURL()
               )
           )
         }
       }
+    } else {
+      message.triggerCoolDown = () => {
+        app.warn(
+          `You must setup the cooldown of the "${cmd.name}" command before using the "triggerCoolDown" method`,
+          "system"
+        )
+      }
     }
 
     if (app.isGuildMessage(message)) {
-      if (cmd.dmOnly)
+      if (cmd.dmChannelOnly)
         return message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
@@ -110,7 +130,7 @@ const listener: app.Listener<"message"> = {
             )
         )
 
-      if (cmd.guildOwner)
+      if (cmd.guildOwnerOnly)
         if (
           message.guild.owner !== message.member &&
           process.env.OWNER !== message.member.id
@@ -124,8 +144,10 @@ const listener: app.Listener<"message"> = {
               )
           )
 
-      if (cmd.botPermissions)
-        for (const permission of cmd.botPermissions)
+      if (cmd.botPermissions) {
+        const botPermissions = await app.scrap(cmd.botPermissions, message)
+
+        for (const permission of botPermissions)
           if (
             !message.guild.me?.hasPermission(permission, {
               checkAdmin: true,
@@ -140,9 +162,12 @@ const listener: app.Listener<"message"> = {
                   message.client.user?.displayAvatarURL()
                 )
             )
+      }
 
-      if (cmd.userPermissions)
-        for (const permission of cmd.userPermissions)
+      if (cmd.userPermissions) {
+        const userPermissions = await app.scrap(cmd.userPermissions, message)
+
+        for (const permission of userPermissions)
           if (
             !message.member.hasPermission(permission, {
               checkAdmin: true,
@@ -157,9 +182,10 @@ const listener: app.Listener<"message"> = {
                   message.client.user?.displayAvatarURL()
                 )
             )
+      }
     }
 
-    if (cmd.guildOnly) {
+    if (await app.scrap(cmd.guildChannelOnly, message)) {
       if (app.isDirectMessage(message))
         return await message.channel.send(
           new app.MessageEmbed()
@@ -171,7 +197,7 @@ const listener: app.Listener<"message"> = {
         )
     }
 
-    if (cmd.botOwner)
+    if (await app.scrap(cmd.botOwnerOnly, message))
       if (process.env.OWNER !== message.author.id)
         return await message.channel.send(
           new app.MessageEmbed()
@@ -182,8 +208,10 @@ const listener: app.Listener<"message"> = {
             )
         )
 
-    if (cmd.middlewares)
-      for (const middleware of cmd.middlewares) {
+    if (cmd.middlewares) {
+      const middlewares = await app.scrap(cmd.middlewares, message)
+
+      for (const middleware of middlewares) {
         const result: string | boolean = await middleware(message)
 
         if (typeof result === "string")
@@ -193,10 +221,13 @@ const listener: app.Listener<"message"> = {
               .setAuthor(result, message.client.user?.displayAvatarURL())
           )
       }
+    }
 
     if (cmd.positional) {
-      for (const positional of cmd.positional) {
-        const index = cmd.positional.indexOf(positional)
+      const positionalList = await app.scrap(cmd.positional, message)
+
+      for (const positional of positionalList) {
+        const index = positionalList.indexOf(positional)
 
         const set = (value: any) => {
           message.args[positional.name] = value
@@ -209,7 +240,7 @@ const listener: app.Listener<"message"> = {
         set(value)
 
         if (!given) {
-          if (positional.required) {
+          if (await app.scrap(positional.required, message)) {
             return await message.channel.send(
               new app.MessageEmbed()
                 .setColor("RED")
@@ -259,46 +290,53 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    if (cmd.args) {
-      for (const arg of cmd.args) {
-        const set = (value: any) => (message.args[arg.name] = value)
+    if (cmd.options) {
+      const options = await app.scrap(cmd.options, message)
 
-        let { given, value } = app.resolveGivenArgument(parsedArgs, arg)
+      for (const option of options) {
+        const set = (value: any) => (message.args[option.name] = value)
+
+        let { given, value } = app.resolveGivenArgument(parsedArgs, option)
 
         if (value === true) value = undefined
 
-        if (arg.required && !given)
+        if ((await app.scrap(option.required, message)) && !given)
           return await message.channel.send(
             new app.MessageEmbed()
               .setColor("RED")
               .setAuthor(
-                `Missing argument "${arg.name}"`,
+                `Missing argument "${option.name}"`,
                 message.client.user?.displayAvatarURL()
               )
               .setDescription(
-                arg.description
-                  ? "Description: " + arg.description
-                  : `Example: \`--${arg.name}=someValue\``
+                option.description
+                  ? "Description: " + option.description
+                  : `Example: \`--${option.name}=someValue\``
               )
           )
 
         set(value)
 
         if (value === undefined) {
-          if (arg.default !== undefined) {
-            set(await app.scrap(arg.default, message))
-          } else if (arg.castValue !== "array") {
+          if (option.default !== undefined) {
+            set(await app.scrap(option.default, message))
+          } else if (option.castValue !== "array") {
             set(null)
           }
-        } else if (arg.checkValue) {
-          const checked = await app.checkValue(arg, "argument", value, message)
+        } else if (option.checkValue) {
+          const checked = await app.checkValue(
+            option,
+            "argument",
+            value,
+            message
+          )
 
           if (!checked) return
         }
 
-        if (value !== null && arg.castValue) {
+        if (value !== null && option.castValue) {
           const casted = await app.castValue(
-            arg,
+            option,
             "argument",
             value,
             message,
@@ -328,6 +366,31 @@ const listener: app.Listener<"message"> = {
     }
 
     message.rest = restPositional.join(" ")
+
+    if (cmd.rest) {
+      const rest = await app.scrap(cmd.rest, message)
+
+      if (message.rest.length === 0) {
+        if (await app.scrap(rest.required, message)) {
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Missing rest "${rest.name}"`,
+                message.client.user?.displayAvatarURL()
+              )
+              .setDescription(
+                rest.description ??
+                  "Please use `--help` flag for more information."
+              )
+          )
+        } else if (rest.default) {
+          message.args[rest.name] = await app.scrap(rest.default, message)
+        }
+      } else {
+        message.args[rest.name] = message.rest
+      }
+    }
 
     try {
       await cmd.run(message)

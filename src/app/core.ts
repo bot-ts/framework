@@ -1,6 +1,6 @@
 import { join } from "path"
 
-import prettier from "prettier"
+import prettify from "ghom-prettify"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
@@ -11,12 +11,20 @@ import toObject from "dayjs/plugin/toObject"
  * @param item - resolvable
  * @param args - parameters for resolvable function
  */
-export function scrap<T, A extends any[] = any[]>(
-  item: T | ((...args: A) => T),
+export function scrap<T, A extends any[] = []>(
+  item: Scrap<T, A>,
   ...args: A
-): T {
+): T | Promise<T> {
   // @ts-ignore
   return typeof item === "function" ? item(...args) : item
+}
+
+export type Scrap<T, A extends any[] = []> =
+  | T
+  | ((...args: A) => T | Promise<T>)
+
+export function slug(...words: string[]): string {
+  return words.join("-")
 }
 
 /**
@@ -82,12 +90,7 @@ export const CODE = {
   /**
    * format the code using prettier and return it
    */
-  format(raw: string, options?: prettier.Options): string {
-    return prettier.format(raw, {
-      semi: false,
-      ...(options ?? {}),
-    })
-  },
+  format: prettify.format,
 }
 ;(() => {
   return import(`dayjs/locale/${process.env.LOCALE}`).then(() =>

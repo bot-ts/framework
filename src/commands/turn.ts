@@ -3,7 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "turn",
   aliases: ["power"],
-  botOwner: true,
+  botOwnerOnly: true,
   description: "Turn on/off command handling",
   positional: [
     {
