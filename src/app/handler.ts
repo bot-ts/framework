@@ -343,10 +343,10 @@ export async function castValue<Message extends CommandMessage>(
           const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
             const id = match[1] ?? match[2]
-            const channel = await message.client.users.fetch(id, false)
-            if (channel) setValue(channel)
-            else throw new Error("Unknown member!")
-          } else throw new Error("Invalid member value!")
+            const user = await message.client.users.fetch(id, false)
+            if (user) setValue(user)
+            else throw new Error("Unknown user!")
+          } else throw new Error("Invalid user value!")
         } else throw empty
         break
       default:
