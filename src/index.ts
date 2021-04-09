@@ -49,7 +49,7 @@ const client = new Discord.Client()
       const listener = require(path.join(app.listenersPath, filename))
       client[listener.once ? "once" : "on"](listener.event, listener.run)
       app.log(
-        `loaded event ${chalk.yellow(
+        `loaded listener ${chalk.yellow(
           listener.once ? "once" : "on"
         )} ${chalk.blue(listener.event)}`,
         "handler"
