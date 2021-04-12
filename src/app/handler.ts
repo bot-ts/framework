@@ -279,7 +279,7 @@ export async function castValue<Message extends CommandMessage>(
   try {
     switch (subject.castValue) {
       case "boolean":
-        setValue(/true|1|oui|on|o|y|yes/i.test(baseValue ?? ""))
+        setValue(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue ?? ""))
         break
       case "date":
         if (!baseValue) {
@@ -298,7 +298,7 @@ export async function castValue<Message extends CommandMessage>(
         break
       case "number":
         setValue(Number(baseValue))
-        if (!/-?(?:0|[1-9]\d*)/.test(baseValue ?? ""))
+        if (!/^-?(?:0|[1-9]\d*)$/.test(baseValue ?? ""))
           throw new Error("The value is not a Number!")
         break
       case "regex":
