@@ -25,7 +25,5 @@ function watch(cb) {
   gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(clean, build))
 }
 
-exports.clean = clean
-exports.build = build
+exports.build = gulp.series(clean, build)
 exports.watch = gulp.series(clean, build, watch)
-exports.cleanAndBuild = gulp.series(clean, build)
