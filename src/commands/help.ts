@@ -9,7 +9,7 @@ const command: app.Command = {
   positional: [
     {
       name: "command",
-      description: "The target command to detail.",
+      description: "The target command name.",
     },
   ],
   async run(message) {
@@ -33,11 +33,13 @@ const command: app.Command = {
     } else {
       new app.Paginator(
         app.Paginator.divider(
-          app.commands.map((cmd) => {
-            return `**${prefix}${cmd.name}** - ${
-              cmd.description ?? "no description"
-            }`
-          }),
+          await Promise.all(
+            app.commands.map(async (cmd) => {
+              return `**${prefix}${cmd.name}** - ${
+                (await app.scrap(cmd.description, message)) ?? "no description"
+              }`
+            })
+          ),
           10
         ).map((page) => {
           return new app.MessageEmbed()
