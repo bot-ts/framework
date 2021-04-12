@@ -7,7 +7,7 @@
   "scripts": {
     "build": "gulp cleanAndBuild",
     "start": "npm run build && node .",
-    "watch": "watch \"npm run start\" src",
+    "watch": "gulp watch",
     "format": "prettier --write src"
   },
   "prettier": {
@@ -40,19 +40,19 @@
   },
   "devDependencies": {
     "@types/boxen": "^3.0.1",
-    "@types/yargs-parser": "^20.2.0",
     "@types/dotenv": "^8.2.0",
     "@types/figlet": "^1.2.1",
     "@types/node": "^14.14.6",
     "@types/prettier": "^2.2.1",
     "@types/ws": "^7.2.9",
+    "@types/yargs-parser": "^20.2.0",
     "del": "^6.0.0",
     "esbuild": "^0.9.4",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
     "make-bot.ts": "^1.4.12",
-    "typescript": "^4.0.5",
-    "watch": "^1.0.2"
+    "nodemon": "^2.0.7",
+    "typescript": "^4.0.5"
   },
   "engines": {
     "node": ">=14",
