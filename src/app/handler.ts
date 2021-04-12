@@ -233,8 +233,8 @@ export async function checkValue<Message extends CommandMessage>(
           )
           .setDescription(
             typeof subject.checkValue === "function"
-              ? core.CODE.stringify({
-                  content: core.CODE.format(subject.checkValue.toString()),
+              ? core.code.stringify({
+                  content: core.code.format(subject.checkValue.toString()),
                   lang: "js",
                 })
               : subject.checkValue instanceof RegExp
@@ -279,7 +279,8 @@ export async function castValue<Message extends CommandMessage>(
   try {
     switch (subject.castValue) {
       case "boolean":
-        setValue(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue ?? ""))
+        if (baseValue === undefined) throw empty
+        else setValue(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue))
         break
       case "date":
         if (!baseValue) {
@@ -381,7 +382,7 @@ export async function castValue<Message extends CommandMessage>(
             typeof subject.castValue === "function"
               ? "{*custom type*}"
               : "`" + subject.castValue + "`"
-          }\n${core.CODE.stringify({
+          }\n${core.code.stringify({
             content: `Error: ${error.message}`,
             lang: "js",
           })}`
@@ -543,7 +544,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 
     embed.addField(
       "examples:",
-      core.CODE.stringify({
+      core.code.stringify({
         content: examples.map((example) => prefix + example).join("\n"),
       }),
       false

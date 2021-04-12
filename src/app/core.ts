@@ -68,7 +68,7 @@ export interface Code {
   content: string
 }
 
-export const CODE = {
+export const code = {
   pattern: /^```(\S+)?\s(.+[^\\])```$/is,
   /**
    * extract the code from code block and return code

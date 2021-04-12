@@ -17,9 +17,9 @@ const command: app.Command = {
 
     const toEdit = await message.channel.send("The process is running...")
 
-    cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
+    cp.exec(message.args.cmd, { cwd: process.cwd() }, (err, stdout, stderr) => {
       if (err) {
-        const errorMessage = `\\❌ An error has occurred. ${app.CODE.stringify({
+        const errorMessage = `\\❌ An error has occurred. ${app.code.stringify({
           content:
             (err.stack ?? err.message ?? stderr).slice(0, 2000) || "No log",
         })}`
@@ -29,7 +29,7 @@ const command: app.Command = {
         })
       }
 
-      const successMessage = `\\✔ Successfully executed. ${app.CODE.stringify({
+      const successMessage = `\\✔ Successfully executed. ${app.code.stringify({
         content: stdout.slice(0, 2000) || "No log",
       })}`
 
