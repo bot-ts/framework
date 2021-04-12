@@ -38,7 +38,7 @@ export function rootPath(...path: string[]): string {
 /**
  * Simple cache for manage temporary values
  */
-export const cache = new (class {
+export const cache = new (class Cache {
   private data: { [key: string]: any } = {}
 
   get<T>(key: string): T | undefined {
@@ -107,7 +107,7 @@ if (process.env.TIMEZONE) dayjs.tz.setDefault(process.env.TIMEZONE)
 
 export { dayjs }
 
-export function resizeText(
+export function forceTextSize(
   text: string | number,
   size: number,
   before = false
