@@ -51,28 +51,6 @@ const command: app.Command = {
       )
     }
   },
-  subs: [
-    {
-      name: "count",
-      examples: ["help count"],
-      description: "Count of loaded commands",
-      async run(message) {
-        return message.channel.send(
-          new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setAuthor("Command count", message.client.user?.displayAvatarURL())
-            .setDescription(
-              `There are currently ${
-                app.commands.size
-              } commands and ${app.commands.reduce<number>((acc, command) => {
-                if (command && command.subs) return acc + command.subs.length
-                return acc
-              }, 0)} sub-commands`
-            )
-        )
-      },
-    },
-  ],
 }
 
 module.exports = command

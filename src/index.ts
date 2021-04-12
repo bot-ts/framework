@@ -51,7 +51,7 @@ const client = new Discord.Client()
       app.log(
         `loaded listener ${chalk.yellow(
           listener.once ? "once" : "on"
-        )} ${chalk.blue(listener.event)}`,
+        )} ${chalk.blueBright(listener.event)}`,
         "handler"
       )
     })

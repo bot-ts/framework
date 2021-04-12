@@ -3,10 +3,10 @@ import path from "path"
 import tims from "tims"
 import chalk from "chalk"
 import regexParser from "regex-parser"
+import yargsParser from "yargs-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
-import yargsParser from "yargs-parser"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
@@ -159,7 +159,7 @@ export class Commands extends Discord.Collection<string, Command<any>> {
   }
 
   public add<Message extends CommandMessage>(command: Command<Message>) {
-    validateArguments(command)
+    validateCommand(command)
     this.set(command.name, command)
   }
 }
@@ -394,7 +394,7 @@ export async function castValue<Message extends CommandMessage>(
   return true
 }
 
-export function validateArguments<Message extends CommandMessage>(
+export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
 ): void | never {
@@ -417,14 +417,25 @@ export function validateArguments<Message extends CommandMessage>(
           }" command must be equal to 1`
         )
 
+  if (command.coolDown)
+    if (!command.run.toString().includes("triggerCoolDown"))
+      logger.warn(
+        `you forgot using ${chalk.greenBright(
+          "message.triggerCoolDown()"
+        )} in the ${chalk.blueBright(command.name)} command.`,
+        "handler"
+      )
+
   logger.log(
-    `loaded command ${chalk.blue((path ? path + " " : "") + command.name)}`,
+    `loaded command ${chalk.blueBright(
+      (path ? path + " " : "") + command.name
+    )}`,
     "handler"
   )
 
   if (command.subs)
     for (const sub of command.subs)
-      validateArguments(sub, path ? path + " " + command.name : command.name)
+      validateCommand(sub, path ? path + " " + command.name : command.name)
 }
 
 export function getTypeDescriptionOf<Message extends CommandMessage>(

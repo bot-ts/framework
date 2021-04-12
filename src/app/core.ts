@@ -1,10 +1,11 @@
 import { join } from "path"
-
 import prettify from "ghom-prettify"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
+
+import * as logger from "./logger"
 
 /**
  * Resolve `T` value from `T | (() => T)`
@@ -98,8 +99,9 @@ const locale = process.env.LOCALE
 import(`dayjs/locale/${locale}`)
   .then(() => dayjs.locale(locale))
   .catch(() =>
-    console.warn(
-      `The "${locale}" is incorrect, please use a simple locale code.`
+    logger.warn(
+      `The "${locale}" is incorrect, please use a simple locale code.`,
+      "core"
     )
   )
 
