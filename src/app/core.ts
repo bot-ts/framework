@@ -92,11 +92,16 @@ export const code = {
    */
   format: prettify.format,
 }
-;(() => {
-  return import(`dayjs/locale/${process.env.LOCALE}`).then(() =>
-    dayjs.locale(process.env.LOCALE)
+
+const locale = process.env.LOCALE
+
+import(`dayjs/locale/${locale}`)
+  .then(() => dayjs.locale(locale))
+  .catch(() =>
+    console.warn(
+      `The "${locale}" is incorrect, please use a simple locale code.`
+    )
   )
-})()
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
