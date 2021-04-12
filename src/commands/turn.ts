@@ -7,18 +7,16 @@ const command: app.Command = {
   description: "Turn on/off command handling",
   positional: [
     {
-      name: "mode",
-      description: "Power mode of bot. on/off",
-      default: () => (app.cache.ensure("turn", true) ? "off" : "on"),
-      checkValue: /^on|off$/,
-      required: true,
+      name: "activated",
+      description: "Is command handling activated",
+      default: () => String(app.cache.ensure("turn", true)),
+      castValue: "boolean",
     },
   ],
   async run(message) {
-    const turn = message.args.mode === "on"
-    app.cache.set("turn", turn)
+    app.cache.set("turn", message.args.activated)
     return message.channel.send(
-      `Command handling ${turn ? "activated" : "disabled"} `
+      `Command handling ${message.args.activated ? "activated" : "disabled"} `
     )
   },
 }
