@@ -9,7 +9,7 @@ const command: app.Command = {
     {
       name: "activated",
       description: "Is command handling activated",
-      default: () => String(app.cache.ensure("turn", true)),
+      default: () => String(!app.cache.ensure("turn", true)),
       castValue: "boolean",
     },
   ],
