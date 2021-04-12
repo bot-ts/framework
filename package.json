@@ -50,7 +50,7 @@
     "esbuild": "^0.9.4",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
-    "make-bot.ts": "^1.4.12",
+    "make-bot.ts": "^1.4.13",
     "nodemon": "^2.0.7",
     "typescript": "^4.0.5"
   },
