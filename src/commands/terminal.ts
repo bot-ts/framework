@@ -23,7 +23,7 @@ const command: app.Command = {
           err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
         )
         .setDescription(
-          app.CODE.stringify({
+          app.code.stringify({
             content:
               (err ? err.stack ?? err.message ?? stderr : stdout).slice(
                 0,
