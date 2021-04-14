@@ -13,6 +13,8 @@ const command: app.Command = {
     required: true,
   },
   async run(message) {
+    message.triggerCoolDown()
+
     const toEdit = await message.channel.send("The process is running...")
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
