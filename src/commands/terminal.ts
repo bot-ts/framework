@@ -14,7 +14,6 @@ const command: app.Command = {
   },
   async run(message) {
     const toEdit = await message.channel.send("The process is running...")
-    let content: string
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
       const embed = new app.MessageEmbed()
@@ -31,8 +30,8 @@ const command: app.Command = {
           })
         )
 
-      toEdit.edit(content).catch(() => {
-        message.channel.send(content).catch()
+      toEdit.edit(embed).catch(() => {
+        message.channel.send(embed).catch()
       })
     })
   },
