@@ -15,7 +15,9 @@ const command: app.Command = {
   async run(message) {
     message.triggerCoolDown()
 
-    const toEdit = await message.channel.send(new app.MessageEmbed().setTitle("The process is running..."))
+    const toEdit = await message.channel.send(
+      new app.MessageEmbed().setTitle("The process is running...")
+    )
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
       const embed = new app.MessageEmbed()

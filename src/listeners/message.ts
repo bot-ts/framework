@@ -120,7 +120,7 @@ const listener: app.Listener<"message"> = {
     }
 
     if (app.isGuildMessage(message)) {
-      if (cmd.dmChannelOnly)
+      if (app.scrap(cmd.dmChannelOnly, message))
         return message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
