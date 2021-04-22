@@ -130,7 +130,7 @@ const listener: app.Listener<"message"> = {
             )
         )
 
-      if (cmd.guildOwnerOnly)
+      if (app.scrap(cmd.guildOwnerOnly, message))
         if (
           message.guild.owner !== message.member &&
           process.env.OWNER !== message.member.id
