@@ -12,13 +12,14 @@ const command: app.Command = {
     return message.channel.send(
       new app.MessageEmbed()
         .setColor("BLURPLE")
-        .setTitle("Information about " + conf.name)
-        .setThumbnail(
-          message.client.user?.displayAvatarURL({ dynamic: true }) ?? ""
+        .setAuthor(
+          `Information about ${message.client.user?.tag ?? conf.name}`,
+          message.client.user?.displayAvatarURL({ dynamic: true })
         )
         .setTimestamp()
         .setDescription(
           app.code.stringify({
+            lang: "yml",
             content: [
               `author: ${
                 message.client.users.cache.get(process.env.OWNER as string)?.tag
@@ -32,10 +33,44 @@ const command: app.Command = {
               `guilds: ${message.client.guilds.cache.size}`,
               `users: ${message.client.users.cache.size}`,
               `ping: ${Date.now() - message.createdTimestamp}ms`,
+              `database: ${app.db.client.constructor.name}`,
+              `cwd: ${process
+                .cwd()
+                .split(/[\\\/]/)
+                .map((segment, i, arr) => {
+                  return arr.length > 5 && i > 2 && i < arr.length - 2
+                    ? "..."
+                    : segment
+                })
+                .join(path.sep)}${path.sep}`,
             ].join("\n"),
-            lang: "yml",
           })
         )
+        .addField(
+          "Dependencies",
+          app.code.stringify({
+            lang: "yml",
+            content: Object.entries(conf.dependencies)
+              .map(([name, version]) => {
+                return `${name.replace(/@/g, "")}: ${version}`
+              })
+              .join("\n"),
+          }),
+          true
+        )
+        .addField(
+          "Dev dependencies",
+          app.code.stringify({
+            lang: "yml",
+            content: Object.entries(conf.devDependencies)
+              .map(([name, version]) => {
+                return `${name.replace(/@/g, "")}: ${version}`
+              })
+              .join("\n"),
+          }),
+          true
+        )
+        .setFooter(conf.description)
     )
   },
 }
