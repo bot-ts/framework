@@ -219,7 +219,7 @@ export interface EventEmitters {
   // webhookUpdate: discord.TextChannel | discord.DMChannel | discord.NewsChannel
 }
 
-export const subEmitter = new EventEmitter()
+//export const subEmitter = new EventEmitter()
 
 // export function once<
 //   Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
@@ -238,6 +238,8 @@ export const subEmitter = new EventEmitter()
 //   subEmitter.emit(`${event}:${emitter.id}`, ...args)
 // }
 
+export const messageEmitter = new EventEmitter()
+
 export function onceMessage<
   Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
 >(
@@ -245,11 +247,11 @@ export function onceMessage<
   cb: (...args: discord.ClientEvents[Event]) => unknown
 ) {
   // @ts-ignore
-  subEmitter.once(emitter.id, cb)
+  messageEmitter.once(emitter.id, cb)
 }
 
 export function emitMessage<
   Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
 >(emitter: EventEmitters[Event], ...args: discord.ClientEvents[Event]) {
-  subEmitter.emit(emitter.id, ...args)
+  messageEmitter.emit(emitter.id, ...args)
 }
