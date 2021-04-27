@@ -398,10 +398,25 @@ export async function castValue<Message extends CommandMessage>(
   return true
 }
 
+export let defaultCommand: Command<any> | null = null
+
 export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
 ): void | never {
+  if (command.default) {
+    if (defaultCommand)
+      logger.error(
+        `the ${chalk.blueBright(
+          command.name
+        )} command wants to be a default command but the ${chalk.blueBright(
+          defaultCommand.name
+        )} command is already the default command`,
+        "handler"
+      )
+    else defaultCommand = command
+  }
+
   const help: Flag<Message> = {
     name: "help",
     flag: "h",

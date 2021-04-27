@@ -35,9 +35,8 @@ const listener: app.Listener<"message"> = {
     let cmd: app.Command = app.commands.resolve(key) as app.Command
 
     if (!cmd) {
-      const defaultCommand = app.commands.find((c) => !!c.default)
-      if (defaultCommand) {
-        cmd = defaultCommand
+      if (app.defaultCommand) {
+        cmd = app.defaultCommand
       } else return null
     }
 
