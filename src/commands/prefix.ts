@@ -3,6 +3,7 @@ import guilds from "../tables/guilds"
 
 const command: app.Command<app.GuildMessage> = {
   name: "prefix",
+  default: true,
   guildOwnerOnly: true,
   guildChannelOnly: true,
   description: "Edit or show the bot prefix",

@@ -80,6 +80,10 @@ export type Middleware<Message extends CommandMessage> = (
 
 export interface Command<Message extends CommandMessage = CommandMessage> {
   name: string
+  /**
+   * Use this command if prefix is given but without command matching
+   */
+  default?: boolean
   aliases?: string[] | string
   /**
    * Cool down of command (in ms)

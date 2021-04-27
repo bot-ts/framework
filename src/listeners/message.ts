@@ -20,7 +20,7 @@ const listener: app.Listener<"message"> = {
       message.content = message.content.slice(key.length).trim()
     }
 
-    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}> `)
+    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}> ?`)
 
     if (message.content.startsWith(prefix)) cut(prefix)
     else if (mentionRegex.test(message.content))
@@ -34,7 +34,12 @@ const listener: app.Listener<"message"> = {
 
     let cmd: app.Command = app.commands.resolve(key) as app.Command
 
-    if (!cmd) return null
+    if (!cmd) {
+      const defaultCommand = app.commands.find((c) => !!c.default)
+      if (defaultCommand) {
+        cmd = defaultCommand
+      } else return null
+    }
 
     // check sub commands
     {
