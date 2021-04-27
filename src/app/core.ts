@@ -4,6 +4,8 @@ import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
+import discord from "discord.js"
+import EventEmitter from "events"
 
 import * as logger from "./logger"
 
@@ -135,4 +137,119 @@ export function forceTextSize(
   } else {
     return text
   }
+}
+
+export interface EventEmitters {
+  message:
+    | discord.TextChannel
+    | discord.DMChannel
+    | discord.NewsChannel
+    | discord.User
+    | discord.GuildMember
+    | discord.Guild
+  // channelCreate: discord.Guild
+  // channelDelete: discord.Guild
+  // channelPinsUpdate: discord.Guild
+  // channelUpdate: discord.Guild
+  // emojiCreate: discord.Guild
+  // emojiDelete: discord.Guild
+  // emojiUpdate: discord.Guild
+  // guildBanAdd: discord.Guild | discord.User
+  // guildBanRemove: discord.Guild | discord.User
+  // guildDelete: discord.Guild
+  // guildUnavailable: discord.Guild
+  // guildIntegrationsUpdate: discord.Guild
+  // guildMemberAdd: discord.GuildMember
+  // guildMemberAvailable: discord.GuildMember | discord.PartialGuildMember
+  // guildMemberRemove: discord.GuildMember | discord.PartialGuildMember
+  // guildMemberSpeaking: discord.GuildMember | discord.PartialGuildMember
+  // guildMemberUpdate: discord.GuildMember | discord.PartialGuildMember
+  // guildUpdate: discord.Guild
+  // inviteCreate: discord.Guild
+  // inviteDelete: discord.Guild
+  // messageDelete:
+  //   | discord.Message
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // messageReactionRemoveAll:
+  //   | discord.Message
+  //   | discord.PartialMessage
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // messageReactionRemoveEmoji:
+  //   | discord.Message
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // messageDeleteBulk:
+  //   | discord.Message
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // messageReactionAdd:
+  //   | discord.Message
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // messageReactionRemove:
+  //   | discord.MessageReaction
+  //   | discord.Message
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // messageUpdate:
+  //   | discord.Message
+  //   | discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  //   | discord.User
+  //   | discord.GuildMember
+  //   | discord.Guild
+  // presenceUpdate: discord.User
+  // roleCreate: discord.Guild
+  // roleDelete: discord.Guild
+  // roleUpdate: discord.Guild | discord.Role
+  // userUpdate: discord.User | discord.PartialUser
+  // webhookUpdate: discord.TextChannel | discord.DMChannel | discord.NewsChannel
+}
+
+export const subEmitter = new EventEmitter()
+
+// export function once<
+//   Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
+// >(
+//   event: Event,
+//   emitter: EventEmitters[Event] & { id: string },
+//   cb: (...args: discord.ClientEvents[Event]) => unknown
+// ) {
+//   // @ts-ignore
+//   subEmitter.once(`${event}:${emitter.id}`, cb)
+// }
+//
+// export function emit<
+//   Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
+// >(event: Event, emitter: EventEmitters[Event] & { id: string }, ...args: discord.ClientEvents[Event]) {
+//   subEmitter.emit(`${event}:${emitter.id}`, ...args)
+// }
+
+export function onceMessage<
+  Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
+>(
+  emitter: EventEmitters[Event],
+  cb: (...args: discord.ClientEvents[Event]) => unknown
+) {
+  // @ts-ignore
+  subEmitter.once(emitter.id, cb)
+}
+
+export function emitMessage<
+  Event extends keyof Pick<discord.ClientEvents, keyof EventEmitters>
+>(emitter: EventEmitters[Event], ...args: discord.ClientEvents[Event]) {
+  subEmitter.emit(emitter.id, ...args)
 }

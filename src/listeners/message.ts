@@ -6,6 +6,14 @@ const listener: app.Listener<"message"> = {
   async run(message) {
     if (!app.isCommandMessage(message)) return
 
+    app.emitMessage(message.channel, message)
+    app.emitMessage(message.author, message)
+
+    if (app.isGuildMessage(message)) {
+      app.emitMessage(message.guild, message)
+      app.emitMessage(message.member, message)
+    }
+
     const prefix = await app.prefix(message.guild ?? undefined)
 
     const cut = function (key: string) {
