@@ -31,6 +31,7 @@ Discord bot template in TypeScript includes:
 | watch  | `gulp watch`              | Build, run and watch files                            |
 | start  | `npm run build && node .` | Build and run the bot from `./dist`                   |
 | format | `prettier --write src`    | Beatify files in `./src` using a `--no-semi` config   |
+| test   | `tsc --noEmit`            | Beatify files in `./src` using a `--no-semi` config   |
 
 ### Generate files
 
