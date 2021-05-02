@@ -1,5 +1,4 @@
-import knex from "knex"
-import { Knex } from "knex"
+import knex, { Knex } from "knex"
 import path from "path"
 import chalk from "chalk"
 import fs from "fs"
