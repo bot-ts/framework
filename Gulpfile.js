@@ -47,15 +47,11 @@ function copyTemp() {
   ]).pipe(gulp.dest("."))
 }
 
-function update() {
-  return gulp.series(
-    cleanTemp,
-    downloadTemp,
-    copyTemp,
-    cleanTemp
-  )
-}
-
 exports.build = gulp.series(cleanDist, build)
 exports.watch = gulp.series(cleanDist, build, watch)
-exports.update = update
+exports.update = gulp.series(
+  cleanTemp,
+  downloadTemp,
+  copyTemp,
+  cleanTemp
+)
