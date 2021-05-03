@@ -1,5 +1,5 @@
 import * as app from "../app"
-import guilds from "../tables/guilds"
+import guilds from "../tables/guilds.native"
 
 const command: app.Command<app.GuildMessage> = {
   name: "prefix",
