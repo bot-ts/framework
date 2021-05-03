@@ -42,17 +42,16 @@ function copyTemp() {
   return gulp
     .src(
       [
-        "src/app",
-        "src/**/*.native.ts",
-        "src/**/*.native.ts",
-        "src/index.ts",
-        ".gitignore",
-        "Gulpfile.js",
-        "tsconfig.json",
+        "temp/src/app",
+        "temp/**/*.native.ts",
+        "temp/src/index.ts",
+        "temp/.gitignore",
+        "temp/Gulpfile.js",
+        "temp/tsconfig.json",
       ],
       { base: "temp" }
     )
-    .pipe(gulp.dest(".", { overwrite: true }))
+    .pipe(gulp.dest(process.cwd(), { overwrite: true }))
 }
 
 exports.build = gulp.series(cleanDist, build)
