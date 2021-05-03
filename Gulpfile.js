@@ -42,7 +42,7 @@ function copyTemp() {
   return gulp
     .src(
       [
-        "temp/src/app",
+        "temp/src/app/*.ts",
         "temp/**/*.native.ts",
         "temp/src/index.ts",
         "temp/.gitignore",
