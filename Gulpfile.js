@@ -4,7 +4,6 @@ const del = require("del")
 const log = require("fancy-log")
 const chalk = require("chalk")
 const git = require("git-commit-info")
-
 const cp = require("child_process")
 const path = require("path")
 
@@ -12,12 +11,14 @@ const currentVersion = git()
 
 function gitLog(cb) {
   const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
+
   log([
-    `bot.ts ${chalk.green("updated")}.`,
-    `${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}`,
-    `[ ${newVersion.date} ]`,
-    `(${chalk.grey(newVersion.message)})`,
+    `Updated '${chalk.cyan("bot.ts")}'`,
+    `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}]`,
+    `${newVersion.date} - `,
+    `${chalk.grey(newVersion.message)}`,
   ].join(" "))
+
   cb()
 }
 
@@ -51,6 +52,7 @@ function build() {
 
 function watch(cb) {
   cp.exec("nodemon dist/index", cb)
+
   gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(cleanDist, build))
 }
 
