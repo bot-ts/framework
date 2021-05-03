@@ -14,7 +14,7 @@
   },
   "prettier": {
     "semi": false,
-    "endOfLine": "lf"
+    "endOfLine": "crlf"
   },
   "license": "ISC",
   "repository": {
