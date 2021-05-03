@@ -13,7 +13,8 @@
     "test": "tsc --noEmit"
   },
   "prettier": {
-    "semi": false
+    "semi": false,
+    "endOfLine": "lf"
   },
   "license": "ISC",
   "repository": {
