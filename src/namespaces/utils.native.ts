@@ -1,6 +1,6 @@
 import Discord from "discord.js"
 
-import guilds from "../tables/guilds"
+import guilds from "../tables/guilds.native"
 
 export async function prefix(guild?: Discord.Guild): Promise<string> {
   let prefix = process.env.PREFIX as string
