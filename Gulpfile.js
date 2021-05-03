@@ -10,14 +10,15 @@ const path = require("path")
 
 const currentVersion = git()
 
-function gitLog() {
+function gitLog(cb) {
   const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
-  return log([
-    `${chalk.blue("bot.ts")} ${chalk.green("updated")}.`,
-    `version: ${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}`,
-    `message: ${chalk.greenBright(newVersion.message)}`,
-    `date: ${chalk.blueBright(newVersion.date)}`
-  ].join("\n"))
+  log([
+    `bot.ts ${chalk.green("updated")}.`,
+    `${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}`,
+    `[ ${newVersion.date} ]`,
+    `(${chalk.grey(newVersion.message)})`,
+  ].join(" "))
+  cb()
 }
 
 function cleanDist() {
