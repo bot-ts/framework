@@ -13,7 +13,7 @@ function gitLog(cb) {
   const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
 
   log([
-    `Updated '${chalk.cyan("bot.ts")}'`,
+    `Updated  '${chalk.cyan("bot.ts")}'`,
     `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}]`,
     `${newVersion.date} - `,
     `${chalk.grey(newVersion.message)}`,
