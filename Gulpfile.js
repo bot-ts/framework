@@ -34,20 +34,24 @@ function watch(cb) {
   gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(cleanDist, build))
 }
 
+function copyTemp() {
+  return gulp.src([
+    "temp/src/app/*.ts",
+    "temp/src/commands/*.native.ts",
+    "temp/src/listeners/*.native.ts",
+    "temp/src/app.native.ts",
+    "temp/src/index.ts",
+    "temp/.gitignore",
+    "temp/Gulpfile.js",
+    "temp/tsconfig.json"
+  ]).pipe(gulp.dest("."))
+}
+
 function update() {
   return gulp.series(
     cleanTemp,
     downloadTemp,
-    gulp.src([
-      "temp/src/app/*.ts",
-      "temp/src/commands/*.native.ts",
-      "temp/src/listeners/*.native.ts",
-      "temp/src/app.native.ts",
-      "temp/src/index.ts",
-      "temp/.gitignore",
-      "temp/Gulpfile.js",
-      "temp/tsconfig.json"
-    ]).pipe(gulp.dest(".")),
+    copyTemp,
     cleanTemp
   )
 }
