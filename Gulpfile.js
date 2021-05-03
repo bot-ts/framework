@@ -3,29 +3,33 @@ const esbuild = require("gulp-esbuild")
 const del = require("del")
 
 const cp = require("child_process")
+const path = require("path")
 
 function cleanDist() {
   return del(["dist/**/*"])
 }
 
 function cleanTemp() {
-  return del(["temp/**/*"])
+  return del(["temp"], { force: true })
 }
 
 function downloadTemp(cb) {
   cp.exec("git clone https://github.com/CamilleAbella/bot.ts.git temp", cb)
 }
 
-function build(){
-  return gulp.src("src/**/*.ts")
-    .pipe(esbuild({
-      sourcemap: "inline",
-      format: "cjs",
-      target: "node12",
-      loader: {
-        ".ts": "ts"
-      }
-    }))
+function build() {
+  return gulp
+    .src("src/**/*.ts")
+    .pipe(
+      esbuild({
+        sourcemap: "inline",
+        format: "cjs",
+        target: "node12",
+        loader: {
+          ".ts": "ts",
+        },
+      })
+    )
     .pipe(gulp.dest("dist"))
 }
 
@@ -35,23 +39,23 @@ function watch(cb) {
 }
 
 function copyTemp() {
-  return gulp.src([
-    "temp/src/app/*.ts",
-    "temp/src/commands/*.native.ts",
-    "temp/src/listeners/*.native.ts",
-    "temp/src/app.native.ts",
-    "temp/src/index.ts",
-    "temp/.gitignore",
-    "temp/Gulpfile.js",
-    "temp/tsconfig.json"
-  ]).pipe(gulp.dest("."))
+  return gulp
+    .src(
+      [
+        "src/app/*.ts",
+        "src/commands/*.native.ts",
+        "src/listeners/*.native.ts",
+        "src/app.native.ts",
+        "src/index.ts",
+        ".gitignore",
+        "Gulpfile.js",
+        "tsconfig.json",
+      ],
+      { cwd: path.join(process.cwd(), "temp") }
+    )
+    .pipe(gulp.dest(".."))
 }
 
 exports.build = gulp.series(cleanDist, build)
 exports.watch = gulp.series(cleanDist, build, watch)
-exports.update = gulp.series(
-  cleanTemp,
-  downloadTemp,
-  copyTemp,
-  cleanTemp
-)
+exports.update = gulp.series(cleanTemp, downloadTemp, copyTemp, cleanTemp)
