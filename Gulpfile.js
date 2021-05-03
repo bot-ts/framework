@@ -1,9 +1,24 @@
 const gulp = require("gulp")
 const esbuild = require("gulp-esbuild")
 const del = require("del")
+const log = require("fancy-log")
+const chalk = require("chalk")
+const git = require("git-commit-info")
 
 const cp = require("child_process")
 const path = require("path")
+
+const currentVersion = git()
+
+function gitLog() {
+  const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
+  return log([
+    `${chalk.blue("bot.ts")} ${chalk.green("updated")}.`,
+    `version: ${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}`,
+    `message: ${chalk.greenBright(newVersion.message)}`,
+    `date: ${chalk.blueBright(newVersion.date)}`
+  ].join("\n"))
+}
 
 function cleanDist() {
   return del(["dist/**/*"])
@@ -57,4 +72,10 @@ function copyTemp() {
 
 exports.build = gulp.series(cleanDist, build)
 exports.watch = gulp.series(cleanDist, build, watch)
-exports.update = gulp.series(cleanTemp, downloadTemp, copyTemp, cleanTemp)
+exports.update = gulp.series(
+  cleanTemp,
+  downloadTemp,
+  copyTemp,
+  gitLog,
+  cleanTemp
+)
