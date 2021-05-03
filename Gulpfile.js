@@ -45,6 +45,7 @@ function copyTemp() {
         "temp/src/app/*.ts",
         "temp/**/*.native.ts",
         "temp/src/index.ts",
+        "temp/.gitattributes",
         "temp/.gitignore",
         "temp/Gulpfile.js",
         "temp/tsconfig.json",
