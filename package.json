@@ -9,6 +9,7 @@
     "watch": "gulp watch",
     "start": "npm run build && node .",
     "format": "prettier --write src",
+    "update": "gulp update",
     "test": "tsc --noEmit"
   },
   "prettier": {

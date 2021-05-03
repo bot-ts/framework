@@ -1,10 +1,19 @@
 const gulp = require("gulp")
 const esbuild = require("gulp-esbuild")
 const del = require("del")
+
 const cp = require("child_process")
 
-function clean() {
+function cleanDist() {
   return del(["dist/**/*"])
+}
+
+function cleanTemp() {
+  return del(["temp/**/*"])
+}
+
+function downloadTemp(cb) {
+  cp.exec("git clone https://github.com/CamilleAbella/bot.ts.git temp", cb)
 }
 
 function build(){
@@ -22,8 +31,27 @@ function build(){
 
 function watch(cb) {
   cp.exec("nodemon dist/index", cb)
-  gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(clean, build))
+  gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(cleanDist, build))
 }
 
-exports.build = gulp.series(clean, build)
-exports.watch = gulp.series(clean, build, watch)
+function update() {
+  return gulp.series(
+    cleanTemp,
+    downloadTemp,
+    gulp.src([
+      "temp/src/app/*.ts",
+      "temp/src/commands/*.native.ts",
+      "temp/src/listeners/*.native.ts",
+      "temp/src/app.native.ts",
+      "temp/src/index.ts",
+      "temp/.gitignore",
+      "temp/Gulpfile.js",
+      "temp/tsconfig.json"
+    ]).pipe(gulp.dest(".")),
+    cleanTemp
+  )
+}
+
+exports.build = gulp.series(cleanDist, build)
+exports.watch = gulp.series(cleanDist, build, watch)
+exports.update = update
