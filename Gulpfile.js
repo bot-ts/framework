@@ -15,7 +15,7 @@ function gitLog(cb) {
   log([
     `Updated  '${chalk.cyan("bot.ts")}'`,
     `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}]`,
-    `${newVersion.date} - `,
+    `${newVersion.date} -`,
     `${chalk.grey(newVersion.message)}`,
   ].join(" "))
 

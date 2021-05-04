@@ -51,7 +51,4 @@ export class Table<Type> {
   }
 }
 
-export const tablesPath =
-  process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
-
 export const tables = new Map<string, Table<any>>()

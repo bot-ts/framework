@@ -2,11 +2,13 @@ import Discord from "discord.js"
 import path from "path"
 import tims from "tims"
 import chalk from "chalk"
+import fs from "fs/promises"
 import regexParser from "regex-parser"
 import yargsParser from "yargs-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
+import * as database from "./database"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
@@ -651,7 +653,51 @@ export function isFlag<Message extends CommandMessage>(
 
 export const commands = new Commands()
 
-export const commandsPath =
-  process.env.COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
-export const listenersPath =
-  process.env.LISTENERS_PATH ?? path.join(process.cwd(), "dist", "listeners")
+export async function loadFiles(this: Discord.Client) {
+  const tablesPath =
+    process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
+  const commandsPath =
+    process.env.COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
+  const listenersPath =
+    process.env.LISTENERS_PATH ?? path.join(process.cwd(), "dist", "listeners")
+
+  // load tables
+  await fs.readdir(tablesPath).then(async (files) => {
+    const tables = await Promise.all(
+      files.map(async (filename) => {
+        const tableFile = await import(path.join(tablesPath, filename))
+        return tableFile.default
+      })
+    )
+    return Promise.all(
+      tables
+        .sort((a, b) => {
+          return (b.options.priority ?? 0) - (a.options.priority ?? 0)
+        })
+        .map(async (table) => {
+          database.tables.set(table.options.name, await table.make())
+        })
+    )
+  })
+
+  // load commands
+  await fs.readdir(commandsPath).then((files) =>
+    files.forEach((filename) => {
+      commands.add(require(path.join(commandsPath, filename)))
+    })
+  )
+
+  // load listeners
+  await fs.readdir(listenersPath).then((files) =>
+    files.forEach((filename) => {
+      const listener = require(path.join(listenersPath, filename))
+      this[listener.once ? "once" : "on"](listener.event, listener.run)
+      logger.log(
+        `loaded listener ${chalk.yellow(
+          listener.once ? "once" : "on"
+        )} ${chalk.blueBright(listener.event)}`,
+        "handler"
+      )
+    })
+  )
+}

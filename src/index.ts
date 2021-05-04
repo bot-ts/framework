@@ -1,61 +1,19 @@
 import Discord from "discord.js"
 import dotenv from "dotenv"
-import chalk from "chalk"
-import fs from "fs/promises"
-import path from "path"
 
 dotenv.config()
 
 for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
-    throw new Error("You need to add " + key + " value in your .env file.")
+    throw new Error(`You need to add "${key}" value in your .env file.`)
   }
 }
 
 const client = new Discord.Client()
 
 ;(async () => {
-  const app = await import("./app")
-
-  // load tables
-  await fs.readdir(app.tablesPath).then(async (files) => {
-    const tables = await Promise.all(
-      files.map(async (filename) => {
-        const tableFile = await import(path.join(app.tablesPath, filename))
-        return tableFile.default
-      })
-    )
-    return Promise.all(
-      tables
-        .sort((a, b) => {
-          return (b.options.priority ?? 0) - (a.options.priority ?? 0)
-        })
-        .map(async (table) => {
-          app.tables.set(table.options.name, await table.make())
-        })
-    )
-  })
-
-  // load commands
-  await fs.readdir(app.commandsPath).then((files) =>
-    files.forEach((filename) => {
-      app.commands.add(require(path.join(app.commandsPath, filename)))
-    })
-  )
-
-  // load listeners
-  await fs.readdir(app.listenersPath).then((files) =>
-    files.forEach((filename) => {
-      const listener = require(path.join(app.listenersPath, filename))
-      client[listener.once ? "once" : "on"](listener.event, listener.run)
-      app.log(
-        `loaded listener ${chalk.yellow(
-          listener.once ? "once" : "on"
-        )} ${chalk.blueBright(listener.event)}`,
-        "handler"
-      )
-    })
-  )
+  // setup files
+  await import("./app").then((app) => app.loadFiles.bind(client)())
 
   // start client
   client.login(process.env.TOKEN).catch(() => {
