@@ -85,7 +85,9 @@ function removeDuplicates() {
     .src(["src/**/*.native.ts", "!src/app.native.ts"])
     .pipe(
       filter((file) =>
-        fs.existsSync(path.join(file.dirname, file.basename, ".ts"))
+        fs.existsSync(
+          path.join(file.dirname, file.basename.replace("native.ts", "ts"))
+        )
       )
     )
     .pipe(vinyl(del))
