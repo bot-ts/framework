@@ -1,23 +1,30 @@
 const gulp = require("gulp")
 const esbuild = require("gulp-esbuild")
+const filter = require("gulp-filter")
+const vinyl = require("vinyl-paths")
 const del = require("del")
 const log = require("fancy-log")
 const chalk = require("chalk")
 const git = require("git-commit-info")
 const cp = require("child_process")
 const path = require("path")
+const fs = require("fs")
 
 const currentVersion = git()
 
 function gitLog(cb) {
   const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
 
-  log([
-    `Updated  '${chalk.cyan("bot.ts")}'`,
-    `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(newVersion.shortCommit)}]`,
-    `${newVersion.date} -`,
-    `${chalk.grey(newVersion.message)}`,
-  ].join(" "))
+  log(
+    [
+      `Updated  '${chalk.cyan("bot.ts")}'`,
+      `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(
+        newVersion.shortCommit
+      )}]`,
+      `${newVersion.date} -`,
+      `${chalk.grey(newVersion.message)}`,
+    ].join(" ")
+  )
 
   cb()
 }
@@ -73,12 +80,24 @@ function copyTemp() {
     .pipe(gulp.dest(process.cwd(), { overwrite: true }))
 }
 
+function removeDuplicates() {
+  return gulp
+    .src(["src/**/*.native.ts"])
+    .pipe(
+      filter((file) => {
+        return fs.existsSync(path.join(file.dirname, file.basename, ".ts"))
+      })
+    )
+    .pipe(vinyl(del))
+}
+
 exports.build = gulp.series(cleanDist, build)
 exports.watch = gulp.series(cleanDist, build, watch)
 exports.update = gulp.series(
   cleanTemp,
   downloadTemp,
   copyTemp,
+  removeDuplicates,
   gitLog,
   cleanTemp
 )
