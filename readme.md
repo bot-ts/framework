@@ -1,41 +1,49 @@
----
-description: Welcome to the bot.ts official documentation.
----
+# bot.ts
 
-# Introduction
+Discord bot template in TypeScript includes:
 
-![](.gitbook/assets/bot.ts-banner.png)
+- Advanced [file handler](./src/app/handler.ts) that includes everything you need
+- [CLI](https://www.npmjs.com/package/make-bot.ts) to generate command and listener files
+- Very practical file structure (all the app parts are includes and exported from [app.ts](./src/app.ts))
+- [Yargs](http://yargs.js.org/) based argument system for commands
+- Some basic [commands](./src/commands) and [listeners](./src/listeners) (including an advanced "eval" command)
+- Some scripts in [package.json](./package.json) (including a TypeScript watcher)
+- [Knex](http://knexjs.org/) database provider [here](./src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3)
+- Efficient [pagination](./src/app/pagination.ts) system (example in [help](./src/commands/help.ts#L108) command)
+- [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms
 
-## What is bot.ts ?
+## Usage
 
-**bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
+### Initialize
 
-* Advanced handler. \(for commands and listeners\)
-* [CLI](https://www.npmjs.com/package/make-bot.ts) to generate command and listener files.
-* Very practical file structure. \(all the app parts are includes and exported from [app.ts](https://github.com/CamilleAbella/bot.ts/blob/master/src/app.ts)\)
-* [Yargs](http://yargs.js.org/) based argument system for commands.
-* Some essential [commands](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands) and [listeners](https://github.com/CamilleAbella/bot.ts/blob/master/src/listeners). \(including an advanced "eval" command\)
-* Some scripts in [package.json](https://github.com/CamilleAbella/bot.ts/blob/master/package.json). \(including a TypeScript watcher\)
-* [Knex](http://knexjs.org/) database provider [here](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3).
-* Efficient [pagination](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands/help.ts#L108) command\)
-* [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms
+> **⚠** This guide is **deprecated**, visit the [documentation](https://ghom.gitbook.io/bot-ts/) instead **⚠**
 
-## Why using bot.ts ?
+1. ~~Remove the "template" word from `template.env`.~~
+2. ~~Replace the `{{ value }}` values inside it.~~
+3. ~~Custom the "name", "version" and "author" values in [package.json](./package.json)~~
+4. ~~Install dependencies with `npm install` or `yarn install`~~
 
-Code faster and without the hassle. Choosing **bot.ts** is choosing control.
+### Scripts
 
-* It's not a lib! You can edit all files easly.
-* All is already configured.
-* I recommend it for learning TypeScript.
-* It uses ESBuild for boosted productivity
+| Name   | Script                    | Description                                           |
+| ------ | ------------------------- | ----------------------------------------------------- |
+| build  | `gulp build`              | Compile TypeScript from `./src` to `./dist` directory |
+| watch  | `gulp watch`              | Build, run and watch files                            |
+| start  | `npm run build && node .` | Build and run the bot from `./dist`                   |
+| format | `prettier --write src`    | Beatify files in `./src` using a `--no-semi` config   |
+| test   | `tsc --noEmit`            | Check if TypeScript types are valid                   |
+| update | `gulp update`             | Update core/native files of bot.ts                    |
+
+### Generate files
+
+- command: `make command [name]`
+- listener: `make listener [event: ClientEvent]`
+- database: `make database [database: sqlite3]`
+- namespace: `make namespace [name]`
 
 ## Annexes
 
-* [GitHub repository](https://github.com/CamilleAbella/bot.ts)
-* [CLI on NPN](https://www.npmjs.com/package/make-bot.ts)
-* [Discord server](https://discord.gg/3vC2XWK)
-
-![bot.ts starting logs](.gitbook/assets/logs-bot.ts.png)
-
-
-
+- bot.ts [documentation](https://ghom.gitbook.io/bot-ts/)
+- [`make-bot.ts` CLI on NPM](https://www.npmjs.com/package/make-bot.ts)
+- Discord server: [Les Laboratoires JS](https://discord.gg/3vC2XWK)
+- You want to [use this template](https://github.com/CamilleAbella/bot.ts/generate) ?
