@@ -82,14 +82,11 @@ function copyTemp() {
 
 function removeDuplicates() {
   return gulp
-    .src(["src/**/*.native.ts"])
+    .src(["src/**/*.native.ts", "!src/app.native.ts"])
     .pipe(
-      filter((file) => {
-        const notNativePath = path.join(file.dirname, file.basename, ".ts")
-        const condition = fs.existsSync(notNativePath)
-        log(`[${chalk.red(condition)}]`, file.path, chalk.grey(notNativePath))
-        return condition
-      })
+      filter((file) =>
+        fs.existsSync(path.join(file.dirname, file.basename, ".ts"))
+      )
     )
     .pipe(vinyl(del))
 }
