@@ -85,7 +85,9 @@ function removeDuplicates() {
     .src(["src/**/*.native.ts"])
     .pipe(
       filter((file) => {
-        return fs.existsSync(path.join(file.dirname, file.basename, ".ts"))
+        const condition = fs.existsSync(path.join(file.dirname, file.basename, ".ts"))
+        log(`[${chalk.red(condition)}]`, file.path)
+        return condition
       })
     )
     .pipe(vinyl(del))
