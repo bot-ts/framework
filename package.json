@@ -56,7 +56,7 @@
     "git-commit-info": "^2.0.0",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
-    "make-bot.ts": "^1.4.16",
+    "make-bot.ts": "^1.4.17",
     "nodemon": "^2.0.7",
     "typescript": "^4.0.5"
   },
