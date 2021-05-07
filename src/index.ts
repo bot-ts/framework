@@ -1,7 +1,6 @@
 import Discord from "discord.js"
-import dotenv from "dotenv"
 
-dotenv.config()
+import "dotenv/config"
 
 for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
