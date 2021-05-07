@@ -1,6 +1,7 @@
 import { join } from "path"
 import prettify from "ghom-prettify"
 import dayjs from "dayjs"
+import chalk from "chalk"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
@@ -104,11 +105,13 @@ export const code = {
 
 const locale = process.env.LOCALE
 
-import(`dayjs/locale/${locale}`)
-  .then(() => dayjs.locale(locale))
+import(`dayjs/locale/${locale ?? "en"}`)
+  .then(() => dayjs.locale(locale ?? "en"))
   .catch(() =>
     logger.warn(
-      `The "${locale}" is incorrect, please use a simple locale code.`,
+      `The ${chalk.bold(
+        locale
+      )} locale is incorrect, please use an existing locale code.`,
       "core"
     )
   )

@@ -85,7 +85,11 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * Use this command if prefix is given but without command matching
    */
-  default?: boolean
+  isDefault?: boolean
+  /**
+   * Use this command as slash command
+   */
+  isSlash?: boolean
   aliases?: string[] | string
   /**
    * Cool down of command (in ms)
@@ -145,29 +149,6 @@ export type Listener<EventName extends keyof Discord.ClientEvents> = {
   event: EventName
   run: (...args: Discord.ClientEvents[EventName]) => unknown
   once?: boolean
-}
-
-export class Commands extends Discord.Collection<string, Command<any>> {
-  public resolve<Message extends CommandMessage>(
-    key: string
-  ): Command<Message> | undefined {
-    for (const [name, command] of this) {
-      if (key === name) {
-        return command
-      } else {
-        const aliases = command.aliases ?? []
-        const resolvedAliases = Array.isArray(aliases) ? aliases : [aliases]
-        if (resolvedAliases.some((alias) => key === alias)) {
-          return command
-        }
-      }
-    }
-  }
-
-  public add<Message extends CommandMessage>(command: Command<Message>) {
-    validateCommand(command)
-    this.set(command.name, command)
-  }
 }
 
 export function resolveGivenArgument<Message extends CommandMessage>(
@@ -406,7 +387,7 @@ export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
 ): void | never {
-  if (command.default) {
+  if (command.isDefault) {
     if (defaultCommand)
       logger.error(
         `the ${chalk.blueBright(
@@ -417,6 +398,9 @@ export function validateCommand<Message extends CommandMessage>(
         "handler"
       )
     else defaultCommand = command
+  }
+
+  if (command.isSlash) {
   }
 
   const help: Flag<Message> = {
@@ -651,7 +635,33 @@ export function isFlag<Message extends CommandMessage>(
   return arg.hasOwnProperty("flag")
 }
 
-export const commands = new Commands()
+export const commands = new (class CommandCollection extends Discord.Collection<
+  string,
+  Command<any>
+> {
+  public resolve<Message extends CommandMessage>(
+    key: string
+  ): Command<Message> | undefined {
+    for (const [name, command] of this) {
+      if (key === name) {
+        return command
+      } else {
+        const aliases = command.aliases ?? []
+        const resolvedAliases = Array.isArray(aliases) ? aliases : [aliases]
+        if (resolvedAliases.some((alias) => key === alias)) {
+          return command
+        }
+      }
+    }
+  }
+
+  public add<Message extends CommandMessage>(command: Command<Message>) {
+    validateCommand(command)
+    this.set(command.name, command)
+  }
+})()
+
+export let isSlashCommandsUsable = true
 
 export async function loadFiles(this: Discord.Client) {
   const tablesPath =

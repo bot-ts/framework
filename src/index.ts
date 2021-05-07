@@ -1,6 +1,7 @@
 import Discord from "discord.js"
 
 import "dotenv/config"
+import chalk from "chalk"
 
 for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
@@ -11,13 +12,23 @@ for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
 const client = new Discord.Client()
 
 ;(async () => {
-  // setup files
-  await import("./app").then((app) => app.loadFiles.bind(client)())
+  const app = await import("./app")
 
-  // start client
-  client.login(process.env.TOKEN).catch(() => {
-    throw new Error("Invalid Discord token given.")
-  })
-})().catch((error) =>
-  import("./app/logger").then((logger) => logger.error(error, "system", true))
-)
+  try {
+    await client.login(process.env.TOKEN)
+
+    if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string)) {
+      app.isSlashCommandsUsable = false
+      app.warn(
+        `slash commands are disabled because the ${chalk.bold(
+          "SECRET"
+        )} environment variable is missing.`,
+        "handler"
+      )
+    }
+
+    await app.loadFiles.bind(client)()
+  } catch (error) {
+    app.error(error, "system", true)
+  }
+})()
