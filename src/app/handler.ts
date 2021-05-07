@@ -1,7 +1,10 @@
 import Discord from "discord.js"
+import API from "discord-api-types"
 import path from "path"
 import tims from "tims"
 import chalk from "chalk"
+import axios, { AxiosResponse } from "axios"
+import url from "url"
 import fs from "fs/promises"
 import regexParser from "regex-parser"
 import yargsParser from "yargs-parser"
@@ -9,6 +12,7 @@ import yargsParser from "yargs-parser"
 import * as core from "./core"
 import * as logger from "./logger"
 import * as database from "./database"
+import { extend } from "dayjs"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
@@ -83,6 +87,14 @@ export type Middleware<Message extends CommandMessage> = (
 export interface Command<Message extends CommandMessage = CommandMessage> {
   name: string
   /**
+   * Short description displayed in help menu
+   */
+  description: string
+  /**
+   * Description displayed in command detail
+   */
+  longDescription?: core.Scrap<string, [message: Message]>
+  /**
    * Use this command if prefix is given but without command matching
    */
   isDefault?: boolean
@@ -95,14 +107,6 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
    * Cool down of command (in ms)
    */
   coolDown?: core.Scrap<number, [message: Message]>
-  /**
-   * Short description displayed in help menu
-   */
-  description: core.Scrap<string, [message: Message]>
-  /**
-   * Description displayed in command detail
-   */
-  longDescription?: core.Scrap<string, [message: Message]>
   examples?: core.Scrap<string[], [message: Message]>
 
   // Restriction flags and permissions
@@ -141,8 +145,14 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   subs?: Command<Message>[]
   /**
    * This path is automatically setup on bot running.
+   * @deprecated
    */
   path?: string
+  /**
+   * This slash command options are automatically setup on bot running.
+   * @deprecated slash
+   */
+  slash?: API.APIApplicationCommand
 }
 
 export type Listener<EventName extends keyof Discord.ClientEvents> = {
@@ -381,12 +391,34 @@ export async function castValue<Message extends CommandMessage>(
   return true
 }
 
+export let clientId: `${bigint}`
 export let defaultCommand: Command<any> | null = null
 
-export function validateCommand<Message extends CommandMessage>(
+export async function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
-): void | never {
+): Promise<void | never> {
+  let slashCommand: null | API.APIApplicationCommand = null
+
+  if (command.isSlash && !command.slash) {
+    if (isSlashCommandsUsable) {
+      if (slashCommandNames.has(command.name) && !path)
+        slashCommand = {
+          id: clientId,
+          application_id: clientId,
+          name: command.name,
+          description: command.description,
+          options: [],
+        }
+    } else
+      logger.warn(
+        `slash command system is used on ${chalk.bold(
+          ((path ? path + " " : "") + command.name).replace(/\s+/g, "/")
+        )} command!`,
+        "handler"
+      )
+  }
+
   if (command.isDefault) {
     if (defaultCommand)
       logger.error(
@@ -400,14 +432,12 @@ export function validateCommand<Message extends CommandMessage>(
     else defaultCommand = command
   }
 
-  if (command.isSlash) {
-  }
-
   const help: Flag<Message> = {
     name: "help",
     flag: "h",
     description: "Get help from the command",
   }
+
   command.path = path
 
   if (!command.flags) command.flags = [help]
@@ -415,12 +445,20 @@ export function validateCommand<Message extends CommandMessage>(
 
   for (const flag of command.flags)
     if (flag.flag)
-      if (flag.flag.length !== 1)
+      if (flag.flag.length !== 1) {
         throw new Error(
           `The "${flag.name}" flag length of "${
             path ? path + " " + command.name : command.name
           }" command must be equal to 1`
         )
+      } else {
+        slashCommand?.options?.push({
+          name: flag.name,
+          description: flag.description,
+          default: false,
+          type: API.ApplicationCommandOptionType.BOOLEAN,
+        })
+      }
 
   if (command.coolDown)
     if (!command.run.toString().includes("triggerCoolDown"))
@@ -439,8 +477,47 @@ export function validateCommand<Message extends CommandMessage>(
   )
 
   if (command.subs)
-    for (const sub of command.subs)
-      validateCommand(sub, path ? path + " " + command.name : command.name)
+    for (const sub of command.subs) {
+      await validateCommand(
+        sub,
+        path ? path + " " + command.name : command.name
+      )
+
+      if (slashCommand) {
+        const options = subCommandsToSlashCommandOptions(command)
+        if (options) slashCommand.options?.push(...options)
+      }
+    }
+
+  if (slashCommand) {
+    command.slash = slashCommand
+    await postSlashCommand(slashCommand)
+  }
+}
+
+function subCommandsToSlashCommandOptions<Message extends CommandMessage>(
+  cmd: Command<Message>,
+  depth: number = 0,
+  parent?: API.APIApplicationCommandOption
+): API.APIApplicationCommandOption[] | undefined {
+  const output: API.APIApplicationCommandOption[] = []
+  if (cmd.subs) {
+    for (const sub of cmd.subs) {
+      const option: API.APIApplicationCommandOption = {
+        name: sub.name,
+        description: sub.description,
+        type: API.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+      }
+
+      option.options = subCommandsToSlashCommandOptions(sub, depth + 1, option)
+
+      output.push(option)
+    }
+    return output
+  } else {
+    if (parent) parent.type = API.ApplicationCommandOptionType.SUB_COMMAND
+    return undefined
+  }
 }
 
 export function getTypeDescriptionOf<Message extends CommandMessage>(
@@ -538,7 +615,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
     )
     .setDescription(
       (await core.scrap(cmd.longDescription, message)) ??
-        (await core.scrap(cmd.description, message)) ??
+        cmd.description ??
         "no description"
     )
 
@@ -655,15 +732,39 @@ export const commands = new (class CommandCollection extends Discord.Collection<
     }
   }
 
-  public add<Message extends CommandMessage>(command: Command<Message>) {
-    validateCommand(command)
+  public async add<Message extends CommandMessage>(command: Command<Message>) {
+    await validateCommand(command)
     this.set(command.name, command)
   }
 })()
 
 export let isSlashCommandsUsable = true
+export let slashCommandsAccessToken: string | null = null
+export const slashCommandNames = new Set<string>()
 
 export async function loadFiles(this: Discord.Client) {
+  clientId = this.user?.id as `${bigint}`
+
+  // init slash commands constants
+  if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string)) {
+    isSlashCommandsUsable = false
+    logger.warn(
+      `slash commands are disabled because the ${chalk.bold(
+        "SECRET"
+      )} environment variable is missing.`,
+      "handler"
+    )
+  } else {
+    slashCommandsAccessToken = await getSlashCommandsToken(
+      clientId,
+      process.env.SECRET
+    )
+    ;(await getAlreadyInitSlashCommandNames(clientId)).forEach((name) => {
+      slashCommandNames.add(name)
+    })
+  }
+
+  // init handlers path
   const tablesPath =
     process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
   const commandsPath =
@@ -691,11 +792,15 @@ export async function loadFiles(this: Discord.Client) {
   })
 
   // load commands
-  await fs.readdir(commandsPath).then((files) =>
-    files.forEach((filename) => {
-      commands.add(require(path.join(commandsPath, filename)))
-    })
-  )
+  await fs
+    .readdir(commandsPath)
+    .then((files) =>
+      Promise.all(
+        files.map((filename) =>
+          commands.add(require(path.join(commandsPath, filename)))
+        )
+      )
+    )
 
   // load listeners
   await fs.readdir(listenersPath).then((files) =>
@@ -710,4 +815,63 @@ export async function loadFiles(this: Discord.Client) {
       )
     })
   )
+}
+
+export function getSlashCommandsToken(
+  clientID: string,
+  clientSecret: string
+): Promise<string> {
+  const data = new url.URLSearchParams()
+  data.append("grant_type", "client_credentials")
+  data.append("scope", "applications.commands.update")
+  return axios({
+    url: "https://discord.com/api/oauth2/token",
+    method: "POST",
+    data: data.toString(),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${Buffer.from(
+        `${clientID}:${clientSecret}`
+      ).toString("base64")}`,
+    },
+  }).then(
+    (value: AxiosResponse<{ access_token: string }>) => value.data.access_token
+  )
+}
+
+export async function getAlreadyInitSlashCommandNames(clientId: string) {
+  return axios(`https://discord.com/api/v8/applications/${clientId}/commands`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${slashCommandsAccessToken}`,
+    },
+  }).then((res: AxiosResponse<API.APIApplicationCommand[]>) =>
+    res.data.map((cmd) => cmd.name)
+  )
+}
+
+export async function postSlashCommand(
+  slashCommand: API.APIApplicationCommand
+) {
+  axios
+    .post(
+      `https://discord.com/api/v8/applications/${clientId}/commands`,
+      slashCommand,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${slashCommandsAccessToken}`,
+        },
+      }
+    )
+    .then((res) =>
+      logger.log(
+        `loaded slash command ${slashCommand.name}: ${res.status} ${res.statusText}`,
+        "handler"
+      )
+    )
+    .catch((error) => {
+      logger.error(error, "handler", true)
+    })
 }
