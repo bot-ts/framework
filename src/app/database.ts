@@ -2,7 +2,13 @@ import knex, { Knex } from "knex"
 import path from "path"
 import chalk from "chalk"
 import fs from "fs"
+
 import * as logger from "./logger"
+import * as handler from "./handler"
+
+export const tableHandler = new handler.Handler(
+  process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
+)
 
 const dataDirectory = path.join(process.cwd(), "data")
 

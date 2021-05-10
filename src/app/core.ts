@@ -10,10 +10,20 @@ import EventEmitter from "events"
 
 import * as logger from "./logger"
 
-export const startedAt = Date.now()
+export const coreState: {
+  clientId: `${bigint}`
+  startedAt: number
+} = {
+  clientId: "0",
+  startedAt: Date.now(),
+}
+
+export function initCoreState(client: discord.Client) {
+  coreState.clientId = client.user?.id as `${bigint}`
+}
 
 export function uptime(): number {
-  return Date.now() - startedAt
+  return Date.now() - coreState.startedAt
 }
 
 /**

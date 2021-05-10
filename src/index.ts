@@ -15,7 +15,11 @@ const client = new Discord.Client()
 
   try {
     await client.login(process.env.TOKEN)
-    await app.loadFiles.bind(client)()
+    await app.initCoreState(client)
+    await app.initSlashState(client)
+    await app.tableHandler.load(client)
+    await app.commandHandler.load(client)
+    await app.listenerHandler.load(client)
   } catch (error) {
     app.error(error, "system", true)
   }
