@@ -10,6 +10,22 @@ export const tableHandler = new handler.Handler(
   process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
 )
 
+tableHandler.once("finish", async (pathList) => {
+  const tables = await Promise.all(
+    pathList.map(async (filepath) => {
+      const tableFile = await import(filepath)
+      return tableFile.default
+    })
+  )
+  return Promise.all(
+    tables
+      .sort((a, b) => {
+        return (b.options.priority ?? 0) - (a.options.priority ?? 0)
+      })
+      .map((table) => table.make())
+  )
+})
+
 const dataDirectory = path.join(process.cwd(), "data")
 
 if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
@@ -56,5 +72,3 @@ export class Table<Type> {
     return this
   }
 }
-
-export const tables = new Map<string, Table<any>>()

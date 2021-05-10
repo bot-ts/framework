@@ -16,6 +16,10 @@ export const commandHandler = new handler.Handler(
   process.env.COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )
 
+commandHandler.on("load", (filepath) => {
+  return commands.add(require(filepath))
+})
+
 export let defaultCommand: Command<any> | null = null
 
 export const commands = new (class CommandCollection extends Discord.Collection<
