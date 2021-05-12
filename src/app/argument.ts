@@ -7,15 +7,15 @@ export interface Argument {
 }
 
 export interface Rest<Message extends command.CommandMessage> extends Argument {
-  required?: core.Scrap<boolean, [message: Message]>
-  default?: core.Scrap<string, [message: Message]>
+  required?: core.Scrap<boolean, [message?: Message]>
+  default?: core.Scrap<string, [message?: Message]>
 }
 
 export interface Option<Message extends command.CommandMessage>
   extends Argument {
   aliases?: string[] | string
-  default?: core.Scrap<string, [message: Message]>
-  required?: core.Scrap<boolean, [message: Message]>
+  default?: core.Scrap<string, [message?: Message]>
+  required?: core.Scrap<boolean, [message?: Message]>
   castValue?:
     | "number"
     | "date"
@@ -33,8 +33,9 @@ export interface Option<Message extends command.CommandMessage>
    */
   checkValue?:
     | RegExp
-    | core.Scrap<boolean | RegExp | string, [value: string, message: Message]>
-  typeDescription?: core.Scrap<string, [value: string, message: Message]>
+    | string[]
+    | core.Scrap<boolean | RegExp | string, [value: string, message?: Message]>
+  typeDescription?: core.Scrap<string, [value: string, message?: Message]>
 }
 
 export type Positional<Message extends command.CommandMessage> = Omit<

@@ -20,6 +20,7 @@ const client = new Discord.Client()
     await app.tableHandler.load(client)
     await app.commandHandler.load(client)
     await app.listenerHandler.load(client)
+    await app.slashCommandHandler.load(client)
   } catch (error) {
     app.error(error, "system", true)
   }

@@ -39,7 +39,7 @@ export const db = knex({
   client: "sqlite3",
   useNullAsDefault: true,
   connection: {
-    filename: path.join(process.cwd(), "data", "sqlite3.db"),
+    filename: path.join(dataDirectory, "sqlite3.db"),
   },
 })
 

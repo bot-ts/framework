@@ -42,8 +42,8 @@ export const commands = new (class CommandCollection extends Discord.Collection<
     }
   }
 
-  public async add<Message extends CommandMessage>(command: Command<Message>) {
-    await validateCommand(command)
+  public add<Message extends CommandMessage>(command: Command<Message>) {
+    validateCommand(command)
     this.set(command.name, command)
   }
 })()
@@ -109,20 +109,20 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * Middlewares can stop the command if returning a string (string is displayed as error message in Discord)
    */
-  middlewares?: core.Scrap<Middleware<Message>[], [message: Message]>
+  middlewares?: Middleware<Message>[]
 
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: core.Scrap<argument.Rest<Message>, [message: Message]>
+  rest?: argument.Rest<Message>
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
-  positional?: core.Scrap<argument.Positional<Message>[], [message: Message]>
+  positional?: argument.Positional<Message>[]
   /**
    * Yargs option arguments (e.g. `--myArgument=value`)
    */
-  options?: core.Scrap<argument.Option<Message>[], [message: Message]>
+  options?: argument.Option<Message>[]
   /**
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
@@ -185,6 +185,24 @@ export async function checkValue<Message extends CommandMessage>(
   message: Message
 ): Promise<boolean> {
   if (!subject.checkValue) return true
+
+  if (Array.isArray(subject.checkValue)) {
+    if (subject.checkValue.includes(value)) {
+      await message.channel.send(
+        new Discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            `Bad ${subjectType} pattern "${subject.name}".`,
+            message.client.user?.displayAvatarURL()
+          )
+          .setDescription(
+            `Expected choice list: \`${subject.checkValue.join(" | ")}\``
+          )
+      )
+
+      return false
+    } else return true
+  }
 
   const checkResult = await core.scrap(subject.checkValue, value, message)
 
@@ -374,31 +392,10 @@ export async function castValue<Message extends CommandMessage>(
   return true
 }
 
-export async function validateCommand<Message extends CommandMessage>(
+export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
-): Promise<void | never> {
-  let slashCommand: null | API.APIApplicationCommand = null
-
-  if (command.isSlash && !command.slash) {
-    if (slash.slashState.usable) {
-      if (slash.slashCommandNames.has(command.name) && !path)
-        slashCommand = {
-          id: core.coreState.clientId,
-          application_id: core.coreState.clientId,
-          name: command.name,
-          description: command.description,
-          options: [],
-        }
-    } else
-      logger.warn(
-        `slash command system is used on ${chalk.bold(
-          ((path ? path + " " : "") + command.name).replace(/\s+/g, "/")
-        )} command!`,
-        "handler"
-      )
-  }
-
+): void | never {
   if (command.isDefault) {
     if (defaultCommand)
       logger.error(
@@ -425,20 +422,12 @@ export async function validateCommand<Message extends CommandMessage>(
 
   for (const flag of command.flags)
     if (flag.flag)
-      if (flag.flag.length !== 1) {
+      if (flag.flag.length !== 1)
         throw new Error(
           `The "${flag.name}" flag length of "${
             path ? path + " " + command.name : command.name
           }" command must be equal to 1`
         )
-      } else {
-        slashCommand?.options?.push({
-          name: flag.name,
-          description: flag.description,
-          default: false,
-          type: API.ApplicationCommandOptionType.BOOLEAN,
-        })
-      }
 
   if (command.coolDown)
     if (!command.run.toString().includes("triggerCoolDown"))
@@ -457,47 +446,8 @@ export async function validateCommand<Message extends CommandMessage>(
   )
 
   if (command.subs)
-    for (const sub of command.subs) {
-      await validateCommand(
-        sub,
-        path ? path + " " + command.name : command.name
-      )
-
-      if (slashCommand) {
-        const options = subCommandsToSlashCommandOptions(command)
-        if (options) slashCommand.options?.push(...options)
-      }
-    }
-
-  if (slashCommand) {
-    command.slash = slashCommand
-    await slash.postSlashCommand(slashCommand)
-  }
-}
-
-function subCommandsToSlashCommandOptions<Message extends CommandMessage>(
-  cmd: Command<Message>,
-  depth: number = 0,
-  parent?: API.APIApplicationCommandOption
-): API.APIApplicationCommandOption[] | undefined {
-  const output: API.APIApplicationCommandOption[] = []
-  if (cmd.subs) {
-    for (const sub of cmd.subs) {
-      const option: API.APIApplicationCommandOption = {
-        name: sub.name,
-        description: sub.description,
-        type: API.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
-      }
-
-      option.options = subCommandsToSlashCommandOptions(sub, depth + 1, option)
-
-      output.push(option)
-    }
-    return output
-  } else {
-    if (parent) parent.type = API.ApplicationCommandOptionType.SUB_COMMAND
-    return undefined
-  }
+    for (const sub of command.subs)
+      validateCommand(sub, path ? path + " " + command.name : command.name)
 }
 
 export async function sendCommandDetails<Message extends CommandMessage>(
