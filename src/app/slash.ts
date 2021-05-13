@@ -155,7 +155,7 @@ export async function getAlreadyInitSlashCommandNames(clientId: string) {
 
 export async function postSlashCommand(
   clientId: `${bigint}`,
-  slashCommand: _command.Command["slash"]
+  slashCommand: API.RESTPostAPIApplicationCommandsJSONBody
 ) {
   axios
     .post(
@@ -170,7 +170,7 @@ export async function postSlashCommand(
     )
     .then((res) =>
       logger.log(
-        `loaded slash command ${slashCommand?.name}: ${res.status} ${res.statusText}`,
+        `loaded slash command ${slashCommand.name}: ${res.status} ${res.statusText}`,
         "handler"
       )
     )
