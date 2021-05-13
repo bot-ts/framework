@@ -3,7 +3,6 @@ import chalk from "chalk"
 import axios, { AxiosResponse } from "axios"
 
 import API from "discord-api-types/v8"
-import discord from "discord.js"
 
 import * as core from "./core"
 import * as logger from "./logger"
@@ -34,8 +33,6 @@ export const slashCommandHandler = {
         if (slashState.usable) {
           if (!slashCommandNames.has(name) && !command.path)
             slashCommand = {
-              id: discord.SnowflakeUtil.generate() as `${bigint}`,
-              application_id: client.user.id,
               name: command.name,
               description: command.description,
               options: [],
@@ -158,7 +155,7 @@ export async function getAlreadyInitSlashCommandNames(clientId: string) {
 
 export async function postSlashCommand(
   clientId: `${bigint}`,
-  slashCommand: API.APIApplicationCommand
+  slashCommand: _command.Command["slash"]
 ) {
   axios
     .post(
@@ -173,7 +170,7 @@ export async function postSlashCommand(
     )
     .then((res) =>
       logger.log(
-        `loaded slash command ${slashCommand.name}: ${res.status} ${res.statusText}`,
+        `loaded slash command ${slashCommand?.name}: ${res.status} ${res.statusText}`,
         "handler"
       )
     )

@@ -137,7 +137,7 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * This slash command options are automatically setup on bot running but you can configure it manually too.
    */
-  slash?: API.APIApplicationCommand
+  slash?: Omit<API.APIApplicationCommand, "id" | "application_id">
 }
 
 export function validateCommand<Message extends CommandMessage>(
