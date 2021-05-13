@@ -29,10 +29,11 @@
 * [Knex](http://knexjs.org/) database provider [here](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3).
 * Efficient [pagination](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands/help.native.ts#L34) command\)
 * [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms.
-* Simple slash command handler \(inspired of [SkyDonald handler](https://github.com/SkyDonald/slash-commands-handler)\)
-* Faster [Gulp-based](https://gulpjs.com/) file watcher.
+* Simple slash command handler. \(inspired of [SkyDonald handler](https://github.com/SkyDonald/slash-commands-handler)\)
+* Faster [Gulp](https://gulpjs.com/) based file watcher.
 * GitHub Actions checks for TYpeScript typings [here](https://github.com/CamilleAbella/bot.ts/blob/master/.github/workflows/test.yml).
 * Beautiful console logger using [Chalk](https://github.com/chalk/chalk).
+* [Gulp](https://gulpjs.com/) based framework updater.
 
 ## Why using bot.ts ?
 
