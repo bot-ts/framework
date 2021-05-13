@@ -2,9 +2,11 @@ import discord from "discord.js"
 import path from "path"
 import fs from "fs/promises"
 
+import * as core from "./core"
+
 export interface HandlerEvents {
-  load: [path: string, client: discord.Client]
-  finish: [items: string[], client: discord.Client]
+  load: [path: string, client: core.FullClient]
+  finish: [items: string[], client: core.FullClient]
 }
 
 export class Handler {
@@ -12,7 +14,7 @@ export class Handler {
 
   constructor(private path: string) {}
 
-  async load(client: discord.Client) {
+  async load(client: core.FullClient) {
     const filenames = await fs.readdir(this.path)
     const filepathList: string[] = []
     for (const filename of filenames) {

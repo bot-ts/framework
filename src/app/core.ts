@@ -11,19 +11,21 @@ import EventEmitter from "events"
 import * as logger from "./logger"
 
 export const coreState: {
-  clientId: `${bigint}`
   startedAt: number
 } = {
-  clientId: "0",
   startedAt: Date.now(),
-}
-
-export function initCoreState(client: discord.Client) {
-  coreState.clientId = client.user?.id as `${bigint}`
 }
 
 export function uptime(): number {
   return Date.now() - coreState.startedAt
+}
+
+export type FullClient = discord.Client & {
+  user: discord.ClientUser & { id: `${bigint}` }
+}
+
+export function isFullClient(client: discord.Client): client is FullClient {
+  return client.user?.id !== undefined
 }
 
 /**

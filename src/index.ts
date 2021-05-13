@@ -15,8 +15,10 @@ const client = new Discord.Client()
 
   try {
     await client.login(process.env.TOKEN)
-    await app.initCoreState(client)
-    await app.initSlashState(client)
+
+    if (!app.isFullClient(client))
+      throw new Error("The Discord client is not full.")
+
     await app.tableHandler.load(client)
     await app.commandHandler.load(client)
     await app.listenerHandler.load(client)

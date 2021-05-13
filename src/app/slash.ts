@@ -22,18 +22,20 @@ export const slashState: {
 export const slashCommandNames = new Set<string>()
 
 export const slashCommandHandler = {
-  load: async (client: discord.Client) => {
+  load: async (client: core.FullClient) => {
+    await initSlashState(client)
+
     if (!slashState.usable) return
 
     for (const [name, command] of _command.commands) {
-      let slashCommand: null | API.APIApplicationCommand = null
+      let slashCommand = command.slash
 
-      if (command.isSlash && !command.slash)
+      if (command.isSlash && !slashCommand)
         if (slashState.usable) {
           if (!slashCommandNames.has(name) && !command.path)
             slashCommand = {
-              id: core.coreState.clientId,
-              application_id: core.coreState.clientId,
+              id: discord.SnowflakeUtil.generate() as `${bigint}`,
+              application_id: client.user.id,
               name: command.name,
               description: command.description,
               options: [],
@@ -94,12 +96,13 @@ export const slashCommandHandler = {
           }
 
       command.slash = slashCommand
-      await postSlashCommand(slashCommand)
+
+      await postSlashCommand(client.user.id, slashCommand)
     }
   },
 }
 
-export async function initSlashState(client: discord.Client) {
+export async function initSlashState(client: core.FullClient) {
   if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string)) {
     slashState.usable = false
     logger.warn(
@@ -110,19 +113,17 @@ export async function initSlashState(client: discord.Client) {
     )
   } else {
     slashState.accessToken = await getSlashCommandsToken(
-      core.coreState.clientId,
+      client.user.id,
       process.env.SECRET
     )
-    ;(await getAlreadyInitSlashCommandNames(core.coreState.clientId)).forEach(
-      (name) => {
-        slashCommandNames.add(name)
-      }
-    )
+    ;(await getAlreadyInitSlashCommandNames(client.user.id)).forEach((name) => {
+      slashCommandNames.add(name)
+    })
   }
 }
 
 export function getSlashCommandsToken(
-  clientID: string,
+  clientId: string,
   clientSecret: string
 ): Promise<string> {
   const data = new url.URLSearchParams()
@@ -135,7 +136,7 @@ export function getSlashCommandsToken(
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${Buffer.from(
-        `${clientID}:${clientSecret}`
+        `${clientId}:${clientSecret}`
       ).toString("base64")}`,
     },
   }).then(
@@ -156,11 +157,12 @@ export async function getAlreadyInitSlashCommandNames(clientId: string) {
 }
 
 export async function postSlashCommand(
+  clientId: `${bigint}`,
   slashCommand: API.APIApplicationCommand
 ) {
   axios
     .post(
-      `https://discord.com/api/v8/applications/${core.coreState.clientId}/commands`,
+      `https://discord.com/api/v8/applications/${clientId}/commands`,
       slashCommand,
       {
         headers: {
