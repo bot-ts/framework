@@ -8,29 +8,41 @@ import * as core from "./core"
 import * as logger from "./logger"
 import * as _command from "./command"
 
-export const slashState: {
-  usable: boolean
-  accessToken: string | null
-  refreshInterval: NodeJS.Timeout | null
-} = {
-  usable: true,
-  accessToken: null,
-  refreshInterval: null,
-}
-
+export let usable = true
+export let refreshInterval: any = null
 export const slashCommandNames = new Set<string>()
 
 export const slashCommandHandler = {
   load: async (client: core.FullClient) => {
-    await initSlashState(client)
+    if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string)) {
+      usable = false
 
-    if (!slashState.usable) return
+      logger.warn(
+        `slash commands are disabled because the ${chalk.bold(
+          "SECRET"
+        )} environment variable is missing.`,
+        "handler"
+      )
+
+      return
+    }
+
+    const accessToken = await getSlashCommandAccessToken(
+      client.user.id,
+      process.env.SECRET
+    )
+
+    const slashCommands = await fetchSlashCommands(client.user.id, accessToken)
+
+    slashCommands.forEach((cmd) => {
+      slashCommandNames.add(cmd.name)
+    })
 
     for (const [name, command] of _command.commands) {
       let slashCommand = command.slash
 
       if (command.isSlash && !slashCommand)
-        if (slashState.usable) {
+        if (usable) {
           if (!slashCommandNames.has(name) && !command.path)
             slashCommand = {
               name: command.name,
@@ -94,32 +106,12 @@ export const slashCommandHandler = {
 
       command.slash = slashCommand
 
-      await postSlashCommand(client.user.id, slashCommand)
+      await postSlashCommand(client.user.id, accessToken, slashCommand)
     }
   },
 }
 
-export async function initSlashState(client: core.FullClient) {
-  if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string)) {
-    slashState.usable = false
-    logger.warn(
-      `slash commands are disabled because the ${chalk.bold(
-        "SECRET"
-      )} environment variable is missing.`,
-      "handler"
-    )
-  } else {
-    slashState.accessToken = await getSlashCommandsToken(
-      client.user.id,
-      process.env.SECRET
-    )
-    ;(await getAlreadyInitSlashCommandNames(client.user.id)).forEach((name) => {
-      slashCommandNames.add(name)
-    })
-  }
-}
-
-export function getSlashCommandsToken(
+export function getSlashCommandAccessToken(
   clientId: string,
   clientSecret: string
 ): Promise<string> {
@@ -141,20 +133,23 @@ export function getSlashCommandsToken(
   )
 }
 
-export async function getAlreadyInitSlashCommandNames(clientId: string) {
-  return axios(`https://discord.com/api/v8/applications/${clientId}/commands`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${slashState.accessToken}`,
-    },
-  }).then((res: AxiosResponse<API.APIApplicationCommand[]>) =>
-    res.data.map((cmd) => cmd.name)
-  )
+export async function fetchSlashCommands(clientId: `${bigint}`, accessToken: string) {
+  return axios
+    .get<API.APIApplicationCommand[]>(
+      `https://discord.com/api/v8/applications/${clientId}/commands`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    .then((res) => res.data)
 }
 
 export async function postSlashCommand(
   clientId: `${bigint}`,
+  accessToken: string,
   slashCommand: API.RESTPostAPIApplicationCommandsJSONBody
 ) {
   axios
@@ -164,7 +159,7 @@ export async function postSlashCommand(
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${slashState.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     )
