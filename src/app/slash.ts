@@ -8,106 +8,12 @@ import * as core from "./core"
 import * as logger from "./logger"
 import * as _command from "./command"
 
-export let usable = true
+export let usable = false
 export let refreshInterval: any = null
-export const slashCommandNames = new Set<string>()
 
 export const slashCommandHandler = {
   load: async (client: core.FullClient) => {
-    if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string)) {
-      usable = false
-
-      logger.warn(
-        `slash commands are disabled because the ${chalk.bold(
-          "SECRET"
-        )} environment variable is missing.`,
-        "handler"
-      )
-
-      return
-    }
-
-    const accessToken = await getSlashCommandAccessToken(
-      client.user.id,
-      process.env.SECRET
-    )
-
-    const slashCommands = await fetchSlashCommands(client.user.id, accessToken)
-
-    slashCommands.forEach((cmd) => {
-      slashCommandNames.add(cmd.name)
-    })
-
-    for (const [name, command] of _command.commands) {
-      let slashCommand = command.slash
-
-      if (command.isSlash && !slashCommand)
-        if (usable) {
-          if (!slashCommandNames.has(name) && !command.path)
-            slashCommand = {
-              name: command.name,
-              description: command.description,
-              options: [],
-            }
-        } else {
-          logger.warn(
-            `slash command system is used on ${chalk.bold(
-              ((command.path ? command.path + " " : "") + command.name).replace(
-                /\s+/g,
-                "/"
-              )
-            )} command!`,
-            "handler"
-          )
-        }
-
-      if (!slashCommand) return
-
-      if (command.flags)
-        for (const flag of command.flags)
-          slashCommand.options?.push({
-            name: flag.name,
-            description: flag.description,
-            type: API.ApplicationCommandOptionType.BOOLEAN,
-          })
-
-      for (const option of [
-        ...(command.options ?? []),
-        ...(command.positional ?? []),
-      ]) {
-        let type = API.ApplicationCommandOptionType.STRING
-
-        if (typeof option.castValue === "string") {
-          const temp = option.castValue.toUpperCase()
-          if (isApplicationCommandOptionType(temp))
-            // @ts-ignore
-            type = API.ApplicationCommandOptionType[temp]
-        }
-
-        slashCommand.options?.push({
-          name: option.name,
-          description: option.description,
-          type,
-          required: await core.scrap(option.required),
-          choices: Array.isArray(option.checkValue)
-            ? option.checkValue.map((value) => {
-                return { name: value, value }
-              })
-            : undefined,
-        })
-      }
-
-      if (command.subs)
-        for (const sub of command.subs)
-          if (slashCommand) {
-            const options = subCommandsToSlashCommandOptions(command)
-            if (options) slashCommand.options?.push(...options)
-          }
-
-      command.slash = slashCommand
-
-      await postSlashCommand(client.user.id, accessToken, slashCommand)
-    }
+    await reloadSLashCommands(client)
   },
 }
 
@@ -133,7 +39,10 @@ export function getSlashCommandAccessToken(
   )
 }
 
-export async function fetchSlashCommands(clientId: `${bigint}`, accessToken: string) {
+export async function fetchSlashCommands(
+  clientId: `${bigint}`,
+  accessToken: string
+) {
   return axios
     .get<API.APIApplicationCommand[]>(
       `https://discord.com/api/v8/applications/${clientId}/commands`,
@@ -205,4 +114,90 @@ function isApplicationCommandOptionType(
   str: any
 ): str is keyof typeof API.ApplicationCommandOptionType {
   return API.ApplicationCommandOptionType.hasOwnProperty(str)
+}
+
+export async function reloadSLashCommands(client: core.FullClient) {
+  if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string))
+    return logger.warn(
+      `slash commands are disabled because the ${chalk.bold(
+        "SECRET"
+      )} environment variable is missing.`,
+      "handler"
+    )
+
+  refreshInterval = setTimeout(() => {
+    reloadSLashCommands(client).catch((error) => {
+      clearTimeout(refreshInterval)
+      logger.error(error, "handler", true)
+    })
+  }, 1000 * 60 * 60)
+
+  usable = true
+
+  const accessToken = await getSlashCommandAccessToken(
+    client.user.id,
+    process.env.SECRET
+  )
+
+  const slashCommands = await fetchSlashCommands(client.user.id, accessToken)
+
+  for (const [name, command] of _command.commands) {
+    if (
+      !command.isSlash ||
+      command.parent ||
+      slashCommands.some((cmd) => cmd.name === name)
+    )
+      continue
+
+    let slashCommand = command.slash ?? {
+      name: command.name,
+      description: command.description,
+      options: [],
+    }
+
+    if (command.flags)
+      for (const flag of command.flags)
+        slashCommand.options?.push({
+          name: flag.name,
+          description: flag.description,
+          type: API.ApplicationCommandOptionType.BOOLEAN,
+        })
+
+    for (const option of [
+      ...(command.options ?? []),
+      ...(command.positional ?? []),
+    ]) {
+      let type = API.ApplicationCommandOptionType.STRING
+
+      if (typeof option.castValue === "string") {
+        const temp = option.castValue.toUpperCase()
+        if (isApplicationCommandOptionType(temp))
+          // @ts-ignore
+          type = API.ApplicationCommandOptionType[temp]
+      }
+
+      slashCommand.options?.push({
+        name: option.name,
+        description: option.description,
+        type,
+        required: await core.scrap(option.required),
+        choices: Array.isArray(option.checkValue)
+          ? option.checkValue.map((value) => {
+              return { name: value, value }
+            })
+          : undefined,
+      })
+    }
+
+    if (command.subs)
+      for (const sub of command.subs)
+        if (slashCommand) {
+          const options = subCommandsToSlashCommandOptions(command)
+          if (options) slashCommand.options?.push(...options)
+        }
+
+    command.slash = slashCommand
+
+    await postSlashCommand(client.user.id, accessToken, slashCommand)
+  }
 }

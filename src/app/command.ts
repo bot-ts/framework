@@ -128,22 +128,24 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * Sub-commands
    */
-  subs?: Command<Message>[]
-  /**
-   * This path is automatically setup on bot running.
-   * @deprecated
-   */
-  path?: string
+  subs?: Command<any>[]
   /**
    * This slash command options are automatically setup on bot running but you can configure it manually too.
    */
   slash?: API.RESTPostAPIApplicationCommandsJSONBody
+  /**
+   * This property is automatically setup on bot running.
+   * @deprecated
+   */
+  parent?: Command<any>
 }
 
 export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
-  path?: string
+  parent?: Command<any>
 ): void | never {
+  command.parent = parent
+
   if (command.isDefault) {
     if (defaultCommand)
       logger.error(
@@ -162,8 +164,6 @@ export function validateCommand<Message extends CommandMessage>(
     flag: "h",
     description: "Get help from the command",
   }
-
-  command.path = path
 
   if (!command.flags) command.flags = [help]
   else command.flags.push(help)
@@ -187,15 +187,29 @@ export function validateCommand<Message extends CommandMessage>(
       )
 
   logger.log(
-    `loaded command ${chalk.blueBright(
-      (path ? path + " " : "") + command.name
-    )}`,
+    `loaded command ${chalk.blueBright(commandBreadcrumb(command))}`,
     "handler"
   )
 
   if (command.subs)
-    for (const sub of command.subs)
-      validateCommand(sub, path ? path + " " + command.name : command.name)
+    for (const sub of command.subs) validateCommand(sub, command)
+}
+
+export function commandBreadcrumb<Message extends CommandMessage>(
+  command: Command<Message>,
+  separator = " "
+): string {
+  return commandParents(command)
+    .map((cmd) => cmd.name)
+    .join(separator)
+}
+
+export function commandParents<Message extends CommandMessage>(
+  command: Command<Message>
+): Command<any>[] {
+  return command.parent
+    ? [command, ...commandParents(command.parent)].reverse()
+    : [command]
 }
 
 export async function sendCommandDetails<Message extends CommandMessage>(
@@ -203,7 +217,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
   cmd: Command<Message>,
   prefix: string
 ): Promise<void> {
-  let pattern = `${prefix}${cmd.path ? cmd.path + " " : ""}${cmd.name}`
+  let pattern = `${prefix}${commandBreadcrumb(cmd)}`
 
   const positionalList: string[] = []
   const argumentList: string[] = []
