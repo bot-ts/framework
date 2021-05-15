@@ -215,10 +215,9 @@ export function commandParents<Message extends CommandMessage>(
 
 export async function sendCommandDetails<Message extends CommandMessage>(
   message: Message,
-  cmd: Command<Message>,
-  prefix: string
+  cmd: Command<Message>
 ): Promise<void> {
-  let pattern = `${prefix}${commandBreadcrumb(cmd)}`
+  let pattern = `${message.usedPrefix}${commandBreadcrumb(cmd)}`
 
   const positionalList: string[] = []
   const argumentList: string[] = []
@@ -319,7 +318,9 @@ export async function sendCommandDetails<Message extends CommandMessage>(
     embed.addField(
       "examples:",
       core.code.stringify({
-        content: examples.map((example) => prefix + example).join("\n"),
+        content: examples
+          .map((example) => message.usedPrefix + example)
+          .join("\n"),
       }),
       false
     )

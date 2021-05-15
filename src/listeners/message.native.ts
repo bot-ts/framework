@@ -91,7 +91,7 @@ const listener: app.Listener<"message"> = {
 
     // handle help argument
     if (parsedArgs.help || parsedArgs.h)
-      return app.sendCommandDetails(message, cmd, prefix)
+      return app.sendCommandDetails(message, cmd)
 
     // coolDown
     if (cmd.coolDown) {
