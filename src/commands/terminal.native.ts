@@ -21,16 +21,23 @@ const command: app.Command = {
     )
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
-      const output = err ? err.stack ?? err.message : stderr.trim() || stdout || "No log"
+      const output = err
+        ? err.stack ?? err.message
+        : stderr.trim() || stdout || null
 
-      const embed = new app.MessageEmbed()
-        .setTitle(
-          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
-        )
-        .setDescription(
+      const embed = new app.MessageEmbed().setTitle(
+        err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
+      )
+
+      if (output)
+        embed.setDescription(
           app.code.stringify({
-            content:
-              output.split("").reverse().slice(0, 2000).reverse().join("")
+            content: output
+              .split("")
+              .reverse()
+              .slice(0, 2000)
+              .reverse()
+              .join(""),
           })
         )
 
