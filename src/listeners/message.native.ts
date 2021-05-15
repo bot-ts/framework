@@ -40,6 +40,7 @@ const listener: app.Listener<"message"> = {
 
     if (!cmd) {
       if (app.defaultCommand) {
+        key = ""
         cmd = app.defaultCommand
       } else return null
     }
@@ -74,7 +75,7 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    cut(key)
+    cut(key.trim())
 
     const baseContent = dynamicContent
 
