@@ -13,6 +13,7 @@ export interface Argument {
 export interface Rest<Message extends command.CommandMessage> extends Argument {
   required?: core.Scrap<boolean, [message?: Message]>
   default?: core.Scrap<string, [message?: Message]>
+  all?: boolean
 }
 
 export interface Option<Message extends command.CommandMessage>

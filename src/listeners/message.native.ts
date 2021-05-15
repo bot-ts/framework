@@ -72,6 +72,8 @@ const listener: app.Listener<"message"> = {
 
     cut(key)
 
+    const baseContent = message.content
+
     // parse CommandMessage arguments
     const parsedArgs = yargsParser(message.content)
     const restPositional = parsedArgs._ ?? []
@@ -387,6 +389,8 @@ const listener: app.Listener<"message"> = {
 
     if (cmd.rest) {
       const rest = await app.scrap(cmd.rest, message)
+
+      if(rest.all) message.rest = baseContent
 
       if (message.rest.length === 0) {
         if (await app.scrap(rest.required, message)) {
