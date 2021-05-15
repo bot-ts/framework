@@ -7,6 +7,7 @@ import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import discord from "discord.js"
 import EventEmitter from "events"
+import * as prettier from "prettier"
 
 import * as logger from "./logger"
 
@@ -102,8 +103,20 @@ export const code = {
   /**
    * inject the code in the code block and return code block
    */
-  stringify({ lang, content }: Code): string {
-    return "```" + (lang ?? "") + "\n" + content + "\n```"
+  stringify({
+    lang,
+    content,
+    format,
+  }: Code & { format?: true | prettier.Options }): string {
+    return (
+      "```" +
+      (lang ?? "") +
+      "\n" +
+      (format
+        ? prettify.format(content, lang, format === true ? undefined : format)
+        : content) +
+      "\n```"
+    )
   },
   /**
    * format the code using prettier and return it

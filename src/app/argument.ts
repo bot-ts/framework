@@ -141,7 +141,8 @@ export async function checkValue<Message extends command.CommandMessage>(
           .setDescription(
             typeof subject.checkValue === "function"
               ? core.code.stringify({
-                  content: core.code.format(subject.checkValue.toString()),
+                  content: subject.checkValue.toString(),
+                  format: true,
                   lang: "js",
                 })
               : subject.checkValue instanceof RegExp
