@@ -5,9 +5,11 @@ interface Process {
   logs: string[]
   process: cp.ChildProcess
   lastUpdate: number
+  message?: app.Message
+  embed: app.MessageEmbed
 }
 
-const processes = new Map<number, Process>()
+const processes = new app.Collection<number, Process>()
 
 const logsUpdateInterval = 2000
 
@@ -33,33 +35,33 @@ const command: app.Command = {
   async run(message) {
     message.triggerCoolDown()
 
+    const args: string[] = message.args.cmd.split(/\s+/)
+
     const current: Process = {
       logs: [],
       lastUpdate: Date.now(),
-      process: cp.exec(message.args.cmd, { cwd: process.cwd() }),
+      process: cp.spawn(args[0], args.slice(1), { cwd: process.cwd() }),
+      embed: new app.MessageEmbed().setColor("BLURPLE"),
     }
 
-    const embed = new app.MessageEmbed()
-      .setTitle(
-        `\`[${current.process.pid}]\` The process is ${
-          message.args.muted ? "started" : "running"
-        }.`
-      )
-      .setColor("BLURPLE")
+    current.embed.setTitle(
+      `\`[${current.process.pid}]\` The process is ${
+        message.args.muted ? "started" : "running"
+      }.`
+    )
 
-    const toEdit = await message.channel.send(embed)
+    current.message = await message.channel.send(current.embed)
 
     const sendLogs = () => {
-      toEdit
-        .edit(
-          embed.setDescription(
-            app.code.stringify({
-              content: current.logs.join("\n").trim() || "No log",
-            })
-          )
+      current.message?.edit(
+        current.embed.setDescription(
+          app.code.stringify({
+            content: current.logs.join("\n").trim() || "No log",
+          })
         )
+      )
         .catch(() => {
-          message.channel.send(embed).catch()
+          message.channel.send(current.embed).catch()
         })
     }
 
@@ -85,28 +87,31 @@ const command: app.Command = {
       console.log("error")
 
       if (!message.args.muted) {
-        embed.setFooter(
+        current.embed.setFooter(
           "❌ " + (error.name || "") + (error.message || "An error occurred")
-        )
+        ).setColor("RED")
 
         sendLogs()
       }
     })
 
-    current.process.on("close", (code) => {
+    const onCloseOrExit = (code: number | null) => {
       processes.delete(current.process.pid)
       console.log("close")
 
       if (!message.args.muted) {
-        if (code && code !== 0) embed.setColor("RED")
+        if (code && code !== 0) current.embed.setColor("RED")
 
-        embed.setTitle(
+        current.embed.setTitle(
           `\`[${current.process.pid}]\` Process ended with exit code: ${code}`
         )
 
         sendLogs()
       }
-    })
+    }
+
+    current.process.on("close", onCloseOrExit)
+    current.process.on("exit", onCloseOrExit)
 
     processes.set(current.process.pid, current)
   },
@@ -122,14 +127,29 @@ const command: app.Command = {
           description: "Process ID",
         },
       ],
-      async run(message) {},
+      async run(message) {
+        if(!message.args.pid) {
+          processes.forEach(p => p.process.kill(0))
+        } else {
+          const target = processes.get(message.args.pid)
+          if(target){
+            target.process.kill(0)
+          }
+        }
+        return
+      },
     },
     {
       name: "list",
       aliases: ["ls", "all"],
       botOwnerOnly: true,
       description: "List watched processes",
-      async run(message) {},
+      async run(message) {
+        return message.channel.send(app.code.stringify({
+          lang: "yaml",
+          content: processes.map((p, pid) => `${pid}: ${p.logs.length} lines of logs`).join("\n") || "No process"
+        }))
+      },
     },
     {
       name: "logs",

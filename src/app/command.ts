@@ -371,7 +371,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 export function isCommandMessage(
   message: Discord.Message
 ): message is CommandMessage {
-  return !message.system && !!message.channel
+  return !message.system && !!message.channel && !!message.author
 }
 
 export function isGuildMessage(
