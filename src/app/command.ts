@@ -377,7 +377,11 @@ export function isCommandMessage(
 export function isGuildMessage(
   message: CommandMessage
 ): message is GuildMessage {
-  return !!message.guild && message.channel instanceof Discord.GuildChannel
+  return (
+    !!message.member &&
+    !!message.guild &&
+    message.channel instanceof Discord.GuildChannel
+  )
 }
 
 export function isDirectMessage(

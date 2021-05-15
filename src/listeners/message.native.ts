@@ -390,7 +390,7 @@ const listener: app.Listener<"message"> = {
     if (cmd.rest) {
       const rest = await app.scrap(cmd.rest, message)
 
-      if(rest.all) message.rest = baseContent
+      if (rest.all) message.rest = baseContent
 
       if (message.rest.length === 0) {
         if (await app.scrap(rest.required, message)) {

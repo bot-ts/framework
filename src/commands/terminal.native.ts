@@ -21,7 +21,7 @@ const command: app.Command = {
     )
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
-      const output = err ? err.stack ?? err.message ?? stderr : stdout
+      const output = err ? err.stack ?? err.message : stderr.trim() || stdout || "No log"
 
       const embed = new app.MessageEmbed()
         .setTitle(
@@ -30,8 +30,7 @@ const command: app.Command = {
         .setDescription(
           app.code.stringify({
             content:
-              output.split("").reverse().slice(0, 2000).reverse().join("") ||
-              "No log",
+              output.split("").reverse().slice(0, 2000).reverse().join("")
           })
         )
 
