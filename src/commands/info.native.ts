@@ -13,11 +13,14 @@ const command: app.Command = {
       new app.MessageEmbed()
         .setColor("BLURPLE")
         .setAuthor(
-          `Information about ${message.client.user?.tag ?? conf.name}`,
+          `Information about ${message.client.user.tag}`,
           message.client.user?.displayAvatarURL({ dynamic: true })
         )
+        .setDescription(conf.description)
         .setTimestamp()
-        .setDescription(
+        .addField("\u200B", "\u200B", false)
+        .addField(
+          conf.name,
           app.code.stringify({
             lang: "yml",
             content: [
@@ -30,22 +33,33 @@ const command: app.Command = {
               `memory: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
                 2
               )}mb`,
-              `guilds: ${message.client.guilds.cache.size}`,
-              `users: ${message.client.users.cache.size}`,
               `ping: ${Date.now() - message.createdTimestamp}ms`,
               `database: ${app.db.client.constructor.name}`,
-              `cwd: ${process
-                .cwd()
-                .split(/[\\\/]/)
-                .map((segment, i, arr) => {
-                  return arr.length > 5 && i > 2 && i < arr.length - 2
-                    ? "..."
-                    : segment
-                })
-                .join(path.sep)}${path.sep}`,
             ].join("\n"),
-          })
+          }),
+          true
         )
+        .addField(
+          "Cache",
+          app.code.stringify({
+            lang: "yml",
+            content: [
+              `guilds: ${message.client.guilds.cache.size}`,
+              `users: ${message.client.users.cache.size}`,
+              `channels: ${message.client.channels.cache.size}`,
+              `messages: ${message.client.channels.cache.reduce(
+                (acc, channel) => {
+                  return (
+                    acc + (channel.isText() ? channel.messages.cache.size : 0)
+                  )
+                },
+                0
+              )}`,
+            ].join("\n"),
+          }),
+          true
+        )
+        .addField("\u200B", "\u200B", false)
         .addField(
           "Dependencies",
           app.code.stringify({
@@ -70,7 +84,6 @@ const command: app.Command = {
           }),
           true
         )
-        .setFooter(conf.description)
     )
   },
 }

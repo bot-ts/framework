@@ -50,6 +50,7 @@ export type CommandMessage = Discord.Message & {
   triggerCoolDown: () => void
   usedAsDefault: boolean
   usedPrefix: string
+  client: core.FullClient
   rest: string
 }
 
