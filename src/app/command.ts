@@ -48,6 +48,7 @@ export const commands = new (class CommandCollection extends Discord.Collection<
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
+  usedAsDefault: boolean
   usedPrefix: string
   rest: string
 }

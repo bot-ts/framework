@@ -14,6 +14,8 @@ const listener: app.Listener<"message"> = {
       app.emitMessage(message.member, message)
     }
 
+    message.usedAsDefault = false
+
     const prefix = await app.prefix(message.guild ?? undefined)
 
     let dynamicContent = message.content
@@ -42,6 +44,7 @@ const listener: app.Listener<"message"> = {
       if (app.defaultCommand) {
         key = ""
         cmd = app.defaultCommand
+        message.usedAsDefault = true
       } else return null
     }
 
