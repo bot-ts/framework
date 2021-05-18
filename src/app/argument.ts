@@ -32,6 +32,7 @@ export interface Option<Message extends command.CommandMessage>
     | "member"
     | "channel"
     | "message"
+    | "role"
     | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
@@ -270,6 +271,22 @@ export async function castValue<Message extends command.CommandMessage>(
             if (user) setValue(user)
             else throw new Error("Unknown user!")
           } else throw new Error("Invalid user value!")
+        } else throw empty
+        break
+      case "role":
+        if (baseValue) {
+          if (command.isGuildMessage(message)) {
+            const match = /^(?:<@&?(\d+)>)$/.exec(baseValue)
+            if (match) {
+              const id = match[1]
+              const role = message.guild.roles.cache.get(id)
+              if (role) setValue(role)
+              else throw new Error("Unknown role!")
+            } else throw new Error("Invalid role value!")
+          } else
+            throw new Error(
+                'The "GuildRole" casting is only available in a guild!'
+            )
         } else throw empty
         break
       default:
