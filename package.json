@@ -61,7 +61,7 @@
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.7.6",
     "gulp-filter": "^7.0.0",
-    "make-bot.ts": "^1.5.1",
+    "make-bot.ts": "^1.6.1",
     "nodemon": "^2.0.7",
     "typescript": "^4.0.5",
     "vinyl-paths": "^3.0.1"
