@@ -155,7 +155,7 @@ const listener: app.Listener<"message"> = {
       if (app.scrap(cmd.guildOwnerOnly, message))
         if (
           message.guild.owner !== message.member &&
-          process.env.OWNER !== message.member.id
+          process.env.BOT_OWNER !== message.member.id
         )
           return await message.channel.send(
             new app.MessageEmbed()
@@ -220,7 +220,7 @@ const listener: app.Listener<"message"> = {
     }
 
     if (await app.scrap(cmd.botOwnerOnly, message))
-      if (process.env.OWNER !== message.author.id)
+      if (process.env.BOT_OWNER !== message.author.id)
         return await message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")

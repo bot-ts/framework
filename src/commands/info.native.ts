@@ -25,7 +25,8 @@ const command: app.Command = {
             lang: "yml",
             content: [
               `author: ${
-                message.client.users.cache.get(process.env.OWNER as string)?.tag
+                message.client.users.cache.get(process.env.BOT_OWNER as string)
+                  ?.tag
               }`,
               `uptime: ${tims.duration(app.uptime(), {
                 format: "second",

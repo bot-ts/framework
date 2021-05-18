@@ -6,7 +6,8 @@ import * as logger from "./logger"
 import * as handler from "./handler"
 
 export const listenerHandler = new handler.Handler(
-  process.env.LISTENERS_PATH ?? path.join(process.cwd(), "dist", "listeners")
+  process.env.BOT_LISTENERS_PATH ??
+    path.join(process.cwd(), "dist", "listeners")
 )
 
 listenerHandler.once("finish", (pathList, client) => {

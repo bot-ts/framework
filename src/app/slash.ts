@@ -117,10 +117,13 @@ function isApplicationCommandOptionType(
 }
 
 export async function reloadSLashCommands(client: core.FullClient) {
-  if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string))
+  if (
+    !process.env.BOT_SECRET ||
+    /^{{.+}}$/.test(process.env.BOT_SECRET as string)
+  )
     return logger.warn(
       `slash commands are disabled because the ${chalk.bold(
-        "SECRET"
+        "BOT_SECRET"
       )} environment variable is missing.`,
       "handler"
     )
@@ -136,7 +139,7 @@ export async function reloadSLashCommands(client: core.FullClient) {
 
   const accessToken = await getSlashCommandAccessToken(
     client.user.id,
-    process.env.SECRET
+    process.env.BOT_SECRET
   )
 
   const slashCommands = await fetchSlashCommands(client.user.id, accessToken)

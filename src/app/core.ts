@@ -124,7 +124,7 @@ export const code = {
   format: prettify.format,
 }
 
-const locale = process.env.LOCALE
+const locale = process.env.BOT_LOCALE
 
 import(`dayjs/locale/${locale ?? "en"}`)
   .then(() => dayjs.locale(locale ?? "en"))
@@ -142,7 +142,7 @@ dayjs.extend(timezone)
 dayjs.extend(toObject)
 dayjs.utc(1)
 
-if (process.env.TIMEZONE) dayjs.tz.setDefault(process.env.TIMEZONE)
+if (process.env.BOT_TIMEZONE) dayjs.tz.setDefault(process.env.BOT_TIMEZONE)
 
 export { dayjs }
 

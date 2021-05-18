@@ -2,7 +2,7 @@ import Discord from "discord.js"
 
 import "dotenv/config"
 
-for (const key of ["TOKEN", "PREFIX", "OWNER"]) {
+for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
     throw new Error(`You need to add "${key}" value in your .env file.`)
   }
@@ -14,7 +14,7 @@ const client = new Discord.Client()
   const app = await import("./app")
 
   try {
-    await client.login(process.env.TOKEN)
+    await client.login(process.env.BOT_TOKEN)
 
     if (!app.isFullClient(client))
       throw new Error("The Discord client is not full.")

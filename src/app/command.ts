@@ -10,7 +10,7 @@ import * as handler from "./handler"
 import * as argument from "./argument"
 
 export const commandHandler = new handler.Handler(
-  process.env.COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
+  process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )
 
 commandHandler.on("load", (filepath) => {

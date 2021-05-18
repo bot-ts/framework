@@ -7,7 +7,7 @@ import * as logger from "./logger"
 import * as handler from "./handler"
 
 export const tableHandler = new handler.Handler(
-  process.env.TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
+  process.env.BOT_TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
 )
 
 tableHandler.once("finish", async (pathList) => {
