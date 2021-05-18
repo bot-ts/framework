@@ -258,7 +258,11 @@ export async function castValue<Message extends command.CommandMessage>(
                 setValue(await channel.messages.fetch(messageID, false))
               } else throw new Error("Invalid channel type!")
             } else throw new Error("Unknown channel!")
-          } else throw new Error("Invalid message link!")
+          } else {
+            const role = message.client.channels.fetch(baseValue, false, false)
+            if (role) setValue(role)
+            else throw new Error("Invalid message link or id!")
+          }
         } else throw empty
         break
       case "user":
