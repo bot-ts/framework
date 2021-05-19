@@ -58,7 +58,17 @@ function build() {
 }
 
 function watch(cb) {
-  cp.exec("nodemon dist/index", cb)
+  const spawn = cp.spawn("nodemon dist/index", { shell: true })
+
+  spawn.stdout.on("data", (data) => {
+    console.log(chalk.white(`${data}`.trim()));
+  })
+
+  spawn.stderr.on("data", (data) => {
+    console.error(chalk.red(`${data}`.trim()));
+  })
+
+  spawn.on("close", () => cb())
 
   gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(cleanDist, build))
 }
