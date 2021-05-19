@@ -2,6 +2,7 @@ const gulp = require("gulp")
 const esbuild = require("gulp-esbuild")
 const filter = require("gulp-filter")
 const vinyl = require("vinyl-paths")
+const rename = require("gulp-rename")
 const del = require("del")
 const log = require("fancy-log")
 const chalk = require("chalk")
@@ -93,10 +94,13 @@ function updateMakeBotTS(cb) {
 
 function updateDatabaseFile() {
   const packageJSON = require("./package.json")
-  const database = ["mysql2", "sqlite3", "pg"].find((name) =>
-    packageJSON.dependencies.hasOwnProperty(name)
+  const database = ["mysql2", "sqlite3", "pg"].find(
+    (name) => name in packageJSON.dependencies
   )
-  return gulp.src(path.join("node_modules/make-bot.ts/templates", database))
+  return gulp
+    .src("node_modules/make-bot.ts/templates/" + database)
+    .pipe(rename("database.ts"))
+    .pipe(gulp.dest("src/app"))
 }
 
 function removeDuplicates() {
