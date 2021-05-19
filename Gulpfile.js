@@ -10,17 +10,13 @@ const cp = require("child_process")
 const path = require("path")
 const fs = require("fs")
 
-const currentVersion = git()
-
 function gitLog(cb) {
   const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
 
   log(
     [
       `Updated  '${chalk.cyan("bot.ts")}'`,
-      `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(
-        newVersion.shortCommit
-      )}]`,
+      `[${chalk.blueBright(newVersion.shortCommit)}]`,
       `${newVersion.date} -`,
       `${chalk.grey(newVersion.message)}`,
     ].join(" ")
@@ -61,11 +57,11 @@ function watch(cb) {
   const spawn = cp.spawn("nodemon dist/index", { shell: true })
 
   spawn.stdout.on("data", (data) => {
-    console.log(chalk.white(`${data}`.trim()));
+    console.log(chalk.white(`${data}`.trim()))
   })
 
   spawn.stderr.on("data", (data) => {
-    console.error(chalk.red(`${data}`.trim()));
+    console.error(chalk.red(`${data}`.trim()))
   })
 
   spawn.on("close", () => cb())
@@ -84,10 +80,23 @@ function copyTemp() {
         "temp/.gitignore",
         "temp/Gulpfile.js",
         "temp/tsconfig.json",
+        "!temp/src/app/database.ts",
       ],
       { base: "temp" }
     )
     .pipe(gulp.dest(process.cwd(), { overwrite: true }))
+}
+
+function updateMakeBotTS(cb) {
+  cp.exec("npm i make-bot.ts@latest", cb)
+}
+
+function updateDatabaseFile() {
+  const packageJSON = require("./package.json")
+  const database = ["mysql2", "sqlite3", "pg"].find((name) =>
+    packageJSON.dependencies.hasOwnProperty(name)
+  )
+  return gulp.src(path.join("node_modules/make-bot.ts/templates", database))
 }
 
 function removeDuplicates() {
@@ -110,6 +119,8 @@ exports.update = gulp.series(
   downloadTemp,
   copyTemp,
   removeDuplicates,
+  updateMakeBotTS,
+  updateDatabaseFile,
   gitLog,
   cleanTemp
 )
