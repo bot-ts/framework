@@ -33,6 +33,7 @@ export interface Option<Message extends command.CommandMessage>
     | "channel"
     | "message"
     | "role"
+    | "emote"
     | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
@@ -287,6 +288,21 @@ export async function castValue<Message extends command.CommandMessage>(
             throw new Error(
               'The "GuildRole" casting is only available in a guild!'
             )
+        } else throw empty
+        break
+      case "emote":
+        if (baseValue) {
+          const match = /^(?:<a?:.+:(\d+)>|(\d+))$/.exec(baseValue)
+          if (match) {
+            const id = match[1] ?? match[2]
+            const emote = message.client.emojis.cache.get(id)
+            if (emote) setValue(emote)
+            else throw new Error("Unknown emote!")
+          } else {
+            const unicodeMatch = /\p{Emoji_Presentation}/gu.exec(baseValue)
+            if (unicodeMatch) setValue(unicodeMatch[0])
+            else throw new Error("Invalid emote value!")
+          }
         } else throw empty
         break
       default:
