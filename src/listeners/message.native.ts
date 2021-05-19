@@ -307,8 +307,6 @@ const listener: app.Listener<"message"> = {
 
           if (!casted) return
         }
-
-        restPositional.shift()
       }
     }
 
