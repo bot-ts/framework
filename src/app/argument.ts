@@ -276,9 +276,9 @@ export async function castValue<Message extends command.CommandMessage>(
       case "role":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
-            const match = /^(?:<@&?(\d+)>)$/.exec(baseValue)
+            const match = /^(?:<@&?(\d+)>|(\d+))$/.exec(baseValue)
             if (match) {
-              const id = match[1]
+              const id = match[1] ?? match[2]
               const role = message.guild.roles.cache.get(id)
               if (role) setValue(role)
               else throw new Error("Unknown role!")
