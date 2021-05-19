@@ -1,6 +1,7 @@
 import knex, { Knex } from "knex"
 import path from "path"
 import chalk from "chalk"
+import fs from "fs"
 
 import * as logger from "./logger"
 import * as handler from "./handler"
@@ -25,21 +26,21 @@ tableHandler.once("finish", async (pathList) => {
   )
 })
 
+const dataDirectory = path.join(process.cwd(), "data")
+
+if(!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+
 /**
  * Welcome to the database file!
  * You can get the docs of **knex** [here](http://knexjs.org/)
  */
 
 export const db = knex({
-  client: "mysql2",
+  client: "sqlite3",
   useNullAsDefault: true,
   connection: {
-    port: +(process.env.DB_PORT ?? 3306),
-    host: process.env.DB_HOST ?? "127.0.0.1",
-    user: process.env.DB_USER ?? "root",
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE ?? "database",
-  },
+    filename: path.join(dataDirectory, "sqlite3.db")
+  }
 })
 
 export interface TableOptions {
