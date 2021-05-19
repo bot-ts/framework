@@ -285,7 +285,7 @@ export async function castValue<Message extends command.CommandMessage>(
             } else throw new Error("Invalid role value!")
           } else
             throw new Error(
-                'The "GuildRole" casting is only available in a guild!'
+              'The "GuildRole" casting is only available in a guild!'
             )
         } else throw empty
         break
