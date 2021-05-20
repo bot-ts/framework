@@ -319,7 +319,7 @@ export async function castValue<Message extends command.CommandMessage>(
             else throw new Error("Unknown invite!")
           } else
             throw new Error(
-              'The "GuildRole" casting is only available in a guild!'
+              'The "Invite" casting is only available in a guild!'
             )
         } else throw empty
         break
