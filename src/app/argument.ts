@@ -4,7 +4,6 @@ import regexParser from "regex-parser"
 
 import * as core from "./core"
 import * as command from "./command"
-import { isGuildMessage } from "./command"
 
 export interface Argument {
   name: string
