@@ -4,6 +4,7 @@ import regexParser from "regex-parser"
 
 import * as core from "./core"
 import * as command from "./command"
+import { isGuildMessage } from "./command"
 
 export interface Argument {
   name: string
@@ -34,6 +35,7 @@ export interface Option<Message extends command.CommandMessage>
     | "message"
     | "role"
     | "emote"
+    | "invite"
     | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
@@ -303,6 +305,21 @@ export async function castValue<Message extends command.CommandMessage>(
             if (unicodeMatch) setValue(unicodeMatch[0])
             else throw new Error("Invalid emote value!")
           }
+        } else throw empty
+        break
+      case "invite":
+        if (baseValue) {
+          if (command.isGuildMessage(message)) {
+            const invites = await message.guild.fetchInvites()
+            const invite = invites.find(
+              (invite) => invite.code === baseValue || invite.url === baseValue
+            )
+            if (invite) setValue(invite)
+            else throw new Error("Unknown invite!")
+          } else
+            throw new Error(
+              'The "GuildRole" casting is only available in a guild!'
+            )
         } else throw empty
         break
       default:
