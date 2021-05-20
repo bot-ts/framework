@@ -251,9 +251,10 @@ export async function castValue<Message extends command.CommandMessage>(
         break
       case "message":
         if (baseValue) {
-          const match = /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
-            baseValue
-          )
+          const match =
+            /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
+              baseValue
+            )
           if (match) {
             const [, channelID, messageID] = match
             const channel = message.client.channels.cache.get(channelID)
