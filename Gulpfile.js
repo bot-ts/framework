@@ -88,6 +88,43 @@ function copyTemp() {
     .pipe(gulp.dest(process.cwd(), { overwrite: true }))
 }
 
+function updateDependencies(cb) {
+  const packageJSON = require("./package.json")
+  const newPackageJSON = require("./temp/package.json")
+  for (const baseKey of ["dependencies", "devDependencies"]) {
+    const dependencies = packageJSON[baseKey]
+    const newDependencies = newPackageJSON[baseKey]
+    for (const key of Object.keys(newDependencies)) {
+      if (/^(?:sqlite3|pg|mysql2)$/.test(key)) continue
+      if (
+        !dependencies.hasOwnProperty(key) ||
+        dependencies[key] !== newDependencies[key]
+      ) {
+        log(
+          `Updated  '${chalk.cyan(key)}' [${
+            dependencies[key]
+              ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
+                  newDependencies[key]
+                )}`
+              : chalk.blueBright(newDependencies[key])
+          }]`
+        )
+        dependencies[key] = newDependencies[key]
+      }
+    }
+  }
+
+  if (fs.existsSync("./package-lock.json")) fs.unlinkSync("./package-lock.json")
+
+  fs.writeFileSync(
+    "./package.json",
+    JSON.stringify(packageJSON, null, 2),
+    "utf8"
+  )
+
+  cp.exec("npm i", cb)
+}
+
 function updateMakeBotTS(cb) {
   cp.exec("npm i make-bot.ts@latest", cb)
 }
@@ -123,6 +160,7 @@ exports.update = gulp.series(
   downloadTemp,
   copyTemp,
   removeDuplicates,
+  updateDependencies,
   updateMakeBotTS,
   updateDatabaseFile,
   gitLog,

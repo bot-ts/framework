@@ -28,7 +28,7 @@ tableHandler.once("finish", async (pathList) => {
 
 const dataDirectory = path.join(process.cwd(), "data")
 
-if(!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
 /**
  * Welcome to the database file!
@@ -39,8 +39,8 @@ export const db = knex({
   client: "sqlite3",
   useNullAsDefault: true,
   connection: {
-    filename: path.join(dataDirectory, "sqlite3.db")
-  }
+    filename: path.join(dataDirectory, "sqlite3.db"),
+  },
 })
 
 export interface TableOptions {
@@ -59,9 +59,15 @@ export class Table<Type> {
   async make(): Promise<this> {
     try {
       await db.schema.createTable(this.options.name, this.options.setup)
-      logger.log(`created table ${chalk.blueBright(this.options.name)}`, "database")
+      logger.log(
+        `created table ${chalk.blueBright(this.options.name)}`,
+        "database"
+      )
     } catch (error) {
-      logger.log(`loaded table ${chalk.blueBright(this.options.name)}`, "database")
+      logger.log(
+        `loaded table ${chalk.blueBright(this.options.name)}`,
+        "database"
+      )
     }
     return this
   }
