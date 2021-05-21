@@ -47,7 +47,7 @@
     "@types/figlet": "^1.5.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/gulp-rename": "^2.0.0",
-    "@types/node": "^15.3.1",
+    "@types/node": "^15.6.0",
     "@types/prettier": "^2.2.3",
     "@types/vinyl-paths": "^0.0.31",
     "@types/ws": "^7.4.4",
