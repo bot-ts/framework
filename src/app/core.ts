@@ -3,6 +3,7 @@ import prettify from "ghom-prettify"
 import dayjs from "dayjs"
 import chalk from "chalk"
 import utc from "dayjs/plugin/utc"
+import relative from "dayjs/plugin/relativeTime"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import discord from "discord.js"
@@ -138,6 +139,7 @@ import(`dayjs/locale/${locale ?? "en"}`)
   )
 
 dayjs.extend(utc)
+dayjs.extend(relative)
 dayjs.extend(timezone)
 dayjs.extend(toObject)
 dayjs.utc(1)
