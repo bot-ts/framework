@@ -219,7 +219,9 @@ export async function sendCommandDetails<Message extends CommandMessage>(
   message: Message,
   cmd: Command<Message>
 ): Promise<void> {
-  let pattern = `${message.usedPrefix}${commandBreadcrumb(cmd)}`
+  let pattern = `${message.usedPrefix}${
+    cmd.isDefault ? `[${commandBreadcrumb(cmd)}]` : commandBreadcrumb(cmd)
+  }`
 
   const positionalList: string[] = []
   const argumentList: string[] = []
@@ -360,13 +362,13 @@ export async function sendCommandDetails<Message extends CommandMessage>(
         await Promise.all(
           cmd.subs.map(
             async (sub) =>
-              `**${sub.name}**: ${
-                (await core.scrap(sub.description, message)) ?? "no description"
+              `**${message.usedPrefix}${sub.name}** - ${
+                sub.description ?? "no description"
               }`
           )
         )
       ).join("\n"),
-      true
+      false
     )
 
   await message.channel.send(embed)
