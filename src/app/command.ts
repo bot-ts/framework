@@ -72,7 +72,7 @@ export interface CoolDown {
 
 export type Middleware<Message extends CommandMessage> = (
   message: Message
-) => Promise<true | string> | boolean | string
+) => Promise<boolean | string> | boolean | string
 
 export interface Command<Message extends CommandMessage = CommandMessage> {
   name: string
@@ -225,7 +225,7 @@ export async function prepareCommand<Message extends CommandMessage>(
     parsedArgs: yargsParser.Arguments
     key: string
   }
-): Promise<discord.MessageEmbed | true> {
+): Promise<discord.MessageEmbed | boolean> {
   // coolDown
   if (cmd.coolDown) {
     const slug = core.slug("coolDown", cmd.name, message.channel.id)
@@ -356,6 +356,8 @@ export async function prepareCommand<Message extends CommandMessage>(
         return new discord.MessageEmbed()
           .setColor("RED")
           .setAuthor(result, message.client.user?.displayAvatarURL())
+
+      if (!result) return false
     }
   }
 

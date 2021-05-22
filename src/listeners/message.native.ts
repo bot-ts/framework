@@ -105,7 +105,8 @@ const listener: app.Listener<"message"> = {
       parsedArgs,
       key,
     })
-    if (prepared !== true) return message.channel.send(prepared)
+    if (typeof prepared !== "boolean") return message.channel.send(prepared)
+    if (!prepared) return
 
     try {
       await cmd.run(message)
