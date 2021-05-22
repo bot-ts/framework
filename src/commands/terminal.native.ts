@@ -53,6 +53,8 @@ const command: app.Command = {
       name: "spawn",
       aliases: ["sp", "watch"],
       description: "Watch shell command",
+      botOwnerOnly: true,
+      coolDown: 5000,
       rest: {
         all: true,
         name: "cmd",
@@ -62,43 +64,72 @@ const command: app.Command = {
       async run(message) {
         message.triggerCoolDown()
 
-        const embed = new app.MessageEmbed().setTitle("The process is running...")
+        const embed = new app.MessageEmbed().setTitle(
+          "The process is running..."
+        )
         const toEdit = await message.channel.send(embed)
 
-        const editInterval = 2000
+        const editInterval = 1000
+        const logLines = 20
         const logs: string[] = []
         let lastEdit = Date.now()
 
-        const edit = async (e = embed) => {
-          return toEdit.edit(e).catch(() => message.channel.send(e).catch())
+        const edit = (e = embed) => {
+          toEdit.edit(e).catch(() => message.channel.send(e).catch())
+        }
+
+        const log = (line: string) => {
+          logs.push(line)
+          if (logs.length > logLines) {
+            logs.pop()
+          }
+          if (Date.now() > lastEdit + editInterval) {
+            lastEdit = Date.now()
+            edit(
+              embed.setDescription(
+                app.code.stringify({
+                  lang: "yml",
+                  content: logs.slice().reverse().join("\n").slice(-1000),
+                })
+              )
+            )
+          }
         }
 
         sp = cp.spawn(message.rest, [], { cwd: process.cwd(), shell: true })
 
-        sp.stdout.on("data", (data) => {
-          logs.push(`log: ${data}`.trim())
-        })
-
-        sp.stderr.on("data", (data) => {
-          logs.push(`err: ${data}`.trim())
-        })
+        sp.stdout?.on("data", (data) => log(`log: ${data}`.trim()))
+        sp.stderr?.on("data", (data) => log(`err: ${data}`.trim()))
 
         sp.on("close", (code) => {
-          edit(embed.setTitle(
-            (code !== null && code > 0) ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
-          ))
+          sp = null
+          edit(
+            embed
+              .setTitle(
+                code !== null && code > 0
+                  ? "\\❌ An error has occurred."
+                  : "\\✔ Successfully executed."
+              )
+              .setDescription(
+                app.code.stringify({
+                  lang: "yml",
+                  content: logs.slice().reverse().join("\n"),
+                })
+              )
+          )
         })
-      }
+      },
     },
     {
       name: "kill",
       aliases: ["exit", "stop"],
       description: "Stop the spawned process",
-      async run(message){
-
-      }
+      async run(message) {
+        if (sp) sp.kill(0)
+        return message.delete().catch()
+      },
     },
-  ]
+  ],
 }
 
 module.exports = command
