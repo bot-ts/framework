@@ -78,8 +78,8 @@ const command: app.Command = {
           toEdit.edit(e).catch(() => message.channel.send(e).catch())
         }
 
-        const log = (line: string) => {
-          logs.push(line)
+        const log = (...parts: string[]) => {
+          logs.push(parts.join(" "))
           if (logs.length > logLines) {
             logs.pop()
           }
@@ -96,10 +96,10 @@ const command: app.Command = {
           }
         }
 
-        sp = cp.spawn(message.rest, [], { cwd: process.cwd(), shell: true })
+        sp = cp.spawn(message.rest, { cwd: process.cwd(), shell: true })
 
-        sp.stdout?.on("data", (data) => log(`log: ${data}`.trim()))
-        sp.stderr?.on("data", (data) => log(`err: ${data}`.trim()))
+        sp.stdout?.on("data", (data) => log(`${data}`.trim()))
+        sp.stderr?.on("data", (data) => log(`${data}`.trim()))
 
         sp.on("close", (code) => {
           sp = null
@@ -119,15 +119,21 @@ const command: app.Command = {
           )
         })
       },
-    },
-    {
-      name: "kill",
-      aliases: ["exit", "stop"],
-      description: "Stop the spawned process",
-      async run(message) {
-        if (sp) sp.kill(0)
-        return message.delete().catch()
-      },
+      subs: [
+        {
+          name: "kill",
+          aliases: ["exit", "stop"],
+          botOwnerOnly: true,
+          description: "Stop the spawned process",
+          async run(message) {
+            return message.channel.send(
+              sp
+                ? `The process is ${sp.kill(0) ? "killed" : "not killed..."}`
+                : "No process running"
+            )
+          },
+        },
+      ],
     },
   ],
 }
