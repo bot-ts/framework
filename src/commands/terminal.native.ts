@@ -1,6 +1,8 @@
 import * as app from "../app"
 import cp from "child_process"
 
+let sp: cp.ChildProcess | null = null
+
 const command: app.Command = {
   name: "terminal",
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
@@ -46,6 +48,57 @@ const command: app.Command = {
       })
     })
   },
+  subs: [
+    {
+      name: "spawn",
+      aliases: ["sp", "watch"],
+      description: "Watch shell command",
+      rest: {
+        all: true,
+        name: "cmd",
+        description: "The cmd to run",
+        required: true,
+      },
+      async run(message) {
+        message.triggerCoolDown()
+
+        const embed = new app.MessageEmbed().setTitle("The process is running...")
+        const toEdit = await message.channel.send(embed)
+
+        const editInterval = 2000
+        const logs: string[] = []
+        let lastEdit = Date.now()
+
+        const edit = async (e = embed) => {
+          return toEdit.edit(e).catch(() => message.channel.send(e).catch())
+        }
+
+        sp = cp.spawn(message.rest, [], { cwd: process.cwd(), shell: true })
+
+        sp.stdout.on("data", (data) => {
+          logs.push(`log: ${data}`.trim())
+        })
+
+        sp.stderr.on("data", (data) => {
+          logs.push(`err: ${data}`.trim())
+        })
+
+        sp.on("close", (code) => {
+          edit(embed.setTitle(
+            (code !== null && code > 0) ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
+          ))
+        })
+      }
+    },
+    {
+      name: "kill",
+      aliases: ["exit", "stop"],
+      description: "Stop the spawned process",
+      async run(message){
+
+      }
+    },
+  ]
 }
 
 module.exports = command

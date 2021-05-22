@@ -131,7 +131,7 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * Sub-commands
    */
-  subs?: Command<any>[]
+  subs?: Command[]
   /**
    * This slash command options are automatically setup on bot running but you can configure it manually too.
    */
@@ -140,12 +140,12 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
    * This property is automatically setup on bot running.
    * @deprecated
    */
-  parent?: Command<any>
+  parent?: Command
 }
 
 export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
-  parent?: Command<any>
+  parent?: Command
 ): void | never {
   command.parent = parent
 
@@ -195,7 +195,7 @@ export function validateCommand<Message extends CommandMessage>(
   )
 
   if (command.subs)
-    for (const sub of command.subs) validateCommand(sub, command)
+    for (const sub of command.subs) validateCommand(sub, command as Command)
 }
 
 export function commandBreadcrumb<Message extends CommandMessage>(
