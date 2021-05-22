@@ -1,8 +1,9 @@
-import Discord from "discord.js"
+import discord from "discord.js"
 import API from "discord-api-types/v8"
 import chalk from "chalk"
 import tims from "tims"
 import path from "path"
+import yargsParser from "yargs-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
@@ -19,7 +20,7 @@ commandHandler.on("load", (filepath) => {
 
 export let defaultCommand: Command<any> | null = null
 
-export const commands = new (class CommandCollection extends Discord.Collection<
+export const commands = new (class CommandCollection extends discord.Collection<
   string,
   Command<any>
 > {
@@ -45,7 +46,7 @@ export const commands = new (class CommandCollection extends Discord.Collection<
   }
 })()
 
-export type CommandMessage = Discord.Message & {
+export type CommandMessage = discord.Message & {
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
   usedAsDefault: boolean
@@ -55,13 +56,13 @@ export type CommandMessage = Discord.Message & {
 }
 
 export type GuildMessage = CommandMessage & {
-  channel: Discord.TextChannel & Discord.GuildChannel
-  guild: Discord.Guild
-  member: Discord.GuildMember
+  channel: discord.TextChannel & discord.GuildChannel
+  guild: discord.Guild
+  member: discord.GuildMember
 }
 
 export type DirectMessage = CommandMessage & {
-  channel: Discord.DMChannel
+  channel: discord.DMChannel
 }
 
 export interface CoolDown {
@@ -103,11 +104,11 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   botOwnerOnly?: core.Scrap<boolean, [message: Message]>
   guildChannelOnly?: core.Scrap<boolean, [message: Message]>
   dmChannelOnly?: core.Scrap<boolean, [message: Message]>
-  userPermissions?: core.Scrap<Discord.PermissionString[], [message: Message]>
-  botPermissions?: core.Scrap<Discord.PermissionString[], [message: Message]>
+  userPermissions?: core.Scrap<discord.PermissionString[], [message: Message]>
+  botPermissions?: core.Scrap<discord.PermissionString[], [message: Message]>
 
   /**
-   * Middlewares can stop the command if returning a string (string is displayed as error message in Discord)
+   * Middlewares can stop the command if returning a string (string is displayed as error message in discord)
    */
   middlewares?: Middleware<Message>[]
 
@@ -215,6 +216,327 @@ export function commandParents<Message extends CommandMessage>(
     : [command]
 }
 
+export async function prepareCommand<Message extends CommandMessage>(
+  message: Message,
+  cmd: Command<Message>,
+  {
+    restPositional,
+    baseContent,
+    parsedArgs,
+    key,
+  }: {
+    restPositional: string[]
+    baseContent: string
+    parsedArgs: yargsParser.Arguments
+    key: string
+  }
+): Promise<discord.MessageEmbed | true> {
+  // coolDown
+  if (cmd.coolDown) {
+    const slug = core.slug("coolDown", cmd.name, message.channel.id)
+    const coolDown = core.cache.ensure<CoolDown>(slug, {
+      time: 0,
+      trigger: false,
+    })
+
+    message.triggerCoolDown = () => {
+      core.cache.set(slug, {
+        time: Date.now(),
+        trigger: true,
+      })
+    }
+
+    if (coolDown.trigger) {
+      const coolDownTime = await core.scrap(cmd.coolDown, message)
+
+      if (Date.now() > coolDown.time + coolDownTime) {
+        core.cache.set(slug, {
+          time: 0,
+          trigger: false,
+        })
+      } else {
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            `Please wait ${Math.ceil(
+              (coolDown.time + coolDownTime - Date.now()) / 1000
+            )} seconds...`,
+            message.client.user?.displayAvatarURL()
+          )
+      }
+    }
+  } else {
+    message.triggerCoolDown = () => {
+      logger.warn(
+        `You must setup the cooldown of the "${cmd.name}" command before using the "triggerCoolDown" method`,
+        "system"
+      )
+    }
+  }
+
+  if (isGuildMessage(message)) {
+    if (core.scrap(cmd.dmChannelOnly, message))
+      return new discord.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          "This command must be used in DM.",
+          message.client.user?.displayAvatarURL()
+        )
+
+    if (core.scrap(cmd.guildOwnerOnly, message))
+      if (
+        message.guild.owner !== message.member &&
+        process.env.BOT_OWNER !== message.member.id
+      )
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            "You must be the guild owner.",
+            message.client.user?.displayAvatarURL()
+          )
+
+    if (cmd.botPermissions) {
+      const botPermissions = await core.scrap(cmd.botPermissions, message)
+
+      for (const permission of botPermissions)
+        if (
+          !message.guild.me?.hasPermission(permission, {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+        )
+          return new discord.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              `I need the \`${permission}\` permission to call this command.`,
+              message.client.user?.displayAvatarURL()
+            )
+    }
+
+    if (cmd.userPermissions) {
+      const userPermissions = await core.scrap(cmd.userPermissions, message)
+
+      for (const permission of userPermissions)
+        if (
+          !message.member.hasPermission(permission, {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+        )
+          return new discord.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              `You need the \`${permission}\` permission to call this command.`,
+              message.client.user?.displayAvatarURL()
+            )
+    }
+  }
+
+  if (await core.scrap(cmd.guildChannelOnly, message)) {
+    if (isDirectMessage(message))
+      return new discord.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          "This command must be used in a guild.",
+          message.client.user?.displayAvatarURL()
+        )
+  }
+
+  if (await core.scrap(cmd.botOwnerOnly, message))
+    if (process.env.BOT_OWNER !== message.author.id)
+      return new discord.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          "You must be my owner.",
+          message.client.user?.displayAvatarURL()
+        )
+
+  if (cmd.middlewares) {
+    const middlewares = await core.scrap(cmd.middlewares, message)
+
+    for (const middleware of middlewares) {
+      const result: string | boolean = await middleware(message)
+
+      if (typeof result === "string")
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(result, message.client.user?.displayAvatarURL())
+    }
+  }
+
+  if (cmd.positional) {
+    const positionalList = await core.scrap(cmd.positional, message)
+
+    for (const positional of positionalList) {
+      const index = positionalList.indexOf(positional)
+      let value = parsedArgs._[index]
+      const given = value !== undefined
+
+      const set = (v: any) => {
+        message.args[positional.name] = v
+        message.args[index] = v
+        value = v
+      }
+
+      set(value)
+
+      if (!given) {
+        if (await core.scrap(positional.required, message)) {
+          return new discord.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              `Missing positional "${positional.name}"`,
+              message.client.user?.displayAvatarURL()
+            )
+            .setDescription(
+              positional.description
+                ? "Description: " + positional.description
+                : `Run the following command to learn more: ${core.code.stringify(
+                    {
+                      content: `${key} --help`,
+                    }
+                  )}`
+            )
+        } else if (positional.default !== undefined) {
+          set(await core.scrap(positional.default, message))
+        } else {
+          set(null)
+        }
+      } else if (positional.checkValue) {
+        const checked = await argument.checkValue(
+          positional,
+          "positional",
+          value,
+          message
+        )
+
+        if (checked !== true) return checked
+      }
+
+      if (positional.castValue) {
+        const casted = await argument.castValue(
+          positional,
+          "positional",
+          value,
+          message,
+          set
+        )
+
+        if (casted !== true) return casted
+      }
+
+      restPositional.shift()
+    }
+  }
+
+  if (cmd.options) {
+    const options = await core.scrap(cmd.options, message)
+
+    for (const option of options) {
+      let { given, value } = argument.resolveGivenArgument(parsedArgs, option)
+
+      const set = (v: any) => {
+        message.args[option.name] = v
+        value = v
+      }
+
+      if (value === true) value = undefined
+
+      if ((await core.scrap(option.required, message)) && !given)
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            `Missing argument "${option.name}"`,
+            message.client.user?.displayAvatarURL()
+          )
+          .setDescription(
+            option.description
+              ? "Description: " + option.description
+              : `Example: \`--${option.name}=someValue\``
+          )
+
+      set(value)
+
+      if (value === undefined) {
+        if (option.default !== undefined) {
+          set(await core.scrap(option.default, message))
+        } else if (option.castValue !== "array") {
+          set(null)
+        }
+      } else if (option.checkValue) {
+        const checked = await argument.checkValue(
+          option,
+          "argument",
+          value,
+          message
+        )
+
+        if (checked !== true) return checked
+      }
+
+      if (value !== null && option.castValue) {
+        const casted = await argument.castValue(
+          option,
+          "argument",
+          value,
+          message,
+          set
+        )
+
+        if (casted !== true) return casted
+      }
+    }
+  }
+
+  if (cmd.flags) {
+    for (const flag of cmd.flags) {
+      let { given, value } = argument.resolveGivenArgument(parsedArgs, flag)
+
+      const set = (v: boolean) => {
+        message.args[flag.name] = v
+        value = v
+      }
+
+      if (!given) set(false)
+      else if (typeof value === "boolean") set(value)
+      else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
+      else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)
+      else {
+        set(true)
+        restPositional.unshift(value)
+      }
+    }
+  }
+
+  message.rest = restPositional.join(" ")
+
+  if (cmd.rest) {
+    const rest = await core.scrap(cmd.rest, message)
+
+    if (rest.all) message.rest = baseContent
+
+    if (message.rest.length === 0) {
+      if (await core.scrap(rest.required, message)) {
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            `Missing rest "${rest.name}"`,
+            message.client.user?.displayAvatarURL()
+          )
+          .setDescription(
+            rest.description ?? "Please use `--help` flag for more information."
+          )
+      } else if (rest.default) {
+        message.args[rest.name] = await core.scrap(rest.default, message)
+      }
+    } else {
+      message.args[rest.name] = message.rest
+    }
+  }
+
+  return true
+}
+
 export async function sendCommandDetails<Message extends CommandMessage>(
   message: Message,
   cmd: Command<Message>
@@ -289,7 +611,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
   if (await core.scrap(cmd.guildOwnerOnly, message))
     specialPermissions.push("GUILD_OWNER")
 
-  const embed = new Discord.MessageEmbed()
+  const embed = new discord.MessageEmbed()
     .setColor("BLURPLE")
     .setAuthor("Command details", message.client.user?.displayAvatarURL())
     .setTitle(
@@ -375,7 +697,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 }
 
 export function isCommandMessage(
-  message: Discord.Message
+  message: discord.Message
 ): message is CommandMessage {
   return !message.system && !!message.channel && !!message.author
 }
@@ -386,12 +708,12 @@ export function isGuildMessage(
   return (
     !!message.member &&
     !!message.guild &&
-    message.channel instanceof Discord.GuildChannel
+    message.channel instanceof discord.GuildChannel
   )
 }
 
 export function isDirectMessage(
   message: CommandMessage
 ): message is DirectMessage {
-  return message.channel instanceof Discord.DMChannel
+  return message.channel instanceof discord.DMChannel
 }
