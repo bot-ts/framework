@@ -31,13 +31,17 @@ const command: app.Command = {
     } else {
       new app.Paginator(
         app.Paginator.divider(
-          await Promise.all(
-            app.commands.map(async (cmd) => {
-              return `**${message.usedPrefix}${cmd.name}** - ${
-                (await app.scrap(cmd.description, message)) ?? "no description"
-              }`
-            })
-          ),
+          (
+            await Promise.all(
+              app.commands.map(async (cmd) => {
+                const prepared = await app.prepareCommand(message, cmd)
+                if (prepared !== true) return ""
+                return `**${message.usedPrefix}${cmd.name}** - ${
+                  cmd.description ?? "no description"
+                }`
+              })
+            )
+          ).filter((line) => line.length > 0),
           10
         ).map((page) => {
           return new app.MessageEmbed()

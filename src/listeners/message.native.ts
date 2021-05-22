@@ -24,14 +24,16 @@ const listener: app.Listener<"message"> = {
       dynamicContent = dynamicContent.slice(key.length).trim()
     }
 
-    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}> ?`)
+    const mentionRegex = new RegExp(`^(<@!?${message.client.user.id}>) ?`)
 
-    if (dynamicContent.startsWith(prefix)) message.usedPrefix = prefix
-    else if (mentionRegex.test(dynamicContent))
-      message.usedPrefix = dynamicContent.split(" ")[0]
-    else return
-
-    cut(message.usedPrefix)
+    if (dynamicContent.startsWith(prefix)) {
+      message.usedPrefix = prefix
+      cut(prefix)
+    } else if (mentionRegex.test(dynamicContent)) {
+      const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
+      message.usedPrefix = `${used} `
+      cut(match)
+    } else return
 
     let key = dynamicContent.split(/\s+/)[0]
 

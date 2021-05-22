@@ -219,12 +219,7 @@ export function commandParents<Message extends CommandMessage>(
 export async function prepareCommand<Message extends CommandMessage>(
   message: Message,
   cmd: Command<Message>,
-  {
-    restPositional,
-    baseContent,
-    parsedArgs,
-    key,
-  }: {
+  context?: {
     restPositional: string[]
     baseContent: string
     parsedArgs: yargsParser.Arguments
@@ -364,173 +359,182 @@ export async function prepareCommand<Message extends CommandMessage>(
     }
   }
 
-  if (cmd.positional) {
-    const positionalList = await core.scrap(cmd.positional, message)
+  if (context) {
+    if (cmd.positional) {
+      const positionalList = await core.scrap(cmd.positional, message)
 
-    for (const positional of positionalList) {
-      const index = positionalList.indexOf(positional)
-      let value = parsedArgs._[index]
-      const given = value !== undefined
+      for (const positional of positionalList) {
+        const index = positionalList.indexOf(positional)
+        let value = context.parsedArgs._[index]
+        const given = value !== undefined
 
-      const set = (v: any) => {
-        message.args[positional.name] = v
-        message.args[index] = v
-        value = v
+        const set = (v: any) => {
+          message.args[positional.name] = v
+          message.args[index] = v
+          value = v
+        }
+
+        set(value)
+
+        if (!given) {
+          if (await core.scrap(positional.required, message)) {
+            return new discord.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Missing positional "${positional.name}"`,
+                message.client.user?.displayAvatarURL()
+              )
+              .setDescription(
+                positional.description
+                  ? "Description: " + positional.description
+                  : `Run the following command to learn more: ${core.code.stringify(
+                      {
+                        content: `${message.usedPrefix}${context.key} --help`,
+                      }
+                    )}`
+              )
+          } else if (positional.default !== undefined) {
+            set(await core.scrap(positional.default, message))
+          } else {
+            set(null)
+          }
+        } else if (positional.checkValue) {
+          const checked = await argument.checkValue(
+            positional,
+            "positional",
+            value,
+            message
+          )
+
+          if (checked !== true) return checked
+        }
+
+        if (positional.castValue) {
+          const casted = await argument.castValue(
+            positional,
+            "positional",
+            value,
+            message,
+            set
+          )
+
+          if (casted !== true) return casted
+        }
+
+        context.restPositional.shift()
       }
+    }
 
-      set(value)
+    if (cmd.options) {
+      const options = await core.scrap(cmd.options, message)
 
-      if (!given) {
-        if (await core.scrap(positional.required, message)) {
+      for (const option of options) {
+        let { given, value } = argument.resolveGivenArgument(
+          context.parsedArgs,
+          option
+        )
+
+        const set = (v: any) => {
+          message.args[option.name] = v
+          value = v
+        }
+
+        if (value === true) value = undefined
+
+        if ((await core.scrap(option.required, message)) && !given)
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              `Missing positional "${positional.name}"`,
+              `Missing argument "${option.name}"`,
               message.client.user?.displayAvatarURL()
             )
             .setDescription(
-              positional.description
-                ? "Description: " + positional.description
-                : `Run the following command to learn more: ${core.code.stringify(
-                    {
-                      content: `${key} --help`,
-                    }
-                  )}`
+              option.description
+                ? "Description: " + option.description
+                : `Example: \`--${option.name}=someValue\``
             )
-        } else if (positional.default !== undefined) {
-          set(await core.scrap(positional.default, message))
-        } else {
-          set(null)
+
+        set(value)
+
+        if (value === undefined) {
+          if (option.default !== undefined) {
+            set(await core.scrap(option.default, message))
+          } else if (option.castValue !== "array") {
+            set(null)
+          }
+        } else if (option.checkValue) {
+          const checked = await argument.checkValue(
+            option,
+            "argument",
+            value,
+            message
+          )
+
+          if (checked !== true) return checked
         }
-      } else if (positional.checkValue) {
-        const checked = await argument.checkValue(
-          positional,
-          "positional",
-          value,
-          message
-        )
 
-        if (checked !== true) return checked
-      }
-
-      if (positional.castValue) {
-        const casted = await argument.castValue(
-          positional,
-          "positional",
-          value,
-          message,
-          set
-        )
-
-        if (casted !== true) return casted
-      }
-
-      restPositional.shift()
-    }
-  }
-
-  if (cmd.options) {
-    const options = await core.scrap(cmd.options, message)
-
-    for (const option of options) {
-      let { given, value } = argument.resolveGivenArgument(parsedArgs, option)
-
-      const set = (v: any) => {
-        message.args[option.name] = v
-        value = v
-      }
-
-      if (value === true) value = undefined
-
-      if ((await core.scrap(option.required, message)) && !given)
-        return new discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor(
-            `Missing argument "${option.name}"`,
-            message.client.user?.displayAvatarURL()
-          )
-          .setDescription(
-            option.description
-              ? "Description: " + option.description
-              : `Example: \`--${option.name}=someValue\``
+        if (value !== null && option.castValue) {
+          const casted = await argument.castValue(
+            option,
+            "argument",
+            value,
+            message,
+            set
           )
 
-      set(value)
-
-      if (value === undefined) {
-        if (option.default !== undefined) {
-          set(await core.scrap(option.default, message))
-        } else if (option.castValue !== "array") {
-          set(null)
+          if (casted !== true) return casted
         }
-      } else if (option.checkValue) {
-        const checked = await argument.checkValue(
-          option,
-          "argument",
-          value,
-          message
-        )
-
-        if (checked !== true) return checked
-      }
-
-      if (value !== null && option.castValue) {
-        const casted = await argument.castValue(
-          option,
-          "argument",
-          value,
-          message,
-          set
-        )
-
-        if (casted !== true) return casted
       }
     }
-  }
 
-  if (cmd.flags) {
-    for (const flag of cmd.flags) {
-      let { given, value } = argument.resolveGivenArgument(parsedArgs, flag)
+    if (cmd.flags) {
+      for (const flag of cmd.flags) {
+        let { given, value } = argument.resolveGivenArgument(
+          context.parsedArgs,
+          flag
+        )
 
-      const set = (v: boolean) => {
-        message.args[flag.name] = v
-        value = v
-      }
+        const set = (v: boolean) => {
+          message.args[flag.name] = v
+          value = v
+        }
 
-      if (!given) set(false)
-      else if (typeof value === "boolean") set(value)
-      else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
-      else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)
-      else {
-        set(true)
-        restPositional.unshift(value)
+        if (!given) set(false)
+        else if (typeof value === "boolean") set(value)
+        else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
+        else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)
+        else {
+          set(true)
+          context.restPositional.unshift(value)
+        }
       }
     }
-  }
 
-  message.rest = restPositional.join(" ")
+    message.rest = context.restPositional.join(" ")
 
-  if (cmd.rest) {
-    const rest = await core.scrap(cmd.rest, message)
+    if (cmd.rest) {
+      const rest = await core.scrap(cmd.rest, message)
 
-    if (rest.all) message.rest = baseContent
+      if (rest.all) message.rest = context.baseContent
 
-    if (message.rest.length === 0) {
-      if (await core.scrap(rest.required, message)) {
-        return new discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor(
-            `Missing rest "${rest.name}"`,
-            message.client.user?.displayAvatarURL()
-          )
-          .setDescription(
-            rest.description ?? "Please use `--help` flag for more information."
-          )
-      } else if (rest.default) {
-        message.args[rest.name] = await core.scrap(rest.default, message)
+      if (message.rest.length === 0) {
+        if (await core.scrap(rest.required, message)) {
+          return new discord.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              `Missing rest "${rest.name}"`,
+              message.client.user?.displayAvatarURL()
+            )
+            .setDescription(
+              rest.description ??
+                "Please use `--help` flag for more information."
+            )
+        } else if (rest.default) {
+          message.args[rest.name] = await core.scrap(rest.default, message)
+        }
+      } else {
+        message.args[rest.name] = message.rest
       }
-    } else {
-      message.args[rest.name] = message.rest
     }
   }
 
