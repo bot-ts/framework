@@ -256,7 +256,7 @@ export async function prepareCommand<Message extends CommandMessage>(
             `Please wait ${Math.ceil(
               (coolDown.time + coolDownTime - Date.now()) / 1000
             )} seconds...`,
-            message.client.user?.displayAvatarURL()
+            message.client.user.displayAvatarURL()
           )
       }
     }
@@ -275,7 +275,7 @@ export async function prepareCommand<Message extends CommandMessage>(
         .setColor("RED")
         .setAuthor(
           "This command must be used in DM.",
-          message.client.user?.displayAvatarURL()
+          message.client.user.displayAvatarURL()
         )
 
     if (core.scrap(cmd.guildOwnerOnly, message))
@@ -287,7 +287,7 @@ export async function prepareCommand<Message extends CommandMessage>(
           .setColor("RED")
           .setAuthor(
             "You must be the guild owner.",
-            message.client.user?.displayAvatarURL()
+            message.client.user.displayAvatarURL()
           )
 
     if (cmd.botPermissions) {
@@ -304,7 +304,7 @@ export async function prepareCommand<Message extends CommandMessage>(
             .setColor("RED")
             .setAuthor(
               `I need the \`${permission}\` permission to call this command.`,
-              message.client.user?.displayAvatarURL()
+              message.client.user.displayAvatarURL()
             )
     }
 
@@ -322,7 +322,7 @@ export async function prepareCommand<Message extends CommandMessage>(
             .setColor("RED")
             .setAuthor(
               `You need the \`${permission}\` permission to call this command.`,
-              message.client.user?.displayAvatarURL()
+              message.client.user.displayAvatarURL()
             )
     }
   }
@@ -333,7 +333,7 @@ export async function prepareCommand<Message extends CommandMessage>(
         .setColor("RED")
         .setAuthor(
           "This command must be used in a guild.",
-          message.client.user?.displayAvatarURL()
+          message.client.user.displayAvatarURL()
         )
   }
 
@@ -343,7 +343,7 @@ export async function prepareCommand<Message extends CommandMessage>(
         .setColor("RED")
         .setAuthor(
           "You must be my owner.",
-          message.client.user?.displayAvatarURL()
+          message.client.user.displayAvatarURL()
         )
 
   if (cmd.middlewares) {
@@ -355,7 +355,7 @@ export async function prepareCommand<Message extends CommandMessage>(
       if (typeof result === "string")
         return new discord.MessageEmbed()
           .setColor("RED")
-          .setAuthor(result, message.client.user?.displayAvatarURL())
+          .setAuthor(result, message.client.user.displayAvatarURL())
 
       if (!result) return false
     }
@@ -384,7 +384,7 @@ export async function prepareCommand<Message extends CommandMessage>(
               .setColor("RED")
               .setAuthor(
                 `Missing positional "${positional.name}"`,
-                message.client.user?.displayAvatarURL()
+                message.client.user.displayAvatarURL()
               )
               .setDescription(
                 positional.description
@@ -448,7 +448,7 @@ export async function prepareCommand<Message extends CommandMessage>(
             .setColor("RED")
             .setAuthor(
               `Missing argument "${option.name}"`,
-              message.client.user?.displayAvatarURL()
+              message.client.user.displayAvatarURL()
             )
             .setDescription(
               option.description
@@ -525,7 +525,7 @@ export async function prepareCommand<Message extends CommandMessage>(
             .setColor("RED")
             .setAuthor(
               `Missing rest "${rest.name}"`,
-              message.client.user?.displayAvatarURL()
+              message.client.user.displayAvatarURL()
             )
             .setDescription(
               rest.description ??
@@ -619,7 +619,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 
   const embed = new discord.MessageEmbed()
     .setColor("BLURPLE")
-    .setAuthor("Command details", message.client.user?.displayAvatarURL())
+    .setAuthor("Command details", message.client.user.displayAvatarURL())
     .setTitle(
       `${pattern} ${[...positionalList, restPattern, ...flagList].join(" ")} ${
         cmd.options ? "[OPTIONS]" : ""
