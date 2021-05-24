@@ -411,7 +411,7 @@ export async function prepareCommand<Message extends CommandMessage>(
           if (checked !== true) return checked
         }
 
-        if (positional.castValue) {
+        if (value !== null && positional.castValue) {
           const casted = await argument.castValue(
             positional,
             "positional",
@@ -421,6 +421,17 @@ export async function prepareCommand<Message extends CommandMessage>(
           )
 
           if (casted !== true) return casted
+        }
+
+        if (value !== null && positional.checkCastedValue) {
+          const checked = await argument.checkCastedValue(
+            positional,
+            "argument",
+            value,
+            message
+          )
+
+          if (checked !== true) return checked
         }
 
         context.restPositional.shift()
@@ -485,6 +496,17 @@ export async function prepareCommand<Message extends CommandMessage>(
           )
 
           if (casted !== true) return casted
+        }
+
+        if (value !== null && option.checkCastedValue) {
+          const checked = await argument.checkCastedValue(
+            option,
+            "argument",
+            value,
+            message
+          )
+
+          if (checked !== true) return checked
         }
       }
     }
