@@ -43,6 +43,10 @@ export interface Option<Message extends command.CommandMessage>
     | RegExp
     | string[]
     | core.Scrap<boolean | RegExp | string, [value: string, message?: Message]>
+  checkCastedValue?: core.Scrap<
+    boolean | string,
+    [value: any, message?: Message]
+  >
   typeDescription?: core.Scrap<string, [value: string, message?: Message]>
 }
 
@@ -156,6 +160,48 @@ export async function checkValue<Message extends command.CommandMessage>(
         message.client.user?.displayAvatarURL()
       )
       .setDescription(`Expected pattern: \`${checkResult.source}\``)
+  }
+  return true
+}
+
+export async function checkCastedValue<Message extends command.CommandMessage>(
+  subject: Pick<Option<Message>, "checkCastedValue" | "name">,
+  subjectType: "positional" | "argument",
+  value: string,
+  message: Message
+): Promise<discord.MessageEmbed | true> {
+  if (!subject.checkCastedValue) return true
+
+  const checkResult = await core.scrap(subject.checkCastedValue, value, message)
+
+  if (typeof checkResult === "string") {
+    return new discord.MessageEmbed()
+      .setColor("RED")
+      .setAuthor(
+        `Bad ${subjectType} tested "${subject.name}".`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setDescription(checkResult)
+  }
+
+  if (typeof checkResult === "boolean") {
+    if (!checkResult) {
+      return new discord.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          `Bad ${subjectType} tested "${subject.name}".`,
+          message.client.user?.displayAvatarURL()
+        )
+        .setDescription(
+          typeof subject.checkCastedValue === "function"
+            ? core.code.stringify({
+                content: subject.checkCastedValue.toString(),
+                format: true,
+                lang: "js",
+              })
+            : "Please use the `--help` flag for more information."
+        )
+    }
   }
   return true
 }
