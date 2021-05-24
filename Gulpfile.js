@@ -125,10 +125,6 @@ function updateDependencies(cb) {
   cp.exec("npm i", cb)
 }
 
-function updateMakeBotTS(cb) {
-  cp.exec("npm i make-bot.ts@latest", cb)
-}
-
 function updateDatabaseFile() {
   const packageJSON = require("./package.json")
   const database = ["mysql2", "sqlite3", "pg"].find(
@@ -161,7 +157,6 @@ exports.update = gulp.series(
   copyTemp,
   removeDuplicates,
   updateDependencies,
-  updateMakeBotTS,
   updateDatabaseFile,
   gitLog,
   cleanTemp
