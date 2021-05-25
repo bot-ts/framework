@@ -107,6 +107,16 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   userPermissions?: core.Scrap<discord.PermissionString[], [message: Message]>
   botPermissions?: core.Scrap<discord.PermissionString[], [message: Message]>
 
+  roles?: core.Scrap<
+    (
+      | discord.RoleResolvable
+      | discord.RoleResolvable[]
+      | [discord.RoleResolvable]
+      | [discord.RoleResolvable[]]
+    )[],
+    [message: Message]
+  >
+
   /**
    * Middlewares can stop the command if returning a string (string is displayed as error message in discord)
    */
@@ -302,9 +312,9 @@ export async function prepareCommand<Message extends CommandMessage>(
         )
           return new discord.MessageEmbed()
             .setColor("RED")
-            .setAuthor(
-              `I need the \`${permission}\` permission to call this command.`,
-              message.client.user.displayAvatarURL()
+            .setAuthor("Oops!", message.client.user.displayAvatarURL())
+            .setDescription(
+              `I need the \`${permission}\` permission to call this command.`
             )
     }
 
@@ -320,10 +330,104 @@ export async function prepareCommand<Message extends CommandMessage>(
         )
           return new discord.MessageEmbed()
             .setColor("RED")
-            .setAuthor(
-              `You need the \`${permission}\` permission to call this command.`,
-              message.client.user.displayAvatarURL()
+            .setAuthor("Oops!", message.client.user.displayAvatarURL())
+            .setDescription(
+              `You need the \`${permission}\` permission to call this command.`
             )
+    }
+
+    if (cmd.roles) {
+      const roles = await core.scrap(cmd.roles, message)
+
+      const isRole = (r: any): r is discord.RoleResolvable => {
+        return typeof r === "string" || r instanceof discord.Role
+      }
+
+      const getRoleId = (r: discord.RoleResolvable): string => {
+        return typeof r === "string" ? r : r.id
+      }
+
+      const member = await message.member.fetch()
+
+      for (const roleCond of roles) {
+        if (isRole(roleCond)) {
+          const id = getRoleId(roleCond)
+
+          if (!member.roles.cache.has(id)) {
+            return new discord.MessageEmbed()
+              .setColor("RED")
+              .setAuthor("Oops!", message.client.user.displayAvatarURL())
+              .setDescription(
+                `You must have the <@${id}> role to call this command.`
+              )
+          }
+        } else {
+          if (roleCond.length === 1) {
+            const _roleCond = roleCond[0]
+            if (isRole(_roleCond)) {
+              const id = getRoleId(_roleCond)
+
+              if (member.roles.cache.has(id)) {
+                return new discord.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor("Oops!", message.client.user.displayAvatarURL())
+                  .setDescription(
+                    `You mustn't have the <@${id}> role to call this command.`
+                  )
+              }
+            } else {
+              for (const role of _roleCond) {
+                if (member.roles.cache.has(getRoleId(role))) {
+                  return new discord.MessageEmbed()
+                    .setColor("RED")
+                    .setAuthor("Oops!", message.client.user.displayAvatarURL())
+                    .setDescription(
+                      `You mustn't have the <@${getRoleId(
+                        role
+                      )}> role to call this command.`
+                    )
+                }
+              }
+            }
+          } else {
+            let someRoleGiven = false
+
+            for (const role of roleCond) {
+              if (Array.isArray(role)) {
+                logger.warn(
+                  `Bad command.roles structure in ${chalk.bold(
+                    commandBreadcrumb(cmd, "/")
+                  )} command.`,
+                  "handler"
+                )
+              } else {
+                const id = getRoleId(role)
+
+                if (member.roles.cache.has(id)) {
+                  someRoleGiven = true
+                  break
+                }
+              }
+            }
+
+            if (!someRoleGiven)
+              return new discord.MessageEmbed()
+                .setColor("RED")
+                .setAuthor("Oops!", message.client.user.displayAvatarURL())
+                .setDescription(
+                  `You must have at least one of the following roles to call this command.\n${[
+                    ...roleCond,
+                  ]
+                    .filter(
+                      (role): role is discord.RoleResolvable =>
+                        !Array.isArray(role)
+                    )
+                    .map((role) => `<@${getRoleId(role)}>`)
+                    .join(" ")}`
+                )
+          }
+        }
+      }
     }
   }
 
