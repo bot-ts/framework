@@ -40,7 +40,7 @@ const command: app.Command = {
             `memory: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
               2
             )}mb`,
-            `ping: ${Date.now() - message.createdTimestamp}ms`,
+            `ping: ${message.client.ws.ping}ms`,
             `database: ${app.db.client.constructor.name}`,
           ].join("\n"),
         }),
