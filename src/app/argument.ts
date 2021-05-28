@@ -395,3 +395,9 @@ export function isFlag<Message extends command.CommandMessage>(
 ): arg is Flag<Message> {
   return arg.hasOwnProperty("flag")
 }
+
+export function trimArgumentValue(value: string): string {
+  const match = /^(?:"(.+)"|'(.+)'|(.+))$/s.exec(value)
+  if (match) return match[1] ?? match[2] ?? match[3]
+  return value
+}

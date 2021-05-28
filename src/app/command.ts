@@ -480,6 +480,8 @@ export async function prepareCommand<Message extends CommandMessage>(
           value = v
         }
 
+        if (value) value = argument.trimArgumentValue(value)
+
         set(value)
 
         if (!given) {
