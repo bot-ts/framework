@@ -11,11 +11,12 @@ const alreadyInstalled = (pack: string): boolean =>
   packageJson.dependencies.hasOwnProperty(pack) ||
   packageJson.devDependencies.hasOwnProperty(pack)
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "eval",
+  description: "JS code evaluator",
+  channelType: "all",
   botOwnerOnly: true,
   aliases: ["js", "code", "run", "="],
-  description: "JS code evaluator",
   rest: {
     name: "code",
     description: "The evaluated code",
@@ -130,6 +131,4 @@ const command: app.Command = {
 
     return message.channel.send(`\\✔ process completed`)
   },
-}
-
-module.exports = command
+})

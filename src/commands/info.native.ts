@@ -5,9 +5,10 @@ import path from "path"
 
 const conf = require(path.join(process.cwd(), "package.json"))
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "info",
   description: "Get information about bot",
+  channelType: "all",
   flags: [
     {
       name: "dependencies",
@@ -98,6 +99,4 @@ const command: app.Command = {
             )
     )
   },
-}
-
-module.exports = command
+})

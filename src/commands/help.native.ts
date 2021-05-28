@@ -1,11 +1,12 @@
 import * as app from "../app"
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "help",
-  aliases: ["h", "usage"],
-  botPermissions: ["SEND_MESSAGES"],
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
+  channelType: "all",
+  aliases: ["h", "usage"],
+  botPermissions: ["SEND_MESSAGES"],
   positional: [
     {
       name: "command",
@@ -36,8 +37,8 @@ const command: app.Command = {
               app.commands.map(async (cmd) => {
                 const prepared = await app.prepareCommand(message, cmd)
                 if (prepared !== true) return ""
-                return `**${message.usedPrefix}${cmd.name}** - ${
-                  cmd.description ?? "no description"
+                return `**${message.usedPrefix}${cmd.options.name}** - ${
+                  cmd.options.description ?? "no description"
                 }`
               })
             )
@@ -55,6 +56,4 @@ const command: app.Command = {
       })
     }
   },
-}
-
-module.exports = command
+})

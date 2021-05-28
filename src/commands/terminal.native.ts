@@ -1,10 +1,11 @@
 import * as app from "../app"
 import cp from "child_process"
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "terminal",
-  aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
   description: "Run shell command from Discord",
+  aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
+  channelType: "all",
   botOwnerOnly: true,
   coolDown: 5000,
   rest: {
@@ -46,6 +47,4 @@ const command: app.Command = {
       })
     })
   },
-}
-
-module.exports = command
+})

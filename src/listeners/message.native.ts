@@ -40,7 +40,7 @@ const listener: app.Listener<"message"> = {
     // turn ON/OFF
     if (key !== "turn" && !app.cache.ensure<boolean>("turn", true)) return
 
-    let cmd: app.Command = app.commands.resolve(key) as app.Command
+    let cmd = app.commands.resolve(key)
 
     if (!cmd) {
       if (app.defaultCommand) {
@@ -55,18 +55,18 @@ const listener: app.Listener<"message"> = {
       let cursor = 0
       let depth = 0
 
-      while (cmd.subs && cursor < cmd.subs.length) {
+      while (cmd.options.subs && cursor < cmd.options.subs.length) {
         const subKey = dynamicContent.split(/\s+/)[depth + 1]
 
-        for (const sub of cmd.subs) {
-          if (sub.name === subKey) {
+        for (const sub of cmd.options.subs) {
+          if (sub.options.name === subKey) {
             key += ` ${subKey}`
             cursor = 0
             cmd = sub
             depth++
             break
-          } else if (sub.aliases) {
-            for (const alias of sub.aliases) {
+          } else if (sub.options.aliases) {
+            for (const alias of sub.options.aliases) {
               if (alias === subKey) {
                 key += ` ${subKey}`
                 cursor = 0
@@ -109,7 +109,7 @@ const listener: app.Listener<"message"> = {
     if (!prepared) return
 
     try {
-      await cmd.run(message)
+      await cmd.options.run(message)
     } catch (error) {
       app.error(error, "handler", true)
       message.channel
