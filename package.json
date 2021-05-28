@@ -39,7 +39,7 @@
     "prettier": "^2.3.0",
     "regex-parser": "^2.2.11",
     "sqlite3": "^5.0.2",
-    "tims": "^2.0.4",
+    "tims": "^2.0.5",
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
