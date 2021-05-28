@@ -142,7 +142,7 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * Sub-commands
    */
-  subs?: Command<CommandMessage | GuildMessage | DirectMessage>[]
+  subs?: Command[]
   /**
    * This slash command options are automatically setup on bot running but you can configure it manually too.
    */
