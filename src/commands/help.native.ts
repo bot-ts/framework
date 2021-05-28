@@ -29,8 +29,8 @@ const command: app.Command = {
         )
       }
     } else {
-      new app.Paginator(
-        app.Paginator.divider(
+      new app.Paginator({
+        pages: app.Paginator.divider(
           (
             await Promise.all(
               app.commands.map(async (cmd) => {
@@ -50,9 +50,9 @@ const command: app.Command = {
             .setDescription(page.join("\n"))
             .setFooter(`${message.usedPrefix}help <command>`)
         }),
-        message.channel,
-        (reaction, user) => user.id === message.author.id
-      )
+        filter: (reaction, user) => user.id === message.author.id,
+        channel: message.channel,
+      })
     }
   },
 }

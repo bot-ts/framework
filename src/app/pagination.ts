@@ -1,5 +1,5 @@
-import Events from "events"
-import Discord from "discord.js"
+import events from "events"
+import discord from "discord.js"
 
 /** As Snowflakes or icons */
 export interface PaginatorEmojis {
@@ -9,9 +9,28 @@ export interface PaginatorEmojis {
   end: string
 }
 
-export class Paginator extends Events.EventEmitter {
-  static paginations: Paginator[] = []
+export interface PaginatorOptions {
+  pages: (discord.MessageEmbed | string)[]
+  channel: discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  filter?: (
+    reaction: discord.MessageReaction,
+    user: discord.User | discord.PartialUser
+  ) => boolean
+  idlTime?: number
+  customEmojis?: Partial<PaginatorEmojis>
+  placeHolder?: discord.MessageEmbed | string
+}
 
+export class Paginator extends events.EventEmitter {
+  static paginators: Paginator[] = []
+
+  private filter: (
+    reaction: discord.MessageReaction,
+    user: discord.User | discord.PartialUser
+  ) => boolean
+  private pages: (discord.MessageEmbed | string)[]
+  private channel: discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  private idlTime: number
   private pageIndex = 0
   private deactivation?: NodeJS.Timeout
   messageID: string | undefined
@@ -22,32 +41,21 @@ export class Paginator extends Events.EventEmitter {
     end: "⏩",
   }
 
-  /**
-   * @constructor
-   * @param pages - Array of pages
-   * @param {TextChannel | DMChannel | NewsChannel} channel - Channel where send the paginator message
-   * @param {Function} filter - Used to filter what reactionMessage is valid
-   * @param {number} idlTime - Time between last action and paginator deactivation in milliseconds. (default: 1 min)
-   * @param {Partial<PaginatorEmojis>} customEmojis - Custom emojis to overwrite
-   */
-  constructor(
-    public pages: (Discord.MessageEmbed | string)[],
-    public channel:
-      | Discord.TextChannel
-      | Discord.DMChannel
-      | Discord.NewsChannel,
-    public filter: (
-      reaction: Discord.MessageReaction,
-      user: Discord.User | Discord.PartialUser
-    ) => boolean,
-    public idlTime: number = 60000,
-    customEmojis?: Partial<PaginatorEmojis>
-  ) {
+  constructor(options: PaginatorOptions) {
     super()
 
-    if (pages.length === 0) return
+    const { pages, filter, idlTime, channel, placeHolder, customEmojis } =
+      options
 
-    if (idlTime) this.idlTime = idlTime
+    this.filter = filter ?? (() => true)
+    this.idlTime = idlTime ?? 60000
+    this.pages = pages
+    this.channel = channel
+
+    if (pages.length === 0) {
+      if (placeHolder) pages.push(placeHolder)
+      else return
+    }
 
     if (customEmojis) Object.assign(this.emojis, customEmojis)
 
@@ -61,10 +69,10 @@ export class Paginator extends Events.EventEmitter {
           await message.react(this.emojis[key as keyof PaginatorEmojis])
     })
 
-    Paginator.paginations.push(this)
+    Paginator.paginators.push(this)
   }
 
-  private get currentPage(): Discord.MessageEmbed | string {
+  private get currentPage(): discord.MessageEmbed | string {
     return this.pages[this.pageIndex]
   }
 
@@ -78,8 +86,8 @@ export class Paginator extends Events.EventEmitter {
   }
 
   public handleReaction(
-    reaction: Discord.MessageReaction,
-    user: Discord.User | Discord.PartialUser
+    reaction: discord.MessageReaction,
+    user: discord.User | discord.PartialUser
   ) {
     if (!this.filter(reaction, user)) return
 
@@ -118,7 +126,7 @@ export class Paginator extends Events.EventEmitter {
 
       this.deactivation = this.resetDeactivationTimeout()
 
-      reaction.users.remove(user as Discord.User).catch()
+      reaction.users.remove(user as discord.User).catch()
     }
   }
 
@@ -137,15 +145,15 @@ export class Paginator extends Events.EventEmitter {
     if (message && message.channel.type === "text")
       await message.reactions?.removeAll()
 
-    Paginator.paginations = Paginator.paginations.filter((paginator) => {
+    Paginator.paginators = Paginator.paginators.filter((paginator) => {
       return paginator.messageID !== this.messageID
     })
   }
 
   public static getByMessage(
-    message: Discord.Message | Discord.PartialMessage
+    message: discord.Message | discord.PartialMessage
   ): Paginator | undefined {
-    return this.paginations.find((paginator) => {
+    return this.paginators.find((paginator) => {
       return paginator.messageID === message.id
     })
   }
