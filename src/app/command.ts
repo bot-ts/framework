@@ -154,7 +154,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * Sub-commands
    */
-  subs?: Command<keyof CommandMessageType>[]
+  subs?: (Command<"guild"> | Command<"dm"> | Command<"all">)[]
   /**
    * This slash command options are automatically setup on bot running but you can configure it manually too.
    */
@@ -225,7 +225,7 @@ export function validateCommand<
 
   if (command.options.subs)
     for (const sub of command.options.subs)
-      validateCommand(sub, command as Command<any>)
+      validateCommand(sub as any, command as Command<any>)
 }
 
 export function commandBreadcrumb<

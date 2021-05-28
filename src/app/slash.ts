@@ -100,7 +100,11 @@ function subCommandsToSlashCommandOptions<
         type: API.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
       }
 
-      option.options = subCommandsToSlashCommandOptions(sub, depth + 1, option)
+      option.options = subCommandsToSlashCommandOptions(
+        sub as any,
+        depth + 1,
+        option
+      )
 
       output.push(option)
     }
