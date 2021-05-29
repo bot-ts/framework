@@ -37,9 +37,7 @@ module.exports = new app.Command({
               app.commands.map(async (cmd) => {
                 const prepared = await app.prepareCommand(message, cmd)
                 if (prepared !== true) return ""
-                return `**${message.usedPrefix}${cmd.options.name}** - ${
-                  cmd.options.description ?? "no description"
-                }`
+                return app.commandToListItem(message, cmd)
               })
             )
           ).filter((line) => line.length > 0),

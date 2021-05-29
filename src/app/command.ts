@@ -9,6 +9,7 @@ import * as core from "./core"
 import * as logger from "./logger"
 import * as handler from "./handler"
 import * as argument from "./argument"
+import * as app from "../app"
 
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
@@ -228,25 +229,24 @@ export function validateCommand<
       validateCommand(sub as any, command as Command<any>)
 }
 
-export function commandBreadcrumb<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(command: Command<Type>, separator = " "): string {
+export function commandBreadcrumb<Type extends keyof CommandMessageType>(
+  command: Command<Type>,
+  separator = " "
+): string {
   return commandParents(command)
     .map((cmd) => cmd.options.name)
     .join(separator)
 }
 
-export function commandParents<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(command: Command<Type>): Command<any>[] {
+export function commandParents<Type extends keyof CommandMessageType>(
+  command: Command<Type>
+): Command<any>[] {
   return command.options.parent
     ? [command, ...commandParents(command.options.parent)].reverse()
     : [command]
 }
 
-export async function prepareCommand<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(
+export async function prepareCommand<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
   cmd: Command<Type>,
   context?: {
@@ -698,9 +698,10 @@ export async function prepareCommand<
   return true
 }
 
-export async function sendCommandDetails<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(message: CommandMessageType[Type], cmd: Command<Type>): Promise<void> {
+export async function sendCommandDetails<Type extends keyof CommandMessageType>(
+  message: CommandMessageType[Type],
+  cmd: Command<Type>
+): Promise<void> {
   let pattern = `${message.usedPrefix}${
     cmd.options.isDefault
       ? `[${commandBreadcrumb(cmd)}]`
@@ -849,14 +850,15 @@ export async function sendCommandDetails<
       "sub commands:",
       (
         await Promise.all(
-          cmd.options.subs.map(
-            async (sub) =>
-              `**${message.usedPrefix}${sub.options.name}** - ${
-                sub.options.description ?? "no description"
-              }`
-          )
+          cmd.options.subs.map(async (sub: Command<any>) => {
+            const prepared = await app.prepareCommand(message, sub)
+            if (prepared !== true) return ""
+            return commandToListItem(message, sub)
+          })
         )
-      ).join("\n"),
+      )
+        .filter((line) => line.length > 0)
+        .join("\n") || "Sub commands are not accessible by you.",
       false
     )
 
@@ -866,6 +868,15 @@ export async function sendCommandDetails<
     )
 
   await message.channel.send(embed)
+}
+
+export function commandToListItem<Type extends keyof CommandMessageType>(
+  message: CommandMessageType[Type],
+  cmd: Command<Type>
+): string {
+  return `**${message.usedPrefix}${cmd.options.name}** - ${
+    cmd.options.description ?? "no description"
+  }`
 }
 
 export function isCommandMessage(
