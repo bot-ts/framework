@@ -874,7 +874,7 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
   cmd: Command<Type>
 ): string {
-  return `**${message.usedPrefix}${cmd.options.name}** - ${
+  return `**${message.usedPrefix}${commandBreadcrumb(cmd, " ")}** - ${
     cmd.options.description ?? "no description"
   }`
 }
