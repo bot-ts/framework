@@ -80,7 +80,7 @@ export interface CommandMessageType {
   all: CommandMessage
 }
 
-export interface CommandOptions<Type extends keyof CommandMessageType = "all"> {
+export interface CommandOptions<Type extends keyof CommandMessageType> {
   channelType?: Type
 
   name: string
@@ -166,7 +166,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType = "all"> {
   parent?: Command<keyof CommandMessageType>
 }
 
-export class Command<Type extends keyof CommandMessageType> {
+export class Command<Type extends keyof CommandMessageType = "all"> {
   constructor(public options: CommandOptions<Type>) {}
 }
 

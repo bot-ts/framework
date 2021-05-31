@@ -8,7 +8,6 @@ const conf = require(path.join(process.cwd(), "package.json"))
 module.exports = new app.Command({
   name: "info",
   description: "Get information about bot",
-  channelType: "all",
   flags: [
     {
       name: "dependencies",
