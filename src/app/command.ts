@@ -80,8 +80,8 @@ export interface CommandMessageType {
   all: CommandMessage
 }
 
-export interface CommandOptions<Type extends keyof CommandMessageType> {
-  channelType: Type
+export interface CommandOptions<Type extends keyof CommandMessageType = "all"> {
+  channelType?: Type
 
   name: string
   /**
