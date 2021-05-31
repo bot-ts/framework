@@ -9,7 +9,6 @@ import * as core from "./core"
 import * as logger from "./logger"
 import * as handler from "./handler"
 import * as argument from "./argument"
-import * as app from "../app"
 
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
@@ -851,7 +850,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       (
         await Promise.all(
           cmd.options.subs.map(async (sub: Command<any>) => {
-            const prepared = await app.prepareCommand(message, sub)
+            const prepared = await prepareCommand(message, sub)
             if (prepared !== true) return ""
             return commandToListItem(message, sub)
           })
