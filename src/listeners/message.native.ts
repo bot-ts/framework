@@ -109,7 +109,7 @@ const listener: app.Listener<"message"> = {
     if (!prepared) return
 
     try {
-      await cmd.options.run(message)
+      await cmd.options.run.bind(cmd)(message)
     } catch (error) {
       app.error(error, "handler", true)
       message.channel

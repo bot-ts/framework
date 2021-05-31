@@ -150,7 +150,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
   flags?: argument.Flag<CommandMessageType[Type]>[]
-  run: (message: CommandMessageType[Type]) => unknown
+  run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
   /**
    * Sub-commands
    */
