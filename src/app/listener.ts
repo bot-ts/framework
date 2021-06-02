@@ -13,7 +13,10 @@ export const listenerHandler = new handler.Handler(
 listenerHandler.once("finish", (pathList, client) => {
   pathList.forEach((filepath) => {
     const listener = require(filepath)
-    client[listener.once ? "once" : "on"](listener.event, listener.run)
+    client[listener.once ? "once" : "on"](
+      listener.event,
+      listener.run.bind(client)
+    )
     logger.log(
       `loaded listener ${chalk.yellow(
         listener.once ? "once" : "on"
@@ -25,6 +28,9 @@ listenerHandler.once("finish", (pathList, client) => {
 
 export type Listener<EventName extends keyof discord.ClientEvents> = {
   event: EventName
-  run: (...args: discord.ClientEvents[EventName]) => unknown
+  run: (
+    this: discord.Client,
+    ...args: discord.ClientEvents[EventName]
+  ) => unknown
   once?: boolean
 }
