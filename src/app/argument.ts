@@ -1,6 +1,7 @@
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
+import emojiRegex from "emoji-regex/es2015/RGI_Emoji";
 
 import * as core from "./core"
 import * as command from "./command"
@@ -331,8 +332,8 @@ export async function castValue<Message extends command.CommandMessage>(
             if (emote) setValue(emote)
             else throw new Error("Unknown emote!")
           } else {
-            const unicodeMatch = /\p{Emoji_Presentation}/gu.exec(baseValue)
-            if (unicodeMatch) setValue(unicodeMatch[0])
+            const emojiMatch = emojiRegex().exec(baseValue);
+            if (emojiMatch) setValue(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }
         } else throw empty
