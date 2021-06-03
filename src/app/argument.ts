@@ -1,7 +1,7 @@
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
-import emojiRegex from "emoji-regex/es2015/RGI_Emoji.js";
+import emojiRegex from "emoji-regex/es2015/RGI_Emoji";
 
 import * as core from "./core"
 import * as command from "./command"
