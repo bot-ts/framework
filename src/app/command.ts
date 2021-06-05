@@ -476,21 +476,6 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           message.client.user.displayAvatarURL()
         )
 
-  if (cmd.options.middlewares) {
-    const middlewares = await core.scrap(cmd.options.middlewares, message)
-
-    for (const middleware of middlewares) {
-      const result: string | boolean = await middleware(message)
-
-      if (typeof result === "string")
-        return new discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor(result, message.client.user.displayAvatarURL())
-
-      if (!result) return false
-    }
-  }
-
   if (context) {
     if (cmd.options.positional) {
       const positionalList = await core.scrap(cmd.options.positional, message)
@@ -691,6 +676,21 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       } else {
         message.args[rest.name] = message.rest
       }
+    }
+  }
+
+  if (cmd.options.middlewares) {
+    const middlewares = await core.scrap(cmd.options.middlewares, message)
+
+    for (const middleware of middlewares) {
+      const result: string | boolean = await middleware(message)
+
+      if (typeof result === "string")
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(result, message.client.user.displayAvatarURL())
+
+      if (!result) return false
     }
   }
 
