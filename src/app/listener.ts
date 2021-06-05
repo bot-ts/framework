@@ -1,6 +1,7 @@
 import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
+import apiTypes from "discord-api-types/v8"
 
 import * as logger from "./logger"
 import * as handler from "./handler"
@@ -26,11 +27,13 @@ listenerHandler.once("finish", (pathList, client) => {
   })
 })
 
-export type Listener<EventName extends keyof (discord.ClientEvents & {"raw": [any]})> = {
+export type Packet = apiTypes.GatewayDispatchPayload
+
+export type Listener<EventName extends keyof (discord.ClientEvents & {"raw": [Packet]})> = {
   event: EventName
   run: (
     this: discord.Client,
-    ...args: (discord.ClientEvents & {"raw": [any]})[EventName]
+    ...args: (discord.ClientEvents & {"raw": [Packet]})[EventName]
   ) => unknown
   once?: boolean
 }
