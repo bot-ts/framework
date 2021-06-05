@@ -881,7 +881,7 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
 export function isCommandMessage(
   message: discord.Message
 ): message is CommandMessage {
-  return !message.system && !!message.channel && !!message.author
+  return !message.system && !!message.channel && !!message.author && !message.webhookID
 }
 
 export function isGuildMessage(
