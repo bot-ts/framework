@@ -116,7 +116,7 @@ export async function checkValue<Message extends command.CommandMessage>(
     } else return true
   }
 
-  const checkResult = await core.scrap(subject.checkValue, value, message)
+  const checkResult: string | boolean | RegExp = await core.scrap(subject.checkValue, value, message)
 
   if (typeof checkResult === "string") {
     return new discord.MessageEmbed()
@@ -172,7 +172,7 @@ export async function checkCastedValue<Message extends command.CommandMessage>(
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.checkCastedValue) return true
 
-  const checkResult = await core.scrap(subject.checkCastedValue, value, message)
+  const checkResult: string | boolean = await core.scrap(subject.checkCastedValue, value, message)
 
   if (typeof checkResult === "string") {
     return new discord.MessageEmbed()
@@ -184,25 +184,24 @@ export async function checkCastedValue<Message extends command.CommandMessage>(
       .setDescription(checkResult)
   }
 
-  if (typeof checkResult === "boolean") {
-    if (!checkResult) {
-      return new discord.MessageEmbed()
-        .setColor("RED")
-        .setAuthor(
-          `Bad ${subjectType} tested "${subject.name}".`,
-          message.client.user?.displayAvatarURL()
-        )
-        .setDescription(
-          typeof subject.checkCastedValue === "function"
-            ? core.code.stringify({
-                content: subject.checkCastedValue.toString(),
-                format: true,
-                lang: "js",
-              })
-            : "Please use the `--help` flag for more information."
-        )
-    }
+  if (!checkResult) {
+    return new discord.MessageEmbed()
+      .setColor("RED")
+      .setAuthor(
+        `Bad ${subjectType} tested "${subject.name}".`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setDescription(
+        typeof subject.checkCastedValue === "function"
+          ? core.code.stringify({
+            content: subject.checkCastedValue.toString(),
+            format: true,
+            lang: "js",
+          })
+          : "Please use the `--help` flag for more information."
+      )
   }
+
   return true
 }
 
@@ -213,11 +212,11 @@ export async function castValue<Message extends command.CommandMessage>(
   message: Message,
   setValue: (value: any) => unknown
 ): Promise<discord.MessageEmbed | true> {
-  if (!subject.castValue) return true
-
   const empty = new Error("The value is empty!")
 
-  try {
+  const cast = async () => {
+    if (!subject.castValue) return
+
     switch (subject.castValue) {
       case "boolean":
         if (baseValue === undefined) throw empty
@@ -357,6 +356,11 @@ export async function castValue<Message extends command.CommandMessage>(
         else setValue(await subject.castValue(baseValue, message))
         break
     }
+  }
+
+  try {
+    await cast()
+    return true
   } catch (error) {
     return new discord.MessageEmbed()
       .setColor("RED")
@@ -375,7 +379,6 @@ export async function castValue<Message extends command.CommandMessage>(
         })}`
       )
   }
-  return true
 }
 
 export function getTypeDescriptionOf<Message extends command.CommandMessage>(
