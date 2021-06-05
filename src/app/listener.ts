@@ -26,11 +26,11 @@ listenerHandler.once("finish", (pathList, client) => {
   })
 })
 
-export type Listener<EventName extends keyof discord.ClientEvents> = {
+export type Listener<EventName extends keyof (discord.ClientEvents & {"raw": [any]})> = {
   event: EventName
   run: (
     this: discord.Client,
-    ...args: discord.ClientEvents[EventName]
+    ...args: (discord.ClientEvents & {"raw": [any]})[EventName]
   ) => unknown
   once?: boolean
 }
