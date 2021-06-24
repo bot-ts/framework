@@ -16,6 +16,21 @@ const listener: app.Listener<"message"> = {
 
     message.usedAsDefault = false
 
+    message.send = async function (sent) {
+      return this.channel.send(sent)
+    }
+
+    message.sendTimeout = async function (timeout, sent) {
+      const m = await this.channel.send(sent)
+      setTimeout(
+        function (this: app.CommandMessage) {
+          if (!this.deleted) this.delete().catch()
+        }.bind(this),
+        timeout
+      )
+      return m
+    }
+
     const prefix = await app.prefix(message.guild ?? undefined)
 
     let dynamicContent = message.content

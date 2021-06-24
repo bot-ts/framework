@@ -44,9 +44,20 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
+export type SentItem =
+  | discord.APIMessageContentResolvable
+  | (discord.MessageOptions & { split?: false })
+  | discord.MessageAdditions
+
 export type CommandMessage = discord.Message & {
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
+  send: (this: CommandMessage, item: SentItem) => Promise<discord.Message>
+  sendTimeout: (
+    this: CommandMessage,
+    timeout: number,
+    item: SentItem
+  ) => Promise<discord.Message>
   usedAsDefault: boolean
   usedPrefix: string
   client: core.FullClient
@@ -881,7 +892,12 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
 export function isCommandMessage(
   message: discord.Message
 ): message is CommandMessage {
-  return !message.system && !!message.channel && !!message.author && !message.webhookID
+  return (
+    !message.system &&
+    !!message.channel &&
+    !!message.author &&
+    !message.webhookID
+  )
 }
 
 export function isGuildMessage(

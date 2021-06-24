@@ -1,7 +1,7 @@
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
-import emojiRegex from "emoji-regex/es2015/RGI_Emoji";
+import emojiRegex from "emoji-regex/es2015/RGI_Emoji"
 
 import * as core from "./core"
 import * as command from "./command"
@@ -117,7 +117,11 @@ export async function checkValue<Message extends command.CommandMessage>(
     } else return true
   }
 
-  const checkResult: string | boolean | RegExp = await core.scrap(subject.checkValue, value, message)
+  const checkResult: string | boolean | RegExp = await core.scrap(
+    subject.checkValue,
+    value,
+    message
+  )
 
   if (typeof checkResult === "string") {
     return new discord.MessageEmbed()
@@ -173,7 +177,11 @@ export async function checkCastedValue<Message extends command.CommandMessage>(
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.checkCastedValue) return true
 
-  const checkResult: string | boolean = await core.scrap(subject.checkCastedValue, value, message)
+  const checkResult: string | boolean = await core.scrap(
+    subject.checkCastedValue,
+    value,
+    message
+  )
 
   if (typeof checkResult === "string") {
     return new discord.MessageEmbed()
@@ -195,10 +203,10 @@ export async function checkCastedValue<Message extends command.CommandMessage>(
       .setDescription(
         typeof subject.checkCastedValue === "function"
           ? core.code.stringify({
-            content: subject.checkCastedValue.toString(),
-            format: true,
-            lang: "js",
-          })
+              content: subject.checkCastedValue.toString(),
+              format: true,
+              lang: "js",
+            })
           : "Please use the `--help` flag for more information."
       )
   }
@@ -331,7 +339,7 @@ export async function castValue<Message extends command.CommandMessage>(
             if (emote) setValue(emote)
             else throw new Error("Unknown emote!")
           } else {
-            const emojiMatch = emojiRegex().exec(baseValue);
+            const emojiMatch = emojiRegex().exec(baseValue)
             if (emojiMatch) setValue(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }

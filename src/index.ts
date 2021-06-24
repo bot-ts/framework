@@ -16,7 +16,7 @@ const client = new Discord.Client()
   try {
     await client.login(process.env.BOT_TOKEN)
 
-    if (!app.isFullClient(client)){
+    if (!app.isFullClient(client)) {
       app.error("The Discord client is not full.", "system")
       client.destroy()
       process.exit(1)

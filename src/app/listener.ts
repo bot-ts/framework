@@ -29,11 +29,13 @@ listenerHandler.once("finish", (pathList, client) => {
 
 export type Packet = apiTypes.GatewayDispatchPayload
 
-export type Listener<EventName extends keyof (discord.ClientEvents & {"raw": [Packet]})> = {
+export type Listener<
+  EventName extends keyof (discord.ClientEvents & { raw: [Packet] })
+> = {
   event: EventName
   run: (
     this: discord.Client,
-    ...args: (discord.ClientEvents & {"raw": [Packet]})[EventName]
+    ...args: (discord.ClientEvents & { raw: [Packet] })[EventName]
   ) => unknown
   once?: boolean
 }
