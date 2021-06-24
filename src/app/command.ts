@@ -510,6 +510,20 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
         if (!given) {
           if (await core.scrap(positional.required, message)) {
+            if (positional.missingErrorMessage) {
+              if (typeof positional.missingErrorMessage === "string") {
+                return new discord.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor(
+                    `Missing positional "${positional.name}"`,
+                    message.client.user.displayAvatarURL()
+                  )
+                  .setDescription(positional.missingErrorMessage)
+              } else {
+                return positional.missingErrorMessage
+              }
+            }
+
             return new discord.MessageEmbed()
               .setColor("RED")
               .setAuthor(
@@ -584,7 +598,21 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
         if (value === true) value = undefined
 
-        if ((await core.scrap(option.required, message)) && !given)
+        if ((await core.scrap(option.required, message)) && !given) {
+          if (option.missingErrorMessage) {
+            if (typeof option.missingErrorMessage === "string") {
+              return new discord.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `Missing argument "${option.name}"`,
+                  message.client.user.displayAvatarURL()
+                )
+                .setDescription(option.missingErrorMessage)
+            } else {
+              return option.missingErrorMessage
+            }
+          }
+
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(
@@ -596,6 +624,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
                 ? "Description: " + option.description
                 : `Example: \`--${option.name}=someValue\``
             )
+        }
 
         set(value)
 
@@ -673,6 +702,20 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
       if (message.rest.length === 0) {
         if (await core.scrap(rest.required, message)) {
+          if (rest.missingErrorMessage) {
+            if (typeof rest.missingErrorMessage === "string") {
+              return new discord.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `Missing rest "${rest.name}"`,
+                  message.client.user.displayAvatarURL()
+                )
+                .setDescription(rest.missingErrorMessage)
+            } else {
+              return rest.missingErrorMessage
+            }
+          }
+
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(

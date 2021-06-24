@@ -9,6 +9,9 @@ import * as command from "./command"
 export interface Argument {
   name: string
   description: string
+  castingErrorMessage?: string | discord.MessageEmbed
+  checkingErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Rest<Message extends command.CommandMessage> extends Argument {
@@ -57,7 +60,10 @@ export type Positional<Message extends command.CommandMessage> = Omit<
 >
 
 export interface Flag<Message extends command.CommandMessage>
-  extends Pick<Option<Message>, "name" | "aliases" | "description"> {
+  extends Pick<
+    Option<Message>,
+    "name" | "aliases" | "description" | "castingErrorMessage"
+  > {
   flag: string
 }
 
@@ -170,7 +176,10 @@ export async function checkValue<Message extends command.CommandMessage>(
 }
 
 export async function checkCastedValue<Message extends command.CommandMessage>(
-  subject: Pick<Option<Message>, "checkCastedValue" | "name">,
+  subject: Pick<
+    Option<Message>,
+    "checkCastedValue" | "name" | "checkingErrorMessage"
+  >,
   subjectType: "positional" | "argument",
   value: string,
   message: Message
@@ -183,39 +192,44 @@ export async function checkCastedValue<Message extends command.CommandMessage>(
     message
   )
 
-  if (typeof checkResult === "string") {
-    return new discord.MessageEmbed()
+  const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
+    const embed = new discord.MessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} tested "${subject.name}".`,
         message.client.user?.displayAvatarURL()
       )
-      .setDescription(checkResult)
+      .setDescription(errorMessage)
+
+    if (subject.checkingErrorMessage) {
+      if (typeof subject.checkingErrorMessage === "string") {
+        return embed.setDescription(subject.checkingErrorMessage)
+      } else {
+        return subject.checkingErrorMessage
+      }
+    }
+
+    return embed
   }
 
-  if (!checkResult) {
-    return new discord.MessageEmbed()
-      .setColor("RED")
-      .setAuthor(
-        `Bad ${subjectType} tested "${subject.name}".`,
-        message.client.user?.displayAvatarURL()
-      )
-      .setDescription(
-        typeof subject.checkCastedValue === "function"
-          ? core.code.stringify({
-              content: subject.checkCastedValue.toString(),
-              format: true,
-              lang: "js",
-            })
-          : "Please use the `--help` flag for more information."
-      )
-  }
+  if (typeof checkResult === "string") return errorEmbed(checkResult)
+
+  if (!checkResult)
+    return errorEmbed(
+      typeof subject.checkCastedValue === "function"
+        ? core.code.stringify({
+            content: subject.checkCastedValue.toString(),
+            format: true,
+            lang: "js",
+          })
+        : "Please use the `--help` flag for more information."
+    )
 
   return true
 }
 
 export async function castValue<Message extends command.CommandMessage>(
-  subject: Pick<Option<Message>, "castValue" | "name">,
+  subject: Pick<Option<Message>, "castValue" | "name" | "castingErrorMessage">,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
   message: Message,
@@ -371,6 +385,27 @@ export async function castValue<Message extends command.CommandMessage>(
     await cast()
     return true
   } catch (error) {
+    const errorCode = core.code.stringify({
+      content: `${error.name}: ${error.message}`,
+      lang: "js",
+    })
+
+    if (subject.castingErrorMessage) {
+      if (typeof subject.castingErrorMessage === "string") {
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            `Bad ${subjectType} type "${subject.name}".`,
+            message.client.user?.displayAvatarURL()
+          )
+          .setDescription(
+            subject.castingErrorMessage.replace(/@error/g, errorCode)
+          )
+      } else {
+        return subject.castingErrorMessage
+      }
+    }
+
     return new discord.MessageEmbed()
       .setColor("RED")
       .setAuthor(
@@ -382,10 +417,7 @@ export async function castValue<Message extends command.CommandMessage>(
           typeof subject.castValue === "function"
             ? "{*custom type*}"
             : "`" + subject.castValue + "`"
-        }\n${core.code.stringify({
-          content: `Error: ${error.message}`,
-          lang: "js",
-        })}`
+        }\n${errorCode}`
       )
   }
 }
