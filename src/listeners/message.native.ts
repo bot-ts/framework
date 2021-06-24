@@ -6,14 +6,6 @@ const listener: app.Listener<"message"> = {
   async run(message) {
     if (!app.isCommandMessage(message)) return
 
-    app.emitMessage(message.channel, message)
-    app.emitMessage(message.author, message)
-
-    if (app.isGuildMessage(message)) {
-      app.emitMessage(message.guild, message)
-      app.emitMessage(message.member, message)
-    }
-
     message.usedAsDefault = false
 
     message.send = async function (sent) {
@@ -29,6 +21,19 @@ const listener: app.Listener<"message"> = {
         timeout
       )
       return m
+    }
+
+    message.isFromBotOwner = message.author.id === process.env.BOT_OWNER
+
+    app.emitMessage(message.channel, message)
+    app.emitMessage(message.author, message)
+
+    if (app.isGuildMessage(message)) {
+      message.isFromGuildOwner =
+        message.isFromBotOwner || message.guild.ownerID === message.author.id
+
+      app.emitMessage(message.guild, message)
+      app.emitMessage(message.member, message)
     }
 
     const prefix = await app.prefix(message.guild ?? undefined)

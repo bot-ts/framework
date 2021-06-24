@@ -59,6 +59,8 @@ export type CommandMessage = discord.Message & {
     item: SentItem
   ) => Promise<discord.Message>
   usedAsDefault: boolean
+  isFromBotOwner: boolean
+  isFromGuildOwner: boolean
   usedPrefix: string
   client: core.FullClient
   rest: string
