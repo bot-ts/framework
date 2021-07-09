@@ -192,3 +192,27 @@ export function emitMessage<
 >(emitter: EventEmitters[Event], ...args: discord.ClientEvents[Event]) {
   messageEmitter.emit(emitter.id, ...args)
 }
+
+export function divider<T, Out>(
+  items: T[],
+  itemCountByDivision: number,
+  mapping: (section: T[], index: number, all: T[][]) => Promise<Out> | Out
+): Promise<Out[]>
+export function divider<T, Out>(items: T[], itemCountByDivision: number): T[][]
+export function divider<T, Out>(
+  items: T[],
+  itemCountByDivision: number,
+  mapping?: (section: T[], index: number, all: T[][]) => Out
+): T[][] | Promise<Out[]> {
+  const divided: T[][] = []
+  const divisionCount = Math.ceil(items.length / itemCountByDivision)
+  for (let i = 0; i < divisionCount; i++) {
+    divided.push(
+      items.slice(itemCountByDivision * i, itemCountByDivision * (i + 1))
+    )
+  }
+
+  if (mapping) return Promise.all(divided.map(mapping))
+
+  return divided
+}
