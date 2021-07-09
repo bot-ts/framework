@@ -55,6 +55,9 @@ module.exports = new app.Command({
             `guilds: ${message.client.guilds.cache.size}`,
             `users: ${message.client.users.cache.size}`,
             `channels: ${message.client.channels.cache.size}`,
+            `roles: ${message.client.guilds.cache.reduce((acc, guild) => {
+              return acc + guild.roles.cache.size
+            }, 0)}`,
             `messages: ${message.client.channels.cache.reduce(
               (acc, channel) => {
                 return (
