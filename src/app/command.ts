@@ -744,7 +744,13 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       if (typeof result === "string")
         return new discord.MessageEmbed()
           .setColor("RED")
-          .setAuthor(result, message.client.user.displayAvatarURL())
+          .setAuthor(
+            `${
+              middleware.name ? `"${middleware.name}" m` : "M"
+            }iddleware error`,
+            message.client.user.displayAvatarURL()
+          )
+          .setDescription(result)
 
       if (!result) return false
     }
