@@ -22,7 +22,7 @@ export interface Rest<Message extends command.CommandMessage> extends Argument {
 
 export interface Option<Message extends command.CommandMessage>
   extends Argument {
-  aliases?: string[] | string
+  aliases?: string[]
   default?: core.Scrap<string, [message?: Message]>
   required?: core.Scrap<boolean, [message?: Message]>
   castValue?:
@@ -76,18 +76,12 @@ export function resolveGivenArgument<Message extends command.CommandMessage>(
   let value = parsedArgs[arg.name]
 
   if (!given && arg.aliases) {
-    if (typeof arg.aliases === "string") {
-      usedName = arg.aliases
-      given = parsedArgs.hasOwnProperty(arg.aliases)
-      value = parsedArgs[arg.aliases]
-    } else {
-      for (const alias of arg.aliases) {
-        if (parsedArgs.hasOwnProperty(alias)) {
-          usedName = alias
-          given = true
-          value = parsedArgs[alias]
-          break
-        }
+    for (const alias of arg.aliases) {
+      if (parsedArgs.hasOwnProperty(alias)) {
+        usedName = alias
+        given = true
+        value = parsedArgs[alias]
+        break
       }
     }
   }

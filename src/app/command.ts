@@ -26,15 +26,11 @@ export const commands = new (class CommandCollection extends discord.Collection<
 > {
   public resolve(key: string): Command<keyof CommandMessageType> | undefined {
     for (const [name, command] of this) {
-      if (key === name) {
+      if (
+        key === name ||
+        command.options.aliases?.some((alias) => key === alias)
+      )
         return command
-      } else {
-        const aliases = command.options.aliases ?? []
-        const resolvedAliases = Array.isArray(aliases) ? aliases : [aliases]
-        if (resolvedAliases.some((alias) => key === alias)) {
-          return command
-        }
-      }
     }
   }
 
@@ -113,7 +109,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * Use this command as slash command
    */
   isSlash?: boolean
-  aliases?: string[] | string
+  aliases?: string[]
   /**
    * Cool down of command (in ms)
    */
@@ -853,9 +849,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
     embed.addField("options", argumentList.join("\n"), false)
 
   if (cmd.options.aliases) {
-    const aliases = Array.isArray(cmd.options.aliases)
-      ? cmd.options.aliases
-      : [cmd.options.aliases]
+    const aliases = cmd.options.aliases
 
     embed.addField(
       "aliases",
