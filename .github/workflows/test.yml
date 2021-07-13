@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Type checking
+name: Build checking
 
 # Controls when the action will run. 
 on:
@@ -28,5 +28,5 @@ jobs:
       - name: Install dependencies
         run: npm install
         
-      - name: Start tests
-        run: npm run test
+      - name: Start build
+        run: npm run build
