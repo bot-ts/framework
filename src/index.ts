@@ -1,4 +1,5 @@
-import Discord from "discord.js"
+import discord from "discord.js"
+import discordButtons from "discord-buttons"
 
 import "dotenv/config"
 
@@ -8,9 +9,11 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
   }
 }
 
-const client = new Discord.Client()
+const client = new discord.Client()
 
 ;(async () => {
+  discordButtons(client)
+
   const app = await import("./app")
 
   try {

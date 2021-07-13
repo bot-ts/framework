@@ -2,6 +2,7 @@ import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
 import apiTypes from "discord-api-types/v8"
+import * as discordButtons from "discord-buttons"
 
 import * as logger from "./logger"
 import * as handler from "./handler"
@@ -30,7 +31,10 @@ listenerHandler.once("finish", (pathList, client) => {
 export type Packet = apiTypes.GatewayDispatchPayload
 
 export type Listener<
-  EventName extends keyof (discord.ClientEvents & { raw: [Packet] })
+  EventName extends keyof (discord.ClientEvents & {
+    raw: [Packet]
+    clickButton: [button: discordButtons.MessageComponent]
+  })
 > = {
   event: EventName
   run: (
