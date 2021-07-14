@@ -77,11 +77,15 @@ export interface CoolDown {
   trigger: boolean
 }
 
-export type Middleware<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
-> = (
-  message: CommandMessageType[Type]
-) => Promise<boolean | string> | boolean | string
+export interface MiddlewareResult {
+  result: boolean | string
+  data: any
+}
+
+export type Middleware<Type extends keyof CommandMessageType> = (
+  message: CommandMessageType[Type],
+  data: any
+) => Promise<MiddlewareResult> | MiddlewareResult
 
 export interface CommandMessageType {
   guild: GuildMessage
@@ -734,8 +738,15 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
   if (cmd.options.middlewares) {
     const middlewares = await core.scrap(cmd.options.middlewares, message)
 
+    let currentData: any = {}
+
     for (const middleware of middlewares) {
-      const result: string | boolean = await middleware(message)
+      const { result, data } = await middleware(message, currentData)
+
+      currentData = {
+        ...currentData,
+        ...(data ?? {}),
+      }
 
       if (typeof result === "string")
         return new discord.MessageEmbed()
