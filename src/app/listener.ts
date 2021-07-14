@@ -15,10 +15,13 @@ export const listenerHandler = new handler.Handler(
 listenerHandler.once("finish", (pathList, client) => {
   pathList.forEach((filepath) => {
     const listener = require(filepath)
-    client[listener.once ? "once" : "on"](
-      listener.event,
-      listener.run.bind(client)
-    )
+    client[listener.once ? "once" : "on"](listener.event, async (...args) => {
+      try {
+        await listener.run.bind(client)(...args)
+      } catch (error) {
+        logger.error(error, "handler")
+      }
+    })
     logger.log(
       `loaded listener ${chalk.yellow(
         listener.once ? "once" : "on"
