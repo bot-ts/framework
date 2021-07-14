@@ -45,12 +45,12 @@ export type SentItem =
   | (discord.MessageOptions & { split?: false })
   | discord.MessageAdditions
 
-export type CommandMessage = discord.Message & {
+export type NormalMessage = discord.Message & {
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
-  send: (this: CommandMessage, item: SentItem) => Promise<discord.Message>
+  send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
   sendTimeout: (
-    this: CommandMessage,
+    this: NormalMessage,
     timeout: number,
     item: SentItem
   ) => Promise<discord.Message>
@@ -62,13 +62,13 @@ export type CommandMessage = discord.Message & {
   rest: string
 }
 
-export type GuildMessage = CommandMessage & {
+export type GuildMessage = NormalMessage & {
   channel: discord.TextChannel & discord.GuildChannel
   guild: discord.Guild
   member: discord.GuildMember
 }
 
-export type DirectMessage = CommandMessage & {
+export type DirectMessage = NormalMessage & {
   channel: discord.DMChannel
 }
 
@@ -90,7 +90,7 @@ export type Middleware<Type extends keyof CommandMessageType> = (
 export interface CommandMessageType {
   guild: GuildMessage
   dm: DirectMessage
-  all: CommandMessage
+  all: NormalMessage
 }
 
 export interface CommandOptions<Type extends keyof CommandMessageType> {
@@ -945,9 +945,9 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
   }`
 }
 
-export function isCommandMessage(
+export function isNormalMessage(
   message: discord.Message
-): message is CommandMessage {
+): message is NormalMessage {
   return (
     !message.system &&
     !!message.channel &&
@@ -957,7 +957,7 @@ export function isCommandMessage(
 }
 
 export function isGuildMessage(
-  message: CommandMessage
+  message: NormalMessage
 ): message is GuildMessage {
   return (
     !!message.member &&
@@ -967,7 +967,7 @@ export function isGuildMessage(
 }
 
 export function isDirectMessage(
-  message: CommandMessage
+  message: NormalMessage
 ): message is DirectMessage {
   return message.channel instanceof discord.DMChannel
 }

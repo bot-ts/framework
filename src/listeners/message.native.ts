@@ -4,7 +4,7 @@ import yargsParser from "yargs-parser"
 const listener: app.Listener<"message"> = {
   event: "message",
   async run(message) {
-    if (!app.isCommandMessage(message)) return
+    if (!app.isNormalMessage(message)) return
 
     const prefix = await app.prefix(message.guild ?? undefined)
 
@@ -24,7 +24,7 @@ const listener: app.Listener<"message"> = {
     message.sendTimeout = async function (timeout, sent) {
       const m = await this.channel.send(sent)
       setTimeout(
-        function (this: app.CommandMessage) {
+        function (this: app.NormalMessage) {
           if (!this.deleted) this.delete().catch()
         }.bind(this),
         timeout
