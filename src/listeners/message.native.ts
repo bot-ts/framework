@@ -6,6 +6,15 @@ const listener: app.Listener<"message"> = {
   async run(message) {
     if (!app.isCommandMessage(message)) return
 
+    const prefix = await app.prefix(message.guild ?? undefined)
+
+    if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
+      return message.channel.send(
+        new app.MessageEmbed()
+          .setColor("BLURPLE")
+          .setDescription(`My prefix is \`${prefix}\``)
+      )
+
     message.usedAsDefault = false
 
     message.send = async function (sent) {
@@ -35,8 +44,6 @@ const listener: app.Listener<"message"> = {
       app.emitMessage(message.guild, message)
       app.emitMessage(message.member, message)
     }
-
-    const prefix = await app.prefix(message.guild ?? undefined)
 
     let dynamicContent = message.content
 
