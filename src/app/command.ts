@@ -247,6 +247,7 @@ export function commandBreadcrumb<Type extends keyof CommandMessageType>(
 ): string {
   return commandParents(command)
     .map((cmd) => cmd.options.name)
+    .reverse()
     .join(separator)
 }
 
@@ -254,7 +255,7 @@ export function commandParents<Type extends keyof CommandMessageType>(
   command: Command<Type>
 ): Command<any>[] {
   return command.options.parent
-    ? [command, ...commandParents(command.options.parent)].reverse()
+    ? [command, ...commandParents(command.options.parent)]
     : [command]
 }
 
