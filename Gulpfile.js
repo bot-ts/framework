@@ -55,7 +55,7 @@ function build() {
 }
 
 function watch(cb) {
-  const spawn = cp.spawn("nodemon dist/index", { shell: true })
+  const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
 
   spawn.stdout.on("data", (data) => {
     console.log(chalk.white(`${data}`.trim()))
