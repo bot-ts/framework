@@ -9,4 +9,4 @@ const listener: app.Listener<"guildDelete"> = {
   },
 }
 
-module.exports = listener
+export default listener

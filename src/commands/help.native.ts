@@ -1,6 +1,6 @@
 import * as app from "../app"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "help",
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",

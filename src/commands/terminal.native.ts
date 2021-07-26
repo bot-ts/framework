@@ -1,7 +1,7 @@
 import * as app from "../app"
 import cp from "child_process"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "terminal",
   description: "Run shell command from Discord",
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],

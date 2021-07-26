@@ -14,8 +14,9 @@ export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )
 
-commandHandler.on("load", (filepath) => {
-  return commands.add(require(filepath))
+commandHandler.on("load", async (filepath) => {
+  const file = await import(filepath)
+  return commands.add(file.default)
 })
 
 export let defaultCommand: Command<any> | null = null

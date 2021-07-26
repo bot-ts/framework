@@ -41,4 +41,4 @@ const listener: app.Listener<"raw"> = {
   },
 }
 
-module.exports = listener
+export default listener

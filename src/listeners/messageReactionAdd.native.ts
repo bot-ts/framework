@@ -16,4 +16,4 @@ const listener: app.Listener<"messageReactionAdd"> = {
   },
 }
 
-module.exports = listener
+export default listener

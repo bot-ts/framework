@@ -5,7 +5,7 @@ import path from "path"
 
 const conf = require(path.join(process.cwd(), "package.json"))
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "info",
   description: "Get information about bot",
   flags: [

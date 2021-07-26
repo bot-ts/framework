@@ -2,7 +2,7 @@ import * as app from "../app"
 
 import guilds from "../tables/guilds.native"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "prefix",
   guildOwnerOnly: true,
   channelType: "guild",

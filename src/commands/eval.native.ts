@@ -11,7 +11,7 @@ const alreadyInstalled = (pack: string): boolean =>
   packageJson.dependencies.hasOwnProperty(pack) ||
   packageJson.devDependencies.hasOwnProperty(pack)
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "eval",
   description: "JS code evaluator",
   channelType: "all",

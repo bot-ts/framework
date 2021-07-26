@@ -32,4 +32,4 @@ const listener: app.Listener<"ready"> = {
   },
 }
 
-module.exports = listener
+export default listener

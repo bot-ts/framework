@@ -9,4 +9,4 @@ const listener: app.Listener<"messageDelete"> = {
   },
 }
 
-module.exports = listener
+export default listener
