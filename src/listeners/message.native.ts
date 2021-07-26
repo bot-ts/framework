@@ -17,11 +17,18 @@ const listener: app.Listener<"message"> = {
 
     message.usedAsDefault = false
 
-    message.send = async function (sent) {
+    message.send = async function (
+      this: app.NormalMessage,
+      sent: app.SentItem
+    ) {
       return this.channel.send(sent)
-    }
+    }.bind(message)
 
-    message.sendTimeout = async function (timeout, sent) {
+    message.sendTimeout = async function (
+      this: app.NormalMessage,
+      timeout: number,
+      sent: app.SentItem
+    ) {
       const m = await this.channel.send(sent)
       setTimeout(
         function (this: app.NormalMessage) {
@@ -30,7 +37,7 @@ const listener: app.Listener<"message"> = {
         timeout
       )
       return m
-    }
+    }.bind(message)
 
     message.isFromBotOwner = message.author.id === process.env.BOT_OWNER
 
