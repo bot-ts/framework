@@ -1,9 +1,11 @@
 import * as app from "../app"
 
-const table = new app.Table<{
+export interface Guild {
   id: string
   prefix: string
-}>({
+}
+
+const table = new app.Table<Guild>({
   name: "guilds",
   setup: (table) => {
     table.string("id").unique()
