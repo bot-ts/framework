@@ -17,6 +17,10 @@ const client = new discord.Client()
   const app = await import("./app")
 
   try {
+    await app.tableHandler.load(client as app.FullClient)
+    await app.commandHandler.load(client as app.FullClient)
+    await app.listenerHandler.load(client as app.FullClient)
+    
     await client.login(process.env.BOT_TOKEN)
 
     if (!app.isFullClient(client)) {
@@ -24,10 +28,6 @@ const client = new discord.Client()
       client.destroy()
       process.exit(1)
     }
-
-    await app.tableHandler.load(client)
-    await app.commandHandler.load(client)
-    await app.listenerHandler.load(client)
   } catch (error) {
     app.error(error, "system", true)
   }
