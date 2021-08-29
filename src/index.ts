@@ -1,5 +1,4 @@
 import discord from "discord.js"
-import discordButtons from "discord-buttons"
 
 import "dotenv/config"
 
@@ -9,10 +8,9 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
   }
 }
 
-const client = new discord.Client()
+const client = new discord.Client({ intents: [discord.Intents.FLAGS.GUILDS, discord.Intents.FLAGS.GUILD_MESSAGES]})
 
 ;(async () => {
-  discordButtons(client)
 
   const app = await import("./app")
 

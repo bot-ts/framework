@@ -18,7 +18,7 @@ export default new app.Command({
     message.triggerCoolDown()
 
     const toEdit = await message.channel.send(
-      new app.MessageEmbed().setTitle("The process is running...")
+      {embeds: [new app.MessageEmbed().setTitle("The process is running...")]}
     )
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
@@ -42,8 +42,8 @@ export default new app.Command({
           })
         )
 
-      toEdit.edit(embed).catch(() => {
-        message.channel.send(embed).catch()
+      toEdit.edit({embeds: [embed]}).catch(() => {
+        message.channel.send({embeds: [embed]}).catch()
       })
     })
   },

@@ -1,19 +1,19 @@
 import * as app from "../app"
 import yargsParser from "yargs-parser"
 
-const listener: app.Listener<"message"> = {
-  event: "message",
+const listener: app.Listener<"messageCreate"> = {
+  event: "messageCreate",
   async run(message) {
     if (!app.isNormalMessage(message)) return
 
     const prefix = await app.prefix(message.guild ?? undefined)
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
-      return message.channel.send(
-        new app.MessageEmbed()
+      return message.channel.send({
+        embeds: [new app.MessageEmbed()
           .setColor("BLURPLE")
-          .setDescription(`My prefix is \`${prefix}\``)
-      )
+          .setDescription(`My prefix is \`${prefix}\``)]
+      })
 
     message.usedAsDefault = false
 
@@ -46,7 +46,7 @@ const listener: app.Listener<"message"> = {
 
     if (app.isGuildMessage(message)) {
       message.isFromGuildOwner =
-        message.isFromBotOwner || message.guild.ownerID === message.author.id
+        message.isFromBotOwner || message.guild.ownerId === message.author.id
 
       app.emitMessage(message.guild, message)
       app.emitMessage(message.member, message)
@@ -139,7 +139,11 @@ const listener: app.Listener<"message"> = {
       parsedArgs,
       key,
     })
-    if (typeof prepared !== "boolean") return message.channel.send(prepared)
+    if(typeof prepared === 'string') {
+      if (typeof prepared !== "boolean") return message.channel.send(prepared)
+    } else {
+      if (typeof prepared !== "boolean") return message.channel.send({embeds: [prepared]})
+    }
     if (!prepared) return
 
     try {
