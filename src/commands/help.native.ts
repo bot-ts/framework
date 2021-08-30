@@ -21,13 +21,15 @@ export default new app.Command({
         return app.sendCommandDetails(message, cmd)
       } else {
         await message.channel.send({
-          embeds: [new app.MessageEmbed()
-            .setColor("RED")
-            .setAuthor(
-              `Unknown command "${message.args.command}"`,
-              message.client.user?.displayAvatarURL()
-            )]
-          })
+          embeds: [
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Unknown command "${message.args.command}"`,
+                message.client.user?.displayAvatarURL()
+              ),
+          ],
+        })
       }
     } else {
       new app.Paginator({

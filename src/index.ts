@@ -8,17 +8,18 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
   }
 }
 
-const client = new discord.Client({ intents: [discord.Intents.FLAGS.GUILDS, discord.Intents.FLAGS.GUILD_MESSAGES]})
+const client = new discord.Client({
+  intents: [discord.Intents.FLAGS.GUILDS, discord.Intents.FLAGS.GUILD_MESSAGES],
+})
 
 ;(async () => {
-
   const app = await import("./app")
 
   try {
-    await app.tableHandler.load(client as app.FullClient)
-    await app.commandHandler.load(client as app.FullClient)
-    await app.listenerHandler.load(client as app.FullClient)
-    
+    await app.tableHandler.load(client as any)
+    await app.commandHandler.load(client as any)
+    await app.listenerHandler.load(client as any)
+
     await client.login(process.env.BOT_TOKEN)
 
     if (!app.isFullClient(client)) {
@@ -26,7 +27,7 @@ const client = new discord.Client({ intents: [discord.Intents.FLAGS.GUILDS, disc
       client.destroy()
       process.exit(1)
     }
-  } catch (error) {
+  } catch (error: any) {
     app.error(error, "system", true)
   }
 })()

@@ -10,9 +10,11 @@ const listener: app.Listener<"messageCreate"> = {
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel.send({
-        embeds: [new app.MessageEmbed()
-          .setColor("BLURPLE")
-          .setDescription(`My prefix is \`${prefix}\``)]
+        embeds: [
+          new app.MessageEmbed()
+            .setColor("BLURPLE")
+            .setDescription(`My prefix is \`${prefix}\``),
+        ],
       })
 
     message.usedAsDefault = false
@@ -139,16 +141,17 @@ const listener: app.Listener<"messageCreate"> = {
       parsedArgs,
       key,
     })
-    if(typeof prepared === 'string') {
+    if (typeof prepared === "string") {
       if (typeof prepared !== "boolean") return message.channel.send(prepared)
     } else {
-      if (typeof prepared !== "boolean") return message.channel.send({embeds: [prepared]})
+      if (typeof prepared !== "boolean")
+        return message.channel.send({ embeds: [prepared] })
     }
     if (!prepared) return
 
     try {
       await cmd.options.run.bind(cmd)(message)
-    } catch (error) {
+    } catch (error: any) {
       app.error(error, "handler", true)
       message.channel
         .send(

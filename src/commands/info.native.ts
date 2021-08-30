@@ -70,34 +70,37 @@ export default new app.Command({
         }),
         true
       )
-    return message.channel.send({embeds: 
-    [!message.args.dependencies
-      ? embed
-      : embed
-          .addField("\u200B", "\u200B", false)
-          .addField(
-            "Dependencies",
-            app.code.stringify({
-              lang: "yml",
-              content: Object.entries(conf.dependencies)
-                .map(([name, version]) => {
-                  return `${name.replace(/@/g, "")}: ${version}`
-                })
-                .join("\n"),
-            }),
-            true
-          )
-          .addField(
-            "Dev dependencies",
-            app.code.stringify({
-              lang: "yml",
-              content: Object.entries(conf.devDependencies)
-                .map(([name, version]) => {
-                  return `${name.replace(/@/g, "")}: ${version}`
-                })
-                .join("\n"),
-            }),
-            true
-          )]})
+    return message.channel.send({
+      embeds: [
+        !message.args.dependencies
+          ? embed
+          : embed
+              .addField("\u200B", "\u200B", false)
+              .addField(
+                "Dependencies",
+                app.code.stringify({
+                  lang: "yml",
+                  content: Object.entries(conf.dependencies)
+                    .map(([name, version]) => {
+                      return `${name.replace(/@/g, "")}: ${version}`
+                    })
+                    .join("\n"),
+                }),
+                true
+              )
+              .addField(
+                "Dev dependencies",
+                app.code.stringify({
+                  lang: "yml",
+                  content: Object.entries(conf.devDependencies)
+                    .map(([name, version]) => {
+                      return `${name.replace(/@/g, "")}: ${version}`
+                    })
+                    .join("\n"),
+                }),
+                true
+              ),
+      ],
+    })
   },
 })

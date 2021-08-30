@@ -17,9 +17,13 @@ export interface PaginatorOptions<Data = undefined> {
   data?: Data
   pages: Page[] | ((pageIndex: number, data: Data) => Promise<Page> | Page)
   pageCount?: number
-  channel: discord.TextChannel | discord.DMChannel | discord.NewsChannel | discord.TextBasedChannels
+  channel:
+    | discord.TextChannel
+    | discord.DMChannel
+    | discord.NewsChannel
+    | discord.TextBasedChannels
   filter?: (
-    reaction: discord.MessageReaction,
+    reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) => boolean
   idleTime?: number | "none"
@@ -71,11 +75,11 @@ export class Paginator extends events.EventEmitter {
     this._deactivation = this.resetDeactivationTimeout()
 
     this.getCurrentPage().then(async (page) => {
-      let message;
-      if(typeof page === 'string') {
+      let message
+      if (typeof page === "string") {
         message = await options.channel.send(page)
       } else {
-        message = await options.channel.send({embeds: [page]})
+        message = await options.channel.send({ embeds: [page] })
       }
 
       this._messageID = message.id
@@ -91,20 +95,22 @@ export class Paginator extends events.EventEmitter {
   private render() {
     this.getCurrentPage().then((page) => {
       if (this.messageID)
-          if(typeof page === 'string') {
-            this.options.channel.messages.cache
-            .get(this.messageID)?.edit(page)
+        if (typeof page === "string") {
+          this.options.channel.messages.cache
+            .get(this.messageID)
+            ?.edit(page)
             .catch(logger.error)
-          } else {
-            this.options.channel.messages.cache
-            .get(this.messageID)?.edit({embeds: [page]})
+        } else {
+          this.options.channel.messages.cache
+            .get(this.messageID)
+            ?.edit({ embeds: [page] })
             .catch(logger.error)
-          }
+        }
     })
   }
 
   public handleReaction(
-    reaction: discord.MessageReaction,
+    reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) {
     if (this.options.filter && !this.options.filter(reaction, user)) return
