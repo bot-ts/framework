@@ -41,10 +41,7 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
-export type SentItem =
-  | discord.APIMessageContentResolvable
-  | (discord.MessageOptions & { split?: false })
-  | discord.MessageAdditions
+export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export type NormalMessage = discord.Message & {
   args: { [name: string]: any } & any[]
@@ -326,7 +323,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (core.scrap(cmd.options.guildOwnerOnly, message))
       if (
-        message.guild.owner !== message.member &&
+        message.guild.ownerId !== message.member.id &&
         process.env.BOT_OWNER !== message.member.id
       )
         return new discord.MessageEmbed()
@@ -343,12 +340,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of botPermissions)
-        if (
-          !message.guild.me?.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
+        if (!message.guild.me?.permissions.has(permission, true))
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor("Oops!", message.client.user.displayAvatarURL())
@@ -364,12 +356,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of userPermissions)
-        if (
-          !message.member.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
+        if (!message.member.permissions.has(permission, true))
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor("Oops!", message.client.user.displayAvatarURL())
@@ -935,7 +922,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       `This command can only be sent in ${cmd.options.channelType} channel.`
     )
 
-  await message.channel.send(embed)
+  await message.channel.send({ embeds: [embed] })
 }
 
 export function commandToListItem<Type extends keyof CommandMessageType>(
@@ -954,7 +941,7 @@ export function isNormalMessage(
     !message.system &&
     !!message.channel &&
     !!message.author &&
-    !message.webhookID
+    !message.webhookId
   )
 }
 

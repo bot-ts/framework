@@ -17,9 +17,13 @@ export interface PaginatorOptions<Data = undefined> {
   data?: Data
   pages: Page[] | ((pageIndex: number, data: Data) => Promise<Page> | Page)
   pageCount?: number
-  channel: discord.TextChannel | discord.DMChannel | discord.NewsChannel
+  channel:
+    | discord.TextChannel
+    | discord.DMChannel
+    | discord.NewsChannel
+    | discord.TextBasedChannels
   filter?: (
-    reaction: discord.MessageReaction,
+    reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) => boolean
   idleTime?: number | "none"
@@ -71,7 +75,10 @@ export class Paginator extends events.EventEmitter {
     this._deactivation = this.resetDeactivationTimeout()
 
     this.getCurrentPage().then(async (page) => {
-      const message = await options.channel.send(page)
+      const message =
+        typeof page === "string"
+          ? await options.channel.send(page)
+          : await options.channel.send({ embeds: [page] })
 
       this._messageID = message.id
 
@@ -86,15 +93,22 @@ export class Paginator extends events.EventEmitter {
   private render() {
     this.getCurrentPage().then((page) => {
       if (this.messageID)
-        this.options.channel.messages.cache
-          .get(this.messageID)
-          ?.edit(page)
-          .catch(logger.error)
+        if (typeof page === "string") {
+          this.options.channel.messages.cache
+            .get(this.messageID)
+            ?.edit(page)
+            .catch(logger.error)
+        } else {
+          this.options.channel.messages.cache
+            .get(this.messageID)
+            ?.edit({ embeds: [page] })
+            .catch(logger.error)
+        }
     })
   }
 
   public handleReaction(
-    reaction: discord.MessageReaction,
+    reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) {
     if (this.options.filter && !this.options.filter(reaction, user)) return
@@ -168,7 +182,7 @@ export class Paginator extends events.EventEmitter {
     const message = await this.options.channel.messages.cache.get(
       this.messageID
     )
-    if (message && message.channel.type === "text")
+    if (message && message.channel.isText())
       await message.reactions?.removeAll()
 
     Paginator.instances = Paginator.instances.filter((paginator) => {

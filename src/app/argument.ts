@@ -337,7 +337,12 @@ export async function castValue<Message extends command.NormalMessage>(
             const channel = message.client.channels.cache.get(channelID)
             if (channel) {
               if (channel.isText()) {
-                setValue(await channel.messages.fetch(messageID, false))
+                setValue(
+                  await channel.messages.fetch(messageID, {
+                    force: false,
+                    cache: false,
+                  })
+                )
               } else throw new Error("Invalid channel type!")
             } else throw new Error("Unknown channel!")
           } else throw new Error("Invalid message link!")
@@ -349,7 +354,10 @@ export async function castValue<Message extends command.NormalMessage>(
           const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
             const id = match[1] ?? match[2]
-            const user = await message.client.users.fetch(id, false)
+            const user = await message.client.users.fetch(id, {
+              force: false,
+              cache: false,
+            })
             if (user) setValue(user)
             else throw new Error("Unknown user!")
           } else if (subject.castValue === "user+") {
@@ -404,7 +412,7 @@ export async function castValue<Message extends command.NormalMessage>(
       case "invite":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
-            const invites = await message.guild.fetchInvites()
+            const invites = await message.guild.invites.fetch()
             const invite = invites.find(
               (invite) => invite.code === baseValue || invite.url === baseValue
             )
@@ -426,7 +434,7 @@ export async function castValue<Message extends command.NormalMessage>(
   try {
     await cast()
     return true
-  } catch (error) {
+  } catch (error: any) {
     const errorCode = core.code.stringify({
       content: `${error.name}: ${error.message}`,
       lang: "js",
