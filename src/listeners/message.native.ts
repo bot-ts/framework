@@ -141,12 +141,10 @@ const listener: app.Listener<"messageCreate"> = {
       parsedArgs,
       key,
     })
-    if (typeof prepared === "string") {
-      if (typeof prepared !== "boolean") return message.channel.send(prepared)
-    } else {
-      if (typeof prepared !== "boolean")
-        return message.channel.send({ embeds: [prepared] })
-    }
+
+    if (typeof prepared !== "boolean")
+      return message.channel.send({ embeds: [prepared] })
+
     if (!prepared) return
 
     try {

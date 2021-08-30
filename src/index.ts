@@ -1,4 +1,5 @@
 import discord from "discord.js"
+import type { FullClient } from "./app"
 
 import "dotenv/config"
 
@@ -16,9 +17,9 @@ const client = new discord.Client({
   const app = await import("./app")
 
   try {
-    await app.tableHandler.load(client as any)
-    await app.commandHandler.load(client as any)
-    await app.listenerHandler.load(client as any)
+    await app.tableHandler.load(client as FullClient)
+    await app.commandHandler.load(client as FullClient)
+    await app.listenerHandler.load(client as FullClient)
 
     await client.login(process.env.BOT_TOKEN)
 

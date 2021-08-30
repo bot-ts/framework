@@ -75,12 +75,10 @@ export class Paginator extends events.EventEmitter {
     this._deactivation = this.resetDeactivationTimeout()
 
     this.getCurrentPage().then(async (page) => {
-      let message
-      if (typeof page === "string") {
-        message = await options.channel.send(page)
-      } else {
-        message = await options.channel.send({ embeds: [page] })
-      }
+      const message =
+        typeof page === "string"
+          ? await options.channel.send(page)
+          : await options.channel.send({ embeds: [page] })
 
       this._messageID = message.id
 
@@ -184,7 +182,7 @@ export class Paginator extends events.EventEmitter {
     const message = await this.options.channel.messages.cache.get(
       this.messageID
     )
-    if (message && message.channel.type === "GUILD_TEXT")
+    if (message && message.channel.isText())
       await message.reactions?.removeAll()
 
     Paginator.instances = Paginator.instances.filter((paginator) => {
