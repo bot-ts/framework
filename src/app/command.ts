@@ -485,7 +485,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
         let value: any = context.parsedArgs._[index]
-        const given = value !== undefined
+        const given = value !== undefined && value !== null
 
         const set = (v: any) => {
           message.args[positional.name] = v
@@ -587,13 +587,13 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
         if (value === true) value = undefined
 
-        if ((await core.scrap(option.required, message)) && !given) {
+        if (!given && (await core.scrap(option.required, message))) {
           if (option.missingErrorMessage) {
             if (typeof option.missingErrorMessage === "string") {
               return new discord.MessageEmbed()
                 .setColor("RED")
                 .setAuthor(
-                  `Missing argument "${option.name}"`,
+                  `Missing option "${option.name}"`,
                   message.client.user.displayAvatarURL()
                 )
                 .setDescription(option.missingErrorMessage)
@@ -605,7 +605,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              `Missing argument "${option.name}"`,
+              `Missing option "${option.name}"`,
               message.client.user.displayAvatarURL()
             )
             .setDescription(
@@ -661,7 +661,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (cmd.options.flags) {
       for (const flag of cmd.options.flags) {
-        let { given, value } = argument.resolveGivenArgument(
+        let { given, nameIsGiven, value } = argument.resolveGivenArgument(
           context.parsedArgs,
           flag
         )
@@ -671,7 +671,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           value = v
         }
 
-        if (!given) set(false)
+        if (!nameIsGiven) set(false)
         else if (typeof value === "boolean") set(value)
         else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
         else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)

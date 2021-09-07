@@ -73,15 +73,23 @@ export interface Flag<Message extends command.NormalMessage>
 export function resolveGivenArgument<Message extends command.NormalMessage>(
   parsedArgs: yargsParser.Arguments,
   arg: Option<Message> | Flag<Message>
-): { given: boolean; usedName: string; value: any } {
+): {
+  given: boolean
+  nameIsGiven: boolean
+  usedName: string
+  value: any
+} {
   let usedName = arg.name
-  let given = parsedArgs.hasOwnProperty(arg.name)
+  let nameIsGiven = parsedArgs.hasOwnProperty(arg.name)
+  let given =
+    parsedArgs[arg.name] !== undefined && parsedArgs[arg.name] !== null
   let value = parsedArgs[arg.name]
 
   if (!given && arg.aliases) {
     for (const alias of arg.aliases) {
       if (parsedArgs.hasOwnProperty(alias)) {
         usedName = alias
+        nameIsGiven = true
         given = true
         value = parsedArgs[alias]
         break
@@ -95,7 +103,7 @@ export function resolveGivenArgument<Message extends command.NormalMessage>(
     usedName = arg.flag
   }
 
-  return { given, usedName, value }
+  return { given, usedName, value, nameIsGiven }
 }
 
 export async function checkValue<Message extends command.NormalMessage>(
