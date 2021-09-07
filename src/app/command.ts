@@ -5,17 +5,17 @@ import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
 
-import * as core from "./core"
-import * as logger from "./logger"
-import * as handler from "./handler"
-import * as argument from "./argument"
+import * as core from "./core.js"
+import * as logger from "./logger.js"
+import * as handler from "./handler.js"
+import * as argument from "./argument.js"
 
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )
 
 commandHandler.on("load", async (filepath) => {
-  const file = await import(filepath)
+  const file = await import("file://" + filepath)
   return commands.add(file.default)
 })
 
@@ -484,7 +484,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
-        let value = context.parsedArgs._[index]
+        let value: any = context.parsedArgs._[index]
         const given = value !== undefined
 
         const set = (v: any) => {
@@ -559,7 +559,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
         if (value !== null && positional.checkCastedValue) {
           const checked = await argument.checkCastedValue(
             positional,
-            "argument",
+            "positional",
             value,
             message
           )

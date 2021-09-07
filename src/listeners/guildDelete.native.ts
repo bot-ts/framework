@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import guilds from "../tables/guilds.native"
+import guilds from "../tables/guilds.native.js"
 
 const listener: app.Listener<"guildDelete"> = {
   event: "guildDelete",

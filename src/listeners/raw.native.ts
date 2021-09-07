@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 import apiTypes from "discord-api-types/v8"
 
 const listener: app.Listener<"raw"> = {

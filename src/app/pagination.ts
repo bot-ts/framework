@@ -1,7 +1,7 @@
 import events from "events"
 import discord from "discord.js"
-import * as core from "./core"
-import * as logger from "./logger"
+import * as core from "./core.js"
+import * as logger from "./logger.js"
 
 /** As Snowflakes or icons */
 export interface PaginatorEmojis {

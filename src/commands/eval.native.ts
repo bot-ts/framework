@@ -1,11 +1,12 @@
 import evaluate from "ghom-eval"
 import cp from "child_process"
+import fs from "fs"
 import util from "util"
-import * as app from "../app"
+import * as app from "../app.js"
 
 const exec = util.promisify(cp.exec)
 
-const packageJson = require(app.rootPath("package.json"))
+const packageJson = app.fetchPackageJson()
 
 const alreadyInstalled = (pack: string): boolean =>
   packageJson.dependencies.hasOwnProperty(pack) ||

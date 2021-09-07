@@ -1,9 +1,8 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 import tims from "tims"
-import path from "path"
 
-const conf = require(path.join(process.cwd(), "package.json"))
+const conf = app.fetchPackageJson()
 
 export default new app.Command({
   name: "info",

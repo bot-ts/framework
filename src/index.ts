@@ -1,5 +1,5 @@
 import discord from "discord.js"
-import type { FullClient } from "./app"
+import type { FullClient } from "./app.js"
 
 import "dotenv/config"
 
@@ -14,7 +14,7 @@ const client = new discord.Client({
 })
 
 ;(async () => {
-  const app = await import("./app")
+  const app = await import("./app.js")
 
   try {
     await app.tableHandler.load(client as FullClient)
@@ -29,6 +29,6 @@ const client = new discord.Client({
       process.exit(1)
     }
   } catch (error: any) {
-    app.error(error, "system", true)
+    app.error(error, "system:launch", true)
   }
 })()

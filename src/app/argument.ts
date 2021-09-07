@@ -1,10 +1,9 @@
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
-import emojiRegex from "emoji-regex/es2015/RGI_Emoji"
 
-import * as core from "./core"
-import * as command from "./command"
+import * as core from "./core.js"
+import * as command from "./command.js"
 
 export interface Argument {
   name: string
@@ -179,14 +178,16 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
     "checkCastedValue" | "name" | "checkingErrorMessage"
   >,
   subjectType: "positional" | "argument",
-  value: string,
+  castedValue: any,
   message: Message
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.checkCastedValue) return true
 
+  console.log("castedValue:", castedValue)
+
   const checkResult: string | boolean = await core.scrap(
     subject.checkCastedValue,
-    value,
+    castedValue,
     message
   )
 
@@ -403,7 +404,7 @@ export async function castValue<Message extends command.NormalMessage>(
             if (emote) setValue(emote)
             else throw new Error("Unknown emote!")
           } else {
-            const emojiMatch = emojiRegex().exec(baseValue)
+            const emojiMatch = core.emojiRegex.exec(baseValue)
             if (emojiMatch) setValue(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }

@@ -1,8 +1,7 @@
-import discord from "discord.js"
 import path from "path"
 import fs from "fs/promises"
 
-import * as core from "./core"
+import * as core from "./core.js"
 
 export interface HandlerEvents {
   load: [path: string, client: core.FullClient]

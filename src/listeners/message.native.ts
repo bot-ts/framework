@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {

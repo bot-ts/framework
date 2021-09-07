@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 import cp from "child_process"
 
 export default new app.Command({
