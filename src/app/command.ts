@@ -935,7 +935,7 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
 }
 
 export function isNormalMessage(
-  message: discord.Message
+  message: discord.Message | discord.PartialMessage
 ): message is NormalMessage {
   return (
     !message.system &&
