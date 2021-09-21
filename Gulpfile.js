@@ -89,8 +89,10 @@ function _copyTemp() {
 }
 
 function _updateDependencies(cb) {
-  const packageJSON = require("./package.json")
-  const newPackageJSON = require("./temp/package.json")
+  const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
+  const newPackageJSON = JSON.parse(
+    fs.readFileSync("./temp/package.json", "utf8")
+  )
   for (const baseKey of ["dependencies", "devDependencies"]) {
     const dependencies = packageJSON[baseKey]
     const newDependencies = newPackageJSON[baseKey]
@@ -126,7 +128,7 @@ function _updateDependencies(cb) {
 }
 
 function _updateDatabaseFile() {
-  const packageJSON = require("./package.json")
+  const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
   const database = ["mysql2", "sqlite3", "pg"].find(
     (name) => name in packageJSON.dependencies
   )
