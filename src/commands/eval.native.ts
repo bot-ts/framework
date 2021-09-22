@@ -76,7 +76,7 @@ export default new app.Command({
 
     code = `${
       code.includes("app")
-        ? 'const _path = await import("path");const _root = process.cwd();const _app_path = _path.join(_root, "dist", "app.js");const app = await import(_app_path);'
+        ? 'const _path = await import("path");const _root = process.cwd();const _app_path = _path.join("file://", _root, "dist", "app.js");const app = await import(_app_path);'
         : ""
     } ${
       message.args.packages.length > 0
