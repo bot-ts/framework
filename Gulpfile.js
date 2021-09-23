@@ -35,35 +35,38 @@ function _cleanTemp() {
   return del(["temp"], { force: true })
 }
 
-function _checkGulpfile(cb) {
-  fetch(
+async function _checkGulpfile() {
+  const isChanged = await fetch(
     "https://raw.githubusercontent.com/CamilleAbella/bot.ts/master/Gulpfile.js"
   )
     .then((res) => res.text())
-    .then((remote) => {
-      const local = fs.readFileSync(
+    .then(async (remote) => {
+      const local = fs.promises.readFile(
         path.join(process.cwd(), "Gulpfile.js"),
         "utf8"
       )
 
-      if (remote === local) cb()
+      if (remote === local) return false
       else {
-        fs.writeFileSync(
+        await fs.promises.writeFile(
           path.join(process.cwd(), "Gulpfile.js"),
           remote,
           "utf8"
         )
 
-        log(
-          `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
-            "update"
-          )} command.`
-        )
-
-        cb(null)
+        return true
       }
     })
-    .catch(cb)
+
+  if (isChanged) {
+    log(
+      `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
+        "update"
+      )} command.`
+    )
+
+    process.exit(0)
+  }
 }
 
 function _downloadTemp(cb) {
