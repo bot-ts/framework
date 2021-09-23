@@ -108,7 +108,9 @@ export default new app.Command({
         )
         .setDescription(
           app.code.stringify({
-            content: evaluated.output.slice(0, 2000),
+            content: evaluated.output
+              .slice(0, 2000)
+              .replace(/```/g, "\\`\\`\\`"),
             lang: "js",
           })
         )
