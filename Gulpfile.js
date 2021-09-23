@@ -35,8 +35,8 @@ function _cleanTemp() {
   return del(["temp"], { force: true })
 }
 
-function _checkGulpfile() {
-  return fetch(
+function _checkGulpfile(cb) {
+  fetch(
     "https://raw.githubusercontent.com/CamilleAbella/bot.ts/master/Gulpfile.js"
   )
     .then((res) => res.text())
@@ -60,8 +60,9 @@ function _checkGulpfile() {
         )
 
         process.exit(0)
-      }
+      } else cb()
     })
+    .catch(cb)
 }
 
 function _downloadTemp(cb) {
