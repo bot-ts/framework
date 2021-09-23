@@ -38,6 +38,12 @@ export default new app.Command({
       flag: "m",
       description: "Disable message feedback",
     },
+    {
+      name: "information",
+      aliases: ["info", "detail", "more"],
+      flag: "i",
+      description: "Information about output",
+    },
   ],
   async run(message) {
     const installed = new Set<string>()
@@ -91,30 +97,29 @@ export default new app.Command({
         `\\✔ successfully evaluated in ${evaluated.duration}ms`
       )
     } else {
-      await message.channel.send({
-        embeds: [
-          new app.MessageEmbed()
-            .setColor(evaluated.failed ? "RED" : "BLURPLE")
-            .setTitle(
-              `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
-                evaluated.failed ? "(failed)" : ""
-              }`
-            )
-            .setDescription(
-              app.code.stringify({
-                content: evaluated.output.slice(0, 2000),
-                lang: "js",
-              })
-            )
-            .addField(
-              "Information",
-              app.code.stringify({
-                content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
-                lang: "yaml",
-              })
-            ),
-        ],
-      })
+      const embed = new app.MessageEmbed()
+        .setColor(evaluated.failed ? "RED" : "BLURPLE")
+        .setTitle(
+          `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
+            evaluated.failed ? "(failed)" : ""
+          }`
+        )
+        .setDescription(
+          app.code.stringify({
+            content: evaluated.output.slice(0, 2000),
+            lang: "js",
+          })
+        )
+
+      if (message.args.information)
+        embed.addField(
+          "Information",
+          app.code.stringify({
+            content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
+            lang: "yaml",
+          })
+        )
+      await message.channel.send({ embeds: [embed] })
     }
 
     for (const pack of installed) {
