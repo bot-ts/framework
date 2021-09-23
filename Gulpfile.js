@@ -53,13 +53,14 @@ function _checkGulpfile(cb) {
           remote,
           "utf8"
         )
-        cb(
-          new Error(
-            `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
-              "update"
-            )} command.`
-          )
+
+        log(
+          `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
+            "update"
+          )} command.`
         )
+
+        cb(null)
       }
     })
     .catch(cb)
