@@ -58,9 +58,11 @@ export default new app.Command({
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
           await message.channel.send(`\\✔ **${pack}** - installed`)
+
           installed.add(pack)
         } else {
           let log
+
           try {
             log = await message.channel.send(`\\⏳ **${pack}** - install...`)
             await exec(`npm i ${pack}@latest`)
@@ -122,9 +124,15 @@ export default new app.Command({
       await message.channel.send({ embeds: [embed] })
     }
 
+    let somePackagesRemoved = false
+
     for (const pack of installed) {
       if (alreadyInstalled(pack)) continue
+
+      somePackagesRemoved = true
+
       let log
+
       try {
         log = await message.channel.send(`\\⏳ **${pack}** - uninstall...`)
         await exec(`npm remove --purge ${pack}`)
@@ -135,6 +143,7 @@ export default new app.Command({
       }
     }
 
-    return message.channel.send(`\\✔ process completed`)
+    if (somePackagesRemoved)
+      return message.channel.send(`\\✔ process completed`)
   },
 })
