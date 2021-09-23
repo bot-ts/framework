@@ -74,19 +74,17 @@ export default new app.Command({
       code = "return " + code
     }
 
-    code = `${
-      code.includes("app")
-        ? 'const _path = await import("path");const _root = process.cwd();const _app_path = _path.join("file://", _root, "dist", "app.js");const app = await import(_app_path);'
-        : ""
-    } ${
-      message.args.packages.length > 0
-        ? `const req = {${[...installed]
-            .map((pack) => `"${pack}": await import("${pack}")`)
-            .join(", ")}};`
-        : ""
-    } ${code}`
+    const req = Object.fromEntries(
+      await Promise.all(
+        [...installed].map(async (pack) => [pack, await import(pack)])
+      )
+    )
 
-    const evaluated = await evaluate(code, message, "message")
+    const evaluated = await evaluate(
+      code,
+      { message, app, req },
+      "{ message, app, req }"
+    )
 
     if (message.args.muted) {
       await message.channel.send(
