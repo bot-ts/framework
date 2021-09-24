@@ -1,4 +1,4 @@
-import fetch from "node-fetch"
+import fetch from "axios"
 import gulp from "gulp"
 import esbuild from "gulp-esbuild"
 import filter from "gulp-filter"
@@ -39,7 +39,7 @@ function _checkGulpfile(cb) {
   fetch(
     "https://raw.githubusercontent.com/CamilleAbella/bot.ts/master/Gulpfile.js"
   )
-    .then((res) => res.text())
+    .then((res) => res.data)
     .then(async (remote) => {
       const local = await fs.promises.readFile(
         path.join(process.cwd(), "Gulpfile.js"),

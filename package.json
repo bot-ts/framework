@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
-    "axios": "^0.21.4",
     "boxen": "^5.1.2",
     "chalk": "^4.1.2",
     "dayjs": "^1.10.7",
@@ -53,6 +52,7 @@
     "@types/vinyl-paths": "^0.0.31",
     "@types/ws": "^7.4.7",
     "@types/yargs-parser": "^20.2.1",
+    "axios": "^0.21.4",
     "del": "^6.0.0",
     "discord-api-types": "^0.23.1",
     "esbuild": "^0.13.2",
@@ -64,7 +64,6 @@
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
     "make-bot.ts": "^2.1.2",
-    "node-fetch": "^3.0.0",
     "nodemon": "^2.0.12",
     "typescript": "^4.4.3",
     "vinyl-paths": "^4.0.0"
