@@ -18,14 +18,14 @@ listenerHandler.on("load", async (filepath, client) => {
     try {
       await listener.run.bind(client)(...args)
     } catch (error: any) {
-      logger.error(error, "handler")
+      logger.error(error, "listener:handling")
     }
   })
   logger.log(
     `loaded listener ${chalk.yellow(
       listener.once ? "once" : "on"
     )} ${chalk.blueBright(listener.event)}`,
-    "handler"
+    "listener:handling"
   )
 })
 

@@ -150,7 +150,7 @@ const listener: app.Listener<"messageCreate"> = {
     try {
       await cmd.options.run.bind(cmd)(message)
     } catch (error: any) {
-      app.error(error, "handler", true)
+      app.error(error, "messageCreate.native", true)
       message.channel
         .send(
           app.code.stringify({
@@ -161,7 +161,7 @@ const listener: app.Listener<"messageCreate"> = {
           })
         )
         .catch((error) => {
-          app.error(error, "system")
+          app.error(error, "messageCreate.native")
         })
     }
   },

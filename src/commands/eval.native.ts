@@ -1,6 +1,5 @@
 import evaluate from "ghom-eval"
 import cp from "child_process"
-import fs from "fs"
 import util from "util"
 import * as app from "../app.js"
 

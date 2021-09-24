@@ -197,7 +197,7 @@ export function validateCommand<
         )} command wants to be a default command but the ${chalk.blueBright(
           defaultCommand.options.name
         )} command is already the default command`,
-        "handler"
+        "command:validateCommand"
       )
     else defaultCommand = command
   }
@@ -226,12 +226,12 @@ export function validateCommand<
         `you forgot using ${chalk.greenBright(
           "message.triggerCoolDown()"
         )} in the ${chalk.blueBright(command.options.name)} command.`,
-        "handler"
+        "command:validateCommand"
       )
 
   logger.log(
     `loaded command ${chalk.blueBright(commandBreadcrumb(command))}`,
-    "handler"
+    "command:validateCommand"
   )
 
   if (command.options.subs)
@@ -305,7 +305,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     message.triggerCoolDown = () => {
       logger.warn(
         `You must setup the cooldown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`,
-        "system"
+        "command:prepareCommand"
       )
     }
   }
@@ -427,7 +427,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
                   `Bad command.roles structure in ${chalk.bold(
                     commandBreadcrumb(cmd, "/")
                   )} command.`,
-                  "handler"
+                  "command:prepareCommand"
                 )
               } else {
                 const id = getRoleId(role)

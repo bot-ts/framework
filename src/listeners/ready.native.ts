@@ -9,7 +9,7 @@ const listener: app.Listener<"ready"> = {
   event: "ready",
   once: true,
   async run() {
-    app.log("Ok i'm ready!", "system")
+    app.log("Ok i'm ready!", "ready.native")
     figlet(app.fetchPackageJson().name, (err, value) => {
       if (err) return
       console.log(
