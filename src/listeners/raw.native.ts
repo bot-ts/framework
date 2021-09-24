@@ -1,5 +1,5 @@
 import * as app from "../app.js"
-import apiTypes from "discord-api-types/v8"
+import apiTypes from "discord-api-types/v9.js"
 
 const listener: app.Listener<"raw"> = {
   event: "raw",
@@ -25,12 +25,15 @@ const listener: app.Listener<"raw"> = {
 
       const user = await this.users.fetch(data.user_id)
 
-      if (reaction && user) reaction.users.cache.set(data.user_id, user)
-      else
-        app.error(
-          `MessageReaction and User objects are undefined`,
+      if (!reaction || !user)
+        return app.error(
+          `${reaction ? "" : "MessageReaction and "}${
+            user ? "" : "User"
+          } object is undefined.`,
           "raw.native"
         )
+
+      reaction.users.cache.set(user.id, user)
 
       this.emit(
         {
