@@ -60,11 +60,11 @@
     "fancy-log": "^1.3.3",
     "git-commit-info": "^2.0.0",
     "gulp": "^4.0.2",
-    "gulp-esbuild": "^0.8.7",
+    "gulp-esbuild": "^0.9.0",
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
     "make-bot.ts": "^2.1.2",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.13",
     "typescript": "^4.4.3",
     "vinyl-paths": "^4.0.0"
   },
