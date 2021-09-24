@@ -24,8 +24,7 @@ listenerHandler.on("load", async (filepath, client) => {
   logger.log(
     `loaded listener ${chalk.yellow(
       listener.once ? "once" : "on"
-    )} ${chalk.blueBright(listener.event)}`,
-    "listener:handling:" + listener.event
+    )} ${chalk.blueBright(listener.event)}`
   )
 })
 

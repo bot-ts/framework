@@ -229,10 +229,7 @@ export function validateCommand<
         "command:validateCommand"
       )
 
-  logger.log(
-    `loaded command ${chalk.blueBright(commandBreadcrumb(command))}`,
-    "command:validateCommand"
-  )
+  logger.log(`loaded command ${chalk.blueBright(commandBreadcrumb(command))}`)
 
   if (command.options.subs)
     for (const sub of command.options.subs)
