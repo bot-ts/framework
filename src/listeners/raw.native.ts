@@ -9,7 +9,7 @@ const listener: app.Listener<"raw"> = {
         | apiTypes.GatewayMessageReactionAddDispatchData
         | apiTypes.GatewayMessageReactionRemoveDispatchData
 
-      const channel = this.channels.cache.get(data.channel_id)
+      const channel = await this.channels.fetch(data.channel_id)
 
       if (!channel || !channel.isText()) return
 
@@ -21,13 +21,16 @@ const listener: app.Listener<"raw"> = {
         ? `${data.emoji.name}:${data.emoji.id}`
         : (data.emoji.name as string)
 
-      const reaction = message.reactions.cache.get(emoji)
+      const reaction = message.reactions.resolve(emoji)
 
-      if (reaction) {
-        const user = this.users.cache.get(data.user_id)
+      const user = await this.users.fetch(data.user_id)
 
-        if (user) reaction.users.cache.set(data.user_id, user)
-      }
+      if (reaction && user) reaction.users.cache.set(data.user_id, user)
+      else
+        app.error(
+          `MessageReaction and User objects are undefined`,
+          "raw.native"
+        )
 
       this.emit(
         {
@@ -35,7 +38,7 @@ const listener: app.Listener<"raw"> = {
           MESSAGE_REACTION_REMOVE: "messageReactionRemove",
         }[type],
         reaction,
-        this.users.cache.get(data.user_id)
+        user
       )
     }
   },
