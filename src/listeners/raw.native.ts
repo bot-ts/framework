@@ -27,9 +27,9 @@ const listener: app.Listener<"raw"> = {
 
       if (!reaction || !user)
         return app.error(
-          `${reaction ? "" : "MessageReaction and "}${
-            user ? "" : "User"
-          } object is undefined.`,
+          `${reaction ? "" : "MessageReaction"}${
+            !reaction && !user ? " and " : ""
+          }${user ? "" : "User"} object is undefined.`,
           "raw.native"
         )
 
