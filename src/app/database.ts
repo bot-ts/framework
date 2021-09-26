@@ -1,7 +1,6 @@
 import knex, { Knex } from "knex"
 import path from "path"
 import chalk from "chalk"
-import fs from "fs"
 
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
@@ -26,25 +25,26 @@ tableHandler.once("finish", async (pathList) => {
   )
 })
 
-const dataDirectory = path.join(process.cwd(), "data")
-
-if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
-
 /**
  * Welcome to the database file!
  * You can get the docs of **knex** [here](http://knexjs.org/)
  */
 
 export const db = knex({
-  client: "sqlite3",
+  client: "mysql2",
   useNullAsDefault: true,
   connection: {
-    filename: path.join(dataDirectory, "sqlite3.db"),
+    port: +(process.env.DB_PORT ?? 3306),
+    host: process.env.DB_HOST ?? "127.0.0.1",
+    user: process.env.DB_USER ?? "root",
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE ?? "database",
   },
 })
 
 export interface TableOptions {
   name: string
+  description: string
   priority?: number
   setup: (table: Knex.CreateTableBuilder) => void
 }
@@ -59,9 +59,17 @@ export class Table<Type> {
   async make(): Promise<this> {
     try {
       await db.schema.createTable(this.options.name, this.options.setup)
-      logger.log(`created table ${chalk.blueBright(this.options.name)}`)
+      logger.log(
+        `created table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+          this.options.description
+        )}`
+      )
     } catch (error) {
-      logger.log(`loaded table ${chalk.blueBright(this.options.name)}`)
+      logger.log(
+        `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+          this.options.description
+        )}`
+      )
     }
     return this
   }
