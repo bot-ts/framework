@@ -10,7 +10,11 @@ const listener: app.Listener<"ready"> = {
   description: "Just log bot is ready",
   once: true,
   async run() {
-    app.log("Ok i'm ready!")
+    app.log(
+      `Ok i'm ready! ${chalk.blue(
+        "My default prefix is"
+      )} ${chalk.bgBlueBright.black(process.env.BOT_PREFIX)}`
+    )
     figlet(app.fetchPackageJson().name, (err, value) => {
       if (err) return
       console.log(
