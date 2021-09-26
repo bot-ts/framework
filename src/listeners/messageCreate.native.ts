@@ -3,6 +3,7 @@ import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
+  description: "Handle message for commands",
   async run(message) {
     if (!app.isNormalMessage(message)) return
 

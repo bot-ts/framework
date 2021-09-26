@@ -7,6 +7,7 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
+  description: "Just log bot is ready",
   once: true,
   async run() {
     app.log("Ok i'm ready!")
