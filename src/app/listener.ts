@@ -34,7 +34,6 @@ listenerHandler.on("load", async (filepath, client) => {
 
 export interface MoreClientEvents {
   raw: [packet: apiTypes.GatewayDispatchPayload]
-  clickButton: [button: discord.MessageComponent]
 }
 
 export type AllClientEvents = discord.ClientEvents & MoreClientEvents

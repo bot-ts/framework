@@ -111,7 +111,6 @@ function _copyTemp() {
         "temp/.gitattributes",
         "temp/.gitignore",
         "temp/tsconfig.json",
-        "!temp/Gulpfile.js",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" }
@@ -120,13 +119,26 @@ function _copyTemp() {
 }
 
 function _updateDependencies(cb) {
-  const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
-  const newPackageJSON = JSON.parse(
+  const localPackageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
+  const remotePackageJSON = JSON.parse(
     fs.readFileSync("./temp/package.json", "utf8")
   )
+
+  localPackageJSON.main = remotePackageJSON.main
+
+  localPackageJSON.engines = {
+    ...localPackageJSON.engines,
+    ...remotePackageJSON.engines,
+  }
+
+  localPackageJSON.scripts = {
+    ...localPackageJSON.scripts,
+    ...remotePackageJSON.scripts,
+  }
+
   for (const baseKey of ["dependencies", "devDependencies"]) {
-    const dependencies = packageJSON[baseKey]
-    const newDependencies = newPackageJSON[baseKey]
+    const dependencies = localPackageJSON[baseKey]
+    const newDependencies = remotePackageJSON[baseKey]
     for (const key of Object.keys(newDependencies)) {
       if (/^(?:sqlite3|pg|mysql2)$/.test(key)) continue
       if (
@@ -151,7 +163,7 @@ function _updateDependencies(cb) {
 
   fs.writeFileSync(
     "./package.json",
-    JSON.stringify(packageJSON, null, 2),
+    JSON.stringify(localPackageJSON, null, 2),
     "utf8"
   )
 
