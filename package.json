@@ -27,10 +27,10 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
-    "boxen": "^5.1.2",
+    "boxen": "^6.2.1",
     "chalk": "^4.1.2",
     "dayjs": "^1.10.7",
-    "discord.js": "^13.1.0",
+    "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
     "figlet": "^1.5.2",
     "ghom-eval": "^1.0.3",
@@ -47,15 +47,15 @@
     "@types/figlet": "^1.5.4",
     "@types/gulp-filter": "^3.0.34",
     "@types/gulp-rename": "^2.0.1",
-    "@types/node": "^16.10.1",
-    "@types/prettier": "^2.4.0",
+    "@types/node": "^16.10.8",
+    "@types/prettier": "^2.4.1",
     "@types/vinyl-paths": "^0.0.31",
     "@types/ws": "^8.2.0",
     "@types/yargs-parser": "^20.2.1",
-    "axios": "^0.21.4",
+    "axios": "^0.23.0",
     "del": "^6.0.0",
     "discord-api-types": "^0.23.1",
-    "esbuild": "^0.13.2",
+    "esbuild": "^0.13.5",
     "esm": "^3.2.25",
     "fancy-log": "^1.3.3",
     "git-commit-info": "^2.0.0",
@@ -65,11 +65,11 @@
     "gulp-rename": "^2.0.0",
     "make-bot.ts": "^2.2.1",
     "nodemon": "^2.0.13",
-    "typescript": "^4.4.3",
+    "typescript": "^4.4.4",
     "vinyl-paths": "^4.0.0"
   },
   "engines": {
-    "node": ">=16",
-    "npm": ">=7.5.2"
+    "node": ">=16.6.0",
+    "npm": ">=7.24.2"
   }
 }
