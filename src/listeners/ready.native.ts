@@ -25,8 +25,10 @@ const listener: app.Listener<"ready"> = {
             topRight: " ",
             bottomLeft: " ",
             bottomRight: " ",
-            horizontal: " ",
-            vertical: " ",
+            top: " ",
+            bottom: " ",
+            left: " ",
+            right: " ",
           },
         })
       )
