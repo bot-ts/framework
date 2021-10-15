@@ -16,7 +16,7 @@ const listener: app.Listener<"ready"> = {
     )
 
     figlet(app.fetchPackageJson().name, (err, value) => {
-      if (err) return
+      if (err) return app.error(err, "ready.native", true)
 
       console.log(
         boxen(chalk.blueBright(value), {
@@ -27,9 +27,9 @@ const listener: app.Listener<"ready"> = {
             bottomLeft: " ",
             bottomRight: " ",
             top: " ",
-            bottom: " ",
             left: " ",
             right: " ",
+            bottom: " ",
           },
         })
       )
