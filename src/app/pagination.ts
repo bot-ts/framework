@@ -38,12 +38,14 @@ export class Paginator extends events.EventEmitter {
   private _deactivation?: NodeJS.Timeout
   private _messageID: string | undefined
 
-  public emojis: PaginatorEmojis = {
+  static defaultEmojis: PaginatorEmojis = {
     previous: "◀️",
     next: "▶️",
     start: "⏪",
     end: "⏩",
   }
+
+  public emojis: PaginatorEmojis
 
   get pageIndex(): number {
     return this._pageIndex
@@ -70,7 +72,9 @@ export class Paginator extends events.EventEmitter {
       }
     }
 
-    if (options.customEmojis) Object.assign(this.emojis, options.customEmojis)
+    if (options.customEmojis)
+      this.emojis = Object.assign(Paginator.defaultEmojis, options.customEmojis)
+    else this.emojis = Paginator.defaultEmojis
 
     this._deactivation = this.resetDeactivationTimeout()
 
