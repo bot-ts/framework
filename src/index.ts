@@ -21,6 +21,7 @@ const client = new discord.Client({
   const app = await import("./app.js")
 
   try {
+    //await app.slashHandler.load(client as FullClient)
     await app.tableHandler.load(client as FullClient)
     await app.commandHandler.load(client as FullClient)
     await app.listenerHandler.load(client as FullClient)
