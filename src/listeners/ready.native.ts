@@ -1,6 +1,7 @@
 import figlet from "figlet"
 import boxen from "boxen"
 import chalk from "chalk"
+import cron from "cron"
 
 import * as app from "../app.js"
 
@@ -9,6 +10,21 @@ const listener: app.Listener<"ready"> = {
   description: "Just log that bot is ready",
   once: true,
   async run() {
+    cron.job({
+      cronTime: "",
+      onTick: async () => {
+        const guilds = Array.from(this.guilds.cache.values())
+        const slashCommands = app.getSlashCommands()
+        const restClient = app.getRestClient()
+
+        if (!app.isFullClient(this)) return
+
+        for (const guild of guilds) {
+          await app.reloadSlashCommands(this, guild, slashCommands, restClient)
+        }
+      },
+    })
+
     app.log(
       `Ok i'm ready! ${chalk.blue(
         "My default prefix is"
