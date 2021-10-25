@@ -312,11 +312,16 @@ export async function castValue<Message extends command.NormalMessage>(
             const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
             if (match) {
               const id = match[1] ?? match[2]
-              const member = message.guild.members.cache.get(id)
+              const member = await message.guild.members.fetch({
+                user: id,
+                force: false,
+                cache: false,
+              })
               if (member) setValue(member)
               else throw new Error("Unknown member!")
             } else if (subject.castValue === "member+") {
-              const member = message.guild.members.cache.find((member) => {
+              const members = await message.guild.members.fetch()
+              const member = members.find((member) => {
                 return (
                   member.displayName
                     .toLowerCase()
@@ -387,11 +392,15 @@ export async function castValue<Message extends command.NormalMessage>(
             const match = /^(?:<@&?(\d+)>|(\d+))$/.exec(baseValue)
             if (match) {
               const id = match[1] ?? match[2]
-              const role = message.guild.roles.cache.get(id)
+              const role = await message.guild.roles.fetch(id)
               if (role) setValue(role)
               else throw new Error("Unknown role!")
             } else if (subject.castValue === "role+") {
-              const role = message.guild.roles.cache.find((role) => {
+              const roles = await message.guild.roles.fetch(undefined, {
+                cache: false,
+                force: false,
+              })
+              const role = roles.find((role) => {
                 return role.name.toLowerCase().includes(baseValue.toLowerCase())
               })
               if (role) setValue(role)
