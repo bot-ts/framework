@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
+    "@discordjs/rest": "^0.1.0-canary.0",
     "boxen": "^6.2.1",
     "chalk": "^4.1.2",
     "dayjs": "^1.10.7",
