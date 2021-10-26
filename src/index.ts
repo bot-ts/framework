@@ -11,7 +11,7 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
 
 const client = new discord.Client({
   intents: process.env.BOT_INTENTS
-    ? process.env.BOT_INTENTS.split(",").map(
+    ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
         (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
       )
     : [],
@@ -34,5 +34,6 @@ const client = new discord.Client({
     }
   } catch (error: any) {
     app.error(error, "index", true)
+    process.exit(1)
   }
 })()
