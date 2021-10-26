@@ -1,19 +1,24 @@
 import * as app from "../app.js"
 
 export interface Test {
-  cool: number
+  coucou?: string
+  kappa: string
 }
 
 export default new app.Table<Test>({
-  name: "test",
-  description: "The test table",
+  name: "bite",
+  description: "Big dick table",
   migrations: {
-    1: () =>
-      app.db.schema.alterTable("test", (table) => {
-        table.integer("cool").notNullable()
-      }),
+    3: (table) => {
+      table.string("kappa").notNullable()
+      table.dropColumn("cool")
+    },
+    1: (table) => {
+      table.integer("cool").notNullable()
+    },
   },
   setup: (table) => {
+    table.string("coucou")
     // setup table columns => http://knexjs.org/#Schema-Building
   },
 })

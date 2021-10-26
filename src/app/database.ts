@@ -51,11 +51,9 @@ export interface TableOptions<Type> {
   name: string
   description: string
   priority?: number
-  migrations?: { [version: number]: Migration<Type> }
+  migrations?: { [version: number]: (table: Knex.CreateTableBuilder) => void }
   setup: (table: Knex.CreateTableBuilder) => void
 }
-
-export type Migration<Type> = (table: Table<Type>) => Promise<void>
 
 export class Table<Type> {
   constructor(public readonly options: TableOptions<Type>) {}
@@ -72,12 +70,22 @@ export class Table<Type> {
           this.options.description
         )}`
       )
-    } catch (error) {
-      logger.log(
-        `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
-          this.options.description
-        )}`
-      )
+    } catch (error: any) {
+      if (error.toString().includes("syntax error")) {
+        logger.error(
+          `you need to implement the "setup" method in options of your ${chalk.blueBright(
+            this.options.name
+          )} table!`
+        )
+
+        throw error
+      } else {
+        logger.log(
+          `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+            this.options.description
+          )}`
+        )
+      }
     }
 
     try {
@@ -102,12 +110,11 @@ export class Table<Type> {
 
     const migrationCollection: discord.Collection<
       number,
-      Migration<Type>
+      (table: Knex.CreateTableBuilder) => void
     > = new discord.Collection(
-      Object.entries(this.options.migrations).map((entry) => [
-        Number(entry[0]),
-        entry[1],
-      ])
+      Object.entries(this.options.migrations)
+        .sort((a, b) => Number(b[0]) - Number(a[0]))
+        .map((entry) => [Number(entry[0]), entry[1]])
     )
 
     let data = await db<MigrationData>("migration")
@@ -125,7 +132,7 @@ export class Table<Type> {
     for (const [version, migration] of migrationCollection) {
       if (version <= data.version) continue
 
-      await migration(this)
+      await db.schema.alterTable(this.options.name, migration)
 
       data.version = version
     }
