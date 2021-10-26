@@ -51,11 +51,11 @@ export interface TableOptions<Type> {
   name: string
   description: string
   priority?: number
-  migrations?: discord.Collection<number, Migration<Type>>
+  migrations?: { [version: number]: Migration<Type> }
   setup: (table: Knex.CreateTableBuilder) => void
 }
 
-export type Migration<Type> = (this: Table<Type>) => Promise<void>
+export type Migration<Type> = (table: Table<Type>) => Promise<void>
 
 export class Table<Type> {
   constructor(public readonly options: TableOptions<Type>) {}
@@ -100,6 +100,16 @@ export class Table<Type> {
   private async migrate(): Promise<false | number> {
     if (!this.options.migrations) return false
 
+    const migrationCollection: discord.Collection<
+      number,
+      Migration<Type>
+    > = new discord.Collection(
+      Object.entries(this.options.migrations).map((entry) => [
+        Number(entry[0]),
+        entry[1],
+      ])
+    )
+
     let data = await db<MigrationData>("migration")
       .where("table", this.options.name)
       .first()
@@ -107,13 +117,15 @@ export class Table<Type> {
     if (!data)
       data = {
         table: this.options.name,
-        version: this.options.migrations.lastKey() ?? 0,
+        version: migrationCollection.lastKey() ?? 0,
       }
 
-    for (const [version, migration] of this.options.migrations) {
+    const baseVersion = data.version
+
+    for (const [version, migration] of migrationCollection) {
       if (version <= data.version) continue
 
-      await migration.bind(this)()
+      await migration(this)
 
       data.version = version
     }
@@ -123,7 +135,7 @@ export class Table<Type> {
       .onConflict("table")
       .merge()
 
-    return data.version
+    return baseVersion === data.version ? false : data.version
   }
 }
 
