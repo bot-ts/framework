@@ -1,7 +1,6 @@
-import path from "path"
-import discord from "discord.js"
-import rest from "@discordjs/rest"
-import api from "discord-api-types/v9.js"
+import * as discord from "discord.js"
+import * as rest from "@discordjs/rest"
+import * as api from "discord-api-types/v9"
 
 import * as core from "./core.js"
 import * as logger from "./logger.js"
@@ -13,7 +12,9 @@ export function getRestClient() {
   )
 }
 
-export function getSlashCommands(): api.APIApplicationCommand[] {
+export function getSlashCommands(data: {
+  clientId: string
+}): api.APIApplicationCommand[] {
   const slashCommands: api.APIApplicationCommand[] = []
   const commands = Array.from(command.commands.values()).filter(
     (c) => c.options.isSlash
@@ -22,8 +23,12 @@ export function getSlashCommands(): api.APIApplicationCommand[] {
   // todo: make recursive search for sub-slash-commands
   for (const command of commands) {
     slashCommands.push({
+      id: command.options.name,
       name: command.options.name,
       description: command.options.description,
+      application_id: data.clientId,
+      type: api.ApplicationCommandType.Message,
+      version: "1.0.0",
     })
   }
 
@@ -36,7 +41,7 @@ export async function reloadSlashCommands(
   commands?: api.APIApplicationCommand[],
   restClient?: rest.REST
 ) {
-  if (!commands) commands = getSlashCommands()
+  if (!commands) commands = getSlashCommands({ clientId: client.user.id })
   if (!restClient) restClient = getRestClient()
 
   try {

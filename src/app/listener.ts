@@ -3,6 +3,7 @@ import path from "path"
 import chalk from "chalk"
 import apiTypes from "discord-api-types/v8"
 
+import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 
@@ -41,6 +42,6 @@ export type AllClientEvents = discord.ClientEvents & MoreClientEvents
 export type Listener<EventName extends keyof AllClientEvents> = {
   event: EventName
   description: string
-  run: (this: discord.Client, ...args: AllClientEvents[EventName]) => unknown
+  run: (this: core.FullClient, ...args: AllClientEvents[EventName]) => unknown
   once?: boolean
 }

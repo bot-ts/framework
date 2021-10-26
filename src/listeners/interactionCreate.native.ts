@@ -2,16 +2,11 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
-  description: "A interactionCreate listener",
+  description: "Redirect slash commands to messageCreate listener",
   async run(interaction) {
-    if (!interaction.isCommand()) return
-
-    // todo: use recursion to handle sub-slash-commands
-    const command = app.commands.resolve(interaction.commandName)
-
-    try {
-      await command?.options.run()
-    } catch (error: any) {}
+    if (!interaction.isCommand() || !interaction.isMessageComponent()) return
+    this.emit("messageCreate", interaction.message as app.Message)
+    console.log(interaction.message)
   },
 }
 

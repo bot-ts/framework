@@ -14,7 +14,7 @@ const listener: app.Listener<"ready"> = {
       cronTime: "",
       onTick: async () => {
         const guilds = Array.from(this.guilds.cache.values())
-        const slashCommands = app.getSlashCommands()
+        const slashCommands = app.getSlashCommands({ clientId: this.user.id })
         const restClient = app.getRestClient()
 
         if (!app.isFullClient(this)) return
