@@ -1,8 +1,9 @@
-import * as app from "../app"
+import * as app from "../app.js"
 import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
+  description: "Handle message for commands",
   async run(message) {
     if (!app.isNormalMessage(message)) return
 
@@ -150,7 +151,7 @@ const listener: app.Listener<"messageCreate"> = {
     try {
       await cmd.options.run.bind(cmd)(message)
     } catch (error: any) {
-      app.error(error, "handler", true)
+      app.error(error, "messageCreate.native", true)
       message.channel
         .send(
           app.code.stringify({
@@ -161,7 +162,7 @@ const listener: app.Listener<"messageCreate"> = {
           })
         )
         .catch((error) => {
-          app.error(error, "system")
+          app.error(error, "messageCreate.native")
         })
     }
   },

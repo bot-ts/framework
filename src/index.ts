@@ -1,5 +1,5 @@
 import discord from "discord.js"
-import type { FullClient } from "./app"
+import type { FullClient } from "./app.js"
 
 import "dotenv/config"
 
@@ -10,11 +10,15 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
 }
 
 const client = new discord.Client({
-  intents: [discord.Intents.FLAGS.GUILDS, discord.Intents.FLAGS.GUILD_MESSAGES],
+  intents: process.env.BOT_INTENTS
+    ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
+        (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
+      )
+    : [],
 })
 
 ;(async () => {
-  const app = await import("./app")
+  const app = await import("./app.js")
 
   try {
     await app.tableHandler.load(client as FullClient)
@@ -24,11 +28,12 @@ const client = new discord.Client({
     await client.login(process.env.BOT_TOKEN)
 
     if (!app.isFullClient(client)) {
-      app.error("The Discord client is not full.", "system")
+      app.error("The Discord client is not full.", "index")
       client.destroy()
       process.exit(1)
     }
   } catch (error: any) {
-    app.error(error, "system", true)
+    app.error(error, "index", true)
+    process.exit(1)
   }
 })()

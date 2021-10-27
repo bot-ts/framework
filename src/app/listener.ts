@@ -3,8 +3,8 @@ import path from "path"
 import chalk from "chalk"
 import apiTypes from "discord-api-types/v8"
 
-import * as logger from "./logger"
-import * as handler from "./handler"
+import * as logger from "./logger.js"
+import * as handler from "./handler.js"
 
 export const listenerHandler = new handler.Handler(
   process.env.BOT_LISTENERS_PATH ??
@@ -12,32 +12,35 @@ export const listenerHandler = new handler.Handler(
 )
 
 listenerHandler.on("load", async (filepath, client) => {
-  const file = await import(filepath)
+  const file = await import("file://" + filepath)
   const listener = file.default as Listener<any>
+
   client[listener.once ? "once" : "on"](listener.event, async (...args) => {
     try {
       await listener.run.bind(client)(...args)
     } catch (error: any) {
-      logger.error(error, "handler")
+      logger.error(error, "listener:handling:" + listener.event)
     }
   })
+
   logger.log(
     `loaded listener ${chalk.yellow(
       listener.once ? "once" : "on"
-    )} ${chalk.blueBright(listener.event)}`,
-    "handler"
+    )} ${chalk.blueBright(listener.event)} ${chalk.green(
+      path.basename(filepath, ".js").replace(`${listener.event}.`, "")
+    )} ${chalk.grey(listener.description)}`
   )
 })
 
 export interface MoreClientEvents {
   raw: [packet: apiTypes.GatewayDispatchPayload]
-  clickButton: [button: discord.MessageComponent]
 }
 
 export type AllClientEvents = discord.ClientEvents & MoreClientEvents
 
 export type Listener<EventName extends keyof AllClientEvents> = {
   event: EventName
+  description: string
   run: (this: discord.Client, ...args: AllClientEvents[EventName]) => unknown
   once?: boolean
 }
