@@ -14,8 +14,10 @@ export default new app.Command({
   },
   async run(message) {
     const query = message.args.query
-      .replace("$here", `where id = "${message.guild?.id}"`)
-      .replace("$me", `where id = "${message.author.id}"`)
+      .replace(/\$guild/g, `"${message.guild?.id}"`)
+      .replace(/\$channel/g, `"${message.channel.id}"`)
+      .replace(/\$me/g, `"${message.author.id}"`)
+      .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, '"$1"')
 
     const result = await app.db.raw(query)
 
@@ -31,7 +33,7 @@ export default new app.Command({
           .setDescription(
             app.code.stringify({
               lang: "json",
-              format: true,
+              format: { printWidth: 62 },
               content: JSON.stringify(result).slice(0, 1024),
             })
           )
