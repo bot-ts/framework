@@ -13,13 +13,21 @@ export default new app.Command({
     all: true,
   },
   async run(message) {
-    const result = await app.db.raw(message.args.query)
+    const query = message.args.query
+      .replace("$here", `where id = "${message.guild?.id}"`)
+      .replace("$me", `where id = "${message.author.id}"`)
+
+    const result = await app.db.raw(query)
 
     return message.send({
       embeds: [
         new app.MessageEmbed()
           .setColor("BLURPLE")
-          .setTitle("Result of SQL query")
+          .setTitle(
+            `Result of SQL query ${
+              Array.isArray(result) ? `(${result.length} items)` : ""
+            }`
+          )
           .setDescription(
             app.code.stringify({
               lang: "json",
@@ -27,7 +35,7 @@ export default new app.Command({
               content: JSON.stringify(result).slice(0, 1024),
             })
           )
-          .setFooter(`Result of : ${message.args.query}`),
+          .setFooter(`Result of : ${query}`),
       ],
     })
   },
