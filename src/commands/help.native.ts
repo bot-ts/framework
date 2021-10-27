@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "help",
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
@@ -20,18 +20,20 @@ module.exports = new app.Command({
       if (cmd) {
         return app.sendCommandDetails(message, cmd)
       } else {
-        await message.channel.send(
-          new app.MessageEmbed()
-            .setColor("RED")
-            .setAuthor(
-              `Unknown command "${message.args.command}"`,
-              message.client.user?.displayAvatarURL()
-            )
-        )
+        await message.channel.send({
+          embeds: [
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Unknown command "${message.args.command}"`,
+                message.client.user?.displayAvatarURL()
+              ),
+          ],
+        })
       }
     } else {
       new app.Paginator({
-        pages: app.Paginator.divider(
+        pages: await app.Paginator.divider(
           (
             await Promise.all(
               app.commands.map(async (cmd) => {
@@ -41,14 +43,18 @@ module.exports = new app.Command({
               })
             )
           ).filter((line) => line.length > 0),
-          10
-        ).map((page) => {
-          return new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setAuthor("Command list", message.client.user?.displayAvatarURL())
-            .setDescription(page.join("\n"))
-            .setFooter(`${message.usedPrefix}help <command>`)
-        }),
+          10,
+          (page) => {
+            return new app.MessageEmbed()
+              .setColor("BLURPLE")
+              .setAuthor(
+                "Command list",
+                message.client.user?.displayAvatarURL()
+              )
+              .setDescription(page.join("\n"))
+              .setFooter(`${message.usedPrefix}help <command>`)
+          }
+        ),
         filter: (reaction, user) => user.id === message.author.id,
         channel: message.channel,
       })

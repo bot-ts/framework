@@ -1,17 +1,17 @@
 import evaluate from "ghom-eval"
 import cp from "child_process"
 import util from "util"
-import * as app from "../app"
+import * as app from "../app.js"
 
 const exec = util.promisify(cp.exec)
 
-const packageJson = require(app.rootPath("package.json"))
+const packageJson = app.fetchPackageJson()
 
 const alreadyInstalled = (pack: string): boolean =>
   packageJson.dependencies.hasOwnProperty(pack) ||
   packageJson.devDependencies.hasOwnProperty(pack)
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "eval",
   description: "JS code evaluator",
   channelType: "all",
@@ -37,6 +37,12 @@ module.exports = new app.Command({
       flag: "m",
       description: "Disable message feedback",
     },
+    {
+      name: "information",
+      aliases: ["info", "detail", "more"],
+      flag: "i",
+      description: "Information about output",
+    },
   ],
   async run(message) {
     const installed = new Set<string>()
@@ -51,9 +57,11 @@ module.exports = new app.Command({
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
           await message.channel.send(`\\✔ **${pack}** - installed`)
+
           installed.add(pack)
         } else {
           let log
+
           try {
             log = await message.channel.send(`\\⏳ **${pack}** - install...`)
             await exec(`npm i ${pack}@latest`)
@@ -73,52 +81,59 @@ module.exports = new app.Command({
       code = "return " + code
     }
 
-    code = `${
-      code.includes("app")
-        ? 'const _path = require("path");const _root = process.cwd();const _app_path = _path.join(_root, "dist", "app.js");const app = require(_app_path);'
-        : ""
-    } ${
-      message.args.packages.length > 0
-        ? `const req = {${[...installed]
-            .map((pack) => `"${pack}": require("${pack}")`)
-            .join(", ")}};`
-        : ""
-    } ${code}`
+    const req = Object.fromEntries(
+      await Promise.all(
+        [...installed].map(async (pack) => [pack, await import(pack)])
+      )
+    )
 
-    const evaluated = await evaluate(code, message, "message")
+    const evaluated = await evaluate(
+      code,
+      { message, app, req },
+      "{ message, app, req }"
+    )
 
     if (message.args.muted) {
       await message.channel.send(
         `\\✔ successfully evaluated in ${evaluated.duration}ms`
       )
     } else {
-      await message.channel.send(
-        new app.MessageEmbed()
-          .setColor(evaluated.failed ? "RED" : "BLURPLE")
-          .setTitle(
-            `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
-              evaluated.failed ? "(failed)" : ""
-            }`
-          )
-          .setDescription(
-            app.code.stringify({
-              content: evaluated.output.slice(0, 2000),
-              lang: "js",
-            })
-          )
-          .addField(
-            "Information",
-            app.code.stringify({
-              content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
-              lang: "yaml",
-            })
-          )
-      )
+      const embed = new app.MessageEmbed()
+        .setColor(evaluated.failed ? "RED" : "BLURPLE")
+        .setTitle(
+          `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
+            evaluated.failed ? "(failed)" : ""
+          }`
+        )
+        .setDescription(
+          app.code.stringify({
+            content: evaluated.output
+              .slice(0, 2000)
+              .replace(/```/g, "\\`\\`\\`"),
+            lang: "js",
+          })
+        )
+
+      if (message.args.information)
+        embed.addField(
+          "Information",
+          app.code.stringify({
+            content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
+            lang: "yaml",
+          })
+        )
+      await message.channel.send({ embeds: [embed] })
     }
+
+    let somePackagesRemoved = false
 
     for (const pack of installed) {
       if (alreadyInstalled(pack)) continue
+
+      somePackagesRemoved = true
+
       let log
+
       try {
         log = await message.channel.send(`\\⏳ **${pack}** - uninstall...`)
         await exec(`npm remove --purge ${pack}`)
@@ -129,6 +144,7 @@ module.exports = new app.Command({
       }
     }
 
-    return message.channel.send(`\\✔ process completed`)
+    if (somePackagesRemoved)
+      return message.channel.send(`\\✔ process completed`)
   },
 })

@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "turn",
   description: "Turn on/off command handling",
   aliases: ["power"],

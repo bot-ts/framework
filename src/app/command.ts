@@ -5,17 +5,18 @@ import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
 
-import * as core from "./core"
-import * as logger from "./logger"
-import * as handler from "./handler"
-import * as argument from "./argument"
+import * as core from "./core.js"
+import * as logger from "./logger.js"
+import * as handler from "./handler.js"
+import * as argument from "./argument.js"
 
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )
 
-commandHandler.on("load", (filepath) => {
-  return commands.add(require(filepath))
+commandHandler.on("load", async (filepath) => {
+  const file = await import("file://" + filepath)
+  return commands.add(file.default)
 })
 
 export let defaultCommand: Command<any> | null = null
@@ -26,15 +27,11 @@ export const commands = new (class CommandCollection extends discord.Collection<
 > {
   public resolve(key: string): Command<keyof CommandMessageType> | undefined {
     for (const [name, command] of this) {
-      if (key === name) {
+      if (
+        key === name ||
+        command.options.aliases?.some((alias) => key === alias)
+      )
         return command
-      } else {
-        const aliases = command.options.aliases ?? []
-        const resolvedAliases = Array.isArray(aliases) ? aliases : [aliases]
-        if (resolvedAliases.some((alias) => key === alias)) {
-          return command
-        }
-      }
     }
   }
 
@@ -44,22 +41,32 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
-export type CommandMessage = discord.Message & {
+export type SentItem = string | discord.MessagePayload | discord.MessageOptions
+
+export type NormalMessage = discord.Message & {
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
+  send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
+  sendTimeout: (
+    this: NormalMessage,
+    timeout: number,
+    item: SentItem
+  ) => Promise<discord.Message>
   usedAsDefault: boolean
+  isFromBotOwner: boolean
+  isFromGuildOwner: boolean
   usedPrefix: string
   client: core.FullClient
   rest: string
 }
 
-export type GuildMessage = CommandMessage & {
+export type GuildMessage = NormalMessage & {
   channel: discord.TextChannel & discord.GuildChannel
   guild: discord.Guild
   member: discord.GuildMember
 }
 
-export type DirectMessage = CommandMessage & {
+export type DirectMessage = NormalMessage & {
   channel: discord.DMChannel
 }
 
@@ -68,16 +75,20 @@ export interface CoolDown {
   trigger: boolean
 }
 
-export type Middleware<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
-> = (
-  message: CommandMessageType[Type]
-) => Promise<boolean | string> | boolean | string
+export interface MiddlewareResult {
+  result: boolean | string
+  data: any
+}
+
+export type Middleware<Type extends keyof CommandMessageType> = (
+  message: CommandMessageType[Type],
+  data: any
+) => Promise<MiddlewareResult> | MiddlewareResult
 
 export interface CommandMessageType {
   guild: GuildMessage
   dm: DirectMessage
-  all: CommandMessage
+  all: NormalMessage
 }
 
 export interface CommandOptions<Type extends keyof CommandMessageType> {
@@ -100,7 +111,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * Use this command as slash command
    */
   isSlash?: boolean
-  aliases?: string[] | string
+  aliases?: string[]
   /**
    * Cool down of command (in ms)
    */
@@ -186,7 +197,7 @@ export function validateCommand<
         )} command wants to be a default command but the ${chalk.blueBright(
           defaultCommand.options.name
         )} command is already the default command`,
-        "handler"
+        "command:validateCommand"
       )
     else defaultCommand = command
   }
@@ -215,12 +226,13 @@ export function validateCommand<
         `you forgot using ${chalk.greenBright(
           "message.triggerCoolDown()"
         )} in the ${chalk.blueBright(command.options.name)} command.`,
-        "handler"
+        "command:validateCommand"
       )
 
   logger.log(
-    `loaded command ${chalk.blueBright(commandBreadcrumb(command))}`,
-    "handler"
+    `loaded command ${chalk.blueBright(
+      commandBreadcrumb(command)
+    )} ${chalk.grey(command.options.description)}`
   )
 
   if (command.options.subs)
@@ -234,6 +246,7 @@ export function commandBreadcrumb<Type extends keyof CommandMessageType>(
 ): string {
   return commandParents(command)
     .map((cmd) => cmd.options.name)
+    .reverse()
     .join(separator)
 }
 
@@ -241,7 +254,7 @@ export function commandParents<Type extends keyof CommandMessageType>(
   command: Command<Type>
 ): Command<any>[] {
   return command.options.parent
-    ? [command, ...commandParents(command.options.parent)].reverse()
+    ? [command, ...commandParents(command.options.parent)]
     : [command]
 }
 
@@ -293,7 +306,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     message.triggerCoolDown = () => {
       logger.warn(
         `You must setup the cooldown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`,
-        "system"
+        "command:prepareCommand"
       )
     }
   }
@@ -311,7 +324,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (core.scrap(cmd.options.guildOwnerOnly, message))
       if (
-        message.guild.owner !== message.member &&
+        message.guild.ownerId !== message.member.id &&
         process.env.BOT_OWNER !== message.member.id
       )
         return new discord.MessageEmbed()
@@ -328,12 +341,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of botPermissions)
-        if (
-          !message.guild.me?.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
+        if (!message.guild.me?.permissions.has(permission, true))
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor("Oops!", message.client.user.displayAvatarURL())
@@ -349,12 +357,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of userPermissions)
-        if (
-          !message.member.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
+        if (!message.member.permissions.has(permission, true))
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor("Oops!", message.client.user.displayAvatarURL())
@@ -425,7 +428,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
                   `Bad command.roles structure in ${chalk.bold(
                     commandBreadcrumb(cmd, "/")
                   )} command.`,
-                  "handler"
+                  "command:prepareCommand"
                 )
               } else {
                 const id = getRoleId(role)
@@ -482,8 +485,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
-        let value = context.parsedArgs._[index]
-        const given = value !== undefined
+        let value: any = context.parsedArgs._[index]
+        const given = value !== undefined && value !== null
 
         const set = (v: any) => {
           message.args[positional.name] = v
@@ -497,6 +500,20 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
         if (!given) {
           if (await core.scrap(positional.required, message)) {
+            if (positional.missingErrorMessage) {
+              if (typeof positional.missingErrorMessage === "string") {
+                return new discord.MessageEmbed()
+                  .setColor("RED")
+                  .setAuthor(
+                    `Missing positional "${positional.name}"`,
+                    message.client.user.displayAvatarURL()
+                  )
+                  .setDescription(positional.missingErrorMessage)
+              } else {
+                return positional.missingErrorMessage
+              }
+            }
+
             return new discord.MessageEmbed()
               .setColor("RED")
               .setAuthor(
@@ -543,7 +560,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
         if (value !== null && positional.checkCastedValue) {
           const checked = await argument.checkCastedValue(
             positional,
-            "argument",
+            "positional",
             value,
             message
           )
@@ -571,11 +588,25 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
         if (value === true) value = undefined
 
-        if ((await core.scrap(option.required, message)) && !given)
+        if (!given && (await core.scrap(option.required, message))) {
+          if (option.missingErrorMessage) {
+            if (typeof option.missingErrorMessage === "string") {
+              return new discord.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `Missing option "${option.name}"`,
+                  message.client.user.displayAvatarURL()
+                )
+                .setDescription(option.missingErrorMessage)
+            } else {
+              return option.missingErrorMessage
+            }
+          }
+
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              `Missing argument "${option.name}"`,
+              `Missing option "${option.name}"`,
               message.client.user.displayAvatarURL()
             )
             .setDescription(
@@ -583,6 +614,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
                 ? "Description: " + option.description
                 : `Example: \`--${option.name}=someValue\``
             )
+        }
 
         set(value)
 
@@ -630,7 +662,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (cmd.options.flags) {
       for (const flag of cmd.options.flags) {
-        let { given, value } = argument.resolveGivenArgument(
+        let { given, nameIsGiven, value } = argument.resolveGivenArgument(
           context.parsedArgs,
           flag
         )
@@ -640,7 +672,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           value = v
         }
 
-        if (!given) set(false)
+        if (!nameIsGiven) set(false)
         else if (typeof value === "boolean") set(value)
         else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
         else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)
@@ -660,6 +692,20 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
       if (message.rest.length === 0) {
         if (await core.scrap(rest.required, message)) {
+          if (rest.missingErrorMessage) {
+            if (typeof rest.missingErrorMessage === "string") {
+              return new discord.MessageEmbed()
+                .setColor("RED")
+                .setAuthor(
+                  `Missing rest "${rest.name}"`,
+                  message.client.user.displayAvatarURL()
+                )
+                .setDescription(rest.missingErrorMessage)
+            } else {
+              return rest.missingErrorMessage
+            }
+          }
+
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(
@@ -682,13 +728,26 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
   if (cmd.options.middlewares) {
     const middlewares = await core.scrap(cmd.options.middlewares, message)
 
+    let currentData: any = {}
+
     for (const middleware of middlewares) {
-      const result: string | boolean = await middleware(message)
+      const { result, data } = await middleware(message, currentData)
+
+      currentData = {
+        ...currentData,
+        ...(data ?? {}),
+      }
 
       if (typeof result === "string")
         return new discord.MessageEmbed()
           .setColor("RED")
-          .setAuthor(result, message.client.user.displayAvatarURL())
+          .setAuthor(
+            `${
+              middleware.name ? `"${middleware.name}" m` : "M"
+            }iddleware error`,
+            message.client.user.displayAvatarURL()
+          )
+          .setDescription(result)
 
       if (!result) return false
     }
@@ -791,9 +850,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
     embed.addField("options", argumentList.join("\n"), false)
 
   if (cmd.options.aliases) {
-    const aliases = Array.isArray(cmd.options.aliases)
-      ? cmd.options.aliases
-      : [cmd.options.aliases]
+    const aliases = cmd.options.aliases
 
     embed.addField(
       "aliases",
@@ -866,7 +923,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       `This command can only be sent in ${cmd.options.channelType} channel.`
     )
 
-  await message.channel.send(embed)
+  await message.channel.send({ embeds: [embed] })
 }
 
 export function commandToListItem<Type extends keyof CommandMessageType>(
@@ -878,14 +935,19 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
   }`
 }
 
-export function isCommandMessage(
-  message: discord.Message
-): message is CommandMessage {
-  return !message.system && !!message.channel && !!message.author
+export function isNormalMessage(
+  message: discord.Message | discord.PartialMessage
+): message is NormalMessage {
+  return (
+    !message.system &&
+    !!message.channel &&
+    !!message.author &&
+    !message.webhookId
+  )
 }
 
 export function isGuildMessage(
-  message: CommandMessage
+  message: NormalMessage
 ): message is GuildMessage {
   return (
     !!message.member &&
@@ -895,7 +957,7 @@ export function isGuildMessage(
 }
 
 export function isDirectMessage(
-  message: CommandMessage
+  message: NormalMessage
 ): message is DirectMessage {
   return message.channel instanceof discord.DMChannel
 }

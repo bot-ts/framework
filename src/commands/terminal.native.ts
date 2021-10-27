@@ -1,7 +1,7 @@
-import * as app from "../app"
+import * as app from "../app.js"
 import cp from "child_process"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "terminal",
   description: "Run shell command from Discord",
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
@@ -17,9 +17,9 @@ module.exports = new app.Command({
   async run(message) {
     message.triggerCoolDown()
 
-    const toEdit = await message.channel.send(
-      new app.MessageEmbed().setTitle("The process is running...")
-    )
+    const toEdit = await message.channel.send({
+      embeds: [new app.MessageEmbed().setTitle("The process is running...")],
+    })
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
       const output = err
@@ -42,8 +42,8 @@ module.exports = new app.Command({
           })
         )
 
-      toEdit.edit(embed).catch(() => {
-        message.channel.send(embed).catch()
+      toEdit.edit({ embeds: [embed] }).catch(() => {
+        message.channel.send({ embeds: [embed] }).catch()
       })
     })
   },

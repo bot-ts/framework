@@ -1,211 +1,57 @@
-import url from "url"
-import chalk from "chalk"
-import axios, { AxiosResponse } from "axios"
+import * as discord from "discord.js"
+import * as rest from "@discordjs/rest"
+import * as api from "discord-api-types/v9"
 
-import API from "discord-api-types/v8"
+import * as core from "./core.js"
+import * as logger from "./logger.js"
+import * as command from "./command.js"
 
-import * as core from "./core"
-import * as logger from "./logger"
-import * as _command from "./command"
-import { CommandMessageType } from "./command"
-
-export let usable = false
-export let refreshInterval: any = null
-
-export const slashCommandHandler = {
-  load: async (client: core.FullClient) => {
-    await reloadSLashCommands(client)
-  },
-}
-
-export function getSlashCommandAccessToken(
-  clientId: string,
-  clientSecret: string
-): Promise<string> {
-  const data = new url.URLSearchParams()
-  data.append("grant_type", "client_credentials")
-  data.append("scope", "applications.commands.update")
-  return axios({
-    url: "https://discord.com/api/oauth2/token",
-    method: "POST",
-    data: data.toString(),
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(
-        `${clientId}:${clientSecret}`
-      ).toString("base64")}`,
-    },
-  }).then(
-    (value: AxiosResponse<{ access_token: string }>) => value.data.access_token
+export function getRestClient() {
+  return new rest.REST({ version: "9" }).setToken(
+    process.env.BOT_TOKEN as string
   )
 }
 
-export async function fetchSlashCommands(
-  clientId: `${bigint}`,
-  accessToken: string
-) {
-  return axios
-    .get<API.APIApplicationCommand[]>(
-      `https://discord.com/api/v8/applications/${clientId}/commands`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-    .then((res) => res.data)
-}
-
-export async function postSlashCommand(
-  clientId: `${bigint}`,
-  accessToken: string,
-  slashCommand: API.RESTPostAPIApplicationCommandsJSONBody
-) {
-  axios
-    .post(
-      `https://discord.com/api/v8/applications/${clientId}/commands`,
-      slashCommand,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-    .then((res) =>
-      logger.log(
-        `loaded slash command ${slashCommand.name}: ${res.status} ${res.statusText}`,
-        "handler"
-      )
-    )
-    .catch((error) => {
-      logger.error(error, "handler", true)
-    })
-}
-
-function subCommandsToSlashCommandOptions<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(
-  cmd: _command.Command<Type>,
-  depth: number = 0,
-  parent?: API.APIApplicationCommandOption
-): API.APIApplicationCommandOption[] | undefined {
-  const output: API.APIApplicationCommandOption[] = []
-  if (cmd.options.subs) {
-    for (const sub of cmd.options.subs) {
-      const option: API.APIApplicationCommandOption = {
-        name: sub.options.name,
-        description: sub.options.description,
-        type: API.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
-      }
-
-      option.options = subCommandsToSlashCommandOptions(
-        sub as any,
-        depth + 1,
-        option
-      )
-
-      output.push(option)
-    }
-    return output
-  } else {
-    if (parent) parent.type = API.ApplicationCommandOptionType.SUB_COMMAND
-    return undefined
-  }
-}
-
-function isApplicationCommandOptionType(
-  str: any
-): str is keyof typeof API.ApplicationCommandOptionType {
-  return API.ApplicationCommandOptionType.hasOwnProperty(str)
-}
-
-export async function reloadSLashCommands(client: core.FullClient) {
-  if (
-    !process.env.BOT_SECRET ||
-    /^{{.+}}$/.test(process.env.BOT_SECRET as string)
-  )
-    return logger.warn(
-      `slash commands are disabled because the ${chalk.bold(
-        "BOT_SECRET"
-      )} environment variable is missing.`,
-      "handler"
-    )
-
-  refreshInterval = setTimeout(() => {
-    reloadSLashCommands(client).catch((error) => {
-      clearTimeout(refreshInterval)
-      logger.error(error, "handler", true)
-    })
-  }, 1000 * 60 * 60)
-
-  usable = true
-
-  const accessToken = await getSlashCommandAccessToken(
-    client.user.id,
-    process.env.BOT_SECRET
+export function getSlashCommands(data: {
+  clientId: string
+}): api.APIApplicationCommand[] {
+  const slashCommands: api.APIApplicationCommand[] = []
+  const commands = Array.from(command.commands.values()).filter(
+    (c) => c.options.isSlash
   )
 
-  const slashCommands = await fetchSlashCommands(client.user.id, accessToken)
-
-  for (const [name, command] of _command.commands) {
-    if (
-      !command.options.isSlash ||
-      command.options.parent ||
-      slashCommands.some((cmd) => cmd.name === name)
-    )
-      continue
-
-    let slashCommand = command.options.slash ?? {
+  // todo: make recursive search for sub-slash-commands
+  for (const command of commands) {
+    slashCommands.push({
+      id: command.options.name,
       name: command.options.name,
       description: command.options.description,
-      options: [],
-    }
+      application_id: data.clientId,
+      type: api.ApplicationCommandType.Message,
+      version: "1.0.0",
+    })
+  }
 
-    if (command.options.flags)
-      for (const flag of command.options.flags)
-        slashCommand.options?.push({
-          name: flag.name,
-          description: flag.description,
-          type: API.ApplicationCommandOptionType.BOOLEAN,
-        })
+  return slashCommands
+}
 
-    for (const option of [
-      ...(command.options.options ?? []),
-      ...(command.options.positional ?? []),
-    ]) {
-      let type = API.ApplicationCommandOptionType.STRING
+export async function reloadSlashCommands(
+  client: core.FullClient,
+  guild: discord.Guild,
+  commands?: api.APIApplicationCommand[],
+  restClient?: rest.REST
+) {
+  if (!commands) commands = getSlashCommands({ clientId: client.user.id })
+  if (!restClient) restClient = getRestClient()
 
-      if (typeof option.castValue === "string") {
-        const temp = option.castValue.toUpperCase()
-        if (isApplicationCommandOptionType(temp))
-          // @ts-ignore
-          type = API.ApplicationCommandOptionType[temp]
+  try {
+    await restClient.put(
+      api.Routes.applicationGuildCommands(client.user.id, guild.id),
+      {
+        body: commands,
       }
-
-      slashCommand.options?.push({
-        name: option.name,
-        description: option.description,
-        type,
-        required: await core.scrap(option.required),
-        choices: Array.isArray(option.checkValue)
-          ? option.checkValue.map((value) => {
-              return { name: value, value }
-            })
-          : undefined,
-      })
-    }
-
-    if (command.options.subs)
-      for (const sub of command.options.subs)
-        if (slashCommand) {
-          const options = subCommandsToSlashCommandOptions(command)
-          if (options) slashCommand.options?.push(...options)
-        }
-
-    command.options.slash = slashCommand
-
-    await postSlashCommand(client.user.id, accessToken, slashCommand)
+    )
+  } catch (error: any) {
+    logger.error(error, "slash:reloadSlashCommands", true)
   }
 }

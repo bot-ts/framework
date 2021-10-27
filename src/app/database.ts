@@ -3,8 +3,8 @@ import path from "path"
 import chalk from "chalk"
 import fs from "fs"
 
-import * as logger from "./logger"
-import * as handler from "./handler"
+import * as logger from "./logger.js"
+import * as handler from "./handler.js"
 
 export const tableHandler = new handler.Handler(
   process.env.BOT_TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
@@ -13,7 +13,7 @@ export const tableHandler = new handler.Handler(
 tableHandler.once("finish", async (pathList) => {
   const tables = await Promise.all(
     pathList.map(async (filepath) => {
-      const tableFile = await import(filepath)
+      const tableFile = await import("file://" + filepath)
       return tableFile.default
     })
   )
@@ -45,6 +45,7 @@ export const db = knex({
 
 export interface TableOptions {
   name: string
+  description: string
   priority?: number
   setup: (table: Knex.CreateTableBuilder) => void
 }
@@ -60,13 +61,15 @@ export class Table<Type> {
     try {
       await db.schema.createTable(this.options.name, this.options.setup)
       logger.log(
-        `created table ${chalk.blueBright(this.options.name)}`,
-        "database"
+        `created table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+          this.options.description
+        )}`
       )
     } catch (error) {
       logger.log(
-        `loaded table ${chalk.blueBright(this.options.name)}`,
-        "database"
+        `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+          this.options.description
+        )}`
       )
     }
     return this
