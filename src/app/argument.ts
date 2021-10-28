@@ -191,8 +191,6 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.checkCastedValue) return true
 
-  console.log("castedValue:", castedValue)
-
   const checkResult: string | boolean = await core.scrap(
     subject.checkCastedValue,
     castedValue,
