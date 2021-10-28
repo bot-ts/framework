@@ -17,11 +17,7 @@ export interface PaginatorOptions<Data = undefined> {
   data?: Data
   pages: Page[] | ((pageIndex: number, data: Data) => Promise<Page> | Page)
   pageCount?: number
-  channel:
-    | discord.TextChannel
-    | discord.DMChannel
-    | discord.NewsChannel
-    | discord.TextBasedChannels
+  channel: discord.TextBasedChannels
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
