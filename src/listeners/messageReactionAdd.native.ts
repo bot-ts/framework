@@ -8,7 +8,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
     const paginator = app.StaticPaginator.getByMessage(reaction.message)
 
-    if (paginator) paginator.handleReaction(reaction, user)
+    if (paginator) return paginator.handleReaction(reaction, user)
   },
 }
 
