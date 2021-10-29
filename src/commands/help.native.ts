@@ -32,8 +32,8 @@ export default new app.Command({
         })
       }
     } else {
-      new app.Paginator({
-        pages: await app.Paginator.divider(
+      new app.StaticPaginator({
+        pages: await app.divider(
           (
             await Promise.all(
               app.commands.map(async (cmd) => {
