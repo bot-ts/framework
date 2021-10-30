@@ -238,7 +238,7 @@ export function formatEmbedText(
   input: string,
   limit: keyof typeof embedLimits
 ): string {
-  return input.slice(0, embedLimits[limit]) || spaceChar
+  return (input ?? "").slice(0, embedLimits[limit]) || spaceChar
 }
 
 export class SafeMessageEmbed extends discord.MessageEmbed {
