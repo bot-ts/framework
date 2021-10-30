@@ -221,3 +221,79 @@ export const emojiRegex =
 
 export const fetchPackageJson = () =>
   JSON.parse(fs.readFileSync(rootPath("package.json"), "utf-8"))
+
+export const embedLimits = {
+  title: 256,
+  description: 4096,
+  fields: 25,
+  "field.name": 256,
+  "field.value": 1024,
+  "footer.text": 2048,
+  "author.name": 256,
+}
+
+export const spaceChar = "\u200b"
+
+export function formatEmbedText(
+  input: string,
+  limit: keyof typeof embedLimits
+): string {
+  return input.slice(0, embedLimits[limit]) || spaceChar
+}
+
+export class SafeMessageEmbed extends discord.MessageEmbed {
+  setDescription(description: string): this {
+    super.setDescription(formatEmbedText(description, "description"))
+
+    return this
+  }
+
+  setFooter(text: string, iconURL?: string): this {
+    super.setFooter(formatEmbedText(text, "footer.text"), iconURL)
+
+    return this
+  }
+
+  setColor(color: discord.ColorResolvable = "BLURPLE"): this {
+    super.setColor(color)
+
+    return this
+  }
+
+  setTitle(title: string): this {
+    super.setTitle(formatEmbedText(title, "title"))
+
+    return this
+  }
+
+  setAuthor(name: string, iconURL?: string, url?: string): this {
+    super.setAuthor(formatEmbedText(name, "author.name"), iconURL, url)
+
+    return this
+  }
+
+  setFields(...fields: discord.EmbedFieldData[]): this {
+    super.setFields([])
+    this.addFields(...fields)
+
+    return this
+  }
+
+  addFields(...fields: discord.EmbedFieldData[]): this {
+    fields
+      .slice(0, embedLimits.fields)
+      .map((field) => this.addField(field.name, field.value, field.inline))
+
+    return this
+  }
+
+  addField(name: string, value: string, inline?: boolean): this {
+    super.addField(
+      formatEmbedText(name, "field.name"),
+      formatEmbedText(value, "field.value"),
+      inline
+    )
+
+    return this
+  }
+}
