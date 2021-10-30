@@ -19,7 +19,7 @@ listenerHandler.on("load", async (filepath, client) => {
     try {
       await listener.run.bind(client)(...args)
     } catch (error: any) {
-      logger.error(error, "listener:handling:" + listener.event)
+      logger.error(error, "listener:handling:" + listener.event, true)
     }
   })
 

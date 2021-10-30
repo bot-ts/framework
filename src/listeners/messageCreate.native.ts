@@ -162,7 +162,7 @@ const listener: app.Listener<"messageCreate"> = {
           })
         )
         .catch((error) => {
-          app.error(error, "messageCreate.native")
+          app.error(error, "messageCreate.native", true)
         })
     }
   },
