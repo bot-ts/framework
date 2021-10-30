@@ -23,8 +23,8 @@ export default new app.Command({
 
     return message.send({
       embeds: [
-        new app.MessageEmbed()
-          .setColor("BLURPLE")
+        new app.SafeMessageEmbed()
+          .setColor()
           .setTitle(
             `Result of SQL query ${
               Array.isArray(result) ? `(${result.length} items)` : ""

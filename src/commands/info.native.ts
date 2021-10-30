@@ -1,6 +1,7 @@
 import * as app from "../app.js"
 
 import tims from "tims"
+import * as core from "../app/core"
 
 const conf = app.fetchPackageJson()
 
@@ -16,8 +17,8 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const embed = new app.MessageEmbed()
-      .setColor("BLURPLE")
+    const embed = new core.SafeMessageEmbed()
+      .setColor()
       .setAuthor(
         `Information about ${message.client.user.tag}`,
         message.client.user?.displayAvatarURL({ dynamic: true })

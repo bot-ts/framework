@@ -1,4 +1,5 @@
 import * as app from "../app.js"
+import * as core from "../app/core"
 
 export default new app.Command({
   name: "help",
@@ -22,7 +23,7 @@ export default new app.Command({
       } else {
         await message.channel.send({
           embeds: [
-            new app.MessageEmbed()
+            new core.SafeMessageEmbed()
               .setColor("RED")
               .setAuthor(
                 `Unknown command "${message.args.command}"`,
@@ -45,8 +46,8 @@ export default new app.Command({
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.MessageEmbed()
-              .setColor("BLURPLE")
+            return new app.SafeMessageEmbed()
+              .setColor()
               .setAuthor(
                 "Command list",
                 message.client.user?.displayAvatarURL()

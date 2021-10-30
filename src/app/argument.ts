@@ -116,7 +116,7 @@ export async function checkValue<Message extends command.NormalMessage>(
 
   if (Array.isArray(subject.checkValue)) {
     if (subject.checkValue.includes(value)) {
-      return new discord.MessageEmbed()
+      return new core.SafeMessageEmbed()
         .setColor("RED")
         .setAuthor(
           `Bad ${subjectType} pattern "${subject.name}".`,
@@ -135,7 +135,7 @@ export async function checkValue<Message extends command.NormalMessage>(
   )
 
   if (typeof checkResult === "string") {
-    return new discord.MessageEmbed()
+    return new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} tested "${subject.name}".`,
@@ -146,7 +146,7 @@ export async function checkValue<Message extends command.NormalMessage>(
 
   if (typeof checkResult === "boolean") {
     if (!checkResult) {
-      return new discord.MessageEmbed()
+      return new core.SafeMessageEmbed()
         .setColor("RED")
         .setAuthor(
           `Bad ${subjectType} tested "${subject.name}".`,
@@ -169,7 +169,7 @@ export async function checkValue<Message extends command.NormalMessage>(
   }
 
   if (!checkResult.test(value)) {
-    return new discord.MessageEmbed()
+    return new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} pattern "${subject.name}".`,
@@ -198,7 +198,7 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
   )
 
   const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
-    const embed = new discord.MessageEmbed()
+    const embed = new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} tested "${subject.name}".`,
@@ -458,7 +458,7 @@ export async function castValue<Message extends command.NormalMessage>(
 
     if (subject.castingErrorMessage) {
       if (typeof subject.castingErrorMessage === "string") {
-        return new discord.MessageEmbed()
+        return new core.SafeMessageEmbed()
           .setColor("RED")
           .setAuthor(
             `Bad ${subjectType} type "${subject.name}".`,
@@ -472,7 +472,7 @@ export async function castValue<Message extends command.NormalMessage>(
       }
     }
 
-    return new discord.MessageEmbed()
+    return new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} type "${subject.name}".`,

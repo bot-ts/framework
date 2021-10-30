@@ -1,5 +1,6 @@
 import * as app from "../app.js"
 import cp from "child_process"
+import * as core from "../app/core"
 
 export default new app.Command({
   name: "terminal",
@@ -19,8 +20,8 @@ export default new app.Command({
 
     const toEdit = await message.channel.send({
       embeds: [
-        new app.MessageEmbed()
-          .setColor("BLURPLE")
+        new core.SafeMessageEmbed()
+          .setColor()
           .setTitle("The process is running..."),
       ],
     })
@@ -30,7 +31,7 @@ export default new app.Command({
         ? err.stack ?? err.message
         : stderr.trim() || stdout || null
 
-      const embed = new app.MessageEmbed()
+      const embed = new core.SafeMessageEmbed()
         .setColor(err ? "RED" : "BLURPLE")
         .setTitle(
           err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
