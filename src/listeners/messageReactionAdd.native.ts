@@ -6,7 +6,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
   async run(reaction, user) {
     if (user.bot) return
 
-    const paginator = app.StaticPaginator.getByMessage(reaction.message)
+    const paginator = app.Paginator.getByMessage(reaction.message)
 
     if (paginator) return paginator.handleReaction(reaction, user)
   },
