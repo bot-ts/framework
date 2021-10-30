@@ -280,9 +280,13 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
   }
 
   addFields(...fields: discord.EmbedFieldData[]): this {
-    fields
-      .slice(0, embedLimits.fields)
-      .map((field) => this.addField(field.name, field.value, field.inline))
+    fields.slice(0, embedLimits.fields - this.fields.length).map((field) =>
+      super.addFields({
+        name: field.name,
+        value: field.value,
+        inline: field.inline,
+      })
+    )
 
     return this
   }
