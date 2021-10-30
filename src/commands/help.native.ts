@@ -1,5 +1,5 @@
 import * as app from "../app.js"
-import * as core from "../app/core"
+import * as core from "../app/core.js"
 
 export default new app.Command({
   name: "help",

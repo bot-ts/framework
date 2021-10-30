@@ -1,7 +1,7 @@
 import * as app from "../app.js"
 
 import tims from "tims"
-import * as core from "../app/core"
+import * as core from "../app/core.js"
 
 const conf = app.fetchPackageJson()
 

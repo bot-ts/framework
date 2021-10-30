@@ -1,4 +1,4 @@
-import evaluate from "ghom-eval"
+import * as ge from "ghom-eval"
 import cp from "child_process"
 import util from "util"
 import * as app from "../app.js"
@@ -87,7 +87,7 @@ export default new app.Command({
       )
     )
 
-    const evaluated = await evaluate(
+    const evaluated = await ge.evaluate(
       code,
       { message, app, req },
       "{ message, app, req }"
