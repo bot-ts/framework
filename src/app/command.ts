@@ -9,6 +9,7 @@ import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 import * as argument from "./argument.js"
+import * as slash from "./slash.js"
 
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
@@ -200,6 +201,10 @@ export function validateCommand<
         "command:validateCommand"
       )
     else defaultCommand = command
+  }
+
+  if (command.options.isSlash) {
+    
   }
 
   const help: argument.Flag<CommandMessageType[Type]> = {

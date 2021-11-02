@@ -6,6 +6,8 @@ import * as axios from "axios"
 import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as command from "./command.js"
+import { handler } from "../app.native.js"
+import path from 'path';
 
 const apiURL = "https://discord.com/api/v9"
 
@@ -28,12 +30,13 @@ export interface ApplicationCommand {
   type?: number
 }
 
-export function createSlashCommand(command: ApplicationCommand, appID: string, guildID?: string) {
+export function createSlashCommand(clientId: string, command: ApplicationCommand, guildId?: string) {
   const http = new axios.Axios()
 
-  guildID 
-    ? http.post(apiURL + `/applications/${appID}/guilds/${guildID}/commands`)
-    : http.post(apiURL + `/applications/${appID}/commands`)
+  guildId 
+    ? http.post(apiURL + `/applications/${clientId}/guilds/${guildId}/commands`)
+    : http.post(apiURL + `/applications/${clientId}/commands`)
+    // Rajout du body de la command (name, desc, ect...)
 }
 
 export function getRestClient() {
