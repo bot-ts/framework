@@ -859,6 +859,16 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
     )
   }
 
+  if (cmd.options.middlewares) {
+    embed.addField(
+      "middlewares:",
+      cmd.options.middlewares
+        .map((middleware) => `*${middleware.name || "Anonymous"}*`)
+        .join(" → "),
+      true
+    )
+  }
+
   if (cmd.options.examples) {
     const examples = await core.scrap(cmd.options.examples, message)
 
