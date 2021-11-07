@@ -113,29 +113,28 @@ export class Table<Type> {
       (table: Knex.CreateTableBuilder) => void
     > = new discord.Collection(
       Object.entries(this.options.migrations)
-        .sort((a, b) => Number(b[0]) - Number(a[0]))
+        .sort((a, b) => Number(a[0]) - Number(b[0]))
         .map((entry) => [Number(entry[0]), entry[1]])
     )
 
-    let data = await db<MigrationData>("migration")
+    const fromDatabase = await db<MigrationData>("migration")
       .where("table", this.options.name)
       .first()
 
-    if (!data)
-      data = {
-        table: this.options.name,
-        version: migrationCollection.lastKey() ?? 0,
-      }
+    const data = fromDatabase || {
+      table: this.options.name,
+      version: 0,
+    }
 
     const baseVersion = data.version
 
-    for (const [version, migration] of migrationCollection) {
-      if (version <= data.version) continue
-
-      await db.schema.alterTable(this.options.name, migration)
-
-      data.version = version
-    }
+    await db.schema.alterTable(this.options.name, (builder) => {
+      migrationCollection.forEach((migration, version) => {
+        if (version <= data.version) return
+        migration(builder)
+        data.version = version
+      })
+    })
 
     await db<MigrationData>("migration")
       .insert(data)
