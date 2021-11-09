@@ -58,10 +58,9 @@ export abstract class Paginator {
     this.resetDeactivationTimeout()
 
     Promise.resolve(this.getCurrentPage()).then(async (page) => {
-      const message =
-        typeof page === "string"
-          ? await options.channel.send(page)
-          : await options.channel.send({ embeds: [page] })
+      const message = await options.channel
+        .send(typeof page === "string" ? page : { embeds: [page] })
+        .catch()
 
       this._messageID = message.id
 
@@ -155,7 +154,7 @@ export abstract class Paginator {
       this._messageID
     )
     if (message && message.channel.isText())
-      await message.reactions?.removeAll()
+      await message.reactions?.removeAll().catch()
 
     Paginator.instances = Paginator.instances.filter((paginator) => {
       return paginator._messageID !== this._messageID
