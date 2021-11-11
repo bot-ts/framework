@@ -1,7 +1,7 @@
 import * as app from "../app.js"
 
 export default new app.Command({
-  name: "slash",
+  name: "slash2",
   description: "The slash.native command",
   channelType: "all",
   isSlash: true,

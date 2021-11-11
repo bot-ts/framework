@@ -1,7 +1,6 @@
 import * as discord from "discord.js"
-import * as rest from "@discordjs/rest"
 import * as api from "discord-api-types/v9"
-import * as axios from "axios"
+import axios from "axios"
 
 import * as core from "./core.js"
 import * as logger from "./logger.js"
@@ -22,7 +21,7 @@ export interface ApplicationCommandOptions {
   channel_types?: number
 }
 
-export interface ApplicationCommand {
+export interface ApplicationCommandSlash {
   name: string,
   description: string,
   options?: object|ApplicationCommandOptions,
@@ -30,19 +29,12 @@ export interface ApplicationCommand {
   type?: number
 }
 
-export function createSlashCommand(clientId: string, command: ApplicationCommand, guildId?: string) {
-  const http = new axios.Axios()
+export async function createSlashCommand(clientId: string, command: ApplicationCommandSlash, guildId?: string) {
 
   guildId 
-    ? http.post(apiURL + `/applications/${clientId}/guilds/${guildId}/commands`)
-    : http.post(apiURL + `/applications/${clientId}/commands`)
+    ? await axios.post(apiURL + `/applications/${clientId}/guilds/${guildId}/commands`, command, { headers: { Authorization: `Bot ${process.env.BOT_TOKEN}` } })
+    : await axios.post(apiURL + `/applications/${clientId}/commands`, command, { headers: { Authorization: `Bot ${process.env.BOT_TOKEN}` } })
     // Rajout du body de la command (name, desc, ect...)
-}
-
-export function getRestClient() {
-  return new rest.REST({ version: "9" }).setToken(
-    process.env.BOT_TOKEN as string
-  )
 }
 
 export function getSlashCommands(data: {
@@ -66,25 +58,4 @@ export function getSlashCommands(data: {
   }
 
   return slashCommands
-}
-
-export async function reloadSlashCommands(
-  client: core.FullClient,
-  guild: discord.Guild,
-  commands?: api.APIApplicationCommand[],
-  restClient?: rest.REST
-) {
-  if (!commands) commands = getSlashCommands({ clientId: client.user.id })
-  if (!restClient) restClient = getRestClient()
-
-  try {
-    await restClient.put(
-      api.Routes.applicationGuildCommands(client.user.id, guild.id),
-      {
-        body: commands,
-      }
-    )
-  } catch (error: any) {
-    logger.error(error, "slash:reloadSlashCommands", true)
-  }
 }
