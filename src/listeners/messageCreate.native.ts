@@ -87,6 +87,22 @@ const listener: app.Listener<"messageCreate"> = {
       } else return null
     }
 
+    if (cmd.options.isSlash) {
+      app.log("ok !")
+      if (cmd.options.guildSlash) {
+        app.log("ok2 !")
+        app.slash.createSlashCommand(message.client.user.id, {
+          name: cmd.options.name,
+          description: cmd.options.description,
+        }, cmd.options.guildSlash)
+      } else {
+        app.slash.createSlashCommand(message.client.user.id, {
+          name: cmd.options.name,
+          description: cmd.options.description,
+        })
+      }
+    }
+
     // check sub commands
     {
       let cursor = 0
