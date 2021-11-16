@@ -13,6 +13,8 @@ export interface PaginatorEmojis {
 export type Page = discord.MessageEmbed | string
 
 export interface PaginatorOptions {
+  useReactions?: boolean
+  useButtonLabels?: boolean
   channel: discord.TextBasedChannels
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
@@ -33,8 +35,15 @@ export interface StaticPaginatorOptions {
 }
 
 export abstract class Paginator {
+  static defaults: Partial<PaginatorOptions> = {}
   static instances: Paginator[] = []
   static defaultPlaceHolder = "Oops, no data found"
+  static buttonNames: (keyof PaginatorEmojis)[] = [
+    "start",
+    "previous",
+    "next",
+    "end",
+  ]
   static defaultEmojis: PaginatorEmojis = {
     previous: "◀️",
     next: "▶️",
@@ -49,26 +58,61 @@ export abstract class Paginator {
   public emojis: PaginatorEmojis
 
   protected constructor(public readonly options: PaginatorOptions) {
-    options.idleTime ??= 60000
+    options.idleTime ??= Paginator.defaults.idleTime ?? 60000
 
-    if (options.customEmojis)
-      this.emojis = Object.assign(Paginator.defaultEmojis, options.customEmojis)
+    if (options.customEmojis || Paginator.defaults.customEmojis)
+      this.emojis = Object.assign(
+        Paginator.defaultEmojis,
+        options.customEmojis ?? Paginator.defaults.customEmojis
+      )
     else this.emojis = Paginator.defaultEmojis
 
     this.resetDeactivationTimeout()
 
-    Promise.resolve(this.getCurrentPage()).then(async (page) => {
-      const message = await options.channel
-        .send(typeof page === "string" ? page : { embeds: [page] })
-        .catch()
+    Promise.resolve(this.getCurrentPage())
+      .then(async (page) => {
+        const message = await options.channel.send(this.formatPage(page))
 
-      this._messageID = message.id
+        this._messageID = message.id
 
-      for (const key of ["start", "previous", "next", "end"])
-        await message.react(this.emojis[key as keyof PaginatorEmojis])
-    })
+        if (options.useReactions ?? Paginator.defaults.useReactions)
+          for (const key of Paginator.buttonNames)
+            await message.react(this.emojis[key])
+      })
+      .catch((error) =>
+        logger.error(error, "pagination:Paginator:constructor", true)
+      )
 
     Paginator.instances.push(this)
+  }
+
+  protected get components() {
+    return this.options.useReactions ?? Paginator.defaults.useReactions
+      ? undefined
+      : [
+          new discord.MessageActionRow().addComponents(
+            Paginator.buttonNames.map((buttonName) => {
+              const button = new discord.MessageButton()
+                .setCustomId("pagination-" + buttonName)
+                .setStyle("PRIMARY")
+
+              if (
+                this.options.useButtonLabels ??
+                Paginator.defaults.useButtonLabels
+              )
+                button.setLabel(buttonName)
+              else button.setEmoji(this.emojis[buttonName])
+
+              return button
+            })
+          ),
+        ]
+  }
+
+  protected formatPage(page: Page) {
+    return typeof page === "string"
+      ? { content: page, components: this.components }
+      : { embeds: [page], components: this.components }
   }
 
   protected abstract getCurrentPage(): Promise<Page> | Page
@@ -79,36 +123,57 @@ export abstract class Paginator {
       if (this._messageID)
         this.options.channel.messages.cache
           .get(this._messageID)
-          ?.edit(typeof page === "string" ? page : { embeds: [page] })
-          .catch((error) => logger.error(error, "pagination:Paginator:render"))
+          ?.edit(this.formatPage(page))
+          .catch((error) =>
+            logger.error(error, "pagination:Paginator:render", true)
+          )
     })
+  }
+
+  public async handleInteraction(interaction: discord.ButtonInteraction) {
+    const key = interaction.customId.replace(
+      "pagination-",
+      ""
+    ) as keyof PaginatorEmojis
+
+    await this.updatePageIndexAndRender(key)
   }
 
   public async handleReaction(
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) {
-    if (this.options.filter && !this.options.filter(reaction, user)) return
+    const filter = this.options.filter ?? Paginator.defaults.filter
+
+    if (filter && !filter(reaction, user)) return
 
     const { emoji } = reaction
     const emojiID = emoji.id || emoji.name
 
     let currentKey: keyof PaginatorEmojis | null = null
-    for (const key in this.emojis) {
-      if (this.emojis[key as keyof PaginatorEmojis] === emojiID) {
-        currentKey = key as keyof PaginatorEmojis
-      }
-    }
 
+    for (const key of Paginator.buttonNames)
+      if (this.emojis[key] === emojiID) currentKey = key
+
+    const rendered = await this.updatePageIndexAndRender(currentKey)
+
+    if (rendered) {
+      reaction.users.remove(user as discord.User).catch()
+    }
+  }
+
+  private async updatePageIndexAndRender(
+    key: keyof PaginatorEmojis | null
+  ): Promise<boolean> {
     const pageCount = await this.getPageCount()
 
-    if (currentKey) {
-      switch (currentKey) {
+    if (key) {
+      switch (key) {
         case "start":
           this._pageIndex = 0
           break
         case "end":
-          if (pageCount === -1) return
+          if (pageCount === -1) return false
           this._pageIndex = pageCount - 1
           break
         case "next":
@@ -132,8 +197,10 @@ export abstract class Paginator {
 
       this.resetDeactivationTimeout()
 
-      reaction.users.remove(user as discord.User).catch()
+      return true
     }
+
+    return false
   }
 
   private resetDeactivationTimeout() {
@@ -162,7 +229,10 @@ export abstract class Paginator {
   }
 
   public static getByMessage(
-    message: discord.Message | discord.PartialMessage
+    message:
+      | discord.Message
+      | discord.PartialMessage
+      | discord.ButtonInteraction<discord.CacheType>["message"]
   ): Paginator | undefined {
     return this.instances.find((paginator) => {
       return paginator._messageID === message.id
