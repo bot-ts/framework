@@ -16,6 +16,7 @@ export const commandHandler = new handler.Handler(
 
 commandHandler.on("load", async (filepath) => {
   const file = await import("file://" + filepath)
+  if (filepath.endsWith(".native.js")) file.default.options.native = true
   return commands.add(file.default)
 })
 
@@ -175,6 +176,11 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * @deprecated
    */
   parent?: Command<keyof CommandMessageType>
+  /**
+   * This property is automatically setup on bot running.
+   * @deprecated
+   */
+  native?: boolean
 }
 
 export class Command<Type extends keyof CommandMessageType = "all"> {
@@ -230,9 +236,9 @@ export function validateCommand<
       )
 
   logger.log(
-    `loaded command ${chalk.blueBright(
-      commandBreadcrumb(command)
-    )} ${chalk.grey(command.options.description)}`
+    `loaded command ${chalk.blueBright(commandBreadcrumb(command))}${
+      command.options.native ? ` ${chalk.green("native")}` : ""
+    } ${chalk.grey(command.options.description)}`
   )
 
   if (command.options.subs)
