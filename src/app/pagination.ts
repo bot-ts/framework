@@ -53,8 +53,6 @@ export abstract class Paginator {
   public emojis: PaginatorEmojis
 
   protected constructor(public readonly options: PaginatorOptions) {
-    options.idleTime ??= Paginator.defaults.idleTime ?? 60000
-
     if (options.customEmojis || Paginator.defaults.customEmojis)
       this.emojis = Object.assign(
         Paginator.defaultEmojis,
@@ -218,7 +216,7 @@ export abstract class Paginator {
     clearTimeout(this._deactivation as NodeJS.Timeout)
     this._deactivation = setTimeout(
       () => this.deactivate().catch(),
-      this.options.idleTime
+      this.options.idleTime ?? Paginator.defaults.idleTime ?? 60000
     )
   }
 
