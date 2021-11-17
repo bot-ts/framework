@@ -123,10 +123,14 @@ export abstract class Paginator {
         ]
   }
 
-  protected async formatPage(page: Page) {
+  protected async formatPage(page: Page, withoutComponents?: true) {
+    const components = withoutComponents
+      ? undefined
+      : await this.getComponents()
+
     return typeof page === "string"
-      ? { content: page, components: await this.getComponents() }
-      : { embeds: [page], components: await this.getComponents() }
+      ? { content: page, components }
+      : { embeds: [page], components }
   }
 
   protected abstract getCurrentPage(): Promise<Page> | Page
@@ -165,8 +169,6 @@ export abstract class Paginator {
     const updated = await this.updatePageIndex(currentKey)
 
     if (updated) {
-      this.resetDeactivationTimeout()
-
       if (this._messageID)
         await this.options.channel.messages.cache
           .get(this._messageID)
@@ -178,6 +180,8 @@ export abstract class Paginator {
   }
 
   private async updatePageIndex(key: PaginatorKey | null): Promise<boolean> {
+    this.resetDeactivationTimeout()
+
     const pageCount = await this.getPageCount()
 
     if (key) {
@@ -225,12 +229,18 @@ export abstract class Paginator {
 
     clearTimeout(this._deactivation as NodeJS.Timeout)
 
-    // remove reactions if message is not deleted and if is in guild
     const message = await this.options.channel.messages.cache.get(
       this._messageID
     )
-    if (message && message.channel.isText())
-      await message.reactions?.removeAll().catch()
+
+    // if message is not deleted
+    if (message && !message.deleted)
+      if (this.options.useReactions ?? Paginator.defaults.useReactions)
+        await message.reactions?.removeAll().catch()
+      else
+        await message.edit(
+          await this.formatPage(await this.getCurrentPage(), true)
+        )
 
     Paginator.instances = Paginator.instances.filter((paginator) => {
       return paginator._messageID !== this._messageID
