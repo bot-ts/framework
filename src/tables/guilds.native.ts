@@ -10,7 +10,7 @@ export default new app.Table<Guild>({
   description: "Represent a guild",
   migrations: {
     1: (table) => {
-      // you can use migrations for add columns to your tables
+      // you can use migrations for add columns to your created tables
     },
   },
   setup: (table) => {

@@ -114,6 +114,11 @@ export abstract class Paginator {
                 )
               else button.setEmoji(this.emojis[key])
 
+              button.setDisabled(
+                (key === "start" && this._pageIndex === 0) ||
+                  (key === "end" && this._pageIndex === pageCount - 1)
+              )
+
               return button
             })
           ),
