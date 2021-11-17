@@ -237,10 +237,7 @@ export abstract class Paginator {
     if (message && !message.deleted)
       if (this.options.useReactions ?? Paginator.defaults.useReactions)
         await message.reactions?.removeAll().catch()
-      else
-        await message.edit(
-          await this.formatPage(await this.getCurrentPage(), true)
-        )
+      else await message.delete()
 
     Paginator.instances = Paginator.instances.filter((paginator) => {
       return paginator._messageID !== this._messageID
@@ -249,7 +246,6 @@ export abstract class Paginator {
 
   public static getByMessage(
     message:
-      | discord.Message
       | discord.PartialMessage
       | discord.ButtonInteraction<discord.CacheType>["message"]
   ): Paginator | undefined {
