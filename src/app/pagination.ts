@@ -15,6 +15,7 @@ export type Page = discord.MessageEmbed | string
 export interface PaginatorOptions {
   useReactions?: boolean
   useButtonLabels?: boolean
+  buttonStyle?: discord.MessageButtonStyleResolvable
   channel: discord.TextBasedChannels
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
@@ -102,7 +103,11 @@ export abstract class Paginator {
             Paginator.buttonNames.map((buttonName) => {
               const button = new discord.MessageButton()
                 .setCustomId("pagination-" + buttonName)
-                .setStyle("SECONDARY")
+                .setStyle(
+                  this.options.buttonStyle ??
+                    Paginator.defaults.buttonStyle ??
+                    "SECONDARY"
+                )
 
               if (
                 this.options.useButtonLabels ??
