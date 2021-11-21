@@ -112,6 +112,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * Use this command as slash command
    */
   isSlash?: boolean
+  guildSlash?: string
   aliases?: string[]
   /**
    * Cool down of command (in ms)
@@ -201,10 +202,6 @@ export function validateCommand<
         "command:validateCommand"
       )
     else defaultCommand = command
-  }
-
-  if (command.options.isSlash) {
-    
   }
 
   const help: argument.Flag<CommandMessageType[Type]> = {
