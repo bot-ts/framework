@@ -9,9 +9,9 @@
     "build": "gulp build",
     "watch": "gulp watch",
     "start": "npm run build && node dist/index",
-    "format": "prettier --write src",
+    "format": "prettier --write src tests",
     "update": "gulp update",
-    "test": "tsc --noEmit"
+    "test": "tsc --noEmit && npm run build && node tests/index.test.js"
   },
   "prettier": {
     "semi": false,

@@ -111,6 +111,7 @@ function _copyTemp() {
         "temp/.gitattributes",
         "temp/.gitignore",
         "temp/tsconfig.json",
+        "temp/tests/**/*.js",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" }
