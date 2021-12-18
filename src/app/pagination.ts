@@ -239,9 +239,9 @@ export abstract class Paginator {
         await message.reactions?.removeAll().catch()
       else await message.delete()
 
-    Paginator.instances = Paginator.instances.filter((paginator) => {
-      return paginator._messageID !== this._messageID
-    })
+    Paginator.instances = Paginator.instances.filter(
+      (paginator) => paginator._messageID !== this._messageID
+    )
   }
 
   public static getByMessage(
@@ -249,9 +249,9 @@ export abstract class Paginator {
       | discord.PartialMessage
       | discord.ButtonInteraction<discord.CacheType>["message"]
   ): Paginator | undefined {
-    return this.instances.find((paginator) => {
-      return paginator._messageID === message.id
-    })
+    return this.instances.find(
+      (paginator) => paginator._messageID === message.id
+    )
   }
 }
 
