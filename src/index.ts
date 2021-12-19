@@ -27,11 +27,11 @@ try {
   await client.login(process.env.BOT_TOKEN)
 
   if (!app.isFullClient(client)) {
-    app.error("The Discord client is not full.", "index")
+    app.error("The Discord client is not full.", __filename)
     client.destroy()
     process.exit(1)
   }
 } catch (error: any) {
-  app.error(error, "index", true)
+  app.error(error, __filename, true)
   process.exit(1)
 }

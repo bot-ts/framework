@@ -20,16 +20,18 @@ listenerHandler.on("load", async (filepath, client) => {
     try {
       await listener.run.bind(client)(...args)
     } catch (error: any) {
-      logger.error(error, "listener:handling:" + listener.event, true)
+      logger.error(error, filepath, true)
     }
   })
+
+  const sub = path.basename(filepath, ".js").replace(`${listener.event}.`, "")
 
   logger.log(
     `loaded listener ${chalk.yellow(
       listener.once ? "once" : "on"
-    )} ${chalk.blueBright(listener.event)} ${chalk.green(
-      path.basename(filepath, ".js").replace(`${listener.event}.`, "")
-    )} ${chalk.grey(listener.description)}`
+    )} ${chalk.blueBright(listener.event)}${
+      sub !== listener.event ? ` ${chalk.green(sub)}` : ""
+    } ${chalk.grey(listener.description)}`
   )
 })
 

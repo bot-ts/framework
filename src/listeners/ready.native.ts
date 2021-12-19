@@ -16,7 +16,7 @@ const listener: app.Listener<"ready"> = {
     )
 
     figlet(app.fetchPackageJson().name, (err, value) => {
-      if (err) return app.error(err, "ready.native", true)
+      if (err) return app.error(err, __filename, true)
 
       console.log(
         boxen(chalk.blueBright(value), {

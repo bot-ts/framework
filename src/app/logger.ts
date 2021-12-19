@@ -13,12 +13,12 @@ export type LogLevel = keyof typeof logLevelColors
 export const loggerPattern = (
   text: string,
   level: LogLevel,
-  section?: string
+  secondaryText?: string
 ) => {
   return `${chalk.grey(dayjs().format("DD/MM/YY HH:mm"))} ${chalk.hex(
     logLevelColors[level]
   )(level.toUpperCase())}${
-    section ? " " + chalk.magentaBright(`${section}`) : ""
+    secondaryText ? " " + chalk.magentaBright(`${secondaryText}`) : ""
   } ${text}`
 }
 
@@ -26,12 +26,12 @@ export function log(text: string, section?: string) {
   console.log(loggerPattern(text, "info", section))
 }
 
-export function error(text: string | Error, section?: string, full?: boolean) {
+export function error(text: string | Error, _path: string, full?: boolean) {
   console.error(
     loggerPattern(
       text instanceof Error ? text.message.split("\n")[0] : text,
       "error",
-      section
+      _path
     )
   )
   if (full && text instanceof Error) console.error(text)
@@ -45,7 +45,7 @@ export function success(text: string, section?: string) {
   console.log(loggerPattern(text, "success", section))
 }
 
-export function createLogger(section?: string) {
+export function createLogger(section: string) {
   return {
     log: (text: string) => log(text, section),
     error: (text: string, full?: boolean) => error(text, section, full),
