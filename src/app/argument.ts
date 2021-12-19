@@ -32,7 +32,6 @@ export interface Option<Message extends command.NormalMessage>
     | "regex"
     | "array"
     | "user"
-    | "user+"
     | "member"
     | "channel"
     | "message"
@@ -356,7 +355,6 @@ export async function castValue<Message extends command.NormalMessage>(
         } else throw empty
         break
       case "user":
-      case "user+":
         if (baseValue) {
           const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
@@ -367,7 +365,7 @@ export async function castValue<Message extends command.NormalMessage>(
             })
             if (user) setValue(user)
             else throw new Error("Unknown user!")
-          } else if (subject.castValue === "user+") {
+          } else {
             const user = message.client.users.cache.find((user) => {
               return user.username
                 .toLowerCase()
@@ -375,7 +373,7 @@ export async function castValue<Message extends command.NormalMessage>(
             })
             if (user) setValue(user)
             else throw new Error("User not found!")
-          } else throw new Error("Invalid user value!")
+          }
         } else throw empty
         break
       case "role":
