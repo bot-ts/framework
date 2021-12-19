@@ -110,6 +110,7 @@ function _copyTemp() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
+        "temp/.github/workflows/**/*.native.*",
         "temp/tsconfig.json",
         "temp/tests/**/*.js",
         "!temp/src/app/database.ts",
@@ -184,11 +185,18 @@ function _updateDatabaseFile() {
 
 function _removeDuplicates() {
   return gulp
-    .src(["src/**/*.native.ts", "!src/app.native.ts"])
+    .src([
+      "src/**/*.native.ts",
+      "!src/app.native.ts",
+      "temp/.github/workflows/**/*.native.*",
+    ])
     .pipe(
       filter((file) =>
         fs.existsSync(
-          path.join(file.dirname, file.basename.replace("native.ts", "ts"))
+          path.join(
+            file.dirname,
+            file.basename.replace(".native" + file.extname, file.extname)
+          )
         )
       )
     )
