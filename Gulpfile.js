@@ -12,8 +12,12 @@ import cp from "child_process"
 import path from "path"
 import fs from "fs"
 
+import { dirname } from "dirname-filename-esm"
+
+const __dirname = dirname(import.meta)
+
 function _gitLog(cb) {
-  const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
+  const newVersion = git({ cwd: path.join(__dirname, "temp") })
 
   log(
     [
@@ -42,13 +46,13 @@ function _checkGulpfile(cb) {
     .then((res) => res.data)
     .then(async (remote) => {
       const local = await fs.promises.readFile(
-        path.join(process.cwd(), "Gulpfile.js"),
+        path.join(__dirname, "Gulpfile.js"),
         "utf8"
       )
 
       if (remote !== local) {
         await fs.promises.writeFile(
-          path.join(process.cwd(), "Gulpfile.js"),
+          path.join(__dirname, "Gulpfile.js"),
           remote,
           "utf8"
         )
@@ -111,13 +115,14 @@ function _copyTemp() {
         "temp/.gitattributes",
         "temp/.gitignore",
         "temp/.github/workflows/**/*.native.*",
+        "temp/template.env",
         "temp/tsconfig.json",
         "temp/tests/**/*.js",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" }
     )
-    .pipe(gulp.dest(process.cwd(), { overwrite: true }))
+    .pipe(gulp.dest(__dirname, { overwrite: true }))
 }
 
 function _updateDependencies(cb) {
@@ -151,8 +156,8 @@ function _updateDependencies(cb) {
           `Updated  '${chalk.cyan(key)}' [${
             dependencies[key]
               ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
-                  newDependencies[key]
-                )}`
+                newDependencies[key]
+              )}`
               : chalk.blueBright(newDependencies[key])
           }]`
         )

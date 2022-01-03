@@ -283,13 +283,13 @@ export async function castValue<Message extends command.NormalMessage>(
             if (channel) setValue(channel)
             else throw new Error("Unknown channel!")
           } else {
-            const search = (channel: discord.Channel) => {
+            const search = (channel: discord.AnyChannel) => {
               return (
                 "name" in channel && // @ts-ignore
                 channel.name.toLowerCase().includes(baseValue.toLowerCase())
               )
             }
-            let channel: discord.Channel | undefined
+            let channel: discord.AnyChannel | undefined
             if (command.isGuildMessage(message))
               channel = message.guild.channels.cache.find(search)
             channel ??= message.client.channels.cache.find(search)

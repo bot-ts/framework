@@ -14,7 +14,7 @@ export interface PaginatorOptions {
   useReactions?: boolean
   useButtonLabels?: boolean
   buttonStyle?: discord.MessageButtonStyleResolvable
-  channel: discord.TextBasedChannels
+  channel: discord.TextBasedChannel
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
@@ -169,7 +169,7 @@ export abstract class Paginator {
         await this.options.channel.messages.cache
           .get(this._messageID)
           ?.edit(await this.formatPage(await this.getCurrentPage()))
-          .catch((error) => logger.error(error, __filename, true))
+          .catch((error: any) => logger.error(error, __filename, true))
     }
   }
 
