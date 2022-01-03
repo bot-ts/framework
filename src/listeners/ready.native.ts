@@ -4,6 +4,10 @@ import chalk from "chalk"
 
 import * as app from "../app.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
 const listener: app.Listener<"ready"> = {
   event: "ready",
   description: "Just log that bot is ready",

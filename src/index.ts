@@ -1,5 +1,8 @@
 import discord from "discord.js"
 import type { FullClient } from "./app.js"
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
 
 import "dotenv/config"
 

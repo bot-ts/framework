@@ -2,6 +2,10 @@ import discord from "discord.js"
 
 import * as logger from "./logger.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
 export type PaginatorKey = "previous" | "next" | "start" | "end"
 
 /** As Snowflakes or icons */

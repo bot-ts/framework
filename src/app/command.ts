@@ -10,6 +10,10 @@ import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 import * as argument from "./argument.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )

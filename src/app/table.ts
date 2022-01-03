@@ -7,6 +7,10 @@ import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 import * as database from "./database.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
 import type { MigrationData } from "../tables/migration.native.js"
 
 export const tableHandler = new handler.Handler(

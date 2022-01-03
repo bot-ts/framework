@@ -1,5 +1,8 @@
 import * as app from "../app.js"
 import yargsParser from "yargs-parser"
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
