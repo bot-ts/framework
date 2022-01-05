@@ -86,7 +86,7 @@ export abstract class Paginator {
     Paginator.instances.push(this)
   }
 
-  protected async getComponents() {
+  protected async getComponents(disabled?: boolean) {
     const pageCount = await this.getPageCount()
 
     return (this.options.useReactions ?? Paginator.defaults.useReactions) ||
@@ -115,7 +115,8 @@ export abstract class Paginator {
               else button.setEmoji(this.emojis[key])
 
               button.setDisabled(
-                (key === "start" && this._pageIndex === 0) ||
+                disabled ||
+                  (key === "start" && this._pageIndex === 0) ||
                   (key === "end" && this._pageIndex === pageCount - 1)
               )
 
@@ -232,10 +233,16 @@ export abstract class Paginator {
     )
 
     // if message is not deleted
-    if (message && !message.deleted)
+    if (message && !message.deletable)
       if (this.options.useReactions ?? Paginator.defaults.useReactions)
         await message.reactions?.removeAll().catch()
-      else await message.delete()
+      else {
+        // await this._interaction?.editReply(
+        //   await this.formatPage(
+        //     await this.getCurrentPage()
+        //   )
+        // )
+      }
 
     Paginator.instances = Paginator.instances.filter(
       (paginator) => paginator._messageID !== this._messageID
