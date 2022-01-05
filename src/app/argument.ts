@@ -8,15 +8,13 @@ import * as command from "./command.js"
 export interface Argument {
   name: string
   description: string
-  castingErrorMessage?: string | discord.MessageEmbed
-  checkingErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Rest<Message extends command.NormalMessage> extends Argument {
   required?: core.Scrap<boolean, [message?: Message]>
   default?: core.Scrap<string, [message?: Message]>
   all?: boolean
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Option<Message extends command.NormalMessage>
@@ -50,7 +48,10 @@ export interface Option<Message extends command.NormalMessage>
     boolean | string,
     [value: any, message?: Message]
   >
-  typeDescription?: core.Scrap<string, [value: string, message?: Message]>
+  castingDescription?: core.Scrap<string, [value: string, message?: Message]>
+  checkingErrorMessage?: string | discord.MessageEmbed
+  castingErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export type Positional<Message extends command.NormalMessage> = Omit<
@@ -59,10 +60,7 @@ export type Positional<Message extends command.NormalMessage> = Omit<
 >
 
 export interface Flag<Message extends command.NormalMessage>
-  extends Pick<
-    Option<Message>,
-    "name" | "aliases" | "description" | "castingErrorMessage"
-  > {
+  extends Pick<Option<Message>, "name" | "aliases" | "description"> {
   flag: string
 }
 
@@ -480,8 +478,8 @@ export async function castValue<Message extends command.NormalMessage>(
   }
 }
 
-export function getTypeDescriptionOf(arg: Option<any>) {
-  if (arg.typeDescription) return arg.typeDescription
+export function getCastingDescriptionOf(arg: Option<any>) {
+  if (arg.castingDescription) return arg.castingDescription
   if (!arg.castValue) return "string"
   if (typeof arg.castValue === "string") {
     if (arg.castValue === "array") return "Array<string>"

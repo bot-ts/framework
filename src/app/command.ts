@@ -822,10 +822,10 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
           : ""
       argumentList.push(
         (await core.scrap(arg.required, message))
-          ? `\`--${arg.name}${dft}\` (\`${argument.getTypeDescriptionOf(
+          ? `\`--${arg.name}${dft}\` (\`${argument.getCastingDescriptionOf(
               arg
             )}\`) ${arg.description ?? ""}`
-          : `\`[--${arg.name}${dft}]\` (\`${argument.getTypeDescriptionOf(
+          : `\`[--${arg.name}${dft}]\` (\`${argument.getCastingDescriptionOf(
               arg
             )}\`) ${arg.description ?? ""}`
       )
