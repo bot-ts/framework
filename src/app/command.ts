@@ -97,6 +97,14 @@ export interface CommandMessageType {
   all: NormalMessage
 }
 
+export interface CommandTest {
+  name: string
+  run: (
+    tester: discord.Client<true>,
+    tested: discord.Client<true>
+  ) => Promise<void | string>
+}
+
 export interface CommandOptions<Type extends keyof CommandMessageType> {
   channelType?: Type
 
@@ -186,6 +194,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * @deprecated
    */
   native?: boolean
+  tests?: CommandTest[]
 }
 
 export class Command<Type extends keyof CommandMessageType = "all"> {
