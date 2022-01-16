@@ -242,7 +242,7 @@ export function formatEmbedText(
 }
 
 export class SafeMessageEmbed extends discord.MessageEmbed {
-  setDescription(description: string): any {
+  setDescription(description: string): this {
     super.setDescription(formatEmbedText(description, "description"))
 
     return this
@@ -272,7 +272,7 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
     return this
   }
 
-  setColor(color: discord.ColorResolvable = "BLURPLE"): any {
+  setColor(color: discord.ColorResolvable = "BLURPLE"): this {
     super.setColor(color)
 
     return this
@@ -310,14 +310,14 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
     return this
   }
 
-  setFields(...fields: discord.EmbedFieldData[]): any {
+  setFields(...fields: discord.EmbedFieldData[]): this {
     super.setFields([])
     this.addFields(...fields)
 
     return this
   }
 
-  addFields(...fields: discord.EmbedFieldData[]): any {
+  addFields(...fields: discord.EmbedFieldData[]): this {
     fields.slice(0, embedLimits.fields - this.fields.length).map((field) =>
       super.addFields({
         name: field.name,
@@ -329,7 +329,7 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
     return this
   }
 
-  addField(name: string, value: string, inline?: boolean): any {
+  addField(name: string, value: string, inline?: boolean): this {
     super.addField(
       formatEmbedText(name, "field.name"),
       formatEmbedText(value, "field.value"),
