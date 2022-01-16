@@ -112,10 +112,10 @@ export async function checkValue<Message extends command.NormalMessage>(
     if (subject.checkValue.includes(value)) {
       return new core.SafeMessageEmbed()
         .setColor("RED")
-        .setAuthor(
-          `Bad ${subjectType} pattern "${subject.name}".`,
-          message.client.user?.displayAvatarURL()
-        )
+        .setAuthor({
+          name: `Bad ${subjectType} pattern "${subject.name}".`,
+          iconURL: message.client.user?.displayAvatarURL(),
+        })
         .setDescription(
           `Expected choice list: \`${subject.checkValue.join(" | ")}\``
         )
@@ -131,10 +131,10 @@ export async function checkValue<Message extends command.NormalMessage>(
   if (typeof checkResult === "string") {
     return new core.SafeMessageEmbed()
       .setColor("RED")
-      .setAuthor(
-        `Bad ${subjectType} tested "${subject.name}".`,
-        message.client.user?.displayAvatarURL()
-      )
+      .setAuthor({
+        name: `Bad ${subjectType} tested "${subject.name}".`,
+        iconURL: message.client.user?.displayAvatarURL(),
+      })
       .setDescription(checkResult)
   }
 
@@ -142,10 +142,10 @@ export async function checkValue<Message extends command.NormalMessage>(
     if (!checkResult) {
       return new core.SafeMessageEmbed()
         .setColor("RED")
-        .setAuthor(
-          `Bad ${subjectType} tested "${subject.name}".`,
-          message.client.user?.displayAvatarURL()
-        )
+        .setAuthor({
+          name: `Bad ${subjectType} tested "${subject.name}".`,
+          iconURL: message.client.user?.displayAvatarURL(),
+        })
         .setDescription(
           typeof subject.checkValue === "function"
             ? core.code.stringify({
@@ -165,10 +165,10 @@ export async function checkValue<Message extends command.NormalMessage>(
   if (!checkResult.test(value)) {
     return new core.SafeMessageEmbed()
       .setColor("RED")
-      .setAuthor(
-        `Bad ${subjectType} pattern "${subject.name}".`,
-        message.client.user?.displayAvatarURL()
-      )
+      .setAuthor({
+        name: `Bad ${subjectType} pattern "${subject.name}".`,
+        iconURL: message.client.user?.displayAvatarURL(),
+      })
       .setDescription(`Expected pattern: \`${checkResult.source}\``)
   }
   return true
@@ -194,10 +194,10 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
   const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
     const embed = new core.SafeMessageEmbed()
       .setColor("RED")
-      .setAuthor(
-        `Bad ${subjectType} tested "${subject.name}".`,
-        message.client.user?.displayAvatarURL()
-      )
+      .setAuthor({
+        name: `Bad ${subjectType} tested "${subject.name}".`,
+        iconURL: message.client.user?.displayAvatarURL(),
+      })
       .setDescription(errorMessage)
 
     if (subject.checkingErrorMessage) {
@@ -450,10 +450,10 @@ export async function castValue<Message extends command.NormalMessage>(
       if (typeof subject.castingErrorMessage === "string") {
         return new core.SafeMessageEmbed()
           .setColor("RED")
-          .setAuthor(
-            `Bad ${subjectType} type "${subject.name}".`,
-            message.client.user?.displayAvatarURL()
-          )
+          .setAuthor({
+            name: `Bad ${subjectType} type "${subject.name}".`,
+            iconURL: message.client.user?.displayAvatarURL(),
+          })
           .setDescription(
             subject.castingErrorMessage.replace(/@error/g, errorCode)
           )
@@ -464,10 +464,10 @@ export async function castValue<Message extends command.NormalMessage>(
 
     return new core.SafeMessageEmbed()
       .setColor("RED")
-      .setAuthor(
-        `Bad ${subjectType} type "${subject.name}".`,
-        message.client.user?.displayAvatarURL()
-      )
+      .setAuthor({
+        name: `Bad ${subjectType} type "${subject.name}".`,
+        iconURL: message.client.user?.displayAvatarURL(),
+      })
       .setDescription(
         `Cannot cast the value of the "${subject.name}" ${subjectType} to ${
           typeof subject.castValue === "function"
