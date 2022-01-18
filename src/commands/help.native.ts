@@ -7,7 +7,6 @@ export default new app.Command({
   longDescription: "Display all commands of bot or detail a target command.",
   channelType: "all",
   aliases: ["h", "usage", "detail", "details"],
-  botPermissions: ["SEND_MESSAGES"],
   positional: [
     {
       name: "command",
