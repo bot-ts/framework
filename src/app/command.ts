@@ -314,14 +314,12 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           trigger: false,
         })
       } else {
-        return new core.SafeMessageEmbed()
-          .setColor("RED")
-          .setAuthor({
-            name: `Please wait ${Math.ceil(
-              (coolDown.time + coolDownTime - Date.now()) / 1000
-            )} seconds...`,
-            iconURL: message.client.user.displayAvatarURL(),
-          })
+        return new core.SafeMessageEmbed().setColor("RED").setAuthor({
+          name: `Please wait ${Math.ceil(
+            (coolDown.time + coolDownTime - Date.now()) / 1000
+          )} seconds...`,
+          iconURL: message.client.user.displayAvatarURL(),
+        })
       }
     }
   } else {
