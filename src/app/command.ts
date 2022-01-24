@@ -790,28 +790,24 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
   cmd: Command<Type>
 ): Promise<void> {
-  let pattern = `${message.usedPrefix}${
-    cmd.options.isDefault
-      ? `[${commandBreadcrumb(cmd)}]`
-      : commandBreadcrumb(cmd)
-  }`
+  const embed = new core.SafeMessageEmbed()
+    .setColor()
+    .setAuthor({
+      name: "Command details",
+      iconURL: message.client.user.displayAvatarURL(),
+    })
+    .setDescription(
+      (await core.scrap(cmd.options.longDescription, message)) ??
+        cmd.options.description ??
+        "no description"
+    )
 
-  const positionalList: string[] = []
-  const argumentList: string[] = []
-  const flagList: string[] = []
-  let restPattern = ""
-
-  if (cmd.options.rest) {
-    const rest = await core.scrap(cmd.options.rest, message)
-    const dft =
-      rest.default !== undefined
-        ? `="${await core.scrap(rest.default, message)}"`
-        : ""
-
-    restPattern = (await core.scrap(rest.required, message))
-      ? `<...${rest.name}>`
-      : `[...${rest.name}${dft}]`
-  }
+  const title = [
+    message.usedPrefix +
+      (cmd.options.isDefault
+        ? `[${commandBreadcrumb(cmd)}]`
+        : commandBreadcrumb(cmd)),
+  ]
 
   if (cmd.options.positional) {
     const cmdPositional = await core.scrap(cmd.options.positional, message)
@@ -821,7 +817,8 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
         positional.default !== undefined
           ? `="${await core.scrap(positional.default, message)}"`
           : ""
-      positionalList.push(
+
+      title.push(
         (await core.scrap(positional.required, message)) && !dft
           ? `<${positional.name}>`
           : `[${positional.name}${dft}]`
@@ -829,7 +826,30 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
     }
   }
 
+  if (cmd.options.rest) {
+    const rest = await core.scrap(cmd.options.rest, message)
+    const dft =
+      rest.default !== undefined
+        ? `="${await core.scrap(rest.default, message)}"`
+        : ""
+
+    title.push(
+      (await core.scrap(rest.required, message))
+        ? `<...${rest.name}>`
+        : `[...${rest.name}${dft}]`
+    )
+  }
+
+  if (cmd.options.flags) {
+    for (const flag of cmd.options.flags) {
+      title.push(`[--${flag.name}]`)
+    }
+  }
+
   if (cmd.options.options) {
+    title.push("[OPTIONS]")
+
+    const options: string[] = []
     const cmdOptions = await core.scrap(cmd.options.options, message)
 
     for (const arg of cmdOptions) {
@@ -837,7 +857,8 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
         arg.default !== undefined
           ? `="${core.scrap(arg.default, message)}"`
           : ""
-      argumentList.push(
+
+      options.push(
         (await core.scrap(arg.required, message))
           ? `\`--${arg.name}${dft}\` (\`${argument.getCastingDescriptionOf(
               arg
@@ -847,13 +868,11 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
             )}\`) ${arg.description ?? ""}`
       )
     }
+
+    embed.addField("options", options.join("\n"), false)
   }
 
-  if (cmd.options.flags) {
-    for (const flag of cmd.options.flags) {
-      flagList.push(`[--${flag.name}]`)
-    }
-  }
+  embed.setTitle(title.join(" "))
 
   const specialPermissions = []
 
@@ -861,26 +880,6 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
     specialPermissions.push("BOT_OWNER")
   if (await core.scrap(cmd.options.guildOwnerOnly, message))
     specialPermissions.push("GUILD_OWNER")
-
-  const embed = new core.SafeMessageEmbed()
-    .setColor()
-    .setAuthor({
-      name: "Command details",
-      iconURL: message.client.user.displayAvatarURL(),
-    })
-    .setTitle(
-      `${pattern} ${[...positionalList, restPattern, ...flagList].join(" ")} ${
-        cmd.options ? "[OPTIONS]" : ""
-      }`
-    )
-    .setDescription(
-      (await core.scrap(cmd.options.longDescription, message)) ??
-        cmd.options.description ??
-        "no description"
-    )
-
-  if (argumentList.length > 0)
-    embed.addField("options", argumentList.join("\n"), false)
 
   if (cmd.options.aliases) {
     const aliases = cmd.options.aliases
@@ -957,7 +956,8 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
         )
       )
         .filter((line) => line.length > 0)
-        .join("\n") || "Sub commands are not accessible by you.",
+        .join("\n")
+        .trim() || "Sub commands are not accessible by you.",
       false
     )
 
