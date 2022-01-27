@@ -5,6 +5,7 @@
   "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
   "type": "module",
+  "style": "options",
   "scripts": {
     "build": "gulp build",
     "watch": "gulp watch",
@@ -64,7 +65,7 @@
     "gulp-esbuild": "^0.10.0",
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
-    "make-bot.ts": "^2.4.1",
+    "make-bot.ts": "2.4.1",
     "nodemon": "^2.0.15",
     "typescript": "^4.5.4",
     "vinyl-paths": "^4.0.0"
