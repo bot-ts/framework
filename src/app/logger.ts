@@ -48,7 +48,7 @@ export function success(text: string, section?: string) {
 export function createLogger(section: string) {
   return {
     log: (text: string) => log(text, section),
-    error: (text: string, full?: boolean) => error(text, section, full),
+    error: (text: string | Error, full?: boolean) => error(text, section, full),
     warn: (text: string) => warn(text, section),
     success: (text: string) => success(text, section),
   }
