@@ -1,5 +1,4 @@
 import discord from "discord.js"
-import type { FullClient } from "./app.js"
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
@@ -23,15 +22,14 @@ export const client = new discord.Client({
 const app = await import("./app.js")
 
 try {
-  await app.tableHandler.load(client as FullClient)
-  await app.commandHandler.load(client as FullClient)
-  await app.listenerHandler.load(client as FullClient)
-
   await client.login(process.env.BOT_TOKEN)
 
-  if (!app.isFullClient(client)) {
+  await app.tableHandler.load(client)
+  await app.commandHandler.load(client)
+  await app.listenerHandler.load(client)
+
+  if (!client.isReady()) {
     app.error("The Discord client is not full.", __filename)
-    client.destroy()
     process.exit(1)
   }
 } catch (error: any) {

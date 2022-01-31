@@ -44,6 +44,9 @@ export type AllClientEvents = discord.ClientEvents & MoreClientEvents
 export type Listener<EventName extends keyof AllClientEvents> = {
   event: EventName
   description: string
-  run: (this: core.FullClient, ...args: AllClientEvents[EventName]) => unknown
+  run: (
+    this: discord.Client<true>,
+    ...args: AllClientEvents[EventName]
+  ) => unknown
   once?: boolean
 }

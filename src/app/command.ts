@@ -62,7 +62,7 @@ export type NormalMessage = discord.Message & {
   isFromBotOwner: boolean
   isFromGuildOwner: boolean
   usedPrefix: string
-  client: core.FullClient
+  client: discord.Client<true>
   rest: string
 }
 

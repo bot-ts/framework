@@ -19,14 +19,6 @@ export function uptime(): number {
   return Date.now() - startedAt
 }
 
-export type FullClient = discord.Client & {
-  user: discord.ClientUser & { id: `${bigint}` }
-}
-
-export function isFullClient(client: discord.Client): client is FullClient {
-  return client.user?.id !== undefined
-}
-
 /**
  * Resolve `T` value from `T | (() => T)`
  * @param item - resolvable
