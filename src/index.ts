@@ -28,6 +28,8 @@ try {
   await app.commandHandler.load(client)
   await app.listenerHandler.load(client)
 
+  await app.reloadSlashCommands(client)
+
   if (!client.isReady()) {
     app.error("The Discord client is not full.", __filename)
     process.exit(1)

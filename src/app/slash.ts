@@ -1,70 +1,31 @@
-import * as discord from "discord.js"
-import * as api from "discord-api-types/v9"
-import axios from "axios"
+import * as app from "../app.js"
 
-import * as core from "./core.js"
-import * as logger from "./logger.js"
-import * as command from "./command.js"
-import { handler } from "../app.native.js"
-import path from "path"
+const rest = new app.rest.REST({ version: "9" }).setToken(
+  process.env.BOT_TOKEN as string
+)
 
-const apiURL = "https://discord.com/api/v9"
+export async function reloadSlashCommands(client: app.Client<true>) {
+  const slashCommands = await getSlashCommands()
+  const guilds = Array.from(client.guilds.cache.values())
 
-export interface ApplicationCommandOptions {
-  type: number
-  name: string
-  description: string
-  required?: boolean
-  choices?: string[] | number[]
-  autocomplete?: boolean
-  options?: ApplicationCommandOptions
-  channel_types?: number
-}
-
-export interface ApplicationCommandSlash {
-  name: string
-  description: string
-  options?: object | ApplicationCommandOptions
-  default_permission?: boolean
-  type?: number
-}
-
-export async function createSlashCommand(
-  clientId: string,
-  command: ApplicationCommandSlash,
-  guildId?: string
-) {
-  guildId
-    ? await axios.post(
-        apiURL + `/applications/${clientId}/guilds/${guildId}/commands`,
-        command,
-        { headers: { Authorization: `Bot ${process.env.BOT_TOKEN}` } }
-      )
-    : await axios.post(apiURL + `/applications/${clientId}/commands`, command, {
-        headers: { Authorization: `Bot ${process.env.BOT_TOKEN}` },
-      })
-  // Rajout du body de la command (name, desc, ect...)
-}
-
-export function getSlashCommands(data: {
-  clientId: string
-}): api.APIApplicationCommand[] {
-  const slashCommands: api.APIApplicationCommand[] = []
-  const commands = Array.from(command.commands.values()).filter(
-    (c) => c.options.isSlash
-  )
-
-  // todo: make recursive search for sub-slash-commands
-  for (const command of commands) {
-    slashCommands.push({
-      id: command.options.name,
-      name: command.options.name,
-      description: command.options.description,
-      application_id: data.clientId,
-      type: api.ApplicationCommandType.Message,
-      version: "1.0.0",
-    })
+  for (const guild of guilds) {
+    await rest.put(
+      app.api.Routes.applicationGuildCommands(client.user.id, guild.id),
+      { body: slashCommands }
+    )
   }
 
-  return slashCommands
+  app.log(`loaded ${slashCommands.length} slash commands`)
+}
+
+export async function getSlashCommands() {
+  return app.commands
+    .filter(
+      (
+        cmd
+      ): cmd is app.Command<any> & {
+        options: { slash: app.SlashCommandBuilder }
+      } => cmd.options.slash !== undefined
+    )
+    .map((cmd) => cmd.options.slash.toJSON())
 }

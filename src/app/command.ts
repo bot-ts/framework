@@ -1,15 +1,15 @@
 import discord from "discord.js"
-import API from "discord-api-types/v8"
 import chalk from "chalk"
 import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
+import * as builders from "@discordjs/builders"
 
 import * as core from "./core.js"
+import * as slash from "./slash.js"
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 import * as argument from "./argument.js"
-import * as slash from "./slash.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -66,7 +66,7 @@ export interface CommandContext {
   rest: string
 }
 
-export type NormalInteraction = discord.Interaction & CommandContext & {}
+export type BuffedInteraction = discord.Interaction & CommandContext & {}
 
 export type NormalMessage = discord.Message &
   CommandContext & {
@@ -125,14 +125,9 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    */
   longDescription?: core.Scrap<string, [message: CommandMessageType[Type]]>
   /**
-   * Use this command if prefix is given but without command matching
+   * Use this command if prefix is given but without command name match
    */
   isDefault?: boolean
-  /**
-   * Use this command as slash command
-   */
-  isSlash?: boolean
-  guildSlash?: string
   aliases?: string[]
   /**
    * Cool down of command (in ms)
@@ -183,15 +178,14 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
   flags?: argument.Flag<CommandMessageType[Type]>[]
-  run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
   /**
    * Sub-commands
    */
-  subs?: (Command<"guild"> | Command<"dm"> | Command)[]
+  subs?: Command<keyof CommandMessageType>[]
   /**
    * This slash command options are automatically setup on bot running, but you can configure it manually too.
    */
-  slash?: API.RESTPostAPIApplicationCommandsJSONBody
+  slash?: builders.SlashCommandBuilder
   /**
    * This property is automatically setup on bot running.
    * @deprecated
@@ -203,6 +197,10 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    */
   native?: boolean
   tests?: CommandTest[]
+  run: (
+    this: Command<Type>,
+    message: CommandMessageType[Type] | BuffedInteraction
+  ) => unknown
 }
 
 export class Command<Type extends keyof CommandMessageType = "all"> {

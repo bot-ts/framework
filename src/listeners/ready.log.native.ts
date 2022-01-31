@@ -13,26 +13,6 @@ const listener: app.Listener<"ready"> = {
   description: "Just log that bot is ready",
   once: true,
   async run(client) {
-    app.commands.forEach((cmd) => {
-      if (cmd.options.isSlash) {
-        if (cmd.options.guildSlash) {
-          app.slash.createSlashCommand(
-            client.user.id,
-            {
-              name: cmd.options.name,
-              description: cmd.options.description,
-            },
-            cmd.options.guildSlash
-          )
-        } else {
-          app.slash.createSlashCommand(client.user.id, {
-            name: cmd.options.name,
-            description: cmd.options.description,
-          })
-        }
-      }
-    })
-
     app.log(
       `Ok i'm ready! ${chalk.blue(
         "My default prefix is"
