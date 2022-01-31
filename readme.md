@@ -9,8 +9,8 @@
     <a href="https://discord.gg/3vC2XWK"><img src="https://img.shields.io/discord/507389389098188820?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
     <a href="https://www.npmjs.com/package/make-bot.ts"><img src="https://img.shields.io/npm/v/make-bot.ts.svg?maxAge=3600" alt="CLI version" /></a>
     <a href="https://www.npmjs.com/package/make-bot.ts"><img src="https://img.shields.io/npm/dt/make-bot.ts.svg?maxAge=3600" alt="CLI downloads" /></a>
-    <a href="https://github.com/CamilleAbella/bot.ts/actions/workflows/test.yml"><img src="https://github.com/CamilleAbella/bot.ts/actions/workflows/test.yml/badge.svg" alt="Build status" /></a>
-    <a href="https://david-dm.org/CamilleAbella/bot.ts"><img src="https://img.shields.io/david/camilleabella/bot.ts" alt="Dependencies" /></a>
+    <a href="https://github.com/CamilleAbella/bot.ts/actions/workflows/tests.native.yml"><img src="https://github.com/CamilleAbella/bot.ts/actions/workflows/tests.native.yml/badge.svg?branch=master" alt="Tests" /></a>
+    <img alt="Dependency status" src="https://img.shields.io/librariesio/github/CamilleAbella/bot.ts">
   </div>
 </div>
 
@@ -26,7 +26,7 @@
 * [Yargs](http://yargs.js.org/) based argument system for commands.
 * Some essential [commands](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands) and [listeners](https://github.com/CamilleAbella/bot.ts/blob/master/src/listeners). \(including an advanced "eval" command\)
 * Some scripts in [package.json](https://github.com/CamilleAbella/bot.ts/blob/master/package.json). \(including a TypeScript watcher\)
-* [Knex](http://knexjs.org/) database provider [here](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3).
+* [Knex](http://knexjs.org/) database provider [here](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3). \(including data migrations\)
 * Efficient [pagination](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands/help.native.ts#L34) command\)
 * [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms.
 * Faster [Gulp](https://gulpjs.com/) based file watcher.

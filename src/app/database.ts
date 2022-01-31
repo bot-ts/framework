@@ -1,30 +1,6 @@
-import knex, { Knex } from "knex"
+import knex from "knex"
 import path from "path"
-import chalk from "chalk"
 import fs from "fs"
-
-import * as logger from "./logger.js"
-import * as handler from "./handler.js"
-
-export const tableHandler = new handler.Handler(
-  process.env.BOT_TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
-)
-
-tableHandler.once("finish", async (pathList) => {
-  const tables = await Promise.all(
-    pathList.map(async (filepath) => {
-      const tableFile = await import("file://" + filepath)
-      return tableFile.default
-    })
-  )
-  return Promise.all(
-    tables
-      .sort((a, b) => {
-        return (b.options.priority ?? 0) - (a.options.priority ?? 0)
-      })
-      .map((table) => table.make())
-  )
-})
 
 const dataDirectory = path.join(process.cwd(), "data")
 
@@ -42,38 +18,3 @@ export const db = knex({
     filename: path.join(dataDirectory, "sqlite3.db"),
   },
 })
-
-export interface TableOptions {
-  name: string
-  description: string
-  priority?: number
-  setup: (table: Knex.CreateTableBuilder) => void
-}
-
-export class Table<Type> {
-  constructor(public readonly options: TableOptions) {}
-
-  get query() {
-    return db<Type>(this.options.name)
-  }
-
-  async make(): Promise<this> {
-    try {
-      await db.schema.createTable(this.options.name, this.options.setup)
-      logger.log(
-        `created table ${chalk.blueBright(this.options.name)} ${chalk.grey(
-          this.options.description
-        )}`
-      )
-    } catch (error) {
-      logger.log(
-        `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
-          this.options.description
-        )}`
-      )
-    }
-    return this
-  }
-}
-
-export const tables = new Map<string, Table<any>>()

@@ -1,7 +1,7 @@
 import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
-import apiTypes from "discord-api-types/v8"
+import apiTypes from "discord-api-types/v8.js"
 
 import * as core from "./core.js"
 import * as logger from "./logger.js"
@@ -20,16 +20,18 @@ listenerHandler.on("load", async (filepath, client) => {
     try {
       await listener.run.bind(client)(...args)
     } catch (error: any) {
-      logger.error(error, "listener:handling:" + listener.event)
+      logger.error(error, filepath, true)
     }
   })
+
+  const sub = path.basename(filepath, ".js").replace(`${listener.event}.`, "")
 
   logger.log(
     `loaded listener ${chalk.yellow(
       listener.once ? "once" : "on"
-    )} ${chalk.blueBright(listener.event)} ${chalk.green(
-      path.basename(filepath, ".js").replace(`${listener.event}.`, "")
-    )} ${chalk.grey(listener.description)}`
+    )} ${chalk.blueBright(listener.event)}${
+      sub !== listener.event ? ` ${chalk.green(sub)}` : ""
+    } ${chalk.grey(listener.description)}`
   )
 })
 
@@ -42,6 +44,9 @@ export type AllClientEvents = discord.ClientEvents & MoreClientEvents
 export type Listener<EventName extends keyof AllClientEvents> = {
   event: EventName
   description: string
-  run: (this: core.FullClient, ...args: AllClientEvents[EventName]) => unknown
+  run: (
+    this: discord.Client<true>,
+    ...args: AllClientEvents[EventName]
+  ) => unknown
   once?: boolean
 }

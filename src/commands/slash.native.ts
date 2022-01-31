@@ -9,5 +9,5 @@ export default new app.Command({
   async run(message) {
     // todo: code here
     return message.reply("slash.native command is not yet implemented.")
-  }
+  },
 })

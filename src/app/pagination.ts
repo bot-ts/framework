@@ -1,43 +1,48 @@
-import events from "events"
 import discord from "discord.js"
-import * as core from "./core.js"
+
 import * as logger from "./logger.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
+export type PaginatorKey = "previous" | "next" | "start" | "end"
+
 /** As Snowflakes or icons */
-export interface PaginatorEmojis {
-  previous: string
-  next: string
-  start: string
-  end: string
-}
+export type PaginatorEmojis = Record<PaginatorKey, string>
+export type PaginatorLabels = Record<PaginatorKey, string>
 
 export type Page = discord.MessageEmbed | string
 
-export interface PaginatorOptions<Data = undefined> {
-  data?: Data
-  pages: Page[] | ((pageIndex: number, data: Data) => Promise<Page> | Page)
-  pageCount?: number
-  channel:
-    | discord.TextChannel
-    | discord.DMChannel
-    | discord.NewsChannel
-    | discord.TextBasedChannels
+export interface PaginatorOptions {
+  useReactions?: boolean
+  useButtonLabels?: boolean
+  buttonStyle?: discord.MessageButtonStyleResolvable
+  channel: discord.TextBasedChannel
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) => boolean
-  idleTime?: number | "none"
+  idleTime?: number
+  customLabels?: Partial<PaginatorLabels>
   customEmojis?: Partial<PaginatorEmojis>
   placeHolder?: Page
 }
 
-export class Paginator extends events.EventEmitter {
+export interface DynamicPaginatorOptions {
+  fetchPage: (pageIndex: number) => Promise<Page> | Page
+  fetchPageCount: () => Promise<number> | number
+}
+
+export interface StaticPaginatorOptions {
+  pages: (Page | Promise<Page>)[]
+}
+
+export abstract class Paginator {
+  static defaults: Partial<PaginatorOptions> = {}
   static instances: Paginator[] = []
-
-  private _pageIndex = 0
-  private _deactivation?: NodeJS.Timeout
-  private _messageID: string | undefined
-
+  static defaultPlaceHolder = "Oops, no data found"
+  static keys: PaginatorKey[] = ["start", "previous", "next", "end"]
   static defaultEmojis: PaginatorEmojis = {
     previous: "◀️",
     next: "▶️",
@@ -45,162 +50,255 @@ export class Paginator extends events.EventEmitter {
     end: "⏩",
   }
 
+  protected _pageIndex = 0
+  protected _deactivation?: NodeJS.Timeout
+  protected _messageID: string | undefined
+
   public emojis: PaginatorEmojis
 
-  get pageIndex(): number {
-    return this._pageIndex
-  }
-
-  get messageID() {
-    return this._messageID
-  }
-
-  get pageCount(): number {
-    return Array.isArray(this.options.pages)
-      ? this.options.pages.length
-      : this.options.pageCount ?? -1
-  }
-
-  constructor(public readonly options: PaginatorOptions) {
-    super()
-
-    options.idleTime ??= 60000
-
-    if (Array.isArray(options.pages)) {
-      if (options.pages.length === 0) {
-        options.pages.push(options.placeHolder ?? "Oops, no data found.")
-      }
-    }
-
-    if (options.customEmojis)
-      this.emojis = Object.assign(Paginator.defaultEmojis, options.customEmojis)
+  protected constructor(public readonly options: PaginatorOptions) {
+    if (options.customEmojis || Paginator.defaults.customEmojis)
+      this.emojis = Object.assign(
+        Paginator.defaultEmojis,
+        options.customEmojis ?? Paginator.defaults.customEmojis
+      )
     else this.emojis = Paginator.defaultEmojis
 
-    this._deactivation = this.resetDeactivationTimeout()
+    this.resetDeactivationTimeout()
 
-    this.getCurrentPage().then(async (page) => {
-      const message =
-        typeof page === "string"
-          ? await options.channel.send(page)
-          : await options.channel.send({ embeds: [page] })
+    Promise.resolve(this.getCurrentPage())
+      .then(async (page) => {
+        const message = await options.channel.send(await this.formatPage(page))
 
-      this._messageID = message.id
+        this._messageID = message.id
 
-      if (this.pageCount > 1 || this.pageCount === -1)
-        for (const key of ["start", "previous", "next", "end"])
-          await message.react(this.emojis[key as keyof PaginatorEmojis])
-    })
+        const pageCount = await this.getPageCount()
+
+        if (
+          (options.useReactions ?? Paginator.defaults.useReactions) &&
+          pageCount > 1
+        )
+          for (const key of Paginator.keys)
+            await message.react(this.emojis[key])
+      })
+      .catch((error) => logger.error(error, __filename, true))
 
     Paginator.instances.push(this)
   }
 
-  private render() {
-    this.getCurrentPage().then((page) => {
-      if (this.messageID)
-        if (typeof page === "string") {
-          this.options.channel.messages.cache
-            .get(this.messageID)
-            ?.edit(page)
-            .catch(logger.error)
-        } else {
-          this.options.channel.messages.cache
-            .get(this.messageID)
-            ?.edit({ embeds: [page] })
-            .catch(logger.error)
-        }
-    })
+  protected async getComponents(disabled?: boolean) {
+    const pageCount = await this.getPageCount()
+
+    return (this.options.useReactions ?? Paginator.defaults.useReactions) ||
+      pageCount < 2
+      ? undefined
+      : [
+          new discord.MessageActionRow().addComponents(
+            Paginator.keys.map((key) => {
+              const button = new discord.MessageButton()
+                .setCustomId("pagination-" + key)
+                .setStyle(
+                  this.options.buttonStyle ??
+                    Paginator.defaults.buttonStyle ??
+                    "SECONDARY"
+                )
+
+              if (
+                this.options.useButtonLabels ??
+                Paginator.defaults.useButtonLabels
+              )
+                button.setLabel(
+                  this.options.customLabels?.[key] ??
+                    Paginator.defaults.customLabels?.[key] ??
+                    key
+                )
+              else button.setEmoji(this.emojis[key])
+
+              button.setDisabled(
+                disabled ||
+                  (key === "start" && this._pageIndex === 0) ||
+                  (key === "end" && this._pageIndex === pageCount - 1)
+              )
+
+              return button
+            })
+          ),
+        ]
   }
 
-  public handleReaction(
+  protected async formatPage(page: Page, withoutComponents?: true) {
+    const components = withoutComponents
+      ? undefined
+      : await this.getComponents()
+
+    return typeof page === "string"
+      ? { content: page, components }
+      : { embeds: [page], components }
+  }
+
+  protected abstract getCurrentPage(): Promise<Page> | Page
+  protected abstract getPageCount(): Promise<number> | number
+
+  public async handleInteraction(interaction: discord.ButtonInteraction) {
+    const key = interaction.customId.replace("pagination-", "") as PaginatorKey
+
+    await this.updatePageIndex(key)
+
+    await interaction
+      .update(await this.formatPage(await this.getCurrentPage()))
+      .catch((error) => logger.error(error, __filename, true))
+  }
+
+  public async handleReaction(
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) {
-    if (this.options.filter && !this.options.filter(reaction, user)) return
+    reaction.users.remove(user as discord.User).catch()
+
+    const filter = this.options.filter ?? Paginator.defaults.filter
+
+    if (filter && !filter(reaction, user)) return
 
     const { emoji } = reaction
     const emojiID = emoji.id || emoji.name
 
-    let currentKey: keyof PaginatorEmojis | null = null
-    for (const key in this.emojis) {
-      if (this.emojis[key as keyof PaginatorEmojis] === emojiID) {
-        currentKey = key as keyof PaginatorEmojis
-      }
-    }
+    let currentKey: PaginatorKey | null = null
 
-    if (currentKey) {
-      switch (currentKey) {
+    for (const key of Paginator.keys)
+      if (this.emojis[key] === emojiID) currentKey = key
+
+    const updated = await this.updatePageIndex(currentKey)
+
+    if (updated) {
+      if (this._messageID)
+        await this.options.channel.messages.cache
+          .get(this._messageID)
+          ?.edit(await this.formatPage(await this.getCurrentPage()))
+          .catch((error: any) => logger.error(error, __filename, true))
+    }
+  }
+
+  private async updatePageIndex(key: PaginatorKey | null): Promise<boolean> {
+    this.resetDeactivationTimeout()
+
+    const pageCount = await this.getPageCount()
+
+    if (key) {
+      switch (key) {
         case "start":
           this._pageIndex = 0
           break
         case "end":
-          if (this.pageCount === -1) return
-          this._pageIndex = this.pageCount - 1
+          if (pageCount === -1) return false
+          this._pageIndex = pageCount - 1
           break
         case "next":
           this._pageIndex++
-          if (this.pageCount !== -1 && this.pageIndex > this.pageCount - 1) {
+          if (pageCount !== -1 && this._pageIndex > pageCount - 1) {
             this._pageIndex = 0
           }
           break
         case "previous":
           this._pageIndex--
-          if (this.pageCount !== -1) {
-            if (this.pageIndex < 0) {
-              this._pageIndex = this.pageCount - 1
+          if (pageCount !== -1) {
+            if (this._pageIndex < 0) {
+              this._pageIndex = pageCount - 1
             }
           } else {
             this._pageIndex = 0
           }
       }
 
-      this.render()
-
-      this._deactivation = this.resetDeactivationTimeout()
-
-      reaction.users.remove(user as discord.User).catch()
+      return true
     }
+
+    return false
   }
 
   private resetDeactivationTimeout() {
-    if (this.options.idleTime === "none") return
     clearTimeout(this._deactivation as NodeJS.Timeout)
-    return setTimeout(() => this.deactivate().catch(), this.options.idleTime)
-  }
-
-  private async getCurrentPage() {
-    if (Array.isArray(this.options.pages)) {
-      return this.options.pages[this.pageIndex]
-    }
-
-    const page = await this.options.pages(this.pageIndex, this.options.data)
-
-    return page || this.options.placeHolder || "Oops, no data found"
+    this._deactivation = setTimeout(
+      () => this.deactivate().catch(),
+      this.options.idleTime ?? Paginator.defaults.idleTime ?? 60000
+    )
   }
 
   public async deactivate() {
-    if (!this.messageID) return
+    if (!this._messageID) return
 
     clearTimeout(this._deactivation as NodeJS.Timeout)
 
-    // remove reactions if message is not deleted and if is in guild
     const message = await this.options.channel.messages.cache.get(
-      this.messageID
+      this._messageID
     )
-    if (message && message.channel.isText())
-      await message.reactions?.removeAll()
 
-    Paginator.instances = Paginator.instances.filter((paginator) => {
-      return paginator.messageID !== this.messageID
-    })
+    // if message is not deleted
+    if (message && !message.deletable)
+      if (this.options.useReactions ?? Paginator.defaults.useReactions)
+        await message.reactions?.removeAll().catch()
+      else {
+        // await this._interaction?.editReply(
+        //   await this.formatPage(
+        //     await this.getCurrentPage()
+        //   )
+        // )
+      }
+
+    Paginator.instances = Paginator.instances.filter(
+      (paginator) => paginator._messageID !== this._messageID
+    )
   }
 
   public static getByMessage(
-    message: discord.Message | discord.PartialMessage
+    message:
+      | discord.PartialMessage
+      | discord.ButtonInteraction<discord.CacheType>["message"]
   ): Paginator | undefined {
-    return this.instances.find((paginator) => {
-      return paginator.messageID === message.id
-    })
+    return this.instances.find(
+      (paginator) => paginator._messageID === message.id
+    )
+  }
+}
+
+export class DynamicPaginator extends Paginator {
+  constructor(
+    public readonly options: PaginatorOptions & DynamicPaginatorOptions
+  ) {
+    super(options)
   }
 
-  public static divider = core.divider
+  protected getPageCount() {
+    return this.options.fetchPageCount()
+  }
+
+  protected async getCurrentPage(): Promise<Page> {
+    return (
+      (await this.options.fetchPage(this._pageIndex)) ||
+      this.options.placeHolder ||
+      Paginator.defaultPlaceHolder
+    )
+  }
+}
+
+export class StaticPaginator extends Paginator {
+  constructor(
+    public readonly options: PaginatorOptions & StaticPaginatorOptions
+  ) {
+    super(options)
+
+    if (options.pages.length === 0)
+      options.pages.push(options.placeHolder ?? Paginator.defaultPlaceHolder)
+  }
+
+  protected getPageCount(): number {
+    return this.options.pages.length
+  }
+
+  protected getCurrentPage(): Promise<Page> | Page {
+    return (
+      this.options.pages[this._pageIndex] ||
+      this.options.placeHolder ||
+      Paginator.defaultPlaceHolder
+    )
+  }
 }

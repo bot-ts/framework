@@ -1,5 +1,8 @@
 import * as app from "../app.js"
 import yargsParser from "yargs-parser"
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
@@ -10,13 +13,15 @@ const listener: app.Listener<"messageCreate"> = {
     const prefix = await app.prefix(message.guild ?? undefined)
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
-      return message.channel.send({
-        embeds: [
-          new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setDescription(`My prefix is \`${prefix}\``),
-        ],
-      })
+      return message.channel
+        .send({
+          embeds: [
+            new app.SafeMessageEmbed()
+              .setColor()
+              .setDescription(`My prefix is \`${prefix}\``),
+          ],
+        })
+        .catch()
 
     message.usedAsDefault = false
 
@@ -144,14 +149,14 @@ const listener: app.Listener<"messageCreate"> = {
     })
 
     if (typeof prepared !== "boolean")
-      return message.channel.send({ embeds: [prepared] })
+      return message.channel.send({ embeds: [prepared] }).catch()
 
     if (!prepared) return
 
     try {
       await cmd.options.run.bind(cmd)(message)
     } catch (error: any) {
-      app.error(error, "messageCreate.native", true)
+      app.error(error, cmd.filepath ?? __filename, true)
       message.channel
         .send(
           app.code.stringify({
@@ -162,7 +167,7 @@ const listener: app.Listener<"messageCreate"> = {
           })
         )
         .catch((error) => {
-          app.error(error, "messageCreate.native")
+          app.error(error, cmd.filepath ?? __filename, true)
         })
     }
   },

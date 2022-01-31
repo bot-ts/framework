@@ -12,8 +12,12 @@ import cp from "child_process"
 import path from "path"
 import fs from "fs"
 
+import { dirname } from "dirname-filename-esm"
+
+const __dirname = dirname(import.meta)
+
 function _gitLog(cb) {
-  const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
+  const newVersion = git({ cwd: path.join(__dirname, "temp") })
 
   log(
     [
@@ -42,13 +46,13 @@ function _checkGulpfile(cb) {
     .then((res) => res.data)
     .then(async (remote) => {
       const local = await fs.promises.readFile(
-        path.join(process.cwd(), "Gulpfile.js"),
+        path.join(__dirname, "Gulpfile.js"),
         "utf8"
       )
 
       if (remote !== local) {
         await fs.promises.writeFile(
-          path.join(process.cwd(), "Gulpfile.js"),
+          path.join(__dirname, "Gulpfile.js"),
           remote,
           "utf8"
         )
@@ -89,11 +93,11 @@ function _watch(cb) {
   const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
 
   spawn.stdout.on("data", (data) => {
-    console.log(chalk.white(`${data}`.trim()))
+    console.log(`${data}`.trim())
   })
 
   spawn.stderr.on("data", (data) => {
-    console.error(chalk.red(`${data}`.trim()))
+    console.error(`${data}`.trim())
   })
 
   spawn.on("close", () => cb())
@@ -110,12 +114,15 @@ function _copyTemp() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
+        "temp/.github/workflows/**/*.native.*",
+        "temp/template.env",
         "temp/tsconfig.json",
+        "temp/tests/**/*.js",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" }
     )
-    .pipe(gulp.dest(process.cwd(), { overwrite: true }))
+    .pipe(gulp.dest(__dirname, { overwrite: true }))
 }
 
 function _updateDependencies(cb) {
@@ -149,8 +156,8 @@ function _updateDependencies(cb) {
           `Updated  '${chalk.cyan(key)}' [${
             dependencies[key]
               ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
-                  newDependencies[key]
-                )}`
+                newDependencies[key]
+              )}`
               : chalk.blueBright(newDependencies[key])
           }]`
         )
@@ -183,11 +190,18 @@ function _updateDatabaseFile() {
 
 function _removeDuplicates() {
   return gulp
-    .src(["src/**/*.native.ts", "!src/app.native.ts"])
+    .src([
+      "src/**/*.native.ts",
+      "!src/app.native.ts",
+      "temp/.github/workflows/**/*.native.*",
+    ])
     .pipe(
       filter((file) =>
         fs.existsSync(
-          path.join(file.dirname, file.basename.replace("native.ts", "ts"))
+          path.join(
+            file.dirname,
+            file.basename.replace(".native" + file.extname, file.extname)
+          )
         )
       )
     )

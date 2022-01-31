@@ -1,5 +1,7 @@
-import * as app from "../app.js"
 import cp from "child_process"
+
+import * as app from "../app.js"
+import * as core from "../app/core.js"
 
 export default new app.Command({
   name: "terminal",
@@ -18,7 +20,11 @@ export default new app.Command({
     message.triggerCoolDown()
 
     const toEdit = await message.channel.send({
-      embeds: [new app.MessageEmbed().setTitle("The process is running...")],
+      embeds: [
+        new core.SafeMessageEmbed()
+          .setColor()
+          .setTitle("The process is running..."),
+      ],
     })
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
@@ -26,9 +32,11 @@ export default new app.Command({
         ? err.stack ?? err.message
         : stderr.trim() || stdout || null
 
-      const embed = new app.MessageEmbed().setTitle(
-        err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
-      )
+      const embed = new core.SafeMessageEmbed()
+        .setColor(err ? "RED" : "BLURPLE")
+        .setTitle(
+          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
+        )
 
       if (output)
         embed.setDescription(

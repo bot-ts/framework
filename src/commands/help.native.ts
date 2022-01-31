@@ -1,12 +1,12 @@
 import * as app from "../app.js"
+import * as core from "../app/core.js"
 
 export default new app.Command({
   name: "help",
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
   channelType: "all",
-  aliases: ["h", "usage"],
-  botPermissions: ["SEND_MESSAGES"],
+  aliases: ["h", "usage", "detail", "details"],
   positional: [
     {
       name: "command",
@@ -22,7 +22,7 @@ export default new app.Command({
       } else {
         await message.channel.send({
           embeds: [
-            new app.MessageEmbed()
+            new core.SafeMessageEmbed()
               .setColor("RED")
               .setAuthor(
                 `Unknown command "${message.args.command}"`,
@@ -32,8 +32,8 @@ export default new app.Command({
         })
       }
     } else {
-      new app.Paginator({
-        pages: await app.Paginator.divider(
+      new app.StaticPaginator({
+        pages: await app.divider(
           (
             await Promise.all(
               app.commands.map(async (cmd) => {
@@ -45,8 +45,8 @@ export default new app.Command({
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.MessageEmbed()
-              .setColor("BLURPLE")
+            return new app.SafeMessageEmbed()
+              .setColor()
               .setAuthor(
                 "Command list",
                 message.client.user?.displayAvatarURL()
