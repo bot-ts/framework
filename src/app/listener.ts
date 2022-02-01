@@ -3,9 +3,9 @@ import path from "path"
 import chalk from "chalk"
 import apiTypes from "discord-api-types/v8.js"
 
-import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
+import * as core from "./core.js"
 
 export const listenerHandler = new handler.Handler(
   process.env.BOT_LISTENERS_PATH ??
