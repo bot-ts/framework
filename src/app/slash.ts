@@ -1,11 +1,8 @@
 import * as app from "../app.js"
 
-import { filename } from "dirname-filename-esm"
 import { REST } from "@discordjs/rest"
 
 import chalk from "chalk"
-
-const __filename = filename(import.meta)
 
 const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string
@@ -42,7 +39,14 @@ export async function getSlashCommands() {
   return app.commands
     .map((cmd) => cmd.options.slash)
     .filter(app.isDefined)
-    .map((slash) => {
-      if (slash !== true) slash.toJSON()
-    })
+    .filter(
+      (
+        slash
+      ): slash is
+        | app.SlashCommandBuilder
+        | app.SlashCommandSubcommandBuilder
+        | app.SlashCommandSubcommandGroupBuilder
+        | app.SlashCommandOptionsOnlyBuilder => slash !== true
+    )
+    .map((slash) => slash.toJSON())
 }
