@@ -130,6 +130,8 @@ const listener: app.Listener<"messageCreate"> = {
     const parsedArgs = yargsParser(dynamicContent)
     const restPositional = parsedArgs._.slice() ?? []
 
+    message.isMessage = true
+    message.isInteraction = false
     message.args = (parsedArgs._?.slice(0) ?? []).map((positional) => {
       if (/^(?:".+"|'.+')$/.test(positional))
         return positional.slice(1, positional.length - 1)

@@ -13,6 +13,8 @@ const listener: app.Listener<"ready"> = {
   description: "Just log that bot is ready",
   once: true,
   async run(client) {
+    await app.reloadSlashCommands(client)
+
     app.log(
       `Ok i'm ready! ${chalk.blue(
         "My default prefix is"

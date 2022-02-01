@@ -6,11 +6,26 @@ const listener: app.Listener<"interactionCreate"> = {
   async run(interaction) {
     if (!interaction.isCommand()) return
 
-    let cmd: app.Command<any> = app.commands.resolve(
-      interaction.commandName
-    ) as app.Command<any>
+    let cmd: app.Command<
+      keyof app.CommandMessageType,
+      app.SlashCommandBuilder
+    > = app.commands.resolve(interaction.commandName) as app.Command<
+      keyof app.CommandMessageType,
+      app.SlashCommandBuilder
+    >
 
-    cmd.options.run.bind(cmd)(interaction)
+    // @ts-ignore
+    const ctx: app.BuffedInteraction = {
+      ...interaction,
+      isInteraction: true,
+      isMessage: false,
+      args: [],
+      rest: "",
+      isFromBotOwner: interaction.user.id === process.env.BOT_OWNER,
+      isFromGuildOwner: interaction.user.id === interaction.guild?.ownerId,
+    }
+
+    cmd.options.run.bind(cmd)(ctx)
   },
 }
 

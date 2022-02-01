@@ -1,12 +1,11 @@
 import discord from "discord.js"
 import chalk from "chalk"
-import tims from "tims"
+import time from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
 import * as builders from "@discordjs/builders"
 
 import * as core from "./core.js"
-import * as slash from "./slash.js"
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 import * as argument from "./argument.js"
@@ -30,9 +29,16 @@ export let defaultCommand: Command<any> | null = null
 
 export const commands = new (class CommandCollection extends discord.Collection<
   string,
-  Command<keyof CommandMessageType>
+  Command<keyof CommandMessageType, undefined | builders.SlashCommandBuilder>
 > {
-  public resolve(key: string): Command<keyof CommandMessageType> | undefined {
+  public resolve(
+    key: string
+  ):
+    | Command<
+        keyof CommandMessageType,
+        undefined | builders.SlashCommandBuilder
+      >
+    | undefined {
     for (const [name, command] of this) {
       if (
         key === name ||
@@ -48,29 +54,37 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
+export type SlashType = undefined | builders.SlashCommandBuilder
+
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export interface CommandContext {
+  client: discord.Client<true>
   args: { [name: string]: any } & any[]
-  triggerCoolDown: () => void
-  send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
-  sendTimeout: (
-    this: NormalMessage,
-    timeout: number,
-    item: SentItem
-  ) => Promise<discord.Message>
-  usedAsDefault: boolean
   isFromBotOwner: boolean
   isFromGuildOwner: boolean
-  client: discord.Client<true>
   rest: string
 }
 
-export type BuffedInteraction = discord.Interaction & CommandContext & {}
+export type BuffedInteraction = discord.CommandInteraction &
+  CommandContext & {
+    isInteraction: true
+    isMessage: false
+  }
 
 export type NormalMessage = discord.Message &
   CommandContext & {
+    usedAsDefault: boolean
     usedPrefix: string
+    isInteraction: false
+    isMessage: true
+    triggerCoolDown: () => void
+    send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
+    sendTimeout: (
+      this: NormalMessage,
+      timeout: number,
+      item: SentItem
+    ) => Promise<discord.Message>
   }
 
 export type GuildMessage = NormalMessage & {
@@ -112,7 +126,10 @@ export interface CommandTest {
   ) => Promise<void | string>
 }
 
-export interface CommandOptions<Type extends keyof CommandMessageType> {
+export interface CommandOptions<
+  Type extends keyof CommandMessageType,
+  Slash extends SlashType = undefined
+> {
   channelType?: Type
 
   name: string
@@ -185,7 +202,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * This slash command options are automatically setup on bot running, but you can configure it manually too.
    */
-  slash?: builders.SlashCommandBuilder
+  slash?: Slash
   /**
    * This property is automatically setup on bot running.
    * @deprecated
@@ -198,15 +215,20 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   native?: boolean
   tests?: CommandTest[]
   run: (
-    this: Command<Type>,
-    message: CommandMessageType[Type] | BuffedInteraction
+    this: Command<Type, Slash>,
+    message: Slash extends builders.SlashCommandBuilder
+      ? CommandMessageType[Type] | BuffedInteraction
+      : CommandMessageType[Type]
   ) => unknown
 }
 
-export class Command<Type extends keyof CommandMessageType = "all"> {
+export class Command<
+  Type extends keyof CommandMessageType = "all",
+  Slash extends SlashType = undefined
+> {
   filepath?: string
 
-  constructor(public options: CommandOptions<Type>) {}
+  constructor(public options: CommandOptions<Type, Slash>) {}
 }
 
 export function validateCommand<
@@ -269,7 +291,7 @@ export function validateCommand<
 }
 
 export function commandBreadcrumb<Type extends keyof CommandMessageType>(
-  command: Command<Type>,
+  command: Command<Type, SlashType>,
   separator = " "
 ): string {
   return commandParents(command)
@@ -279,8 +301,8 @@ export function commandBreadcrumb<Type extends keyof CommandMessageType>(
 }
 
 export function commandParents<Type extends keyof CommandMessageType>(
-  command: Command<Type>
-): Command<any>[] {
+  command: Command<Type, SlashType>
+): Command<any, SlashType>[] {
   return command.options.parent
     ? [command, ...commandParents(command.options.parent)]
     : [command]
@@ -288,7 +310,7 @@ export function commandParents<Type extends keyof CommandMessageType>(
 
 export async function prepareCommand<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
-  cmd: Command<Type>,
+  cmd: Command<Type, SlashType>,
   context?: {
     restPositional: string[]
     baseContent: string
@@ -794,7 +816,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
 export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
-  cmd: Command<Type>
+  cmd: Command<Type, SlashType>
 ): Promise<void> {
   const embed = new core.SafeMessageEmbed()
     .setColor()
@@ -946,7 +968,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   if (cmd.options.coolDown) {
     const coolDown = await core.scrap(cmd.options.coolDown, message)
 
-    embed.addField("cool down", tims.duration(coolDown), true)
+    embed.addField("cool down", time.duration(coolDown), true)
   }
 
   if (cmd.options.subs)
@@ -977,7 +999,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
 
 export function commandToListItem<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
-  cmd: Command<Type>
+  cmd: Command<Type, SlashType>
 ): string {
   return `**${message.usedPrefix}${commandBreadcrumb(cmd, " ")}** - ${
     cmd.options.description ?? "no description"

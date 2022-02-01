@@ -7,5 +7,11 @@ export default new app.Command({
   slash: new app.SlashCommandBuilder()
     .setName("slash")
     .setDescription("test slash command"),
-  async run(message) {},
+  async run(context) {
+    if (context.isMessage) {
+      return context.send("Coucou ça fonctionne")
+    } else {
+      await context.reply("Coucou ça fonctionne")
+    }
+  },
 })

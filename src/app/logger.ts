@@ -1,5 +1,6 @@
 import chalk from "chalk"
 import dayjs from "dayjs"
+import path from "path"
 
 export const logLevelColors = {
   warn: "#ffa600",
@@ -31,7 +32,7 @@ export function error(text: string | Error, _path: string, full?: boolean) {
     loggerPattern(
       text instanceof Error ? text.message.split("\n")[0] : text,
       "error",
-      _path
+      path.relative(process.cwd(), _path)
     )
   )
   if (full && text instanceof Error) console.error(text)

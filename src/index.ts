@@ -22,18 +22,11 @@ export const client = new discord.Client({
 const app = await import("./app.js")
 
 try {
-  await client.login(process.env.BOT_TOKEN)
-
   await app.tableHandler.load(client)
   await app.commandHandler.load(client)
   await app.listenerHandler.load(client)
 
-  await app.reloadSlashCommands(client)
-
-  if (!client.isReady()) {
-    app.error("The Discord client is not full.", __filename)
-    process.exit(1)
-  }
+  await client.login(process.env.BOT_TOKEN)
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)

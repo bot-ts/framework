@@ -25,5 +25,4 @@ export * as core from "./app/core.js"
 
 export * as builders from "@discordjs/builders"
 export * as discord from "discord.js"
-export * as rest from "@discordjs/rest"
 export * as api from "discord-api-types/v9"
