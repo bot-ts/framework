@@ -24,7 +24,7 @@ listenerHandler.on("load", async (filepath, client) => {
     }
   })
 
-  const sub = path.basename(filepath, ".js").replace(`${listener.event}.`, "")
+  const sub = path.basename(filepath, ".js").replace(/[^.]+\./g, "")
 
   logger.log(
     `loaded listener ${chalk.yellow(

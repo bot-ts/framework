@@ -29,16 +29,11 @@ export let defaultCommand: Command<any> | null = null
 
 export const commands = new (class CommandCollection extends discord.Collection<
   string,
-  Command<keyof CommandMessageType, undefined | builders.SlashCommandBuilder>
+  Command<keyof CommandMessageType, SlashType>
 > {
   public resolve(
     key: string
-  ):
-    | Command<
-        keyof CommandMessageType,
-        undefined | builders.SlashCommandBuilder
-      >
-    | undefined {
+  ): Command<keyof CommandMessageType, SlashType> | undefined {
     for (const [name, command] of this) {
       if (
         key === name ||
@@ -54,7 +49,14 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
-export type SlashType = undefined | builders.SlashCommandBuilder
+export type SlashType =
+  | undefined
+  | true
+  | builders.SlashCommandBuilder
+  | builders.SlashCommandSubcommandBuilder
+  | builders.SlashCommandSubcommandGroupBuilder
+  | builders.SlashCommandOptionsOnlyBuilder
+  | builders.SlashCommandSubcommandsOnlyBuilder
 
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
@@ -68,18 +70,19 @@ export interface CommandContext {
 
 export type BuffedInteraction = discord.CommandInteraction &
   CommandContext & {
+    send: (item: SentItem) => Promise<void>
     isInteraction: true
     isMessage: false
   }
 
 export type NormalMessage = discord.Message &
   CommandContext & {
+    send: (item: SentItem) => Promise<discord.Message>
     usedAsDefault: boolean
     usedPrefix: string
     isInteraction: false
     isMessage: true
     triggerCoolDown: () => void
-    send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
     sendTimeout: (
       this: NormalMessage,
       timeout: number,
@@ -198,7 +201,7 @@ export interface CommandOptions<
   /**
    * Sub-commands
    */
-  subs?: Command<keyof CommandMessageType>[]
+  subs?: Command<keyof CommandMessageType, SlashType>[]
   /**
    * This slash command options are automatically setup on bot running, but you can configure it manually too.
    */
@@ -216,9 +219,9 @@ export interface CommandOptions<
   tests?: CommandTest[]
   run: (
     this: Command<Type, Slash>,
-    message: Slash extends builders.SlashCommandBuilder
-      ? CommandMessageType[Type] | BuffedInteraction
-      : CommandMessageType[Type]
+    message: Slash extends undefined
+      ? CommandMessageType[Type]
+      : CommandMessageType[Type] | BuffedInteraction
   ) => unknown
 }
 
@@ -976,7 +979,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       "sub commands:",
       (
         await Promise.all(
-          cmd.options.subs.map(async (sub: Command<any>) => {
+          cmd.options.subs.map(async (sub: Command<any, any>) => {
             const prepared = await prepareCommand(message, sub)
             if (prepared !== true) return ""
             return commandToListItem(message, sub)

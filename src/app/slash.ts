@@ -42,5 +42,7 @@ export async function getSlashCommands() {
   return app.commands
     .map((cmd) => cmd.options.slash)
     .filter(app.isDefined)
-    .map((slash) => slash.toJSON())
+    .map((slash) => {
+      if (slash !== true) slash.toJSON()
+    })
 }

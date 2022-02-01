@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
-  description: "Redirect slash commands to messageCreate listener",
+  description: "Handle slash commands",
   async run(interaction) {
     if (!interaction.isCommand()) return
 
@@ -21,6 +21,7 @@ const listener: app.Listener<"interactionCreate"> = {
       isMessage: false,
       args: [],
       rest: "",
+      send: (sent: app.SentItem) => interaction.reply(sent),
       isFromBotOwner: interaction.user.id === process.env.BOT_OWNER,
       isFromGuildOwner: interaction.user.id === interaction.guild?.ownerId,
     }
