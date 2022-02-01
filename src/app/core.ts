@@ -329,3 +329,7 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
     return this
   }
 }
+
+export function isDefined<Item>(item: Item | undefined): item is Item {
+  return item !== undefined
+}
