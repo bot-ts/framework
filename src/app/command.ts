@@ -6,6 +6,7 @@ import yargsParser from "yargs-parser"
 import * as builders from "@discordjs/builders"
 
 import * as core from "./core.js"
+import * as slash from "./slash.js"
 import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 import * as argument from "./argument.js"
@@ -49,14 +50,7 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
-export type SlashType =
-  | undefined
-  | true
-  | builders.SlashCommandBuilder
-  | builders.SlashCommandSubcommandBuilder
-  | builders.SlashCommandSubcommandGroupBuilder
-  | builders.SlashCommandOptionsOnlyBuilder
-  | builders.SlashCommandSubcommandsOnlyBuilder
+export type SlashType = undefined | true | slash.SlashBuilder
 
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 

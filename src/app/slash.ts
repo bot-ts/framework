@@ -8,6 +8,13 @@ const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string
 )
 
+export type SlashBuilder =
+  | app.SlashCommandBuilder
+  | app.SlashCommandSubcommandBuilder
+  | app.SlashCommandSubcommandGroupBuilder
+  | app.SlashCommandOptionsOnlyBuilder
+  | app.SlashCommandSubcommandsOnlyBuilder
+
 export async function reloadSlashCommands(client: app.Client<true>) {
   const slashCommands = await getSlashCommands()
   const guilds = Array.from(client.guilds.cache.values())
@@ -39,14 +46,6 @@ export async function getSlashCommands() {
   return app.commands
     .map((cmd) => cmd.options.slash)
     .filter(app.isDefined)
-    .filter(
-      (
-        slash
-      ): slash is
-        | app.SlashCommandBuilder
-        | app.SlashCommandSubcommandBuilder
-        | app.SlashCommandSubcommandGroupBuilder
-        | app.SlashCommandOptionsOnlyBuilder => slash !== true
-    )
+    .filter((slash): slash is SlashBuilder => slash !== true)
     .map((slash) => slash.toJSON())
 }
