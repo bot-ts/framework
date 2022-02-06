@@ -708,10 +708,12 @@ export async function prepareCommand<
 
     if (cmd.options.positional) {
       for (const positional of cmd.options.positional) {
-        message.args[positional.name] = message.options[method(positional)](
+        const value = message.options[method(positional)](
           positional.name,
           await core.scrap(positional.required)
         )
+        message.args[positional.name] = value
+        message.args.push(value)
       }
     }
 
