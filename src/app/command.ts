@@ -226,6 +226,14 @@ export class Command<
   filepath?: string
 
   constructor(public options: CommandOptions<Type, Slash>) {}
+
+  canBeCalledBy(key: string): boolean {
+    return (
+      key === this.options.name ||
+      this.options.aliases?.some((alias) => key === alias) ||
+      false
+    )
+  }
 }
 
 export function validateCommand<

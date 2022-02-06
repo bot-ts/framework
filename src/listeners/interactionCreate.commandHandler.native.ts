@@ -6,13 +6,23 @@ const listener: app.Listener<"interactionCreate"> = {
   async run(interaction) {
     if (!interaction.isCommand()) return
 
-    let cmd: app.Command<
-      keyof app.CommandMessageType,
-      app.SlashCommandBuilder
-    > = app.commands.resolve(interaction.commandName) as app.Command<
-      keyof app.CommandMessageType,
-      app.SlashCommandBuilder
-    >
+    let cmd = app.commands.resolve(interaction.commandName)
+
+    if (!cmd)
+      return interaction.reply(
+        `The "${interaction.commandName}" slash command is not yet implemented.`
+      )
+
+    const subCommand = interaction.options.getSubcommand(false)
+
+    console.log(subCommand)
+
+    if (cmd.options.subs && subCommand)
+      for (const sub of cmd.options.subs)
+        if (sub.canBeCalledBy(subCommand)) {
+          cmd = sub
+          break
+        }
 
     // @ts-ignore
     const ctx: app.BuffedInteraction = {

@@ -5,6 +5,7 @@ export default new app.Command({
   description: "Test slash command",
   channelType: "all",
   async run(context) {
+    console.log(context)
     return context.send("Coucou ça fonctionne")
   },
   subs: [
@@ -19,7 +20,10 @@ export default new app.Command({
           description: "Test bool option",
         },
       ],
-      async run(context) {},
+      async run(context) {
+        console.log(context)
+        return context.send("Coucou ça fonctionne (sub)")
+      },
     }),
   ],
   slash: new app.SlashCommandBuilder()
