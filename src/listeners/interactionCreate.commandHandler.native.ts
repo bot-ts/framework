@@ -1,5 +1,7 @@
 import * as app from "../app.js"
 
+const __filename = app.filename(import.meta)
+
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle slash commands",
@@ -24,19 +26,46 @@ const listener: app.Listener<"interactionCreate"> = {
           break
         }
 
+    const args: app.CommandContext["args"] = []
+
     // @ts-ignore
     const ctx: app.BuffedInteraction = {
       ...interaction,
       isInteraction: true,
       isMessage: false,
-      args: [],
+      args,
       rest: "",
       send: (sent: app.SentItem) => interaction.reply(sent),
       isFromBotOwner: interaction.user.id === process.env.BOT_OWNER,
       isFromGuildOwner: interaction.user.id === interaction.guild?.ownerId,
     }
 
-    cmd.options.run.bind(cmd)(ctx)
+    const prepared = await app.prepareCommand(ctx, cmd, null)
+
+    if (typeof prepared !== "boolean")
+      return ctx.send({
+        embeds: [prepared],
+      })
+
+    if (!prepared) return
+
+    try {
+      await cmd.options.run.bind(cmd)(ctx)
+    } catch (error: any) {
+      app.error(error, cmd.filepath ?? __filename, true)
+      ctx
+        .send(
+          app.code.stringify({
+            content: `${error.name ?? "Error"}: ${
+              error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
+            }`,
+            lang: "js",
+          })
+        )
+        .catch((error) => {
+          app.error(error, cmd?.filepath ?? __filename, true)
+        })
+    }
   },
 }
 
