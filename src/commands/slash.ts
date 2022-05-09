@@ -26,6 +26,10 @@ export default new app.Command({
       },
     }),
   ],
+  deploy: {
+    guilds: ["781105165754433537"],
+    global: false,
+  },
   slash: new app.SlashCommandBuilder()
     .setName("slash")
     .setDescription("test slash command")

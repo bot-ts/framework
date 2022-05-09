@@ -17,8 +17,6 @@ const listener: app.Listener<"interactionCreate"> = {
 
     const subCommand = interaction.options.getSubcommand(false)
 
-    console.log(subCommand)
-
     if (cmd.options.subs && subCommand)
       for (const sub of cmd.options.subs)
         if (sub.canBeCalledBy(subCommand)) {
