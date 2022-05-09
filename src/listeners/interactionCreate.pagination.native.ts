@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
-  description: "A interactionCreate listener",
+  description: "Handle paginator behaviors",
   async run(interaction) {
     if (
       interaction.isButton() &&

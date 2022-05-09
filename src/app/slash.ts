@@ -1,15 +1,19 @@
 import * as app from "../app.js"
 
-import { filename } from "dirname-filename-esm"
 import { REST } from "@discordjs/rest"
 
 import chalk from "chalk"
 
-const __filename = filename(import.meta)
-
 const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string
 )
+
+export type SlashBuilder =
+  | app.SlashCommandBuilder
+  | app.SlashCommandSubcommandBuilder
+  | app.SlashCommandSubcommandGroupBuilder
+  | app.SlashCommandOptionsOnlyBuilder
+  | app.SlashCommandSubcommandsOnlyBuilder
 
 export async function reloadSlashCommands(client: app.Client<true>) {
   const slashCommands = await getSlashCommands()
@@ -42,5 +46,6 @@ export async function getSlashCommands() {
   return app.commands
     .map((cmd) => cmd.options.slash)
     .filter(app.isDefined)
+    .filter((slash): slash is SlashBuilder => slash !== true)
     .map((slash) => slash.toJSON())
 }
