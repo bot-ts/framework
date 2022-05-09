@@ -25,11 +25,14 @@ export async function reloadSlashCommands(client: app.Client<true>) {
   for (const slashCmd of slashCommands) {
     let deploy = await getSlashDeployment(slashCmd.name)
 
+    console.log(deploy)
+    console.log(slashCmd)
+
     if (deploy) {
       if (deploy.global) {
-        failCount = await deploySlashCommand(client, [slashCmd])
+        failCount = await deploySlashCommand(client, slashCmd)
       } else {
-        failCount = await deploySlashCommand(client, [slashCmd], deploy.guilds)
+        failCount = await deploySlashCommand(client, slashCmd, deploy.guilds)
       }
     }
   }
@@ -43,7 +46,7 @@ export async function reloadSlashCommands(client: app.Client<true>) {
   )
 }
 
-async function deploySlashCommand(client: app.Client<true>, slashCommands: SlashType[], guilds?: string[]) {
+async function deploySlashCommand(client: app.Client<true>, slashCommands: SlashType, guilds?: string[]) {
   let failCount = 0
 
   if (guilds) {
@@ -56,6 +59,7 @@ async function deploySlashCommand(client: app.Client<true>, slashCommands: Slash
   
         app.log(`loaded slash commands for "${chalk.blueBright(client.guilds.cache.get(guild)?.name)}"`)
       } catch (error) {
+        console.log(error)
         failCount++
       }
     }
