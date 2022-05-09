@@ -128,9 +128,9 @@ const listener: app.Listener<"messageCreate"> = {
 
     // parse CommandMessage arguments
     const parsedArgs = yargsParser(dynamicContent)
-    const restPositional = parsedArgs._.slice() ?? []
+    const restPositional = (parsedArgs._?.slice() ?? []).map(String)
 
-    message.args = (parsedArgs._?.slice(0) ?? []).map((positional) => {
+    message.args = restPositional.map((positional) => {
       if (/^(?:".+"|'.+')$/.test(positional))
         return positional.slice(1, positional.length - 1)
       return positional

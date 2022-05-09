@@ -15,7 +15,7 @@ import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
 export const commandHandler = new handler.Handler(
-  process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
+  path.join(process.cwd(), "dist", "commands")
 )
 
 commandHandler.on("load", async (filepath) => {

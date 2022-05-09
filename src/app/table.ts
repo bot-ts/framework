@@ -14,7 +14,7 @@ const __filename = filename(import.meta)
 import type { MigrationData } from "../tables/migration.native.js"
 
 export const tableHandler = new handler.Handler(
-  process.env.BOT_TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
+  path.join(process.cwd(), "dist", "tables")
 )
 
 tableHandler.once("finish", async (pathList) => {

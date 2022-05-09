@@ -8,8 +8,7 @@ import * as handler from "./handler.js"
 import * as core from "./core.js"
 
 export const listenerHandler = new handler.Handler(
-  process.env.BOT_LISTENERS_PATH ??
-    path.join(process.cwd(), "dist", "listeners")
+  path.join(process.cwd(), "dist", "listeners")
 )
 
 listenerHandler.on("load", async (filepath, client) => {
