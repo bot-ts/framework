@@ -11,6 +11,7 @@ import * as handler from "./handler.js"
 import * as argument from "./argument.js"
 
 import { filename } from "dirname-filename-esm"
+import { SlashDeployment, SlashType as SlashCommandType } from './slash';
 
 const __filename = filename(import.meta)
 
@@ -202,7 +203,11 @@ export interface CommandOptions<
   /**
    * This slash command options are automatically setup on bot running, but you can configure it manually too.
    */
-  slash?: Slash
+  slash?: SlashCommandType
+  /**
+   * Deployement if command is slash command
+   */
+  deploy?: SlashDeployment
   /**
    * This property is automatically setup on bot running.
    * @deprecated

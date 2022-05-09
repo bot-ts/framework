@@ -1,46 +1,20 @@
 import * as app from "../app.js"
 
-import { filename } from "dirname-filename-esm"
-import { REST } from "@discordjs/rest"
+export type SlashType = app.discord.ApplicationCommandData
+export type SlashDeployment = {deploy: {guilds?: string [], global: boolean}}
 
-import chalk from "chalk"
+export class Slash {
+  static deploy(client: app.Client<true>, slash: SlashType, deployment?: SlashDeployment) {    
+    if (deployment) {
+      if (deployment.deploy.global) {
+        client.application.commands.set([slash])
+      }
 
-const __filename = filename(import.meta)
-
-const rest = new REST({ version: "9" }).setToken(
-  process.env.BOT_TOKEN as string
-)
-
-export async function reloadSlashCommands(client: app.Client<true>) {
-  const slashCommands = await getSlashCommands()
-  const guilds = Array.from(client.guilds.cache.values())
-  let failCount = 0
-
-  for (const guild of guilds) {
-    try {
-      await rest.put(
-        app.api.Routes.applicationGuildCommands(client.user.id, guild.id),
-        { body: slashCommands }
-      )
-
-      app.log(`loaded slash commands for "${chalk.blueBright(guild.name)}"`)
-    } catch (error) {
-      failCount++
+      if (deployment.deploy.guilds) {
+        deployment.deploy.guilds.forEach(guild => {
+          client.application.commands.set([slash], guild)
+        })
+      }
     }
   }
-
-  app.log(
-    `loaded ${chalk.blueBright(
-      slashCommands.length
-    )} slash commands for ${chalk.blueBright(
-      guilds.length - failCount
-    )} guilds (${chalk.red(failCount)} fails)`
-  )
-}
-
-export async function getSlashCommands() {
-  return app.commands
-    .map((cmd) => cmd.options.slash)
-    .filter(app.isDefined)
-    .map((slash) => slash.toJSON())
 }
