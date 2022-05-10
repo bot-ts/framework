@@ -6,23 +6,25 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle slash commands",
   async run(interaction) {
-    if (!interaction.isCommand()) return
+    if (!interaction.isApplicationCommand()) return
 
-    let cmd = app.commands.resolve(interaction.commandName)
+    let cmd = app.commands.resolve(interaction.commandName.replace(/^\//, ""))
 
     if (!cmd)
       return interaction.reply(
         `The "${interaction.commandName}" slash command is not yet implemented.`
       )
 
-    const subCommand = interaction.options.getSubcommand(false)
+    if (interaction.isCommand()) {
+      const subCommand = interaction.options.getSubcommand(false)
 
-    if (cmd.options.subs && subCommand)
-      for (const sub of cmd.options.subs)
-        if (sub.canBeCalledBy(subCommand)) {
-          cmd = sub
-          break
-        }
+      if (cmd.options.subs && subCommand)
+        for (const sub of cmd.options.subs)
+          if (sub.canBeCalledBy(subCommand)) {
+            cmd = sub
+            break
+          }
+    }
 
     const args: app.CommandContext["args"] = []
 

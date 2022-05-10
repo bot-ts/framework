@@ -203,10 +203,6 @@ export interface CommandOptions<
    */
   slash?: slash.SlashType
   /**
-   * Deployement if command is slash command
-   */
-  deploy?: slash.SlashDeployment
-  /**
    * This property is automatically setup on bot running.
    * @deprecated
    */

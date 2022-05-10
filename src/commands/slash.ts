@@ -26,11 +26,12 @@ export default new app.Command({
       },
     }),
   ],
-  deploy: {
-    guilds: ["781105165754433537"],
-    global: false,
-  },
-  slash: new app.SlashCommandBuilder()
+  slash: {
+    deploy: {
+      guilds: ["781105165754433537"],
+      global: false,
+    },
+    builder: new app.SlashCommandBuilder()
     .setName("slash")
     .setDescription("test slash command")
     .addSubcommand((sub) =>
@@ -44,4 +45,5 @@ export default new app.Command({
             .setRequired(true)
         )
     ),
+  }
 })
