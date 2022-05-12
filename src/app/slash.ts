@@ -1,14 +1,7 @@
 import * as app from "../app.js"
 
 export type SlashDeployment = {guilds?: string [], global: boolean}
-export type SlashBuilder =
-  | app.api.RESTPostAPIApplicationCommandsJSONBody
-  | app.ApplicationCommandData
-  | app.SlashCommandBuilder
-  | app.SlashCommandSubcommandBuilder
-  | app.SlashCommandSubcommandGroupBuilder
-  | app.SlashCommandOptionsOnlyBuilder
-  | app.SlashCommandSubcommandsOnlyBuilder
+export type SlashBuilder = app.ApplicationCommandData
 export type SlashType = {
   builder: SlashBuilder
   deploy?: SlashDeployment
@@ -26,46 +19,28 @@ export async function reloadSlashCommands(client: app.Client<true>) {
   const slashCommands = await getSlashCommands()
   const guilds = Array.from(client.guilds.cache.values())
   let failCount = 0
-  let cmds: {
-    guildId: string
-    commands: SlashType[]
-  }[] = []
 
   for (const slashCmd of slashCommands) {
     if (slashCmd.deploy?.global) {
       try {
-        await rest.put(
-          app.api.Routes.applicationCommands(client.user.id),
-          { body: [slashCommands] }
-        )
+        client.application.commands.create(slashCmd.builder)
+        client.application.commands.set([slashCmd.builder])
   
         app.log(`loaded slash commands for all`)
       } catch (error) {
         failCount++
       }
     } else {
-      cmds.map(cmd => {
-        slashCmd.deploy?.guilds?.map(guild => {
-          if (guild === cmd.guildId) {
-            // push in cmds
-            cmd.commands.push(slashCmd)
-          }
-        })
+      slashCmd.deploy?.guilds?.forEach((guildId) => {
+        try {
+          client.application.commands.create(slashCmd.builder, guildId)
+          client.application.commands.set([slashCmd.builder], guildId)
+          
+          app.log(`loaded slash commands for "${chalk.blueBright(client.guilds.cache.get(guildId)?.name)}"`)
+        } catch (error) {
+          failCount++
+        }
       })
-    }
-  }
-
-  for (const cmd of cmds) {
-    try {
-      await rest.put(
-        app.api.Routes.applicationGuildCommands(client.user.id, cmd.guildId),
-        { body: cmd.commands }
-      )
-
-      app.log(`loaded slash commands for "${chalk.blueBright(client.guilds.cache.get(cmd.guildId)?.name)}"`)
-    } catch (error) {
-      console.log(error)
-      failCount++
     }
   }
 

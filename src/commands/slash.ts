@@ -31,19 +31,24 @@ export default new app.Command({
       guilds: ["781105165754433537"],
       global: false,
     },
-    builder: new app.SlashCommandBuilder()
-    .setName("slash")
-    .setDescription("test slash command")
-    .addSubcommand((sub) =>
-      sub
-        .setName("sub")
-        .setDescription("test sub command")
-        .addBooleanOption((option) =>
-          option
-            .setName("bool")
-            .setDescription("test bool option")
-            .setRequired(true)
-        )
-    ),
+    builder: {
+      name: "slash",
+      description: "Test slash command",
+      options: [
+        {
+          type: 1,
+          name: "sub",
+          description: "Test sub command",
+          options: [
+            {
+              type: 5,
+              name: "bool",
+              description: "Test bool option",
+              required: true,
+            }
+          ]
+        }
+      ]
+    }
   }
 })
