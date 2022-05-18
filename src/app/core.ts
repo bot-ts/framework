@@ -15,6 +15,10 @@ import * as logger from "./logger.js"
 
 export const startedAt = Date.now()
 
+export function die(message: string): never {
+  throw new Error(message)
+}
+
 export function uptime(): number {
   return Date.now() - startedAt
 }
