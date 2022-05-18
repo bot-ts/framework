@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 import guilds from "../tables/guilds.native.js"
 
