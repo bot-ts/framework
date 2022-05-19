@@ -297,6 +297,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     key: string
   }
 ): Promise<discord.MessageEmbed | boolean> {
+  const botOwnerId = await core.getBotOwnerId(message)
+
   // coolDown
   if (cmd.options.coolDown) {
     const slug = core.slug("coolDown", cmd.options.name, message.channel.id)
@@ -350,7 +352,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     if (core.scrap(cmd.options.guildOwnerOnly, message))
       if (
         message.guild.ownerId !== message.member.id &&
-        process.env.BOT_OWNER !== message.member.id
+        botOwnerId !== message.member.id
       )
         return new core.SafeMessageEmbed().setColor("RED").setAuthor({
           name: "You must be the guild owner.",
@@ -510,7 +512,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       })
 
   if (await core.scrap(cmd.options.botOwnerOnly, message))
-    if (process.env.BOT_OWNER !== message.author.id)
+    if (botOwnerId !== message.author.id)
       return new core.SafeMessageEmbed().setColor("RED").setAuthor({
         name: "You must be my owner.",
         iconURL: message.client.user.displayAvatarURL(),

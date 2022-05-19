@@ -47,7 +47,8 @@ const listener: app.Listener<"messageCreate"> = {
       return m
     }.bind(message)
 
-    message.isFromBotOwner = message.author.id === process.env.BOT_OWNER
+    message.isFromBotOwner =
+      message.author.id === (await app.getBotOwnerId(message))
 
     app.emitMessage(message.channel, message)
     app.emitMessage(message.author, message)
