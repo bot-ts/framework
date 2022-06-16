@@ -7,14 +7,14 @@ export default new app.Command({
   async run(context) {
     return context.send("Coucou ça fonctionne le slashuser")
   },
-  slash: {
-    deploy: {
-      guilds: ["781105165754433537"],
-      global: false,
-    },
-    builder: {
-      name: "Slashe User",
-      type: 2
-    }
-  }
+  // slash: {
+  //   deploy: {
+  //     guilds: ["1111111111"],
+  //     global: false,
+  //   },
+  //   builder: {
+  //     name: "Slash User",
+  //     type: 2
+  //   }
+  // }
 })
