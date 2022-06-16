@@ -1,10 +1,10 @@
 import * as app from "../app.js"
 
-export type SlashDeployment = {guilds?: string [], global: boolean}
+export type SlashDeployment = { guilds?: string[]; global: boolean }
 export type SlashBuilder = app.ApplicationCommandData
 export type SlashType = {
   builder: SlashBuilder
-  deploy?: SlashDeployment
+  deploy: SlashDeployment
 }
 
 import { REST } from "@discordjs/rest"
@@ -20,28 +20,38 @@ export async function reloadSlashCommands(client: app.Client<true>) {
   const guilds = Array.from(client.guilds.cache.values())
   let failCount = 0
 
+  let globalCmds = []
+  let guildCmds: {
+    cmds: SlashBuilder[]
+    guildId: string
+  }[] = []
+
   for (const slashCmd of slashCommands) {
-    if (slashCmd.deploy?.global) {
-      try {
-        client.application.commands.create(slashCmd.builder)
-        client.application.commands.set([slashCmd.builder])
-  
-        app.log(`loaded slash commands for all`)
-      } catch (error) {
-        failCount++
-      }
+    if (slashCmd.deploy.global) {
+      globalCmds.push(slashCmd.builder)
     } else {
-      slashCmd.deploy?.guilds?.forEach((guildId) => {
-        try {
-          client.application.commands.create(slashCmd.builder, guildId)
-          client.application.commands.set([slashCmd.builder], guildId)
-          
-          app.log(`loaded slash commands for "${chalk.blueBright(client.guilds.cache.get(guildId)?.name)}"`)
-        } catch (error) {
-          failCount++
-        }
-      })
+      if (slashCmd.deploy.guilds) {
+        slashCmd.deploy.guilds.map((guild) => {
+          const guildCmd = guildCmds.find((g) => g.guildId === guild)
+
+          if (!guildCmd) {
+            guildCmds.push({
+              cmds: [slashCmd.builder],
+              guildId: guild,
+            })
+          } else {
+            guildCmd.cmds.push(slashCmd.builder)
+          }
+        })
+      }
     }
+
+    client.application.commands.set(globalCmds)
+    guildCmds.map((guildCmd) => {
+      client.application.commands.set(guildCmd.cmds, guildCmd.guildId)
+    })
+
+    app.log(`loaded slash commands for all`)
   }
 
   app.log(
@@ -54,7 +64,5 @@ export async function reloadSlashCommands(client: app.Client<true>) {
 }
 
 export async function getSlashCommands() {
-  return app.commands
-    .map((cmd) => cmd.options.slash)
-    .filter(app.isDefined)
+  return app.commands.map((cmd) => cmd.options.slash).filter(app.isDefined)
 }

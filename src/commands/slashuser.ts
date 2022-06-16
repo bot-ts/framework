@@ -13,7 +13,7 @@ export default new app.Command({
       global: false,
     },
     builder: {
-      name: "Slash User",
+      name: "Slashe User",
       type: 2
     }
   }
