@@ -4,31 +4,31 @@ export default new app.Command({
   name: "slash",
   description: "Test slash command",
   channelType: "all",
-  // slash: {
-  //   deploy: {
-  //     guilds: ["1111111111"],
-  //     global: false,
-  //   },
-  //   builder: {
-  //     type: 1,
-  //     name: "slash",
-  //     description: "Test slash command",
-  //     options: [
-  //       {
-  //         type: 1,
-  //         name: "sub",
-  //         description: "Test slash subcommand",
-  //         options: [
-  //           {
-  //             type: 5,
-  //             name: "bool",
-  //             description: "Test slash bool option",
-  //           },
-  //         ]
-  //       }
-  //     ]
-  //   }
-  // },
+  slash: {
+    deploy: {
+      guilds: ["1111111111"],
+      global: false,
+    },
+    builder: {
+      type: 1,
+      name: "slash",
+      description: "Test slash command",
+      options: [
+        {
+          type: 1,
+          name: "sub",
+          description: "Test slash subcommand",
+          options: [
+            {
+              type: 5,
+              name: "bool",
+              description: "Test slash bool option",
+            },
+          ]
+        }
+      ]
+    }
+  },
   async run(context) {
     return context.send("Coucou ça fonctionne")
   },
