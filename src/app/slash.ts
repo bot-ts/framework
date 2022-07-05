@@ -1,5 +1,12 @@
 import * as app from "../app.js"
 
+export type SlashDeployment = { guilds?: string[]; global: boolean }
+export type SlashBuilder = app.ApplicationCommandData
+export type SlashType = {
+  builder: SlashBuilder
+  deploy: SlashDeployment
+}
+
 import { REST } from "@discordjs/rest"
 
 import chalk from "chalk"
@@ -8,29 +15,43 @@ const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string
 )
 
-export type SlashBuilder =
-  | app.SlashCommandBuilder
-  | app.SlashCommandSubcommandBuilder
-  | app.SlashCommandSubcommandGroupBuilder
-  | app.SlashCommandOptionsOnlyBuilder
-  | app.SlashCommandSubcommandsOnlyBuilder
-
 export async function reloadSlashCommands(client: app.Client<true>) {
   const slashCommands = await getSlashCommands()
   const guilds = Array.from(client.guilds.cache.values())
   let failCount = 0
 
-  for (const guild of guilds) {
-    try {
-      await rest.put(
-        app.api.Routes.applicationGuildCommands(client.user.id, guild.id),
-        { body: slashCommands }
-      )
+  let globalCmds = []
+  let guildCmds: {
+    cmds: SlashBuilder[]
+    guildId: string
+  }[] = []
 
-      app.log(`loaded slash commands for "${chalk.blueBright(guild.name)}"`)
-    } catch (error) {
-      failCount++
+  for (const slashCmd of slashCommands) {
+    if (slashCmd.deploy.global) {
+      globalCmds.push(slashCmd.builder)
+    } else {
+      if (slashCmd.deploy.guilds) {
+        slashCmd.deploy.guilds.map((guild) => {
+          const guildCmd = guildCmds.find((g) => g.guildId === guild)
+
+          if (!guildCmd) {
+            guildCmds.push({
+              cmds: [slashCmd.builder],
+              guildId: guild,
+            })
+          } else {
+            guildCmd.cmds.push(slashCmd.builder)
+          }
+        })
+      }
     }
+
+    client.application.commands.set(globalCmds)
+    guildCmds.map((guildCmd) => {
+      client.application.commands.set(guildCmd.cmds, guildCmd.guildId)
+    })
+
+    app.log(`loaded slash commands for all`)
   }
 
   app.log(
@@ -43,9 +64,5 @@ export async function reloadSlashCommands(client: app.Client<true>) {
 }
 
 export async function getSlashCommands() {
-  return app.commands
-    .map((cmd) => cmd.options.slash)
-    .filter(app.isDefined)
-    .filter((slash): slash is SlashBuilder => slash !== true)
-    .map((slash) => slash.toJSON())
+  return app.commands.map((cmd) => cmd.options.slash).filter(app.isDefined)
 }

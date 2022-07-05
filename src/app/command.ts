@@ -201,7 +201,7 @@ export interface CommandOptions<
   /**
    * This slash command options are automatically setup on bot running, but you can configure it manually too.
    */
-  slash?: Slash
+  slash?: slash.SlashType
   /**
    * This property is automatically setup on bot running.
    * @deprecated
