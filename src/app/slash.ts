@@ -3,8 +3,9 @@ import chalk from "chalk"
 import time from "tims"
 import path from "path"
 
-import * as logger from "./logger.js"
 import * as handler from "@ghom/handler"
+
+import * as logger from "./logger.js"
 import { REST } from "@discordjs/rest"
 import { SlashCommandBuilder } from "@discordjs/builders"
 
@@ -12,11 +13,11 @@ import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
 
-export const commandHandler = new handler.Handler(
+export const slashHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "slash")
 )
 
-commandHandler.on("load", async (filepath) => {
+slashHandler.on("load", async (filepath) => {
   const file = await import("file://" + filepath)
   const item: SlashCommand<any> = file.default
   if (filepath.endsWith(".native.js")) item.native = true

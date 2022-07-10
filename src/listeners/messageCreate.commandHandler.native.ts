@@ -46,7 +46,8 @@ const listener: app.Listener<"messageCreate"> = {
       return m
     }.bind(message)
 
-    message.isFromBotOwner = message.author.id === process.env.BOT_OWNER
+    message.isFromBotOwner =
+      message.author.id === (await app.getBotOwnerId(message))
 
     app.emitMessage(message.channel, message)
     app.emitMessage(message.author, message)
@@ -81,7 +82,7 @@ const listener: app.Listener<"messageCreate"> = {
     // turn ON/OFF
     if (key !== "turn" && !app.cache.ensure<boolean>("turn", true)) return
 
-    let cmd = app.slashCommands.resolve(key) as app.Command<any, app.SlashType>
+    let cmd = app.commands.resolve(key) as app.Command<any>
 
     if (!cmd) {
       if (app.defaultCommand) {
@@ -127,11 +128,9 @@ const listener: app.Listener<"messageCreate"> = {
 
     // parse CommandMessage arguments
     const parsedArgs = yargsParser(dynamicContent)
-    const restPositional = parsedArgs._.slice() ?? []
+    const restPositional = (parsedArgs._?.slice() ?? []).map(String)
 
-    message.isMessage = true
-    message.isInteraction = false
-    message.args = (parsedArgs._?.slice(0) ?? []).map((positional) => {
+    message.args = restPositional.map((positional) => {
       if (/^(?:".+"|'.+')$/.test(positional))
         return positional.slice(1, positional.length - 1)
       return positional

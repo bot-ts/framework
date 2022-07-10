@@ -49,5 +49,6 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 * [CLI on NPN](https://www.npmjs.com/package/make-bot.ts)
 * [Discord server](https://discord.gg/3vC2XWK)
 * [use this template](https://github.com/CamilleAbella/bot.ts/generate)
+* [Follow tool NEWS](https://discord.gg/kYxDWWQJ8q)
 
 ![logs](https://user-images.githubusercontent.com/19586013/117373587-ce706a80-aecb-11eb-8e7b-4102094a50fa.png)

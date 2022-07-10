@@ -15,7 +15,7 @@ import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
 export const commandHandler = new handler.Handler(
-  process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
+  path.join(process.cwd(), "dist", "commands")
 )
 
 commandHandler.on("load", async (filepath) => {
@@ -92,15 +92,21 @@ export interface CoolDown {
   trigger: boolean
 }
 
-export interface MiddlewareResult {
-  result: boolean | string
-  data: any
-}
+export class Middleware<Type extends keyof CommandMessageType> {
+  public cache: any = {}
 
-export type Middleware<Type extends keyof CommandMessageType> = (
-  message: CommandMessageType[Type],
-  data: any
-) => Promise<MiddlewareResult> | MiddlewareResult
+  constructor(
+    public name: string,
+    public onRun: (
+      this: Middleware<Type>,
+      message: CommandMessageType[Type]
+    ) => Promise<unknown> | unknown
+  ) {}
+
+  public run(message: CommandMessageType[Type]) {
+    this.onRun.bind(this)(message)
+  }
+}
 
 export interface CommandMessageType {
   guild: GuildMessage
@@ -300,6 +306,8 @@ export async function prepareCommand<
         key: string
       }
 ): Promise<discord.MessageEmbed | boolean> {
+  const botOwnerId = await core.getBotOwnerId(message)
+
   // coolDown
   if (cmd.options.coolDown) {
     const slug = core.slug("coolDown", cmd.options.name, message.channelId)
@@ -647,17 +655,12 @@ export async function prepareCommand<
   }
 
   if (cmd.options.middlewares) {
-    let currentData: any = {}
+    const middlewares = await core.scrap(cmd.options.middlewares, message)
 
-    for (const middleware of cmd.options.middlewares) {
-      const { result, data } = await middleware(message, currentData)
-
-      currentData = {
-        ...currentData,
-        ...(data ?? {}),
-      }
-
-      if (typeof result === "string")
+    for (const middleware of middlewares) {
+      try {
+        await middleware.run(message)
+      } catch (error) {
         return new core.SafeMessageEmbed()
           .setColor("RED")
           .setAuthor({
@@ -666,9 +669,13 @@ export async function prepareCommand<
             }iddleware error`,
             iconURL: message.client.user.displayAvatarURL(),
           })
-          .setDescription(result)
-
-      if (!result) return false
+          .setDescription(
+            core.code.stringify({
+              lang: "js",
+              content: String(error),
+            })
+          )
+      }
     }
   }
 
