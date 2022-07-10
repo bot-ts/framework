@@ -5,9 +5,9 @@ export const client = new discord.Client({ intents: [] })
 const app = await import("../dist/app.js")
 
 try {
-  await app.tableHandler.load(client)
-  await app.commandHandler.load(client)
-  await app.listenerHandler.load(client)
+  await app.tableHandler.load()
+  await app.commandHandler.load()
+  await app.listenerHandler.load()
 
   app.log("Correctly started")
   process.exit(0)

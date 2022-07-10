@@ -1,9 +1,9 @@
-import discord from "discord.js"
 import { filename } from "dirname-filename-esm"
+import * as logger from "./app/logger"
 
 const __filename = filename(import.meta)
 
-import "dotenv/config"
+import "dotenv/config.js"
 
 for (const key of ["BOT_TOKEN", "BOT_PREFIX"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
@@ -11,27 +11,19 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX"]) {
   }
 }
 
-export const client = new discord.Client({
-  intents: process.env.BOT_INTENTS
-    ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
-        (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
-      )
-    : [],
-})
+const { default: client } = await import("./app/client.js")
 
 const app = await import("./app.js")
 
+client.login(process.env.BOT_TOKEN).catch((err) => {
+  logger.error("The Discord client can't connect...", "")
+  throw err
+})
+
 try {
-  await client.login(process.env.BOT_TOKEN)
-
-  await app.tableHandler.load(client)
-  await app.commandHandler.load(client)
-  await app.listenerHandler.load(client)
-
-  if (!client.isReady()) {
-    app.error("The Discord client is not full.", __filename)
-    process.exit(1)
-  }
+  await app.tableHandler.load()
+  await app.commandHandler.load()
+  await app.listenerHandler.load()
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)

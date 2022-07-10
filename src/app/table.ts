@@ -3,8 +3,8 @@ import chalk from "chalk"
 import discord from "discord.js"
 import { Knex } from "knex"
 
+import * as handler from "@ghom/handler"
 import * as logger from "./logger.js"
-import * as handler from "./handler.js"
 import * as database from "./database.js"
 
 import { filename } from "dirname-filename-esm"
@@ -21,9 +21,10 @@ tableHandler.once("finish", async (pathList) => {
   const tables = await Promise.all(
     pathList.map(async (filepath) => {
       const file = await import("file://" + filepath)
-      if (filepath.endsWith(".native.js")) file.default.options.native = true
-      file.default.filepath = filepath
-      return file.default
+      const item: Table<any> = file.default
+      if (filepath.endsWith(".native.js")) item.options.native = true
+      item.filepath = filepath
+      return item
     })
   )
 

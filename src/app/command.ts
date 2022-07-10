@@ -7,7 +7,7 @@ import yargsParser from "yargs-parser"
 
 import * as core from "./core.js"
 import * as logger from "./logger.js"
-import * as handler from "./handler.js"
+import * as handler from "@ghom/handler"
 import * as argument from "./argument.js"
 
 import { filename } from "dirname-filename-esm"
