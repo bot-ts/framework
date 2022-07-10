@@ -1,17 +1,10 @@
 import discord from "discord.js"
-import chalk from "chalk"
-import time from "tims"
 import path from "path"
 
 import * as handler from "@ghom/handler"
 
-import * as logger from "./logger.js"
 import { REST } from "@discordjs/rest"
 import { SlashCommandBuilder } from "@discordjs/builders"
-
-import { filename } from "dirname-filename-esm"
-
-const __filename = filename(import.meta)
 
 export const slashHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "slash")
