@@ -10,7 +10,6 @@ export * from "./app/table.js"
 export * from "./app/core.js"
 
 export * from "discord.js"
-export * from "@discordjs/builders"
 
 export { REST } from "@discordjs/rest"
 
