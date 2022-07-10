@@ -3,16 +3,14 @@ import chalk from "chalk"
 import time from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
-import * as builders from "@discordjs/builders"
+
+import * as handler from "@ghom/handler"
 
 import * as core from "./core.js"
-import * as slash from "./slash.js"
 import * as logger from "./logger.js"
-import * as handler from "./handler.js"
 import * as argument from "./argument.js"
 
 import { filename } from "dirname-filename-esm"
-import { castValue } from "./argument.js"
 
 const __filename = filename(import.meta)
 
@@ -31,11 +29,9 @@ export let defaultCommand: Command<any> | null = null
 
 export const commands = new (class CommandCollection extends discord.Collection<
   string,
-  Command<keyof CommandMessageType, SlashType>
+  Command<keyof CommandMessageType>
 > {
-  public resolve(
-    key: string
-  ): Command<keyof CommandMessageType, SlashType> | undefined {
+  public resolve(key: string): Command<keyof CommandMessageType> | undefined {
     for (const [name, command] of this) {
       if (
         key === name ||
@@ -50,8 +46,6 @@ export const commands = new (class CommandCollection extends discord.Collection<
     this.set(command.options.name, command)
   }
 })()
-
-export type SlashType = undefined | true | slash.SlashBuilder
 
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
@@ -70,13 +64,11 @@ export type BuffedInteraction = discord.CommandInteraction &
     isMessage: false
   }
 
-export type NormalMessage = discord.Message &
+export type NormalMessage = discord.Message<true> &
   CommandContext & {
     send: (item: SentItem) => Promise<discord.Message>
     usedAsDefault: boolean
     usedPrefix: string
-    isInteraction: false
-    isMessage: true
     triggerCoolDown: () => void
     sendTimeout: (
       this: NormalMessage,
@@ -105,13 +97,8 @@ export interface MiddlewareResult {
   data: any
 }
 
-export type Middleware<
-  Type extends keyof CommandMessageType,
-  Slash extends SlashType
-> = (
-  message: Slash extends undefined
-    ? CommandMessageType[Type]
-    : CommandMessageType[Type] | BuffedInteraction,
+export type Middleware<Type extends keyof CommandMessageType> = (
+  message: CommandMessageType[Type],
   data: any
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
@@ -129,10 +116,7 @@ export interface CommandTest {
   ) => Promise<void | string>
 }
 
-export interface CommandOptions<
-  Type extends keyof CommandMessageType,
-  Slash extends SlashType = undefined
-> {
+export interface CommandOptions<Type extends keyof CommandMessageType> {
   channelType?: Type
 
   name: string
@@ -174,14 +158,12 @@ export interface CommandOptions<
   /**
    * Middlewares can stop the command if returning a string (string is displayed as error message in discord)
    */
-  middlewares?: Middleware<Type, Slash>[]
+  middlewares?: Middleware<Type>[]
 
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: Slash extends undefined
-    ? argument.Rest<CommandMessageType[Type]>
-    : undefined
+  rest?: argument.Rest<CommandMessageType[Type]>
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
@@ -197,11 +179,8 @@ export interface CommandOptions<
   /**
    * Sub-commands
    */
-  subs?: Command<keyof CommandMessageType, SlashType>[]
-  /**
-   * This slash command options are automatically setup on bot running, but you can configure it manually too.
-   */
-  slash?: slash.SlashType
+  subs?: Command<keyof CommandMessageType>[]
+
   /**
    * This property is automatically setup on bot running.
    * @deprecated
@@ -213,21 +192,13 @@ export interface CommandOptions<
    */
   native?: boolean
   tests?: CommandTest[]
-  run: (
-    this: Command<Type, Slash>,
-    message: Slash extends undefined
-      ? CommandMessageType[Type]
-      : CommandMessageType[Type] | BuffedInteraction
-  ) => unknown
+  run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
 }
 
-export class Command<
-  Type extends keyof CommandMessageType = "all",
-  Slash extends SlashType = undefined
-> {
+export class Command<Type extends keyof CommandMessageType = "all"> {
   filepath?: string
 
-  constructor(public options: CommandOptions<Type, Slash>) {}
+  constructor(public options: CommandOptions<Type>) {}
 
   canBeCalledBy(key: string): boolean {
     return (
@@ -298,7 +269,7 @@ export function validateCommand<
 }
 
 export function commandBreadcrumb<Type extends keyof CommandMessageType>(
-  command: Command<Type, SlashType>,
+  command: Command<Type>,
   separator = " "
 ): string {
   return commandParents(command)
@@ -308,20 +279,18 @@ export function commandBreadcrumb<Type extends keyof CommandMessageType>(
 }
 
 export function commandParents<Type extends keyof CommandMessageType>(
-  command: Command<Type, SlashType>
-): Command<any, SlashType>[] {
+  command: Command<Type>
+): Command<any>[] {
   return command.options.parent
     ? [command, ...commandParents(command.options.parent)]
     : [command]
 }
 
 export async function prepareCommand<
-  ContextType extends
-    | CommandMessageType[keyof CommandMessageType]
-    | BuffedInteraction
+  ContextType extends CommandMessageType[keyof CommandMessageType]
 >(
   message: ContextType,
-  cmd: Command<keyof CommandMessageType, SlashType>,
+  cmd: Command<keyof CommandMessageType>,
   context?: ContextType extends BuffedInteraction
     ? null
     : {
@@ -332,63 +301,56 @@ export async function prepareCommand<
       }
 ): Promise<discord.MessageEmbed | boolean> {
   // coolDown
-  if (message.isMessage)
-    if (cmd.options.coolDown) {
-      const slug = core.slug("coolDown", cmd.options.name, message.channelId)
-      const coolDown = core.cache.ensure<CoolDown>(slug, {
-        time: 0,
-        trigger: false,
-      })
+  if (cmd.options.coolDown) {
+    const slug = core.slug("coolDown", cmd.options.name, message.channelId)
+    const coolDown = core.cache.ensure<CoolDown>(slug, {
+      time: 0,
+      trigger: false,
+    })
 
-      message.triggerCoolDown = () => {
+    message.triggerCoolDown = () => {
+      core.cache.set(slug, {
+        time: Date.now(),
+        trigger: true,
+      })
+    }
+
+    if (coolDown.trigger) {
+      const coolDownTime = await core.scrap(cmd.options.coolDown, message)
+
+      if (Date.now() > coolDown.time + coolDownTime) {
         core.cache.set(slug, {
-          time: Date.now(),
-          trigger: true,
+          time: 0,
+          trigger: false,
+        })
+      } else {
+        return new core.SafeMessageEmbed().setColor("RED").setAuthor({
+          name: `Please wait ${Math.ceil(
+            (coolDown.time + coolDownTime - Date.now()) / 1000
+          )} seconds...`,
+          iconURL: message.client.user.displayAvatarURL(),
         })
       }
-
-      if (coolDown.trigger) {
-        const coolDownTime = await core.scrap(cmd.options.coolDown, message)
-
-        if (Date.now() > coolDown.time + coolDownTime) {
-          core.cache.set(slug, {
-            time: 0,
-            trigger: false,
-          })
-        } else {
-          return new core.SafeMessageEmbed().setColor("RED").setAuthor({
-            name: `Please wait ${Math.ceil(
-              (coolDown.time + coolDownTime - Date.now()) / 1000
-            )} seconds...`,
-            iconURL: message.client.user.displayAvatarURL(),
-          })
-        }
-      }
-    } else {
-      message.triggerCoolDown = () => {
-        logger.warn(
-          `You must setup the coolDown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`,
-          "command:prepareCommand"
-        )
-      }
     }
+  } else {
+    message.triggerCoolDown = () => {
+      logger.warn(
+        `You must setup the coolDown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`,
+        "command:prepareCommand"
+      )
+    }
+  }
 
   const channelType = cmd.options.channelType
 
   if (channelType === "guild")
-    if (
-      (message.isMessage && isDirectMessage(message)) ||
-      (message.isInteraction && !message.guild)
-    )
+    if (isDirectMessage(message))
       return new core.SafeMessageEmbed().setColor("RED").setAuthor({
         name: "This command must be used in a guild.",
         iconURL: message.client.user.displayAvatarURL(),
       })
 
-  if (
-    (message.isMessage && isGuildMessage(message)) ||
-    (message.isInteraction && message.guild)
-  ) {
+  if (isGuildMessage(message)) {
     if (channelType === "dm")
       return new core.SafeMessageEmbed().setColor("RED").setAuthor({
         name: "This command must be used in DM.",
@@ -416,20 +378,19 @@ export async function prepareCommand<
             )
     }
 
-    if (message.isMessage)
-      if (cmd.options.userPermissions) {
-        for (const permission of cmd.options.userPermissions)
-          if (!message.member.permissions.has(permission, true))
-            return new core.SafeMessageEmbed()
-              .setColor("RED")
-              .setAuthor({
-                name: "Oops!",
-                iconURL: message.client.user.displayAvatarURL(),
-              })
-              .setDescription(
-                `You need the \`${permission}\` permission to call this command.`
-              )
-      }
+    if (cmd.options.userPermissions) {
+      for (const permission of cmd.options.userPermissions)
+        if (!message.member.permissions.has(permission, true))
+          return new core.SafeMessageEmbed()
+            .setColor("RED")
+            .setAuthor({
+              name: "Oops!",
+              iconURL: message.client.user.displayAvatarURL(),
+            })
+            .setDescription(
+              `You need the \`${permission}\` permission to call this command.`
+            )
+    }
   }
 
   if (cmd.options.botOwnerOnly)
@@ -439,7 +400,7 @@ export async function prepareCommand<
         iconURL: message.client.user.displayAvatarURL(),
       })
 
-  if (message.isMessage && context) {
+  if (context) {
     if (cmd.options.positional) {
       const positionalList = await core.scrap(cmd.options.positional, message)
 
@@ -685,54 +646,6 @@ export async function prepareCommand<
     }
   }
 
-  if (message.isInteraction) {
-    const method = (arg: argument.Positional<any> | argument.Option<any>) => {
-      if (typeof arg.castValue === "function") return "get"
-      switch (arg.castValue) {
-        case "boolean":
-          return "getBoolean"
-        case "user":
-          return "getUser"
-        case "channel":
-          return "getChannel"
-        case "number":
-          return "getNumber"
-        case "member":
-          return "getMember"
-        case "role":
-          return "getRole"
-        default:
-          return "get"
-      }
-    }
-
-    if (cmd.options.positional) {
-      for (const positional of cmd.options.positional) {
-        const value = message.options[method(positional)](
-          positional.name,
-          await core.scrap(positional.required)
-        )
-        message.args[positional.name] = value
-        message.args.push(value)
-      }
-    }
-
-    if (cmd.options.options) {
-      for (const option of cmd.options.options) {
-        message.args[option.name] = message.options[method(option)](
-          option.name,
-          await core.scrap(option.required)
-        )
-      }
-    }
-
-    if (cmd.options.flags) {
-      for (const flag of cmd.options.flags) {
-        message.args[flag.name] = !!message.options.getBoolean(flag.name, false)
-      }
-    }
-  }
-
   if (cmd.options.middlewares) {
     let currentData: any = {}
 
@@ -764,7 +677,7 @@ export async function prepareCommand<
 
 export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
-  cmd: Command<Type, SlashType>
+  cmd: Command<Type>
 ): Promise<void> {
   const embed = new core.SafeMessageEmbed()
     .setColor()
@@ -924,7 +837,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       "sub commands:",
       (
         await Promise.all(
-          cmd.options.subs.map(async (sub: Command<any, any>) => {
+          cmd.options.subs.map(async (sub: Command<any>) => {
             const prepared = await prepareCommand(message, sub)
             if (prepared !== true) return ""
             return commandToListItem(message, sub)
@@ -947,7 +860,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
 
 export function commandToListItem<Type extends keyof CommandMessageType>(
   message: CommandMessageType[Type],
-  cmd: Command<Type, SlashType>
+  cmd: Command<Type>
 ): string {
   return `**${message.usedPrefix}${commandBreadcrumb(cmd, " ")}** - ${
     cmd.options.description ?? "no description"

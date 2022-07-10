@@ -81,7 +81,7 @@ const listener: app.Listener<"messageCreate"> = {
     // turn ON/OFF
     if (key !== "turn" && !app.cache.ensure<boolean>("turn", true)) return
 
-    let cmd = app.commands.resolve(key) as app.Command<any, app.SlashType>
+    let cmd = app.slashCommands.resolve(key) as app.Command<any, app.SlashType>
 
     if (!cmd) {
       if (app.defaultCommand) {

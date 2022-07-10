@@ -15,7 +15,7 @@ export default new app.Command({
   ],
   async run(message) {
     if (message.args.command) {
-      const cmd = app.commands.resolve(message.args.command)
+      const cmd = app.slashCommands.resolve(message.args.command)
 
       if (cmd) {
         return app.sendCommandDetails(message, cmd)
@@ -36,7 +36,7 @@ export default new app.Command({
         pages: await app.divider(
           (
             await Promise.all(
-              app.commands.map(async (cmd) => {
+              app.slashCommands.map(async (cmd) => {
                 const prepared = await app.prepareCommand(message, cmd)
                 if (prepared !== true) return ""
                 return app.commandToListItem(message, cmd)

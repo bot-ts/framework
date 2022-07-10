@@ -24,10 +24,10 @@ export default new app.Command({
               name: "bool",
               description: "Test slash bool option",
             },
-          ]
-        }
-      ]
-    }
+          ],
+        },
+      ],
+    },
   },
   async run(context) {
     return context.send("Coucou ça fonctionne")

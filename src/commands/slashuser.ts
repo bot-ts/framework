@@ -14,7 +14,7 @@ export default new app.Command({
     },
     builder: {
       name: "Slash User",
-      type: 2
-    }
-  }
+      type: 2,
+    },
+  },
 })

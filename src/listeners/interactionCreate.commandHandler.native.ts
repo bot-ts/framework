@@ -8,7 +8,9 @@ const listener: app.Listener<"interactionCreate"> = {
   async run(interaction) {
     if (!interaction.isApplicationCommand()) return
 
-    let cmd = app.commands.resolve(interaction.commandName.replace(" ", ""))
+    let cmd = app.slashCommands.resolve(
+      interaction.commandName.replace(" ", "")
+    )
 
     if (!cmd)
       return interaction.reply(

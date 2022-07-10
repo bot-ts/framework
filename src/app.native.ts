@@ -12,6 +12,8 @@ export * from "./app/core.js"
 export * from "discord.js"
 export * from "@discordjs/builders"
 
+export { REST } from "@discordjs/rest"
+
 export * as pagination from "./app/pagination.js"
 export * as argument from "./app/argument.js"
 export * as database from "./app/database.js"
@@ -25,4 +27,5 @@ export * as core from "./app/core.js"
 
 export * as builders from "@discordjs/builders"
 export * as discord from "discord.js"
+export * as rest from "@discordjs/rest"
 export * as api from "discord-api-types/v9"
