@@ -29,19 +29,12 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
-<<<<<<< HEAD
     "@discordjs/builders": "^0.15.0",
-=======
-    "@discordjs/builders": "^0.13.0",
->>>>>>> master
     "@discordjs/rest": "^0.5.0",
     "@ghom/handler": "^1.1.0",
     "boxen": "^7.0.0",
     "chalk": "^5.0.1",
-<<<<<<< HEAD
     "cron": "^2.0.0",
-=======
->>>>>>> master
     "dayjs": "^1.11.3",
     "dirname-filename-esm": "^1.1.1",
     "discord.js": "^13.8.1",
@@ -57,10 +50,7 @@
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
-<<<<<<< HEAD
     "@types/cron": "^2.0.0",
-=======
->>>>>>> master
     "@types/fancy-log": "^2.0.0",
     "@types/figlet": "^1.5.4",
     "@types/gulp-filter": "^3.0.34",
