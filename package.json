@@ -29,6 +29,7 @@
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
     "@ghom/handler": "^1.1.0",
+    "@discordjs/builders": "14",
     "boxen": "^7.0.0",
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
