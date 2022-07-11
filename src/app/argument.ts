@@ -5,6 +5,8 @@ import regexParser from "regex-parser"
 import * as core from "./core.js"
 import * as command from "./command.js"
 
+import { getClient } from "./client.js"
+
 export interface Argument {
   name: string
   description: string
@@ -106,6 +108,8 @@ export async function checkValue<Message extends command.NormalMessage>(
   value: string,
   message: Message
 ): Promise<discord.MessageEmbed | true> {
+  const client = getClient()
+
   if (!subject.checkValue) return true
 
   const errorEmbed = (

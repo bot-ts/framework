@@ -1,4 +1,6 @@
 import { filename } from "dirname-filename-esm"
+import discord from "discord.js"
+
 import * as logger from "./app/logger"
 
 const __filename = filename(import.meta)
@@ -16,7 +18,7 @@ const { default: client } = await import("./app/client.js")
 const app = await import("./app.js")
 
 client.login(process.env.BOT_TOKEN).catch((err) => {
-  logger.error("The Discord client can't connect...", "")
+  logger.error("The Discord client can't connect...", __filename)
   throw err
 })
 

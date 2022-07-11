@@ -1,6 +1,6 @@
 import discord from "discord.js"
 
-const client = new discord.Client({
+export const client = new discord.Client({
   intents: process.env.BOT_INTENTS
     ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
         (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
