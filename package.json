@@ -10,9 +10,10 @@
     "build": "gulp build",
     "watch": "gulp watch",
     "start": "npm run build && node dist/index",
+    "start.test": "npm run build && node tests/index.test.js",
     "format": "prettier --write src tests",
     "update": "gulp update",
-    "test": "tsc --noEmit && npm run build && node tests/index.test.js"
+    "test": "tsc --noEmit && npm run start.test"
   },
   "prettier": {
     "semi": false,
@@ -28,7 +29,7 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
-    "@discordjs/builders": "^0.15.0",
+    "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.5.0",
     "@ghom/handler": "^1.1.0",
     "boxen": "^7.0.0",
