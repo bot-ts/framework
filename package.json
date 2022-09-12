@@ -34,6 +34,7 @@
     "@ghom/handler": "^1.1.0",
     "boxen": "^7.0.0",
     "chalk": "^5.0.1",
+    "cron": "^2.0.0",
     "dayjs": "^1.11.3",
     "dirname-filename-esm": "^1.1.1",
     "discord.js": "^13.8.1",
@@ -49,6 +50,7 @@
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
+    "@types/cron": "^2.0.0",
     "@types/fancy-log": "^2.0.0",
     "@types/figlet": "^1.5.4",
     "@types/gulp-filter": "^3.0.34",

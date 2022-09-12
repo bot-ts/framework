@@ -4,6 +4,8 @@ import chalk from "chalk"
 import apiTypes from "discord-api-types/v8.js"
 
 import * as handler from "@ghom/handler"
+
+import * as core from "./core.js"
 import * as logger from "./logger.js"
 
 import client from "./client.js"
@@ -24,7 +26,7 @@ listenerHandler.on("load", async (filepath) => {
     }
   })
 
-  const sub = path.basename(filepath, ".js").replace(`${listener.event}.`, "")
+  const sub = path.basename(filepath, ".js").replace(/[^.]+\./g, "")
 
   logger.log(
     `loaded listener ${chalk.yellow(

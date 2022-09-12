@@ -1,8 +1,7 @@
 import * as app from "../app.js"
 import yargsParser from "yargs-parser"
-import { filename } from "dirname-filename-esm"
 
-const __filename = filename(import.meta)
+const __filename = app.filename(import.meta)
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
@@ -83,7 +82,7 @@ const listener: app.Listener<"messageCreate"> = {
     // turn ON/OFF
     if (key !== "turn" && !app.cache.ensure<boolean>("turn", true)) return
 
-    let cmd: app.Command<any> = app.commands.resolve(key) as app.Command<any>
+    let cmd = app.commands.resolve(key) as app.Command<any>
 
     if (!cmd) {
       if (app.defaultCommand) {
@@ -161,7 +160,7 @@ const listener: app.Listener<"messageCreate"> = {
       message.channel
         .send(
           app.code.stringify({
-            content: `Error: ${
+            content: `${error.name ?? "Error"}: ${
               error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
             }`,
             lang: "js",

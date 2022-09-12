@@ -10,6 +10,7 @@ import toObject from "dayjs/plugin/toObject.js"
 import discord from "discord.js"
 import EventEmitter from "events"
 import * as prettier from "prettier"
+import * as esm from "dirname-filename-esm"
 
 import * as logger from "./logger.js"
 
@@ -349,3 +350,10 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
     return this
   }
 }
+
+export function isDefined<Item>(item: Item | undefined): item is Item {
+  return item !== undefined
+}
+
+export const filename = esm.filename
+export const dirname = esm.dirname
