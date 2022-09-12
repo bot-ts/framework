@@ -9,8 +9,8 @@
     <a href="https://discord.gg/3vC2XWK"><img src="https://img.shields.io/discord/507389389098188820?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
     <a href="https://www.npmjs.com/package/make-bot.ts"><img src="https://img.shields.io/npm/v/make-bot.ts.svg?maxAge=3600" alt="CLI version" /></a>
     <a href="https://www.npmjs.com/package/make-bot.ts"><img src="https://img.shields.io/npm/dt/make-bot.ts.svg?maxAge=3600" alt="CLI downloads" /></a>
-    <a href="https://github.com/CamilleAbella/bot.ts/actions/workflows/tests.native.yml"><img src="https://github.com/CamilleAbella/bot.ts/actions/workflows/tests.native.yml/badge.svg?branch=master" alt="Tests" /></a>
-    <img alt="Dependency status" src="https://img.shields.io/librariesio/github/CamilleAbella/bot.ts">
+    <a href="https://github.com/bot-ts/framework/actions/workflows/tests.native.yml"><img src="https://github.com/bot-ts/framework/actions/workflows/tests.native.yml/badge.svg?branch=master" alt="Tests" /></a>
+    <img alt="Dependency status" src="https://img.shields.io/librariesio/github/bot-ts/framework">
   </div>
 </div>
 
