@@ -3,7 +3,7 @@ import * as app from "../app.js"
 export default new app.SlashCommand({
     builder: {
         name: "ping",
-        description: "Command reply pong"
+        description: "Ping pong command"
     },
     deploy: {
         global: false,
