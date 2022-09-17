@@ -10,37 +10,70 @@ export const slashHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "slash")
 )
 
-slashHandler.on("load", async (filepath) => {
+slashHandler.on("load", async (filepath: string) => {
   const file = await import("file://" + filepath)
   const item: SlashCommand<any> = file.default
-  if (filepath.endsWith(".native.js")) item.native = true
-  item.filepath = filepath
+  if (item.options.deploy.global) {
+    slashCommandsForDeployGlobal.push(item.options.builder)
+  }
+  else {
+    let find = false
+    item.options.deploy.guilds?.map(guildId => {
+      slashCommandsForDeployGuilds.map(cmds => {
+        if (cmds.guildId == guildId) {
+          find = true
+          cmds.commands.push(item.options.builder)
+        }
+      })
+      if (find == false){
+        slashCommandsForDeployGuilds.push({ guildId: guildId, commands: [item.options.builder]})
+      }
+    })
+  }
   return slashCommands.push(item)
 })
 
 export const slashCommands: SlashCommand<any>[] = []
+const slashCommandsForDeployGlobal: discord.ApplicationCommandData[] = []
+const slashCommandsForDeployGuilds: { commands: discord.ApplicationCommandData[], guildId: string }[] = []
 
 export const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string
 )
 
+export const deploySlashCommand = async (client: discord.Client<true>) => {
+  client.application.commands.set(slashCommandsForDeployGlobal)
+  slashCommandsForDeployGuilds.map(cmds => {
+    client.application.commands.set(cmds.commands, cmds.guildId)
+  })
+}
+
 /**
  * todo: Build context from builder arguments typings
  */
-export type SlashCommandArguments<Base extends SlashCommandBuilder> = {}
+export type SlashCommandArguments<Base extends SlashCommandBuilder> = {
+  builder: discord.ApplicationCommandData,
+  deploy: { global: boolean, guilds?: string[] }
+  subs?: SlashCommandSubs<Base>[],
+  run: (
+    this: SlashCommand<Base>,
+    context: discord.CommandInteraction
+  ) => unknown
+}
+
+export type SlashCommandSubs<Base extends SlashCommandBuilder> = {
+  name: string,
+  run: (
+    this: SlashCommand<Base>,
+    context: discord.CommandInteraction
+  ) => unknown
+}
 
 export type SlashCommandContext<
   Base extends SlashCommandBuilder,
   Interaction extends discord.CommandInteraction
 > = Interaction & {
   args: SlashCommandArguments<Base>
-}
-
-export type SlashCommandOptions<Base extends SlashCommandBuilder> = Base & {
-  run: (
-    this: SlashCommand<Base>,
-    context: SlashCommandContext<Base, any>
-  ) => unknown
 }
 
 export class SlashCommand<Base extends SlashCommandBuilder> {
@@ -54,7 +87,7 @@ export class SlashCommand<Base extends SlashCommandBuilder> {
    */
   public native = false
 
-  constructor(public readonly options: SlashCommandOptions<Base>) {}
+  constructor(public readonly options: SlashCommandArguments<Base>) {}
 
   run(context: SlashCommandContext<Base, any>) {
     this.options.run.bind(this)(context)

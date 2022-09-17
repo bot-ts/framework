@@ -13,7 +13,8 @@ const listener: app.Listener<"ready"> = {
   description: "Put slash commands to all guilds",
   once: true,
   async run(client) {
-    await app.reloadSlashCommands(client)
+
+    await app.deploySlashCommand(client)
 
     app.log(
       `Ok i'm ready! ${chalk.blue(

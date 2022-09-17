@@ -1,4 +1,5 @@
 import * as app from "../app.js"
+import path from 'path';
 
 const __filename = app.filename(import.meta)
 
@@ -8,9 +9,7 @@ const listener: app.Listener<"interactionCreate"> = {
   async run(interaction) {
     if (!interaction.isApplicationCommand()) return
 
-    let cmd = app.slashCommands.resolve(
-      interaction.commandName.replace(" ", "")
-    )
+    let cmd = (await import("file://" + path.join(process.cwd(), "dist", "slash", `${interaction.commandName}.js`))).default
 
     if (!cmd)
       return interaction.reply(
@@ -22,41 +21,18 @@ const listener: app.Listener<"interactionCreate"> = {
 
       if (cmd.options.subs && subCommand)
         for (const sub of cmd.options.subs)
-          if (sub.canBeCalledBy(subCommand)) {
-            cmd = sub
-            break
+          if (sub.name == subCommand) {
+            sub.run.bind(cmd)(interaction)
+            return
           }
     }
 
-    const args: app.CommandContext["args"] = []
-
-    // @ts-ignore
-    const ctx: app.BuffedInteraction = {
-      ...interaction,
-      isInteraction: true,
-      isMessage: false,
-      args,
-      rest: "",
-      send: (sent: app.SentItem) => interaction.reply(sent),
-      isFromBotOwner: interaction.user.id === process.env.BOT_OWNER,
-      isFromGuildOwner: interaction.user.id === interaction.guild?.ownerId,
-    }
-
-    const prepared = await app.prepareCommand(ctx, cmd, null)
-
-    if (typeof prepared !== "boolean")
-      return ctx.send({
-        embeds: [prepared],
-      })
-
-    if (!prepared) return
-
     try {
-      await cmd.options.run.bind(cmd)(ctx)
+      await cmd.options.run.bind(cmd)(interaction)
     } catch (error: any) {
       app.error(error, cmd.filepath ?? __filename, true)
-      ctx
-        .send(
+      interaction
+        .reply(
           app.code.stringify({
             content: `${error.name ?? "Error"}: ${
               error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
