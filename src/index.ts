@@ -1,7 +1,7 @@
 import { filename } from "dirname-filename-esm"
 import discord from "discord.js"
 
-import * as logger from "./app/logger"
+import * as logger from "./app/logger.js"
 
 const __filename = filename(import.meta)
 
@@ -25,6 +25,7 @@ client.login(process.env.BOT_TOKEN).catch((err) => {
 try {
   await app.tableHandler.load()
   await app.commandHandler.load()
+  await app.slashHandler.load()
   await app.listenerHandler.load()
 } catch (error: any) {
   app.error(error, __filename, true)
