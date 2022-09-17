@@ -12,11 +12,11 @@ export const slashHandler = new handler.Handler(
 
 type SlashDeployGuilds = {
   commands: discord.ApplicationCommandData[]
-  guildId: string 
+  guildId: string
 }
 
 const guildIdExist = (guildId: string, tab: SlashDeployGuilds[]) => {
-  return tab.some(item => guildId in item)
+  return tab.some((item) => guildId in item)
 }
 
 slashHandler.on("load", async (filepath: string) => {
@@ -24,14 +24,16 @@ slashHandler.on("load", async (filepath: string) => {
   const item: SlashCommand<any> = file.default
   if (item.options.deploy.global) {
     slashCommandsForDeployGlobal.push(item.options.builder)
-  }
-  else {
-    item.options.deploy.guilds?.map(guildId => {
-      slashCommandsForDeployGuilds.map(cmds => {
+  } else {
+    item.options.deploy.guilds?.map((guildId) => {
+      slashCommandsForDeployGuilds.map((cmds) => {
         if (guildIdExist(guildId, slashCommandsForDeployGuilds)) {
           cmds.commands.push(item.options.builder)
         } else {
-          slashCommandsForDeployGuilds.push({ guildId: guildId, commands: [item.options.builder]})
+          slashCommandsForDeployGuilds.push({
+            guildId: guildId,
+            commands: [item.options.builder],
+          })
         }
       })
     })
@@ -49,7 +51,7 @@ export const rest = new REST({ version: "9" }).setToken(
 
 export const deploySlashCommand = async (client: discord.Client<true>) => {
   client.application.commands.set(slashCommandsForDeployGlobal)
-  slashCommandsForDeployGuilds.map(cmds => {
+  slashCommandsForDeployGuilds.map((cmds) => {
     client.application.commands.set(cmds.commands, cmds.guildId)
   })
 }
@@ -58,9 +60,9 @@ export const deploySlashCommand = async (client: discord.Client<true>) => {
  * todo: Build context from builder arguments typings
  */
 export type SlashCommandArguments<Base extends SlashCommandBuilder> = {
-  builder: discord.ApplicationCommandData,
-  deploy: { global: boolean, guilds?: string[] }
-  subs?: SlashCommandSubs<Base>[],
+  builder: discord.ApplicationCommandData
+  deploy: { global: boolean; guilds?: string[] }
+  subs?: SlashCommandSubs<Base>[]
   run: (
     this: SlashCommand<Base>,
     context: discord.CommandInteraction
@@ -68,7 +70,7 @@ export type SlashCommandArguments<Base extends SlashCommandBuilder> = {
 }
 
 export type SlashCommandSubs<Base extends SlashCommandBuilder> = {
-  name: string,
+  name: string
   run: (
     this: SlashCommand<Base>,
     context: discord.CommandInteraction

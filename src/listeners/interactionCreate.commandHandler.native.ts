@@ -1,5 +1,5 @@
 import * as app from "../app.js"
-import path from 'path';
+import path from "path"
 
 const __filename = app.filename(import.meta)
 
@@ -9,7 +9,17 @@ const listener: app.Listener<"interactionCreate"> = {
   async run(interaction) {
     if (!interaction.isApplicationCommand()) return
 
-    let cmd = (await import("file://" + path.join(process.cwd(), "dist", "slash", `${interaction.commandName}.js`))).default
+    let cmd = (
+      await import(
+        "file://" +
+          path.join(
+            process.cwd(),
+            "dist",
+            "slash",
+            `${interaction.commandName}.js`
+          )
+      )
+    ).default
 
     if (!cmd)
       return interaction.reply(
