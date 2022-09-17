@@ -10,6 +10,15 @@ export const slashHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "slash")
 )
 
+type SlashDeployGuilds = {
+  commands: discord.ApplicationCommandData[]
+  guildId: string 
+}
+
+const guildIdExist = (guildId: string, tab: SlashDeployGuilds[]) => {
+  return tab.some(item => guildId in item)
+}
+
 slashHandler.on("load", async (filepath: string) => {
   const file = await import("file://" + filepath)
   const item: SlashCommand<any> = file.default
@@ -17,17 +26,14 @@ slashHandler.on("load", async (filepath: string) => {
     slashCommandsForDeployGlobal.push(item.options.builder)
   }
   else {
-    let find = false
     item.options.deploy.guilds?.map(guildId => {
       slashCommandsForDeployGuilds.map(cmds => {
-        if (cmds.guildId == guildId) {
-          find = true
+        if (guildIdExist(guildId, slashCommandsForDeployGuilds)) {
           cmds.commands.push(item.options.builder)
+        } else {
+          slashCommandsForDeployGuilds.push({ guildId: guildId, commands: [item.options.builder]})
         }
       })
-      if (find == false){
-        slashCommandsForDeployGuilds.push({ guildId: guildId, commands: [item.options.builder]})
-      }
     })
   }
   return slashCommands.push(item)
@@ -35,7 +41,7 @@ slashHandler.on("load", async (filepath: string) => {
 
 export const slashCommands: SlashCommand<any>[] = []
 const slashCommandsForDeployGlobal: discord.ApplicationCommandData[] = []
-const slashCommandsForDeployGuilds: { commands: discord.ApplicationCommandData[], guildId: string }[] = []
+const slashCommandsForDeployGuilds: SlashDeployGuilds[] = []
 
 export const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string
