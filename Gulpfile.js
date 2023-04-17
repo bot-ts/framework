@@ -41,7 +41,7 @@ function _cleanTemp() {
 
 function _checkGulpfile(cb) {
   fetch(
-    "https://raw.githubusercontent.com/CamilleAbella/bot.ts/master/Gulpfile.js"
+    "https://raw.githubusercontent.com/bot-ts/framework/master/Gulpfile.js"
   )
     .then((res) => res.data)
     .then(async (remote) => {
@@ -70,7 +70,7 @@ function _checkGulpfile(cb) {
 }
 
 function _downloadTemp(cb) {
-  cp.exec("git clone https://github.com/CamilleAbella/bot.ts.git temp", cb)
+  cp.exec("git clone https://github.com/bot-ts/framework.git temp", cb)
 }
 
 function _build() {
