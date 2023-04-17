@@ -1,7 +1,6 @@
 import { filename } from "dirname-filename-esm"
-import discord from "discord.js"
 
-import * as logger from "./app/logger"
+import * as logger from "./app/logger.js"
 
 const __filename = filename(import.meta)
 

@@ -1,7 +1,7 @@
 <div align="center">
   <div>
     <a href="https://ghom.gitbook.io/bot-ts/">
-      <img src="https://raw.githubusercontent.com/CamilleAbella/bot.ts-docs/master/.gitbook/assets/bot.ts-banner.png"/>
+      <img src="https://raw.githubusercontent.com/bot-ts/docs/master/.gitbook/assets/bot.ts-banner.png"/>
     </a>
   </div>
   <br/>
@@ -22,15 +22,15 @@
 
 * Advanced handler. \(for commands and listeners\)
 * [CLI](https://www.npmjs.com/package/make-bot.ts) to generate all file types.
-* Very practical file structure. \(all the app parts are includes and exported from [app.ts](https://github.com/CamilleAbella/bot.ts/blob/master/src/app.ts)\)
+* Very practical file structure. \(all the app parts are includes and exported from [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts)\)
 * [Yargs](http://yargs.js.org/) based argument system for commands.
-* Some essential [commands](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands) and [listeners](https://github.com/CamilleAbella/bot.ts/blob/master/src/listeners). \(including an advanced "eval" command\)
-* Some scripts in [package.json](https://github.com/CamilleAbella/bot.ts/blob/master/package.json). \(including a TypeScript watcher\)
-* [Knex](http://knexjs.org/) database provider [here](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3). \(including data migrations\)
-* Efficient [pagination](https://github.com/CamilleAbella/bot.ts/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/CamilleAbella/bot.ts/blob/master/src/commands/help.native.ts#L34) command\)
+* Some essential [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners). \(including an advanced "eval" command\)
+* Some scripts in [package.json](https://github.com/bot-ts/framework/blob/master/package.json). \(including a TypeScript watcher\)
+* [Knex](http://knexjs.org/) database provider [here](https://github.com/bot-ts/framework/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3). \(including data migrations\)
+* Efficient [pagination](https://github.com/bot-ts/framework/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34) command\)
 * [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms.
 * Faster [Gulp](https://gulpjs.com/) based file watcher.
-* GitHub-Action checks for TypeScript typings [here](https://github.com/CamilleAbella/bot.ts/blob/master/.github/workflows/test.yml).
+* GitHub-Action checks for TypeScript typings [here](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
 * Beautiful console logger using [Chalk](https://github.com/chalk/chalk).
 * [Gulp](https://gulpjs.com/) based framework updater.
 
@@ -48,7 +48,7 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 * [Documentation](https://ghom.gitbook.io/bot-ts/)
 * [CLI on NPN](https://www.npmjs.com/package/make-bot.ts)
 * [Discord server](https://discord.gg/3vC2XWK)
-* [use this template](https://github.com/CamilleAbella/bot.ts/generate)
+* [use this template](https://github.com/bot-ts/framework/generate)
 * [Follow tool NEWS](https://discord.gg/kYxDWWQJ8q)
 
 ![logs](https://user-images.githubusercontent.com/19586013/117373587-ce706a80-aecb-11eb-8e7b-4102094a50fa.png)
