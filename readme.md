@@ -22,16 +22,16 @@
 **bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
 
 * Advanced handler. \(for commands and listeners\)
-* [CLI](https://www.npmjs.com/package/make-bot.ts) to generate all file types.
+* [CLI](https://www.npmjs.com/package/make-bot.ts) to generate command and listener files.
 * Very practical file structure. \(all the app parts are includes and exported from [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts)\)
-* [Yargs](http://yargs.js.org/) based argument system for commands.
+* [Yargs](http://yargs.js.org/) shell-based argument system for textual commands.
 * Some essential [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners). \(including an advanced "eval" command\)
 * Some scripts in [package.json](https://github.com/bot-ts/framework/blob/master/package.json). \(including a TypeScript watcher\)
-* [Knex](http://knexjs.org/) database provider [here](https://github.com/bot-ts/framework/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3). \(including data migrations\)
+* [Knex](http://knexjs.org/) database provider [here](https://github.com/bot-ts/framework/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3).
 * Efficient [pagination](https://github.com/bot-ts/framework/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34) command\)
 * [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms.
 * Faster [Gulp](https://gulpjs.com/) based file watcher.
-* GitHub-Action checks for TypeScript typings [here](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
+* GitHub Actions checks for TYpeScript typings [here](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
 * Beautiful console logger using [Chalk](https://github.com/chalk/chalk).
 * [Gulp](https://gulpjs.com/) based framework updater.
 
