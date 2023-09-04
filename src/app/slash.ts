@@ -19,31 +19,39 @@ const guildIdExist = (guildId: string, tab: SlashDeployGuilds[]) => {
   return tab.some((item) => guildId in item)
 }
 
+export const slashCommands: SlashCommand<any>[] = []
+const slashCommandsForDeployGlobal: discord.ApplicationCommandData[] = []
+const slashCommandsForDeployGuilds: SlashDeployGuilds[] = []
+
 slashHandler.on("load", async (filepath: string) => {
   const file = await import("file://" + filepath)
   const item: SlashCommand<any> = file.default
+
   if (item.options.deploy.global) {
     slashCommandsForDeployGlobal.push(item.options.builder)
   } else {
     item.options.deploy.guilds?.map((guildId) => {
-      slashCommandsForDeployGuilds.map((cmds) => {
-        if (guildIdExist(guildId, slashCommandsForDeployGuilds)) {
-          cmds.commands.push(item.options.builder)
-        } else {
-          slashCommandsForDeployGuilds.push({
-            guildId: guildId,
-            commands: [item.options.builder],
-          })
-        }
-      })
+      if (slashCommandsForDeployGuilds.length === 0) {
+        slashCommandsForDeployGuilds.push({
+          guildId: guildId,
+          commands: [item.options.builder],
+        })
+      } else {
+        slashCommandsForDeployGuilds.map((cmds) => {
+          if (guildIdExist(guildId, slashCommandsForDeployGuilds)) {
+            cmds.commands.push(item.options.builder)
+          } else {
+            slashCommandsForDeployGuilds.push({
+              guildId: guildId,
+              commands: [item.options.builder],
+            })
+          }
+        })
+      }
     })
   }
   return slashCommands.push(item)
 })
-
-export const slashCommands: SlashCommand<any>[] = []
-const slashCommandsForDeployGlobal: discord.ApplicationCommandData[] = []
-const slashCommandsForDeployGuilds: SlashDeployGuilds[] = []
 
 export const rest = new REST({ version: "9" }).setToken(
   process.env.BOT_TOKEN as string

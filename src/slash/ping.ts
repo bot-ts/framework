@@ -7,7 +7,7 @@ export default new app.SlashCommand({
   },
   deploy: {
     global: false,
-    guilds: ["781105165754433537"],
+    guilds: [app.defaultGuild],
   },
   run: (context) => {
     context.reply("🏓 Pong")
