@@ -22,5 +22,3 @@ export const hasMedia = new app.Middleware("Has media ?", (message) => {
     app.die("You need to attach a file to your message.")
   )
 })
-
-export const defaultGuild = process.env.BOT_DEFAULT_GUILD ? process.env.BOT_DEFAULT_GUILD : ""

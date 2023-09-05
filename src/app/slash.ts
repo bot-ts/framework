@@ -15,10 +15,6 @@ type SlashDeployGuilds = {
   guildId: string
 }
 
-const guildIdExist = (guildId: string, tab: SlashDeployGuilds[]) => {
-  return tab.some((item) => guildId in item)
-}
-
 export const slashCommands: SlashCommand<any>[] = []
 const slashCommandsForDeployGlobal: discord.ApplicationCommandData[] = []
 const slashCommandsForDeployGuilds: SlashDeployGuilds[] = []
@@ -27,41 +23,41 @@ slashHandler.on("load", async (filepath: string) => {
   const file = await import("file://" + filepath)
   const item: SlashCommand<any> = file.default
 
-  if (item.options.deploy.global) {
+  if (!item.options.guilds) {
     slashCommandsForDeployGlobal.push(item.options.builder)
   } else {
-    item.options.deploy.guilds?.map((guildId) => {
+    item.options.guilds.map((guildId) => {
       if (slashCommandsForDeployGuilds.length === 0) {
         slashCommandsForDeployGuilds.push({
           guildId: guildId,
           commands: [item.options.builder],
         })
       } else {
-        slashCommandsForDeployGuilds.map((cmds) => {
-          if (guildIdExist(guildId, slashCommandsForDeployGuilds)) {
-            cmds.commands.push(item.options.builder)
-          } else {
-            slashCommandsForDeployGuilds.push({
-              guildId: guildId,
-              commands: [item.options.builder],
-            })
-          }
+        const existing = slashCommandsForDeployGuilds.find(SDP => {
+          return SDP.guildId === guildId
         })
+
+        if (existing) {
+          existing.commands.push(item.options.builder)
+        } else {
+          slashCommandsForDeployGuilds.push({
+            guildId: guildId,
+            commands: [item.options.builder],
+          })
+        }
       }
     })
   }
+
   return slashCommands.push(item)
 })
 
-export const rest = new REST({ version: "9" }).setToken(
-  process.env.BOT_TOKEN as string
-)
-
 export const deploySlashCommand = async (client: discord.Client<true>) => {
-  client.application.commands.set(slashCommandsForDeployGlobal)
-  slashCommandsForDeployGuilds.map((cmds) => {
-    client.application.commands.set(cmds.commands, cmds.guildId)
-  })
+  await client.application.commands.set(slashCommandsForDeployGlobal)
+
+  await Promise.all(slashCommandsForDeployGuilds.map((SDG) => {
+    return client.application.commands.set(SDG.commands, SDG.guildId)
+  }))
 }
 
 /**
@@ -69,7 +65,7 @@ export const deploySlashCommand = async (client: discord.Client<true>) => {
  */
 export type SlashCommandArguments<Base extends SlashCommandBuilder> = {
   builder: discord.ApplicationCommandData
-  deploy: { global: boolean; guilds?: string[] }
+  guilds?: string[]
   subs?: SlashCommandSubs<Base>[]
   run: (
     this: SlashCommand<Base>,

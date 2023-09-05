@@ -5,11 +5,7 @@ export default new app.SlashCommand({
     name: "ping",
     description: "Ping pong command",
   },
-  deploy: {
-    global: false,
-    guilds: [app.defaultGuild],
-  },
   run: (context) => {
-    context.reply("🏓 Pong")
+    return context.reply(`🏓 Pong (${Date.now() - context.createdTimestamp}ms)`)
   },
 })
