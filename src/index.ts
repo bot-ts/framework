@@ -1,5 +1,4 @@
 import { filename } from "dirname-filename-esm"
-import discord from "discord.js"
 
 import * as logger from "./app/logger.js"
 
