@@ -254,7 +254,7 @@ export function formatEmbedText(
   return (input ?? "").slice(0, embedLimits[limit]) || spaceChar
 }
 
-export class SafeMessageEmbed extends discord.MessageEmbed {
+export class SafeMessageEmbed extends discord.EmbedBuilder {
   setDescription(description: string): this {
     super.setDescription(formatEmbedText(description, "description"))
 
@@ -284,7 +284,7 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
     return this
   }
 
-  setColor(color: discord.ColorResolvable = "BLURPLE"): this {
+  setColor(color: discord.ColorResolvable = "Blurple"): this {
     super.setColor(color)
 
     return this

@@ -148,8 +148,8 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   // Restriction flags and permissions
   guildOwnerOnly?: boolean
   botOwnerOnly?: boolean
-  userPermissions?: discord.PermissionString[]
-  botPermissions?: discord.PermissionString[]
+  userPermissions?: discord.PermissionsString[]
+  botPermissions?: discord.PermissionsString[]
 
   roles?: core.Scrap<
     (
@@ -305,7 +305,7 @@ export async function prepareCommand<
         parsedArgs: yargsParser.Arguments
         key: string
       }
-): Promise<discord.MessageEmbed | boolean> {
+): Promise<discord.Embed | boolean> {
   const botOwnerId = await core.getBotOwnerId(message)
 
   // coolDown

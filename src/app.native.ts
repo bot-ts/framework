@@ -11,8 +11,6 @@ export * from "./app/core.js"
 
 export * from "discord.js"
 
-export { REST } from "@discordjs/rest"
-
 export * as pagination from "./app/pagination.js"
 export * as argument from "./app/argument.js"
 export * as database from "./app/database.js"

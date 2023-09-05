@@ -3,9 +3,6 @@ import path from "path"
 
 import * as handler from "@ghom/handler"
 
-import { REST } from "@discordjs/rest"
-import { SlashCommandBuilder } from "@discordjs/builders"
-
 export const slashHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "slash")
 )
@@ -33,7 +30,7 @@ slashHandler.on("load", async (filepath: string) => {
           commands: [item.options.builder],
         })
       } else {
-        const existing = slashCommandsForDeployGuilds.find(SDP => {
+        const existing = slashCommandsForDeployGuilds.find((SDP) => {
           return SDP.guildId === guildId
         })
 
@@ -55,15 +52,17 @@ slashHandler.on("load", async (filepath: string) => {
 export const deploySlashCommand = async (client: discord.Client<true>) => {
   await client.application.commands.set(slashCommandsForDeployGlobal)
 
-  await Promise.all(slashCommandsForDeployGuilds.map((SDG) => {
-    return client.application.commands.set(SDG.commands, SDG.guildId)
-  }))
+  await Promise.all(
+    slashCommandsForDeployGuilds.map((SDG) => {
+      return client.application.commands.set(SDG.commands, SDG.guildId)
+    })
+  )
 }
 
 /**
  * todo: Build context from builder arguments typings
  */
-export type SlashCommandArguments<Base extends SlashCommandBuilder> = {
+export type SlashCommandArguments<Base extends discord.SlashCommandBuilder> = {
   builder: discord.ApplicationCommandData
   guilds?: string[]
   subs?: SlashCommandSubs<Base>[]
@@ -73,7 +72,7 @@ export type SlashCommandArguments<Base extends SlashCommandBuilder> = {
   ) => unknown
 }
 
-export type SlashCommandSubs<Base extends SlashCommandBuilder> = {
+export type SlashCommandSubs<Base extends discord.SlashCommandBuilder> = {
   name: string
   run: (
     this: SlashCommand<Base>,
@@ -82,13 +81,13 @@ export type SlashCommandSubs<Base extends SlashCommandBuilder> = {
 }
 
 export type SlashCommandContext<
-  Base extends SlashCommandBuilder,
+  Base extends discord.SlashCommandBuilder,
   Interaction extends discord.CommandInteraction
 > = Interaction & {
   args: SlashCommandArguments<Base>
 }
 
-export class SlashCommand<Base extends SlashCommandBuilder> {
+export class SlashCommand<Base extends discord.SlashCommandBuilder> {
   /**
    * @deprecated
    */
