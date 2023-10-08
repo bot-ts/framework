@@ -5,7 +5,22 @@ import regexParser from "regex-parser"
 import * as core from "./core.js"
 import * as command from "./command.js"
 
-import { getClient } from "./client.js"
+export interface ArgumentValues {
+  number: number
+  date: Date
+  json: object
+  boolean: boolean
+  regex: RegExp
+  array: Array<string>
+  user: discord.User
+  member: discord.GuildMember
+  channel: discord.AnyChannel
+  message: discord.Message
+  role: discord.Role
+  emote: discord.GuildEmoji | string
+  invite: discord.Invite
+  command: command.Command<keyof command.CommandMessageType>
+}
 
 export interface Argument {
   name: string
@@ -24,21 +39,7 @@ export interface Option<Message extends command.NormalMessage>
   aliases?: string[]
   default?: core.Scrap<string, [message?: Message]>
   required?: core.Scrap<boolean, [message?: Message]>
-  castValue?:
-    | "number"
-    | "date"
-    | "json"
-    | "boolean"
-    | "regex"
-    | "array"
-    | "user"
-    | "member"
-    | "channel"
-    | "message"
-    | "role"
-    | "emote"
-    | "invite"
-    | ((value: string, message: Message) => any)
+  castValue?: keyof ArgumentValues | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
    */
@@ -108,8 +109,6 @@ export async function checkValue<Message extends command.NormalMessage>(
   value: string,
   message: Message
 ): Promise<discord.MessageEmbed | true> {
-  const client = getClient()
-
   if (!subject.checkValue) return true
 
   const errorEmbed = (
@@ -254,7 +253,9 @@ export async function castValue<Message extends command.NormalMessage>(
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
   message: Message,
-  setValue: (value: any) => unknown
+  setValue: <K extends keyof ArgumentValues>(
+    value: ArgumentValues[K]
+  ) => unknown
 ): Promise<discord.MessageEmbed | true> {
   const empty = new Error("The value is empty!")
 
@@ -264,35 +265,37 @@ export async function castValue<Message extends command.NormalMessage>(
     switch (subject.castValue) {
       case "boolean":
         if (baseValue === undefined) throw empty
-        else setValue(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue))
+        else setValue<"boolean">(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue))
         break
       case "date":
         if (!baseValue) {
           throw empty
         } else if (baseValue === "now") {
-          setValue(new Date())
+          setValue<"date">(new Date())
         } else if (/^[1-9]\d*$/.test(baseValue)) {
-          setValue(Number(baseValue))
+          const date = new Date()
+          date.setTime(Number(baseValue))
+          setValue<"date">(date)
         } else {
-          setValue(new Date(baseValue))
+          setValue<"date">(new Date(baseValue))
         }
         break
       case "json":
-        if (baseValue) setValue(JSON.parse(baseValue))
+        if (baseValue) setValue<"json">(JSON.parse(baseValue))
         else throw empty
         break
       case "number":
-        setValue(Number(baseValue))
+        setValue<"number">(Number(baseValue))
         if (!/^-?(?:0|[1-9]\d*)$/.test(baseValue ?? ""))
           throw new Error("The value is not a Number!")
         break
       case "regex":
-        if (baseValue) setValue(regexParser(baseValue))
+        if (baseValue) setValue<"regex">(regexParser(baseValue))
         else throw empty
         break
       case "array":
-        if (baseValue === undefined) setValue([])
-        else setValue(baseValue.split(/[,;|]/))
+        if (baseValue === undefined) setValue<"array">([])
+        else setValue<"array">(baseValue.split(/[,;|]/))
         break
       case "channel":
         if (baseValue) {
@@ -300,7 +303,7 @@ export async function castValue<Message extends command.NormalMessage>(
           if (match) {
             const id = match[1] ?? match[2]
             const channel = message.client.channels.cache.get(id)
-            if (channel) setValue(channel)
+            if (channel) setValue<"channel">(channel)
             else throw new Error("Unknown channel!")
           } else {
             const search = (channel: discord.AnyChannel) => {
@@ -313,7 +316,7 @@ export async function castValue<Message extends command.NormalMessage>(
             if (command.isGuildMessage(message))
               channel = message.guild.channels.cache.find(search)
             channel ??= message.client.channels.cache.find(search)
-            if (channel) setValue(channel)
+            if (channel) setValue<"channel">(channel)
             else throw new Error("Channel not found!")
           }
         } else throw empty
@@ -329,10 +332,11 @@ export async function castValue<Message extends command.NormalMessage>(
                 force: false,
                 cache: false,
               })
-              if (member) setValue(member)
+              if (member) setValue<"member">(member)
               else throw new Error("Unknown member!")
             } else {
               const members = await message.guild.members.fetch()
+              message.guild.members.cache.clear()
               const member = members.find((member) => {
                 return (
                   member.displayName
@@ -343,7 +347,7 @@ export async function castValue<Message extends command.NormalMessage>(
                     .includes(baseValue.toLowerCase())
                 )
               })
-              if (member) setValue(member)
+              if (member) setValue<"member">(member)
               else throw new Error("Member not found!")
             }
           } else
@@ -363,7 +367,7 @@ export async function castValue<Message extends command.NormalMessage>(
             const channel = message.client.channels.cache.get(channelID)
             if (channel) {
               if (channel.isText()) {
-                setValue(
+                setValue<"message">(
                   await channel.messages.fetch(messageID, {
                     force: false,
                     cache: false,
@@ -383,7 +387,7 @@ export async function castValue<Message extends command.NormalMessage>(
               force: false,
               cache: false,
             })
-            if (user) setValue(user)
+            if (user) setValue<"user">(user)
             else throw new Error("Unknown user!")
           } else {
             const user = message.client.users.cache.find((user) => {
@@ -391,7 +395,7 @@ export async function castValue<Message extends command.NormalMessage>(
                 .toLowerCase()
                 .includes(baseValue.toLowerCase())
             })
-            if (user) setValue(user)
+            if (user) setValue<"user">(user)
             else throw new Error("User not found!")
           }
         } else throw empty
@@ -403,7 +407,7 @@ export async function castValue<Message extends command.NormalMessage>(
             if (match) {
               const id = match[1] ?? match[2]
               const role = await message.guild.roles.fetch(id)
-              if (role) setValue(role)
+              if (role) setValue<"role">(role)
               else throw new Error("Unknown role!")
             } else {
               const roles = await message.guild.roles.fetch(undefined, {
@@ -413,7 +417,7 @@ export async function castValue<Message extends command.NormalMessage>(
               const role = roles.find((role) => {
                 return role.name.toLowerCase().includes(baseValue.toLowerCase())
               })
-              if (role) setValue(role)
+              if (role) setValue<"role">(role)
               else throw new Error("Role not found!")
             }
           } else
@@ -428,11 +432,11 @@ export async function castValue<Message extends command.NormalMessage>(
           if (match) {
             const id = match[1] ?? match[2]
             const emote = message.client.emojis.cache.get(id)
-            if (emote) setValue(emote)
+            if (emote) setValue<"emote">(emote)
             else throw new Error("Unknown emote!")
           } else {
             const emojiMatch = core.emojiRegex.exec(baseValue)
-            if (emojiMatch) setValue(emojiMatch[0])
+            if (emojiMatch) setValue<"emote">(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }
         } else throw empty
@@ -444,7 +448,7 @@ export async function castValue<Message extends command.NormalMessage>(
             const invite = invites.find(
               (invite) => invite.code === baseValue || invite.url === baseValue
             )
-            if (invite) setValue(invite)
+            if (invite) setValue<"invite">(invite)
             else throw new Error("Unknown invite!")
           } else
             throw new Error(
@@ -452,9 +456,16 @@ export async function castValue<Message extends command.NormalMessage>(
             )
         } else throw empty
         break
+      case "command":
+        if (baseValue) {
+          const cmd = command.commands.resolve(baseValue)
+          if (cmd) setValue<"command">(cmd)
+          else throw new Error("Unknown command!")
+        } else throw empty
+        break
       default:
         if (baseValue === undefined) throw empty
-        else setValue(await subject.castValue(baseValue, message))
+        else setValue<"command">(await subject.castValue(baseValue, message))
         break
     }
   }
