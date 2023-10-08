@@ -12,6 +12,7 @@ import EventEmitter from "events"
 import * as prettier from "prettier"
 
 import * as logger from "./logger.js"
+import * as app from "../namespaces/utils.native"
 
 export const startedAt = Date.now()
 
@@ -348,4 +349,16 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
 
     return this
   }
+}
+
+export function getDatabaseDriverName() {
+  const packageJSON = fetchPackageJson()
+
+  if (packageJSON?.dependencies?.["pg"]) {
+    return "pg"
+  } else if (packageJSON?.dependencies?.["mysql2"]) {
+    return "mysql2"
+  } else if (packageJSON?.dependencies?.["sqlite3"]) {
+    return "sqlite3"
+  } else throw new Error("No database driver found in package.json")
 }
