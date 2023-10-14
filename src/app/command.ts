@@ -53,7 +53,6 @@ export const commands = new (class CommandCollection extends discord.Collection<
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export type NormalMessage = discord.Message & {
-  customData: any
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
   send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
@@ -85,21 +84,15 @@ export interface CoolDown {
   trigger: boolean
 }
 
-export class Middleware<Type extends keyof CommandMessageType> {
-  public cache: any = {}
-
-  constructor(
-    public name: string,
-    public onRun: (
-      this: Middleware<Type>,
-      message: CommandMessageType[Type]
-    ) => Promise<unknown> | unknown
-  ) {}
-
-  public run(message: CommandMessageType[Type]) {
-    this.onRun.bind(this)(message)
-  }
+export interface MiddlewareResult {
+  result: boolean | string
+  data: any
 }
+
+export type Middleware<Type extends keyof CommandMessageType> = (
+  message: CommandMessageType[Type],
+  data: any
+) => Promise<MiddlewareResult> | MiddlewareResult
 
 export interface CommandMessageType {
   guild: GuildMessage
@@ -770,10 +763,17 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
   if (cmd.options.middlewares) {
     const middlewares = await core.scrap(cmd.options.middlewares, message)
 
+    let currentData: any = {}
+
     for (const middleware of middlewares) {
-      try {
-        await middleware.run(message)
-      } catch (error) {
+      const { result, data } = await middleware(message, currentData)
+
+      currentData = {
+        ...currentData,
+        ...(data ?? {}),
+      }
+
+      if (typeof result === "string")
         return new core.SafeMessageEmbed()
           .setColor("RED")
           .setAuthor({
@@ -782,13 +782,9 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
             }iddleware error`,
             iconURL: message.client.user.displayAvatarURL(),
           })
-          .setDescription(
-            core.code.stringify({
-              lang: "js",
-              content: String(error),
-            })
-          )
-      }
+          .setDescription(result)
+
+      if (!result) return false
     }
   }
 
