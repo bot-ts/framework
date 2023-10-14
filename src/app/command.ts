@@ -18,15 +18,16 @@ const __filename = filename(import.meta)
 
 export const commandHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "commands"),
-  { pattern: /\.js$/ }
+  {
+    pattern: /\.js$/,
+    onLoad: async (filepath) => {
+      const file = await import("file://" + filepath)
+      if (filepath.endsWith(".native.js")) file.default.options.native = true
+      file.default.filepath = filepath
+      return commands.add(file.default)
+    },
+  }
 )
-
-commandHandler.on("load", async (filepath) => {
-  const file = await import("file://" + filepath)
-  if (filepath.endsWith(".native.js")) file.default.options.native = true
-  file.default.filepath = filepath
-  return commands.add(file.default)
-})
 
 export let defaultCommand: Command<any> | null = null
 

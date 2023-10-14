@@ -40,9 +40,7 @@ function _cleanTemp() {
 }
 
 function _checkGulpfile(cb) {
-  fetch(
-    "https://raw.githubusercontent.com/bot-ts/framework/master/Gulpfile.js"
-  )
+  fetch("https://raw.githubusercontent.com/bot-ts/framework/master/Gulpfile.js")
     .then((res) => res.data)
     .then(async (remote) => {
       const local = await fs.promises.readFile(
@@ -87,6 +85,10 @@ function _build() {
       })
     )
     .pipe(gulp.dest("dist"))
+}
+
+function _copyKeepers() {
+  return gulp.src(["src/**/.keep"], { base: "src" }).pipe(gulp.dest("dist"))
 }
 
 function _watch(cb) {
@@ -156,8 +158,8 @@ function _updateDependencies(cb) {
           `Updated  '${chalk.cyan(key)}' [${
             dependencies[key]
               ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
-                newDependencies[key]
-              )}`
+                  newDependencies[key]
+                )}`
               : chalk.blueBright(newDependencies[key])
           }]`
         )
@@ -208,8 +210,8 @@ function _removeDuplicates() {
     .pipe(vinyl(del))
 }
 
-export const build = gulp.series(_cleanDist, _build)
-export const watch = gulp.series(_cleanDist, _build, _watch)
+export const build = gulp.series(_cleanDist, _build, _copyKeepers)
+export const watch = gulp.series(_cleanDist, _build, _copyKeepers, _watch)
 export const update = gulp.series(
   _checkGulpfile,
   _cleanTemp,
