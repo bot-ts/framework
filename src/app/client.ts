@@ -10,10 +10,4 @@ export const client = new discord.Client({
     : [],
 })
 
-export function getClient() {
-  if (!client.isReady()) throw new Error("The Discord client is not yet ready.")
-
-  return client
-}
-
 export default client
