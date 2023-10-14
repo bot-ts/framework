@@ -1,3 +1,5 @@
+// native file, if you want edit it, remove the "native" suffix from the filename
+
 import * as app from "../app.js"
 import * as core from "../app/core.js"
 

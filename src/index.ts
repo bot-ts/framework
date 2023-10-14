@@ -1,6 +1,6 @@
 import { filename } from "dirname-filename-esm"
 
-import * as logger from "./app/logger.js"
+import client from "./app/client.js"
 
 const __filename = filename(import.meta)
 
@@ -12,19 +12,14 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX"]) {
   }
 }
 
-const { default: client } = await import("./app/client.js")
-
 const app = await import("./app.js")
 
-client.login(process.env.BOT_TOKEN).catch((err) => {
-  logger.error("The Discord client can't connect...", __filename)
-  throw err
-})
-
 try {
-  await app.tableHandler.load()
-  await app.commandHandler.load()
-  await app.listenerHandler.load()
+  await app.orm.init()
+  await app.commandHandler.init()
+  await app.listenerHandler.init()
+
+  await client.login(process.env.BOT_TOKEN)
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)

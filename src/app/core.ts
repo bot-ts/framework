@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import { join } from "path"
 import fs from "fs"
 import prettify from "ghom-prettify"
@@ -12,7 +14,6 @@ import EventEmitter from "events"
 import * as prettier from "prettier"
 
 import * as logger from "./logger.js"
-import * as app from "../namespaces/utils.native"
 
 export const startedAt = Date.now()
 

@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import discord from "discord.js"
 import API from "discord-api-types/v8"
 import chalk from "chalk"
@@ -15,7 +17,8 @@ import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
 export const commandHandler = new handler.Handler(
-  path.join(process.cwd(), "dist", "commands")
+  path.join(process.cwd(), "dist", "commands"),
+  { pattern: /\.js$/ }
 )
 
 commandHandler.on("load", async (filepath) => {

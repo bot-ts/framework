@@ -1,3 +1,5 @@
+// native file, if you want edit it, remove the "native" suffix from the filename
+
 import * as app from "../app.js"
 
 import time from "tims"
@@ -42,7 +44,7 @@ export default new app.Command({
               2
             )}mb`,
             `ping: ${message.client.ws.ping}ms`,
-            `database: ${app.db.client.constructor.name}`,
+            `database: ${app.orm.database.client.constructor.name}`,
           ].join("\n"),
         }),
         true

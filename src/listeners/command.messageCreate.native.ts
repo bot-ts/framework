@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import * as app from "../app.js"
 import yargsParser from "yargs-parser"
 import { filename } from "dirname-filename-esm"
@@ -10,7 +12,7 @@ const listener: app.Listener<"messageCreate"> = {
   async run(message) {
     if (!app.isNormalMessage(message)) return
 
-    const prefix = await app.prefix(message.guild ?? undefined)
+    const prefix = await app.config.getPrefix(message)
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel

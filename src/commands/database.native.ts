@@ -1,3 +1,5 @@
+// native file, if you want edit it, remove the "native" suffix from the filename
+
 import * as app from "../app.js"
 
 export default new app.Command({
@@ -19,7 +21,7 @@ export default new app.Command({
       .replace(/\$me/g, `"${message.author.id}"`)
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, '"$1"')
 
-    const result = await app.db.raw(query)
+    const result = await app.orm.database.raw(query)
 
     return message.send({
       embeds: [
@@ -51,24 +53,37 @@ export default new app.Command({
       async run(message) {
         const packageJSON = app.fetchPackageJson()
 
-        const tables: { name: string }[] = await app.db.raw(
-          app.databasePatterns.tableNames()
-        )
+        const tables = Array.from(app.orm.handler.elements.keys())
 
         const fields = await Promise.all(
-          tables.map(async ({ name }): Promise<app.EmbedFieldData> => {
-            const columns: { name: string; type: string; dflt_value: any }[] =
-              await app.db.raw(app.databasePatterns.tableInfo(name))
+          tables.map(async (name): Promise<app.EmbedFieldData> => {
+            const columns: {
+              defaultValue: unknown
+              type: string
+              name: string
+            }[] = await app.orm
+              .database(name)
+              .columnInfo()
+              .then((cols) => {
+                return Object.entries(cols).map(
+                  ([name, { defaultValue, type }]) => {
+                    return { name, type, defaultValue }
+                  }
+                )
+              })
 
-            const rowCount = (await app.db(name).count("* as total").first())!
+            const rowCount = (await app.orm
+              .database(name)
+              .count("* as total")
+              .first())!
 
             return {
               name: `${name} x${rowCount.total}`,
               value: columns
                 .map(
-                  ({ name, type, dflt_value }) =>
+                  ({ name, type, defaultValue }) =>
                     `[\`${type.slice(0, 5)}\`] \`${name}${
-                      dflt_value ? `?` : ""
+                      defaultValue ? `?` : ""
                     }\``
                 )
                 .join("\n"),

@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"

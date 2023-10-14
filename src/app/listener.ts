@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
@@ -9,7 +11,8 @@ import * as logger from "./logger.js"
 import client from "./client.js"
 
 export const listenerHandler = new handler.Handler(
-  path.join(process.cwd(), "dist", "listeners")
+  path.join(process.cwd(), "dist", "listeners"),
+  { pattern: /\.js$/ }
 )
 
 listenerHandler.on("load", async (filepath) => {
