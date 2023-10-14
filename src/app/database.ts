@@ -17,6 +17,7 @@ export const orm = new ORM({
     useNullAsDefault: true,
     connection: {
       filename: path.join(dataDirectory, "sqlite3.db"),
+      timezone: process.env.BOT_TIMEZONE || "UTC",
     },
   },
   logger: logger.createLogger("database"),
