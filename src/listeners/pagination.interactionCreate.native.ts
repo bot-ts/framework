@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import * as app from "../app.js"
 
 const listener: app.Listener<"interactionCreate"> = {

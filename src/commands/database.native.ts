@@ -1,3 +1,5 @@
+// native file, if you want edit it, remove the "native" suffix from the filename
+
 import * as app from "../app.js"
 
 export default new app.Command({
@@ -19,7 +21,7 @@ export default new app.Command({
       .replace(/\$me/g, `"${message.author.id}"`)
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, '"$1"')
 
-    const result = await app.db.raw(query)
+    const result = await app.orm.database.raw(query)
 
     return message.send({
       embeds: [

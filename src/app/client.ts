@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import discord from "discord.js"
 
 export const client = new discord.Client({

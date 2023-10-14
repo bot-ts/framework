@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import discord from "discord.js"
 
 import * as logger from "./logger.js"

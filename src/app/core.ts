@@ -1,3 +1,5 @@
+// system file, please don't modify it
+
 import { join } from "path"
 import fs from "fs"
 import prettify from "ghom-prettify"
