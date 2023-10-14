@@ -1,7 +1,5 @@
 import { filename } from "dirname-filename-esm"
 
-import client from "./app/client.js"
-
 const __filename = filename(import.meta)
 
 import "dotenv/config.js"
@@ -18,8 +16,7 @@ try {
   await app.orm.init()
   await app.commandHandler.init()
   await app.listenerHandler.init()
-
-  await client.login(process.env.BOT_TOKEN)
+  await app.client.client.login(process.env.BOT_TOKEN)
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)
