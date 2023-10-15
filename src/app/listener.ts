@@ -32,7 +32,7 @@ export const listenerHandler = new handler.Handler(
         .basename(filepath, ".js")
         .replace(`${listener.event}.`, "")
         .split(".")
-        .filter((x) => x !== "native")
+        .filter((x) => x !== "native" && x !== listener.event)
         .join(" ")
 
       logger.log(
