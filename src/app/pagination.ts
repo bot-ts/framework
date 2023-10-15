@@ -2,7 +2,7 @@
 
 import discord from "discord.js"
 
-import * as logger from "./logger.js"
+import * as logger from "./core.js"
 
 import { filename } from "dirname-filename-esm"
 

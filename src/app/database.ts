@@ -1,10 +1,9 @@
 // system file, please don't modify it
 
 import { ORM } from "@ghom/orm"
+import { logger } from "@ghom/logger"
 import path from "path"
 import fs from "fs"
-
-import * as logger from "./logger.js"
 
 const dataDirectory = path.join(process.cwd(), "data")
 
@@ -20,7 +19,7 @@ export const orm = new ORM({
       timezone: process.env.BOT_TIMEZONE || "UTC",
     },
   },
-  logger: logger.createLogger("database"),
+  logger,
 })
 
 export * from "@ghom/orm"

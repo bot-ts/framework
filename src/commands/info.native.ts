@@ -3,7 +3,6 @@
 import * as app from "../app.js"
 
 import time from "tims"
-import * as core from "../app/core.js"
 
 const conf = app.fetchPackageJson()
 
@@ -19,8 +18,8 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const embed = new core.SafeMessageEmbed()
-      .setColor()
+    const embed = new app.MessageEmbed()
+      .setColor("BLURPLE")
       .setAuthor(
         `Information about ${message.client.user.tag}`,
         message.client.user?.displayAvatarURL({ dynamic: true })

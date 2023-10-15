@@ -21,12 +21,12 @@ export default new app.Command({
       .replace(/\$me/g, `"${message.author.id}"`)
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, '"$1"')
 
-    const result = await app.orm.database.raw(query)
+    const result = await app.orm.raw(query)
 
     return message.send({
       embeds: [
-        new app.SafeMessageEmbed()
-          .setColor()
+        new app.MessageEmbed()
+          .setColor("BLURPLE")
           .setTitle(
             `Result of SQL query ${
               Array.isArray(result) ? `(${result.length} items)` : ""
@@ -36,7 +36,7 @@ export default new app.Command({
             app.code.stringify({
               lang: "json",
               format: { printWidth: 62 },
-              content: JSON.stringify(result).slice(0, 1024),
+              content: JSON.stringify(result, null, 2).slice(0, 950),
             })
           )
           .setFooter(`Result of : ${query}`),
@@ -51,20 +51,14 @@ export default new app.Command({
       channelType: "all",
       aliases: ["tables", "schema", "list", "view"],
       async run(message) {
-        const packageJSON = app.fetchPackageJson()
-
-        const tables = Array.from(app.orm.handler.elements.keys())
-
         const fields = await Promise.all(
-          tables.map(async (name): Promise<app.EmbedFieldData> => {
-            const columns: {
-              defaultValue: unknown
-              type: string
-              name: string
-            }[] = await app.orm
-              .database(name)
-              .columnInfo()
-              .then((cols) => {
+          app.orm.cachedTables.map(
+            async (table): Promise<app.EmbedFieldData> => {
+              const columns: {
+                defaultValue: unknown
+                type: string
+                name: string
+              }[] = await table.getColumns().then((cols) => {
                 return Object.entries(cols).map(
                   ([name, { defaultValue, type }]) => {
                     return { name, type, defaultValue }
@@ -72,30 +66,28 @@ export default new app.Command({
                 )
               })
 
-            const rowCount = (await app.orm
-              .database(name)
-              .count("* as total")
-              .first())!
+              const rowCount = table.count()
 
-            return {
-              name: `${name} x${rowCount.total}`,
-              value: columns
-                .map(
-                  ({ name, type, defaultValue }) =>
-                    `[\`${type.slice(0, 5)}\`] \`${name}${
-                      defaultValue ? `?` : ""
-                    }\``
-                )
-                .join("\n"),
-              inline: true,
+              return {
+                name: `${table.options.name} x${rowCount}`,
+                value: columns
+                  .map(
+                    ({ name, type, defaultValue }) =>
+                      `[\`${type.slice(0, 5)}\`] \`${name}${
+                        defaultValue ? `?` : ""
+                      }\``
+                  )
+                  .join("\n"),
+                inline: true,
+              }
             }
-          })
+          )
         )
 
         return message.send({
           embeds: [
-            new app.SafeMessageEmbed()
-              .setColor()
+            new app.MessageEmbed()
+              .setColor("BLURPLE")
               .setTitle("Database plan")
               .setDescription(
                 `**${fields.length}** tables, **${fields.reduce(

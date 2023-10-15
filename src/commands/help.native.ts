@@ -1,7 +1,6 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
 import * as app from "../app.js"
-import * as core from "../app/core.js"
 
 export default new app.Command({
   name: "help",
@@ -25,7 +24,7 @@ export default new app.Command({
       } else {
         await message.channel.send({
           embeds: [
-            new core.SafeMessageEmbed()
+            new app.MessageEmbed()
               .setColor("RED")
               .setAuthor(
                 `Unknown command "${message.args.command}"`,
@@ -48,8 +47,8 @@ export default new app.Command({
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.SafeMessageEmbed()
-              .setColor()
+            return new app.MessageEmbed()
+              .setColor("BLURPLE")
               .setAuthor(
                 "Command list",
                 message.client.user?.displayAvatarURL()

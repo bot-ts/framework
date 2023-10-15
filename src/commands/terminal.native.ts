@@ -1,9 +1,9 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
 import cp from "child_process"
+import discord from "discord.js"
 
 import * as app from "../app.js"
-import * as core from "../app/core.js"
 
 export default new app.Command({
   name: "terminal",
@@ -23,8 +23,8 @@ export default new app.Command({
 
     const toEdit = await message.channel.send({
       embeds: [
-        new core.SafeMessageEmbed()
-          .setColor()
+        new discord.MessageEmbed()
+          .setColor("BLURPLE")
           .setTitle("The process is running..."),
       ],
     })
@@ -34,7 +34,7 @@ export default new app.Command({
         ? err.stack ?? err.message
         : stderr.trim() || stdout || null
 
-      const embed = new core.SafeMessageEmbed()
+      const embed = new discord.MessageEmbed()
         .setColor(err ? "RED" : "BLURPLE")
         .setTitle(
           err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."

@@ -8,7 +8,7 @@ const __filename = filename(import.meta)
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
-  description: "Handle message for commands",
+  description: "Handle messages for commands",
   async run(message) {
     if (!app.isNormalMessage(message)) return
 
@@ -18,8 +18,8 @@ const listener: app.Listener<"messageCreate"> = {
       return message.channel
         .send({
           embeds: [
-            new app.SafeMessageEmbed()
-              .setColor()
+            new app.MessageEmbed()
+              .setColor("BLURPLE")
               .setDescription(`My prefix is \`${prefix}\``),
           ],
         })

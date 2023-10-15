@@ -6,8 +6,8 @@ import chalk from "chalk"
 import apiTypes from "discord-api-types/v8.js"
 
 import * as handler from "@ghom/handler"
-import * as logger from "./logger.js"
 
+import * as logger from "./core.js"
 import client from "./client.js"
 
 export const listenerHandler = new handler.Handler(
@@ -26,15 +26,20 @@ export const listenerHandler = new handler.Handler(
         }
       })
 
-      const sub = path
+      const isNative = filepath.includes(".native.")
+
+      const category = path
         .basename(filepath, ".js")
         .replace(`${listener.event}.`, "")
+        .split(".")
+        .filter((x) => x !== "native")
+        .join(" ")
 
       logger.log(
-        `loaded listener ${chalk.yellow(
+        `loaded listener ${chalk.magenta(category)} ${chalk.yellow(
           listener.once ? "once" : "on"
         )} ${chalk.blueBright(listener.event)}${
-          sub !== listener.event ? ` ${chalk.green(sub)}` : ""
+          isNative ? ` ${chalk.green("native")}` : ""
         } ${chalk.grey(listener.description)}`
       )
     },
