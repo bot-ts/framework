@@ -83,7 +83,12 @@ const listener: app.Listener<"messageCreate"> = {
     let key = dynamicContent.split(/\s+/)[0]
 
     // turn ON/OFF
-    if (key !== "turn" && !app.cache.ensure<boolean>("turn", true)) return
+    if (
+      key !== "turn" &&
+      !app.cache.ensure<boolean>("turn", true) &&
+      message.author.id !== process.env.BOT_OWNER
+    )
+      return
 
     let cmd: app.Command<any> = app.commands.resolve(key) as app.Command<any>
 

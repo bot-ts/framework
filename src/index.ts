@@ -4,7 +4,7 @@ const __filename = filename(import.meta)
 
 import "dotenv/config.js"
 
-for (const key of ["BOT_TOKEN", "BOT_PREFIX"]) {
+for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
     throw new Error(`You need to add "${key}" value in your .env file.`)
   }
