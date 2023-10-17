@@ -45,6 +45,7 @@ export default new app.Command({
                       if (iterationCount >= 1)
                         result.push(`... (+ ${iterationCount} more)`)
                     },
+                    maxIterations: 100,
                   })
                 : JSON.stringify(result, null, 2).slice(0, 950),
             })

@@ -257,7 +257,7 @@ export function getDatabaseDriverName() {
 }
 
 export function refactor<Value>(options: {
-  resolveValue: () => Value
+  resolveValue: (index: number) => Value
   condition: (value: Value) => boolean
   elseAction: (value: Value, index: number) => unknown
   onEnd?: (value: Value, iterationCount: number) => unknown
@@ -265,12 +265,12 @@ export function refactor<Value>(options: {
 }): Value {
   const { resolveValue, condition, elseAction } = options
 
-  let value = resolveValue()
+  let value = resolveValue(0)
   let index = 0
 
   while (condition(value)) {
     elseAction(value, index)
-    value = resolveValue()
+    value = resolveValue(index)
     index++
 
     if (options.maxIterations && index > options.maxIterations) break
