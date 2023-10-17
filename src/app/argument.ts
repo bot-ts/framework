@@ -124,7 +124,7 @@ export async function checkValue<Message extends command.NormalMessage>(
   }
 
   if (Array.isArray(subject.checkValue)) {
-    if (subject.checkValue.includes(value)) {
+    if (!subject.checkValue.includes(value)) {
       const joined = subject.checkValue.join(" | ")
 
       return errorEmbed(() =>

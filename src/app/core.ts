@@ -255,3 +255,28 @@ export function getDatabaseDriverName() {
     return "sqlite3"
   } else throw new Error("No database driver found in package.json")
 }
+
+export function refactor<Value>(options: {
+  resolveValue: () => Value
+  condition: (value: Value) => boolean
+  elseAction: (value: Value, index: number) => unknown
+  onEnd?: (value: Value, iterationCount: number) => unknown
+  maxIterations?: number
+}): Value {
+  const { resolveValue, condition, elseAction } = options
+
+  let value = resolveValue()
+  let index = 0
+
+  while (condition(value)) {
+    elseAction(value, index)
+    value = resolveValue()
+    index++
+
+    if (options.maxIterations && index > options.maxIterations) break
+  }
+
+  options.onEnd?.(value, index)
+
+  return value
+}

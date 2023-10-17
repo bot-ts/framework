@@ -36,10 +36,20 @@ export default new app.Command({
             app.code.stringify({
               lang: "json",
               format: { printWidth: 62 },
-              content: JSON.stringify(result, null, 2).slice(0, 950),
+              content: Array.isArray(result)
+                ? app.refactor({
+                    resolveValue: () => JSON.stringify(result, null, 2),
+                    condition: (value) => value.length < 900,
+                    elseAction: () => result.pop(),
+                    onEnd: (value, iterationCount) => {
+                      if (iterationCount >= 1)
+                        result.push(`... (+ ${iterationCount} more)`)
+                    },
+                  })
+                : JSON.stringify(result, null, 2).slice(0, 950),
             })
           )
-          .setFooter(`Result of : ${query}`),
+          .setFooter({ text: `Result of : ${query}` }),
       ],
     })
   },

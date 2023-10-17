@@ -127,6 +127,12 @@ function _copyTemp() {
     .pipe(gulp.dest(__dirname, { overwrite: true }))
 }
 
+function _copyConfig() {
+  return gulp
+    .src(["temp/src/config.ts"], { base: "temp" })
+    .pipe(gulp.dest(__dirname, { overwrite: false }))
+}
+
 function _updateDependencies(cb) {
   const localPackageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
   const remotePackageJSON = JSON.parse(
@@ -217,6 +223,7 @@ export const update = gulp.series(
   _cleanTemp,
   _downloadTemp,
   _copyTemp,
+  _copyConfig,
   _removeDuplicates,
   _updateDependencies,
   _updateDatabaseFile,
