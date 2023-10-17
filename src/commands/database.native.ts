@@ -76,7 +76,7 @@ export default new app.Command({
                 )
               })
 
-              const rowCount = table.count()
+              const rowCount = await table.count()
 
               return {
                 name: `${table.options.name} x${rowCount}`,
