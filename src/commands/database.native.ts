@@ -37,16 +37,19 @@ export default new app.Command({
               lang: "json",
               format: { printWidth: 62 },
               content: Array.isArray(result)
-                ? app.refactor({
-                    resolveValue: () => JSON.stringify(result, null, 2),
-                    condition: (value) => value.length < 900,
-                    elseAction: () => result.pop(),
-                    onEnd: (value, iterationCount) => {
-                      if (iterationCount >= 1)
-                        result.push(`... (+ ${iterationCount} more)`)
-                    },
-                    maxIterations: 100,
-                  })
+                ? app
+                    .refactor({
+                      resolveValue: () => JSON.stringify(result, null, 2),
+                      whileCondition: (value) =>
+                        value.length > 900 && result.length > 1,
+                      elseAction: () => result.pop(),
+                      onEnd: (value, iterationCount) => {
+                        if (iterationCount >= 1)
+                          result.push(`... (+ ${iterationCount} more)`)
+                      },
+                      maxIterations: 1000,
+                    })
+                    .slice(0, 950)
                 : JSON.stringify(result, null, 2).slice(0, 950),
             })
           )

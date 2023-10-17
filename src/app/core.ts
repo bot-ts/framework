@@ -258,17 +258,17 @@ export function getDatabaseDriverName() {
 
 export function refactor<Value>(options: {
   resolveValue: (index: number) => Value
-  condition: (value: Value) => boolean
+  whileCondition: (value: Value) => boolean
   elseAction: (value: Value, index: number) => unknown
   onEnd?: (value: Value, iterationCount: number) => unknown
   maxIterations?: number
 }): Value {
-  const { resolveValue, condition, elseAction } = options
+  const { resolveValue, whileCondition, elseAction } = options
 
   let value = resolveValue(0)
   let index = 0
 
-  while (condition(value)) {
+  while (whileCondition(value)) {
     elseAction(value, index)
     value = resolveValue(index)
     index++
