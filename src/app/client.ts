@@ -1,13 +1,8 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
+import { config } from "../config.js"
 
-export const client = new discord.Client({
-  intents: process.env.BOT_INTENTS
-    ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
-        (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
-      )
-    : [],
-})
+export const client = new discord.Client(config.client)
 
 export default client

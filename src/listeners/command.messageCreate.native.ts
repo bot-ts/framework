@@ -10,6 +10,8 @@ const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Handle messages for commands",
   async run(message) {
+    if (app.config.ignoreBots && message.author.bot) return
+
     if (!app.isNormalMessage(message)) return
 
     const prefix = await app.config.getPrefix(message)

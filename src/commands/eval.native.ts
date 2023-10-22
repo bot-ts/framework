@@ -117,13 +117,13 @@ export default new app.Command({
         )
 
       if (message.args.information)
-        embed.addField(
-          "Information",
-          app.code.stringify({
+        embed.addFields({
+          name: "Information",
+          value: app.code.stringify({
             content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
             lang: "yaml",
-          })
-        )
+          }),
+        })
       await message.channel.send({ embeds: [embed] })
     }
 

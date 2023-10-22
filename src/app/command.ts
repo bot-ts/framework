@@ -1,7 +1,6 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
-import API from "discord-api-types/v8"
 import chalk from "chalk"
 import tims from "tims"
 import path from "path"
@@ -71,7 +70,7 @@ export type NormalMessage = discord.Message & {
 }
 
 export type GuildMessage = NormalMessage & {
-  channel: discord.TextChannel & discord.GuildChannel & discord.ThreadChannel
+  channel: discord.TextChannel & discord.GuildChannel
   guild: discord.Guild
   member: discord.GuildMember
 }
@@ -99,14 +98,6 @@ export interface CommandMessageType {
   guild: GuildMessage
   dm: DirectMessage
   all: NormalMessage
-}
-
-export interface CommandTest {
-  name: string
-  run: (
-    tester: discord.Client<true>,
-    tested: discord.Client<true>
-  ) => Promise<void | string>
 }
 
 export interface CommandOptions<Type extends keyof CommandMessageType> {
@@ -167,42 +158,34 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * The rest of message after excludes all other arguments.
    */
   rest?: argument.Rest<CommandMessageType[Type]>
+
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
   positional?: argument.Positional<CommandMessageType[Type]>[]
+
   /**
    * Yargs option arguments (e.g. `--myArgument=value`)
    */
   options?: argument.Option<CommandMessageType[Type]>[]
+
   /**
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
   flags?: argument.Flag<CommandMessageType[Type]>[]
+
   run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
+
   /**
    * Sub-commands
    */
   subs?: (Command<"guild"> | Command<"dm"> | Command)[]
-  /**
-   * This slash command options are automatically setup on bot running, but you can configure it manually too.
-   */
-  slash?: API.RESTPostAPIApplicationCommandsJSONBody
-  /**
-   * This property is automatically setup on bot running.
-   * @deprecated
-   */
-  parent?: Command<keyof CommandMessageType>
-  /**
-   * This property is automatically setup on bot running.
-   * @deprecated
-   */
-  native?: boolean
-  tests?: CommandTest[]
 }
 
 export class Command<Type extends keyof CommandMessageType = "all"> {
   filepath?: string
+  parent?: Command<keyof CommandMessageType>
+  native = false
 
   constructor(public options: CommandOptions<Type>) {}
 }
@@ -213,7 +196,7 @@ export function validateCommand<
   command: Command<Type>,
   parent?: Command<keyof CommandMessageType>
 ): void | never {
-  command.options.parent = parent
+  command.parent = parent
 
   if (command.options.isDefault) {
     if (defaultCommand)
@@ -256,7 +239,7 @@ export function validateCommand<
 
   logger.log(
     `loaded command ${chalk.blueBright(commandBreadcrumb(command))}${
-      command.options.native ? ` ${chalk.green("native")}` : ""
+      command.native ? ` ${chalk.green("native")}` : ""
     } ${chalk.grey(command.options.description)}`
   )
 
@@ -278,8 +261,8 @@ export function commandBreadcrumb<Type extends keyof CommandMessageType>(
 export function commandParents<Type extends keyof CommandMessageType>(
   command: Command<Type>
 ): Command<any>[] {
-  return command.options.parent
-    ? [command, ...commandParents(command.options.parent)]
+  return command.parent
+    ? [command, ...commandParents(command.parent)]
     : [command]
 }
 
@@ -361,7 +344,11 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of botPermissions)
-        if (!message.guild.me?.permissions.has(permission, true))
+        if (
+          !message.guild.members
+            .resolve(message.client.user)
+            ?.permissions.has(permission, true)
+        )
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor({
@@ -695,7 +682,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (cmd.options.flags) {
       for (const flag of cmd.options.flags) {
-        let { given, nameIsGiven, value } = argument.resolveGivenArgument(
+        let { nameIsGiven, value } = argument.resolveGivenArgument(
           context.parsedArgs,
           flag
         )
@@ -872,7 +859,11 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       )
     }
 
-    embed.addField("options", options.join("\n"), false)
+    embed.addFields({
+      name: "options",
+      value: options.join("\n"),
+      inline: false,
+    })
   }
 
   embed.setTitle(title.join(" "))
@@ -887,41 +878,45 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   if (cmd.options.aliases) {
     const aliases = cmd.options.aliases
 
-    embed.addField(
-      "aliases",
-      aliases.map((alias) => `\`${alias}\``).join(", "),
-      true
-    )
+    embed.addFields({
+      name: "aliases",
+      value: aliases.map((alias) => `\`${alias}\``).join(", "),
+      inline: true,
+    })
   }
 
   if (cmd.options.middlewares) {
-    embed.addField(
-      "middlewares:",
-      cmd.options.middlewares
+    embed.addFields({
+      name: "middlewares:",
+      value: cmd.options.middlewares
         .map((middleware) => `*${middleware.name || "Anonymous"}*`)
         .join(" → "),
-      true
-    )
+      inline: true,
+    })
   }
 
   if (cmd.options.examples) {
     const examples = await core.scrap(cmd.options.examples, message)
 
-    embed.addField(
-      "examples:",
-      core.code.stringify({
+    embed.addFields({
+      name: "examples:",
+      value: core.code.stringify({
         content: examples
           .map((example) => message.usedPrefix + example)
           .join("\n"),
       }),
-      false
-    )
+      inline: false,
+    })
   }
 
   if (cmd.options.botPermissions) {
     const botPermissions = await core.scrap(cmd.options.botPermissions, message)
 
-    embed.addField("bot permissions", botPermissions.join(", "), true)
+    embed.addFields({
+      name: "bot permissions",
+      value: botPermissions.join(", "),
+      inline: true,
+    })
   }
 
   if (cmd.options.userPermissions) {
@@ -930,39 +925,48 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       message
     )
 
-    embed.addField("user permissions", userPermissions.join(", "), true)
+    embed.addFields({
+      name: "user permissions",
+      value: userPermissions.join(", "),
+      inline: true,
+    })
   }
 
   if (specialPermissions.length > 0)
-    embed.addField(
-      "special permissions",
-      specialPermissions.map((perm) => `\`${perm}\``).join(", "),
-      true
-    )
+    embed.addFields({
+      name: "special permissions",
+      value: specialPermissions.map((perm) => `\`${perm}\``).join(", "),
+      inline: true,
+    })
 
   if (cmd.options.coolDown) {
     const coolDown = await core.scrap(cmd.options.coolDown, message)
 
-    embed.addField("cool down", tims.duration(coolDown), true)
+    embed.addFields({
+      name: "cool down",
+      value: tims.duration(coolDown),
+      inline: true,
+    })
   }
 
   if (cmd.options.subs)
-    embed.addField(
-      "sub commands:",
-      (
-        await Promise.all(
-          cmd.options.subs.map(async (sub: Command<any>) => {
-            const prepared = await prepareCommand(message, sub)
-            if (prepared !== true) return ""
-            return commandToListItem(message, sub)
-          })
+    embed.addFields({
+      name: "sub commands:",
+      value:
+        (
+          await Promise.all(
+            cmd.options.subs.map(async (sub: Command<any>) => {
+              const prepared = await prepareCommand(message, sub)
+              if (prepared !== true) return ""
+              return commandToListItem(message, sub)
+            })
+          )
         )
-      )
-        .filter((line) => line.length > 0)
-        .join("\n")
-        .trim() || "Sub commands are not accessible by you.",
-      false
-    )
+          .filter((line) => line.length > 0)
+          .join("\n")
+          .trim() || "Sub commands are not accessible by you.",
+      inline: false,
+    })
 
   if (cmd.options.channelType !== "all")
     embed.setFooter({

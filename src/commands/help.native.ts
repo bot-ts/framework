@@ -24,12 +24,10 @@ export default new app.Command({
       } else {
         await message.channel.send({
           embeds: [
-            new app.MessageEmbed()
-              .setColor("RED")
-              .setAuthor(
-                `Unknown command "${message.args.command}"`,
-                message.client.user?.displayAvatarURL()
-              ),
+            new app.MessageEmbed().setColor("RED").setAuthor({
+              name: `Unknown command "${message.args.command}"`,
+              iconURL: message.client.user?.displayAvatarURL(),
+            }),
           ],
         })
       }
@@ -49,12 +47,12 @@ export default new app.Command({
           (page) => {
             return new app.MessageEmbed()
               .setColor("BLURPLE")
-              .setAuthor(
-                "Command list",
-                message.client.user?.displayAvatarURL()
-              )
+              .setAuthor({
+                name: "Command list",
+                iconURL: message.client.user?.displayAvatarURL(),
+              })
               .setDescription(page.join("\n"))
-              .setFooter(`${message.usedPrefix}help <command>`)
+              .setFooter({ text: `${message.usedPrefix}help <command>` })
           }
         ),
         filter: (reaction, user) => user.id === message.author.id,

@@ -16,7 +16,7 @@ try {
   await app.orm.init()
   await app.commandHandler.init()
   await app.listenerHandler.init()
-  await app.client.client.login(process.env.BOT_TOKEN)
+  await app.client.login(process.env.BOT_TOKEN)
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)

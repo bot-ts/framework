@@ -24,10 +24,6 @@ export { log, warn, error, success }
 
 export const startedAt = Date.now()
 
-export function die(message: string): never {
-  throw new Error(message)
-}
-
 export function uptime(): number {
   return Date.now() - startedAt
 }
@@ -242,7 +238,7 @@ export const emojiRegex =
 export const fetchPackageJson = () =>
   JSON.parse(fs.readFileSync(rootPath("package.json"), "utf-8"))
 
-export const spaceChar = "\u200b"
+export const blankChar = "\u200b"
 
 export function getDatabaseDriverName() {
   const packageJSON = fetchPackageJson()

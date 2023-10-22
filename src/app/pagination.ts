@@ -230,9 +230,7 @@ export abstract class Paginator {
 
     clearTimeout(this._deactivation as NodeJS.Timeout)
 
-    const message = await this.options.channel.messages.cache.get(
-      this._messageID
-    )
+    const message = this.options.channel.messages.cache.get(this._messageID)
 
     // if message is not deleted
     if (message && !message.deletable)
