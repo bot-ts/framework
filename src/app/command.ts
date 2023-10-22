@@ -71,7 +71,7 @@ export type NormalMessage = discord.Message & {
 }
 
 export type GuildMessage = NormalMessage & {
-  channel: discord.TextChannel & discord.GuildChannel
+  channel: discord.TextChannel & discord.GuildChannel & discord.ThreadChannel
   guild: discord.Guild
   member: discord.GuildMember
 }
@@ -995,15 +995,11 @@ export function isNormalMessage(
 export function isGuildMessage(
   message: NormalMessage
 ): message is GuildMessage {
-  return (
-    !!message.member &&
-    !!message.guild &&
-    message.channel instanceof discord.GuildChannel
-  )
+  return !!message.member && !!message.guild
 }
 
 export function isDirectMessage(
   message: NormalMessage
 ): message is DirectMessage {
-  return message.channel instanceof discord.DMChannel
+  return message.channel.type.toLowerCase() === "dm"
 }
