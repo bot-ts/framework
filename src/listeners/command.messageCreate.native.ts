@@ -92,7 +92,7 @@ const listener: app.Listener<"messageCreate"> = {
     )
       return
 
-    let cmd: app.Command<any> = app.commands.resolve(key) as app.Command<any>
+    let cmd = app.commands.resolve(key)
 
     if (!cmd) {
       if (app.defaultCommand) {
@@ -140,6 +140,7 @@ const listener: app.Listener<"messageCreate"> = {
     const parsedArgs = yargsParser(dynamicContent)
     const restPositional = (parsedArgs._?.slice() ?? []).map(String)
 
+    // @ts-expect-error
     message.args = restPositional.map((positional) => {
       if (/^(?:".+"|'.+')$/.test(positional))
         return positional.slice(1, positional.length - 1)
@@ -177,7 +178,7 @@ const listener: app.Listener<"messageCreate"> = {
           })
         )
         .catch((error) => {
-          app.error(error, cmd.filepath ?? __filename, true)
+          app.error(error, cmd?.filepath ?? __filename, true)
         })
     }
   },

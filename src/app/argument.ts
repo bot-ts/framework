@@ -7,6 +7,8 @@ import regexParser from "regex-parser"
 import * as core from "./core.js"
 import * as command from "./command.js"
 
+type ValueOf<T> = T[keyof T]
+
 /**
  * Extracts the name of an input
  */
@@ -22,11 +24,24 @@ type InputType<T> = T extends Argument<any, infer Type, any>
 /**
  * Extracts the outputs of an array of inputs
  */
-type Outputs<Inputs extends readonly Argument<any, TypeName, any>[]> = {
+export type Outputs<Inputs extends readonly Argument<any, TypeName, any>[]> = {
   [K in InputName<Inputs[number]>]: InputType<
     Extract<Inputs[number], { name: K }>
   >
 }
+
+export type OutputFlags<Inputs extends readonly Flag<any>[]> = {
+  [K in Inputs[number]["name"]]: boolean
+}
+
+/**
+ * Convert the outputs of an array of inputs into an array containing the values
+ */
+export type OutputPositionalValues<
+  Inputs extends readonly Positional<any, any, any>[]
+> = ValueOf<{
+  [K in Inputs[number]["name"]]: InputType<Extract<Inputs[number], { name: K }>>
+}>[]
 
 type TypeName = keyof ArgumentTypes
 
@@ -51,7 +66,16 @@ export interface ArgumentTypes {
   role: discord.Role
   emote: discord.GuildEmoji | string
   invite: discord.Invite
-  command: command.Command<keyof command.CommandMessageType, any>
+  command: command.ICommand
+}
+
+export interface IRest {
+  name: string
+  description: string
+  required?: core.Scrap<boolean, [message?: command.IMessage]>
+  default?: core.Scrap<string, [message?: command.IMessage]>
+  all?: boolean
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Rest<
@@ -64,6 +88,22 @@ export interface Rest<
   default?: core.Scrap<string, [message?: Message]>
   all?: boolean
   missingErrorMessage?: string | discord.MessageEmbed
+}
+
+export interface IOption {
+  name: string
+  type: TypeName
+  description: string
+  aliases?: string[]
+  default?: core.Scrap<string, [message?: command.IMessage]>
+  required?: core.Scrap<boolean, [message?: command.IMessage]>
+  validate?: core.Scrap<
+    boolean | string,
+    [value: ArgumentTypes[TypeName], message?: command.IMessage]
+  >
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Option<
@@ -80,6 +120,21 @@ export interface Option<
   validate?: core.Scrap<
     boolean | string,
     [value: ArgumentTypes[Type], message?: Message]
+  >
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
+}
+
+export interface IPositional {
+  name: string
+  type: TypeName
+  description: string
+  default?: core.Scrap<string, [message?: command.IMessage]>
+  required?: core.Scrap<boolean, [message?: command.IMessage]>
+  validate?: core.Scrap<
+    boolean | string,
+    [value: ArgumentTypes[TypeName], message?: command.IMessage]
   >
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
@@ -103,6 +158,13 @@ export interface Positional<
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
   validationErrorMessage?: string | discord.MessageEmbed
+}
+
+export interface IFlag {
+  name: string
+  aliases?: string[]
+  description: string
+  flag: string
 }
 
 export interface Flag<Name extends string> {

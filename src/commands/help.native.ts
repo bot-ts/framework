@@ -17,7 +17,7 @@ export default new app.Command({
   ],
   async run(message) {
     if (message.args.command) {
-      const cmd: app.Command = message.args.command
+      const cmd = message.args.command
 
       if (cmd) {
         return app.sendCommandDetails(message, cmd)
