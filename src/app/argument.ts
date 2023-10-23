@@ -10,46 +10,47 @@ import * as command from "./command.js"
 type ValueOf<T> = T[keyof T]
 
 /**
- * Extracts the name of an input
- */
-type InputName<T> = T extends Argument<infer Name, any, any> ? Name : never
-
-/**
- * Extracts the type of an input
- */
-type InputType<T> = T extends Argument<any, infer Type, any>
-  ? ArgumentTypes[Type]
-  : never
-
-/**
  * Extracts the outputs of an array of inputs
+ * TESTED, WORKING PERFECTLY
  */
-export type Outputs<Inputs extends readonly Argument<any, TypeName, any>[]> = {
-  [K in InputName<Inputs[number]>]: InputType<
-    Extract<Inputs[number], { name: K }>
-  >
+export type Outputs<Inputs extends readonly TypedArgument<any, any>[]> = {
+  [K in Inputs[number]["name"]]: ArgumentTypes[Extract<
+    Inputs[number],
+    { name: K }
+  >["type"]]
 }
 
-export type OutputFlags<Inputs extends readonly Flag<any>[]> = {
+/**
+ * Extracts the outputs of an array of inputs into an array containing the flag values
+ * TESTED, WORKING PERFECTLY
+ */
+export type OutputFlags<Inputs extends readonly NamedArgument<any>[]> = {
   [K in Inputs[number]["name"]]: boolean
 }
 
 /**
  * Convert the outputs of an array of inputs into an array containing the values
+ * TESTED, WORKING PERFECTLY
  */
 export type OutputPositionalValues<
-  Inputs extends readonly Positional<any, any, any>[]
+  Inputs extends readonly TypedArgument<any, any>[]
 > = ValueOf<{
-  [K in Inputs[number]["name"]]: InputType<Extract<Inputs[number], { name: K }>>
+  [K in Inputs[number]["name"]]: ArgumentTypes[Extract<
+    Inputs[number],
+    { name: K }
+  >["type"]]
 }>[]
 
-type TypeName = keyof ArgumentTypes
+export type TypeName = keyof ArgumentTypes
 
-export type Argument<
-  Name extends string,
-  Type extends TypeName,
-  Message extends command.NormalMessage
-> = Positional<Name, Type, Message> | Option<Name, Type, Message>
+export interface TypedArgument<Name extends string, Type extends TypeName> {
+  readonly name: Name
+  readonly type: Type
+}
+
+export interface NamedArgument<Name extends string> {
+  readonly name: Name
+}
 
 export interface ArgumentTypes {
   string: string
@@ -70,7 +71,7 @@ export interface ArgumentTypes {
 }
 
 export interface IRest {
-  name: string
+  readonly name: string
   description: string
   required?: core.Scrap<boolean, [message?: command.IMessage]>
   default?: core.Scrap<string, [message?: command.IMessage]>
@@ -81,8 +82,7 @@ export interface IRest {
 export interface Rest<
   Name extends string,
   Message extends command.NormalMessage
-> {
-  name: Name
+> extends NamedArgument<Name> {
   description: string
   required?: core.Scrap<boolean, [message?: Message]>
   default?: core.Scrap<string, [message?: Message]>
@@ -91,16 +91,16 @@ export interface Rest<
 }
 
 export interface IOption {
-  name: string
-  type: TypeName
+  readonly name: string
+  readonly type: TypeName
   description: string
   aliases?: string[]
-  default?: core.Scrap<string, [message?: command.IMessage]>
-  required?: core.Scrap<boolean, [message?: command.IMessage]>
-  validate?: core.Scrap<
-    boolean | string,
-    [value: ArgumentTypes[TypeName], message?: command.IMessage]
-  >
+  default?: core.Scrap<string, [message: command.IMessage]>
+  required?: core.Scrap<boolean, [message: command.IMessage]>
+  validate?: (
+    value: ArgumentTypes[TypeName],
+    message: command.IMessage
+  ) => boolean | string
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
   validationErrorMessage?: string | discord.MessageEmbed
@@ -110,31 +110,29 @@ export interface Option<
   Name extends string,
   Type extends TypeName,
   Message extends command.NormalMessage
-> {
-  name: Name
-  type: Type
-  description: string
-  aliases?: string[]
-  default?: core.Scrap<string, [message?: Message]>
-  required?: core.Scrap<boolean, [message?: Message]>
-  validate?: core.Scrap<
-    boolean | string,
-    [value: ArgumentTypes[Type], message?: Message]
-  >
-  typeErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
+> extends TypedArgument<Name, Type> {
+  readonly description: string
+  readonly aliases?: string[]
+  readonly default?: core.Scrap<string, [message: Message]>
+  readonly required?: core.Scrap<boolean, [message: Message]>
+  readonly validate?: (
+    value: ArgumentTypes[Type],
+    message: Message
+  ) => boolean | string
+  readonly typeErrorMessage?: string | discord.MessageEmbed
+  readonly missingErrorMessage?: string | discord.MessageEmbed
+  readonly validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface IPositional {
-  name: string
-  type: TypeName
+  readonly name: string
+  readonly type: TypeName
   description: string
-  default?: core.Scrap<string, [message?: command.IMessage]>
-  required?: core.Scrap<boolean, [message?: command.IMessage]>
+  default?: core.Scrap<string, [message: command.IMessage]>
+  required?: core.Scrap<boolean, [message: command.IMessage]>
   validate?: core.Scrap<
     boolean | string,
-    [value: ArgumentTypes[TypeName], message?: command.IMessage]
+    [value: ArgumentTypes[TypeName], message: command.IMessage]
   >
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
@@ -145,33 +143,30 @@ export interface Positional<
   Name extends string,
   Type extends TypeName,
   Message extends command.NormalMessage
-> {
-  name: Name
-  type: Type
-  description: string
-  default?: core.Scrap<string, [message?: Message]>
-  required?: core.Scrap<boolean, [message?: Message]>
-  validate?: core.Scrap<
+> extends TypedArgument<Name, Type> {
+  readonly description: string
+  readonly default?: core.Scrap<string, [message: Message]>
+  readonly required?: core.Scrap<boolean, [message: Message]>
+  readonly validate?: core.Scrap<
     boolean | string,
-    [value: ArgumentTypes[Type], message?: Message]
+    [value: ArgumentTypes[Type], message: Message]
   >
-  typeErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
+  readonly typeErrorMessage?: string | discord.MessageEmbed
+  readonly missingErrorMessage?: string | discord.MessageEmbed
+  readonly validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface IFlag {
-  name: string
+  readonly name: string
   aliases?: string[]
   description: string
   flag: string
 }
 
-export interface Flag<Name extends string> {
-  name: Name
-  aliases?: string[]
-  description: string
-  flag: string
+export interface Flag<Name extends string> extends NamedArgument<Name> {
+  readonly aliases?: string[]
+  readonly description: string
+  readonly flag: string
 }
 
 export function resolveGivenArgument(
@@ -210,14 +205,11 @@ export function resolveGivenArgument(
   return { given, usedName, value, nameIsGiven }
 }
 
-export async function validate<Message extends command.NormalMessage>(
-  subject: Pick<
-    Option<any, any, any>,
-    "validate" | "name" | "validationErrorMessage"
-  >,
+export async function validate(
+  subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   castedValue: any,
-  message: Message
+  message: command.IMessage
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.validate) return true
 
@@ -263,11 +255,11 @@ export async function validate<Message extends command.NormalMessage>(
   return true
 }
 
-export async function resolveType<Message extends command.NormalMessage>(
-  subject: Pick<Option<any, any, any>, "type" | "name" | "typeErrorMessage">,
+export async function resolveType(
+  subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
-  message: Message,
+  message: command.IMessage,
   setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown
 ): Promise<discord.MessageEmbed | true> {
   const empty = new Error("The value is empty!")

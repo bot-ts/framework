@@ -83,9 +83,8 @@ export type NormalMessage<
   >[],
   Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
 > = discord.Message & {
-  args: argument.Outputs<Positional> &
+  args: { [K in RestName]: string } & argument.Outputs<Positional> &
     argument.Outputs<Options> &
-    Record<RestName, string> &
     argument.OutputFlags<Flags> &
     argument.OutputPositionalValues<Positional>
   triggerCoolDown: () => void
@@ -210,12 +209,12 @@ export interface CommandOptions<
   RestName extends string,
   Positional extends readonly argument.Positional<
     any,
-    any,
+    argument.TypeName,
     CommandMessageType[Type]
   >[],
   Options extends readonly argument.Option<
     any,
-    any,
+    argument.TypeName,
     CommandMessageType[Type]
   >[],
   Flags extends readonly argument.Flag<any>[]
@@ -292,9 +291,9 @@ export interface CommandOptions<
    * Sub-commands
    */
   subs?: (
-    | Command<"guild", any, any, any>
-    | Command<"dm", any, any, any>
-    | Command<"all", any, any, any>
+    | Command<"guild", any, any, any, any>
+    | Command<"dm", any, any, any, any>
+    | Command<"all", any, any, any, any>
   )[]
 }
 
@@ -310,14 +309,14 @@ export class Command<
   const RestName extends string = string,
   const Positional extends readonly argument.Positional<
     any,
-    any,
+    argument.TypeName,
     CommandMessageType[Type]
-  >[] = argument.Positional<any, any, CommandMessageType[Type]>[],
+  >[] = argument.Positional<any, argument.TypeName, CommandMessageType[Type]>[],
   const Options extends readonly argument.Option<
     any,
-    any,
+    argument.TypeName,
     CommandMessageType[Type]
-  >[] = argument.Option<any, any, CommandMessageType[Type]>[],
+  >[] = argument.Option<any, argument.TypeName, CommandMessageType[Type]>[],
   const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
 > {
   filepath?: string
@@ -1040,10 +1039,14 @@ export function isNormalMessage(
   )
 }
 
-export function isGuildMessage(message: IMessage): message is GuildMessage {
+export function isGuildMessage(
+  message: discord.Message
+): message is GuildMessage {
   return !!message.member && !!message.guild
 }
 
-export function isDirectMessage(message: IMessage): message is DirectMessage {
+export function isDirectMessage(
+  message: discord.Message
+): message is DirectMessage {
   return message.channel.type.toLowerCase() === "dm"
 }
