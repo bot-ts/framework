@@ -100,7 +100,21 @@ export interface CommandMessageType {
   all: NormalMessage
 }
 
-export interface CommandOptions<Type extends keyof CommandMessageType> {
+export interface CommandOptions<
+  Type extends keyof CommandMessageType,
+  RestName extends string,
+  Positional extends readonly argument.Positional<
+    any,
+    any,
+    CommandMessageType[Type]
+  >[],
+  Options extends readonly argument.Option<
+    any,
+    any,
+    CommandMessageType[Type]
+  >[],
+  Flags extends readonly argument.Flag<any>[]
+> {
   channelType?: Type
 
   name: string
@@ -157,22 +171,22 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: argument.Rest<CommandMessageType[Type]>
+  rest?: argument.Rest<RestName, CommandMessageType[Type]>
 
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
-  positional?: argument.Positional<CommandMessageType[Type]>[]
+  positional?: Positional
 
   /**
    * Yargs option arguments (e.g. `--myArgument=value`)
    */
-  options?: argument.Option<CommandMessageType[Type]>[]
+  options?: Options
 
   /**
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
-  flags?: argument.Flag<CommandMessageType[Type]>[]
+  flags?: Flags
 
   run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
 
@@ -182,12 +196,28 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   subs?: (Command<"guild"> | Command<"dm"> | Command)[]
 }
 
-export class Command<Type extends keyof CommandMessageType = "all"> {
+export class Command<
+  Type extends keyof CommandMessageType = "all",
+  const RestName extends string = string,
+  const Positional extends readonly argument.Positional<
+    any,
+    any,
+    CommandMessageType[Type]
+  >[] = argument.Positional<any, any, CommandMessageType[Type]>[],
+  const Options extends readonly argument.Option<
+    any,
+    any,
+    CommandMessageType[Type]
+  >[] = argument.Option<any, any, CommandMessageType[Type]>[],
+  const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
+> {
   filepath?: string
   parent?: Command<keyof CommandMessageType>
   native = false
 
-  constructor(public options: CommandOptions<Type>) {}
+  constructor(
+    public options: CommandOptions<Type, RestName, Positional, Options, Flags>
+  ) {}
 }
 
 export function validateCommand<
@@ -211,7 +241,7 @@ export function validateCommand<
     else defaultCommand = command
   }
 
-  const help: argument.Flag<CommandMessageType[Type]> = {
+  const help: argument.Flag<"help"> = {
     name: "help",
     flag: "h",
     description: "Get help from the command",
@@ -554,19 +584,10 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           } else {
             set(null)
           }
-        } else if (positional.checkValue) {
-          const checked = await argument.checkValue(
-            positional,
-            "positional",
-            value,
-            message
-          )
-
-          if (checked !== true) return checked
         }
 
-        if (value !== null && positional.castValue) {
-          const casted = await argument.castValue(
+        if (value !== null) {
+          const casted = await argument.resolveType(
             positional,
             "positional",
             value,
@@ -577,8 +598,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           if (casted !== true) return casted
         }
 
-        if (value !== null && positional.checkCastedValue) {
-          const checked = await argument.checkCastedValue(
+        if (value !== null && positional.validate) {
+          const checked = await argument.validate(
             positional,
             "positional",
             value,
@@ -641,22 +662,13 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
         if (value === undefined) {
           if (option.default !== undefined) {
             set(await core.scrap(option.default, message))
-          } else if (option.castValue !== "array") {
+          } else if (option.type !== "array") {
             set(null)
           }
-        } else if (option.checkValue) {
-          const checked = await argument.checkValue(
-            option,
-            "argument",
-            value,
-            message
-          )
-
-          if (checked !== true) return checked
         }
 
-        if (value !== null && option.castValue) {
-          const casted = await argument.castValue(
+        if (value !== null) {
+          const casted = await argument.resolveType(
             option,
             "argument",
             value,
@@ -667,8 +679,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           if (casted !== true) return casted
         }
 
-        if (value !== null && option.checkCastedValue) {
-          const checked = await argument.checkCastedValue(
+        if (value !== null && option.validate) {
+          const checked = await argument.validate(
             option,
             "argument",
             value,
