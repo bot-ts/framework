@@ -510,6 +510,43 @@ export async function prepareCommand(
     }
 
     if (cmd.options.allowRoles) {
+      const allowRoles = await core.scrap(cmd.options.allowRoles, message)
+
+      if (
+        message.member.roles.cache.every(
+          (role) => !allowRoles.includes(role.id)
+        )
+      )
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor({
+            name: "Oops!",
+            iconURL: message.client.user.displayAvatarURL(),
+          })
+          .setDescription(
+            `You need one of the following roles to call this command: ${allowRoles
+              .map((id) => `<@&${id}>`)
+              .join(", ")}`
+          )
+    }
+
+    if (cmd.options.denyRoles) {
+      const denyRoles = await core.scrap(cmd.options.denyRoles, message)
+
+      if (
+        message.member.roles.cache.some((role) => denyRoles.includes(role.id))
+      )
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor({
+            name: "Oops!",
+            iconURL: message.client.user.displayAvatarURL(),
+          })
+          .setDescription(
+            `You can't call this command because you have one of the following roles: ${denyRoles
+              .map((id) => `<@&${id}>`)
+              .join(", ")}`
+          )
     }
   }
 
