@@ -188,16 +188,23 @@ export interface CommandOptions<
    */
   flags?: Flags
 
-  run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
+  run: (
+    this: Command<Type, RestName, Positional, Options, Flags>,
+    message: CommandMessageType[Type]
+  ) => unknown
 
   /**
    * Sub-commands
    */
-  subs?: (Command<"guild"> | Command<"dm"> | Command)[]
+  subs?: (
+    | Command<"guild", any, any, any>
+    | Command<"dm", any, any, any>
+    | Command<"all", any, any, any>
+  )[]
 }
 
 export class Command<
-  Type extends keyof CommandMessageType = "all",
+  const Type extends keyof CommandMessageType = "all",
   const RestName extends string = string,
   const Positional extends readonly argument.Positional<
     any,
@@ -296,9 +303,9 @@ export function commandParents<Type extends keyof CommandMessageType>(
     : [command]
 }
 
-export async function prepareCommand<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
-  cmd: Command<Type>,
+export async function prepareCommand(
+  message: NormalMessage,
+  cmd: Command<"all" | "dm" | "guild">,
   context?: {
     restPositional: string[]
     baseContent: string

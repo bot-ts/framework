@@ -13,7 +13,7 @@ export default new app.Command({
       name: "activated",
       description: "Is command handling activated",
       default: () => String(!app.cache.ensure<boolean>("turn", true)),
-      castValue: "boolean",
+      type: "boolean",
     },
   ],
   async run(message) {

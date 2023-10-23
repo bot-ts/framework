@@ -27,8 +27,8 @@ export default new app.Command({
   options: [
     {
       name: "packages",
+      type: "array",
       aliases: ["use", "u", "req", "require", "import", "i"],
-      castValue: "array",
       description: "NPM packages I want to includes in my code",
     },
   ],

@@ -11,7 +11,7 @@ export default new app.Command({
   positional: [
     {
       name: "command",
-      castValue: "command",
+      type: "command",
       description: "The target command name.",
     },
   ],
