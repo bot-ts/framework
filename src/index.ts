@@ -15,6 +15,7 @@ const app = await import("./app.js")
 try {
   await app.orm.init()
   await app.commandHandler.init()
+  await app.slashCommandHandler.init()
   await app.listenerHandler.init()
   await app.client.login(process.env.BOT_TOKEN)
 } catch (error: any) {

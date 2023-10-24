@@ -7,7 +7,7 @@ import apiTypes from "discord-api-types/v8.js"
 
 import * as handler from "@ghom/handler"
 
-import * as logger from "./core.js"
+import * as logger from "./logger.js"
 import client from "./client.js"
 
 export const listenerHandler = new handler.Handler(

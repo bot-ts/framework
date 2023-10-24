@@ -6,10 +6,11 @@ import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
 
-import * as core from "./core.js"
 import * as handler from "@ghom/handler"
+
+import * as core from "./core.js"
+import * as logger from "./logger.js"
 import * as argument from "./argument.js"
-import * as logger from "./core.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -49,8 +50,6 @@ export const commands = new (class CommandCollection extends discord.Collection<
     this.set(command.options.name, command)
   }
 })()
-
-export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export interface IMessage extends discord.Message {
   triggerCoolDown: () => void
@@ -278,9 +277,10 @@ export class Command<
   ) {}
 }
 
-export function validateCommand<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(command: ICommand, parent?: ICommand): void | never {
+export function validateCommand(
+  command: ICommand,
+  parent?: ICommand
+): void | never {
   command.parent = parent
 
   if (command.options.isDefault) {
