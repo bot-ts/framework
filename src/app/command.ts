@@ -132,15 +132,15 @@ export interface ICommandOptions {
   channelType?: string
   name: string
   description: string
-  longDescription?: core.Scrap<string, [message: IMessage]>
+  longDescription?: core.Scrap<string, [message: any]>
   isDefault?: boolean
   aliases?: string[]
-  coolDown?: core.Scrap<number, [message: IMessage]>
-  examples?: core.Scrap<string[], [message: IMessage]>
-  guildOwnerOnly?: core.Scrap<boolean, [message: IMessage]>
-  botOwnerOnly?: core.Scrap<boolean, [message: IMessage]>
-  userPermissions?: core.Scrap<discord.PermissionString[], [message: IMessage]>
-  botPermissions?: core.Scrap<discord.PermissionString[], [message: IMessage]>
+  coolDown?: core.Scrap<number, [message: any]>
+  examples?: core.Scrap<string[], [message: any]>
+  guildOwnerOnly?: core.Scrap<boolean, [message: any]>
+  botOwnerOnly?: core.Scrap<boolean, [message: any]>
+  userPermissions?: core.Scrap<discord.PermissionString[], [message: any]>
+  botPermissions?: core.Scrap<discord.PermissionString[], [message: any]>
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
   middlewares?: IMiddleware[]
@@ -148,7 +148,7 @@ export interface ICommandOptions {
   positional?: argument.IPositional[]
   options?: argument.IOption[]
   flags?: argument.IFlag[]
-  run: (this: ICommand, message: IMessage) => unknown | Promise<unknown> | void
+  run: (this: ICommand, message: any) => unknown | Promise<unknown> | void
   subs?: ICommand[]
 }
 
