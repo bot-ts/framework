@@ -23,7 +23,7 @@ export default new app.Command({
 
     const result = await app.orm.raw(query)
 
-    return message.send({
+    return message.channel.send({
       embeds: [
         new app.MessageEmbed()
           .setColor("BLURPLE")
@@ -98,7 +98,7 @@ export default new app.Command({
           )
         )
 
-        return message.send({
+        return message.channel.send({
           embeds: [
             new app.MessageEmbed()
               .setColor("BLURPLE")

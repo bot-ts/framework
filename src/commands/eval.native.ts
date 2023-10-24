@@ -26,22 +26,23 @@ export default new app.Command({
   },
   options: [
     {
-      name: "packages",
-      aliases: ["use", "u", "req", "require", "import", "i"],
-      castValue: "array",
+      name: "use",
+      type: "array",
       description: "NPM packages I want to includes in my code",
+      validate: (packages: string[]) => {
+        return packages.length > 0
+      },
     },
   ],
   flags: [
     {
       name: "muted",
-      aliases: ["mute", "silent"],
       flag: "m",
       description: "Disable message feedback",
+      aliases: ["mute"],
     },
     {
       name: "information",
-      aliases: ["info", "detail", "more"],
       flag: "i",
       description: "Information about output",
     },
@@ -51,10 +52,8 @@ export default new app.Command({
 
     let code = message.args.code
 
-    if (message.args.packages.length > 0) {
-      const given = new Set<string>(
-        message.args.packages.filter((p: string) => p)
-      )
+    if (message.args.use.length > 0) {
+      const given = new Set<string>(message.args.use.filter((p: string) => p))
 
       for (const pack of given) {
         if (alreadyInstalled(pack)) {

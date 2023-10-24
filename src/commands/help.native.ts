@@ -11,13 +11,13 @@ export default new app.Command({
   positional: [
     {
       name: "command",
-      castValue: "command",
+      type: "command",
       description: "The target command name.",
     },
   ],
   async run(message) {
     if (message.args.command) {
-      const cmd: app.Command = message.args.command
+      const cmd = message.args.command
 
       if (cmd) {
         return app.sendCommandDetails(message, cmd)

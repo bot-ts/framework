@@ -6,10 +6,11 @@ import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
 
-import * as core from "./core.js"
 import * as handler from "@ghom/handler"
+
+import * as core from "./core.js"
+import * as logger from "./logger.js"
 import * as argument from "./argument.js"
-import * as logger from "./core.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -28,13 +29,13 @@ export const commandHandler = new handler.Handler(
   }
 )
 
-export let defaultCommand: Command<any> | null = null
+export let defaultCommand: ICommand | null = null
 
 export const commands = new (class CommandCollection extends discord.Collection<
   string,
-  Command<keyof CommandMessageType>
+  ICommand
 > {
-  public resolve(key: string): Command<keyof CommandMessageType> | undefined {
+  public resolve(key: string): ICommand | undefined {
     for (const [name, command] of this) {
       if (
         key === name ||
@@ -44,29 +45,50 @@ export const commands = new (class CommandCollection extends discord.Collection<
     }
   }
 
-  public add(command: Command<keyof CommandMessageType>) {
+  public add(command: ICommand) {
     validateCommand(command)
     this.set(command.options.name, command)
   }
 })()
 
-export type SentItem = string | discord.MessagePayload | discord.MessageOptions
-
-export type NormalMessage = discord.Message & {
-  args: { [name: string]: any } & any[]
+export interface IMessage extends discord.Message {
   triggerCoolDown: () => void
-  send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
-  sendTimeout: (
-    this: NormalMessage,
-    timeout: number,
-    item: SentItem
-  ) => Promise<discord.Message>
   usedAsDefault: boolean
   isFromBotOwner: boolean
   isFromGuildOwner: boolean
   usedPrefix: string
   client: discord.Client<true>
   rest: string
+  args: any
+}
+
+export type MessageArguments<
+  RestName extends string = string,
+  Positional extends readonly argument.Positional<
+    any,
+    any,
+    any
+  >[] = argument.Positional<any, any, any>[],
+  Options extends readonly argument.Option<any, any, any>[] = argument.Option<
+    any,
+    any,
+    any
+  >[],
+  Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
+> = { [K in RestName]: string } & argument.Outputs<Positional> &
+  argument.Outputs<Options> &
+  argument.OutputFlags<Flags> &
+  argument.OutputPositionalValues<Positional>
+
+export type NormalMessage = discord.Message & {
+  triggerCoolDown: () => void
+  usedAsDefault: boolean
+  isFromBotOwner: boolean
+  isFromGuildOwner: boolean
+  usedPrefix: string
+  client: discord.Client<true>
+  rest: string
+  args: unknown
 }
 
 export type GuildMessage = NormalMessage & {
@@ -89,18 +111,61 @@ export interface MiddlewareResult {
   data: any
 }
 
+export type IMiddleware = (
+  message: IMessage,
+  data: any
+) => Promise<MiddlewareResult> | MiddlewareResult
+
 export type Middleware<Type extends keyof CommandMessageType> = (
   message: CommandMessageType[Type],
   data: any
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
 export interface CommandMessageType {
-  guild: GuildMessage
-  dm: DirectMessage
-  all: NormalMessage
+  guild: discord.Message & GuildMessage
+  dm: discord.Message & DirectMessage
+  all: discord.Message & NormalMessage
 }
 
-export interface CommandOptions<Type extends keyof CommandMessageType> {
+export interface ICommandOptions {
+  channelType?: string
+  name: string
+  description: string
+  longDescription?: core.Scrap<string, [message: IMessage]>
+  isDefault?: boolean
+  aliases?: string[]
+  coolDown?: core.Scrap<number, [message: IMessage]>
+  examples?: core.Scrap<string[], [message: IMessage]>
+  guildOwnerOnly?: core.Scrap<boolean, [message: IMessage]>
+  botOwnerOnly?: core.Scrap<boolean, [message: IMessage]>
+  userPermissions?: core.Scrap<discord.PermissionString[], [message: IMessage]>
+  botPermissions?: core.Scrap<discord.PermissionString[], [message: IMessage]>
+  allowRoles?: discord.RoleResolvable[]
+  denyRoles?: discord.RoleResolvable[]
+  middlewares?: IMiddleware[]
+  rest?: argument.IRest
+  positional?: argument.IPositional[]
+  options?: argument.IOption[]
+  flags?: argument.IFlag[]
+  run: (this: ICommand, message: IMessage) => unknown | Promise<unknown> | void
+  subs?: ICommand[]
+}
+
+export interface CommandOptions<
+  Type extends keyof CommandMessageType,
+  RestName extends string,
+  Positional extends readonly argument.Positional<
+    any,
+    any,
+    CommandMessageType[Type]
+  >[],
+  Options extends readonly argument.Option<
+    any,
+    any,
+    CommandMessageType[Type]
+  >[],
+  Flags extends readonly argument.Flag<any>[]
+> {
   channelType?: Type
 
   name: string
@@ -116,10 +181,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * Use this command if prefix is given but without command matching
    */
   isDefault?: boolean
-  /**
-   * Use this command as slash command
-   */
-  isSlash?: boolean
+
   aliases?: string[]
   /**
    * Cool down of command (in ms)
@@ -139,15 +201,8 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
     [message: CommandMessageType[Type]]
   >
 
-  roles?: core.Scrap<
-    (
-      | discord.RoleResolvable
-      | discord.RoleResolvable[]
-      | [discord.RoleResolvable]
-      | [discord.RoleResolvable[]]
-    )[],
-    [message: CommandMessageType[Type]]
-  >
+  allowRoles?: discord.RoleResolvable[]
+  denyRoles?: discord.RoleResolvable[]
 
   /**
    * Middlewares can stop the command if returning a string (string is displayed as error message in discord)
@@ -157,44 +212,74 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: argument.Rest<CommandMessageType[Type]>
+  readonly rest?: argument.Rest<RestName, CommandMessageType[Type]>
 
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
-  positional?: argument.Positional<CommandMessageType[Type]>[]
+  readonly positional?: Positional
 
   /**
    * Yargs option arguments (e.g. `--myArgument=value`)
    */
-  options?: argument.Option<CommandMessageType[Type]>[]
+  readonly options?: Options
 
   /**
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
-  flags?: argument.Flag<CommandMessageType[Type]>[]
+  readonly flags?: Flags
 
-  run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
+  run: (
+    this: Command<Type, RestName, Positional, Options, Flags>,
+    message: CommandMessageType[Type] & {
+      args: MessageArguments<RestName, Positional, Options, Flags>
+    }
+  ) => unknown
 
   /**
    * Sub-commands
    */
-  subs?: (Command<"guild"> | Command<"dm"> | Command)[]
+  subs?: (
+    | Command<"guild", any, any, any, any>
+    | Command<"dm", any, any, any, any>
+    | Command<"all", any, any, any, any>
+  )[]
 }
 
-export class Command<Type extends keyof CommandMessageType = "all"> {
+export interface ICommand {
+  options: ICommandOptions
+  filepath?: string
+  parent?: ICommand
+  native: boolean
+}
+
+export class Command<
+  const Type extends keyof CommandMessageType = "all",
+  const RestName extends string = string,
+  const Positional extends readonly argument.Positional<
+    any,
+    argument.TypeName,
+    CommandMessageType[Type]
+  >[] = argument.Positional<any, argument.TypeName, CommandMessageType[Type]>[],
+  const Options extends readonly argument.Option<
+    any,
+    argument.TypeName,
+    CommandMessageType[Type]
+  >[] = argument.Option<any, argument.TypeName, CommandMessageType[Type]>[],
+  const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
+> {
   filepath?: string
   parent?: Command<keyof CommandMessageType>
   native = false
 
-  constructor(public options: CommandOptions<Type>) {}
+  constructor(
+    public options: CommandOptions<Type, RestName, Positional, Options, Flags>
+  ) {}
 }
 
-export function validateCommand<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
->(
-  command: Command<Type>,
-  parent?: Command<keyof CommandMessageType>
+export function validateCommand(
+  command: ICommand,
+  parent?: ICommand
 ): void | never {
   command.parent = parent
 
@@ -211,7 +296,7 @@ export function validateCommand<
     else defaultCommand = command
   }
 
-  const help: argument.Flag<CommandMessageType[Type]> = {
+  const help: argument.IFlag = {
     name: "help",
     flag: "h",
     description: "Get help from the command",
@@ -244,31 +329,25 @@ export function validateCommand<
   )
 
   if (command.options.subs)
-    for (const sub of command.options.subs)
-      validateCommand(sub as any, command as Command<any>)
+    for (const sub of command.options.subs) validateCommand(sub, command)
 }
 
-export function commandBreadcrumb<Type extends keyof CommandMessageType>(
-  command: Command<Type>,
-  separator = " "
-): string {
+export function commandBreadcrumb(command: ICommand, separator = " "): string {
   return commandParents(command)
     .map((cmd) => cmd.options.name)
     .reverse()
     .join(separator)
 }
 
-export function commandParents<Type extends keyof CommandMessageType>(
-  command: Command<Type>
-): Command<any>[] {
+export function commandParents(command: ICommand): ICommand[] {
   return command.parent
     ? [command, ...commandParents(command.parent)]
     : [command]
 }
 
-export async function prepareCommand<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
-  cmd: Command<Type>,
+export async function prepareCommand(
+  message: IMessage,
+  cmd: ICommand,
   context?: {
     restPositional: string[]
     baseContent: string
@@ -379,109 +458,44 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
             )
     }
 
-    if (cmd.options.roles) {
-      const roles = await core.scrap(cmd.options.roles, message)
+    if (cmd.options.allowRoles) {
+      const allowRoles = await core.scrap(cmd.options.allowRoles, message)
 
-      const isRole = (r: any): r is discord.RoleResolvable => {
-        return typeof r === "string" || r instanceof discord.Role
-      }
+      if (
+        message.member.roles.cache.every(
+          (role) => !allowRoles.includes(role.id)
+        )
+      )
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor({
+            name: "Oops!",
+            iconURL: message.client.user.displayAvatarURL(),
+          })
+          .setDescription(
+            `You need one of the following roles to call this command: ${allowRoles
+              .map((id) => `<@&${id}>`)
+              .join(", ")}`
+          )
+    }
 
-      const getRoleId = (r: discord.RoleResolvable): string => {
-        return typeof r === "string" ? r : r.id
-      }
+    if (cmd.options.denyRoles) {
+      const denyRoles = await core.scrap(cmd.options.denyRoles, message)
 
-      const member = await message.member.fetch()
-
-      for (const roleCond of roles) {
-        if (isRole(roleCond)) {
-          const id = getRoleId(roleCond)
-
-          if (!member.roles.cache.has(id)) {
-            return new discord.MessageEmbed()
-              .setColor("RED")
-              .setAuthor({
-                name: "Oops!",
-                iconURL: message.client.user.displayAvatarURL(),
-              })
-              .setDescription(
-                `You must have the <@${id}> role to call this command.`
-              )
-          }
-        } else {
-          if (roleCond.length === 1) {
-            const _roleCond = roleCond[0]
-            if (isRole(_roleCond)) {
-              const id = getRoleId(_roleCond)
-
-              if (member.roles.cache.has(id)) {
-                return new discord.MessageEmbed()
-                  .setColor("RED")
-                  .setAuthor({
-                    name: "Oops!",
-                    iconURL: message.client.user.displayAvatarURL(),
-                  })
-                  .setDescription(
-                    `You mustn't have the <@${id}> role to call this command.`
-                  )
-              }
-            } else {
-              for (const role of _roleCond) {
-                if (member.roles.cache.has(getRoleId(role))) {
-                  return new discord.MessageEmbed()
-                    .setColor("RED")
-                    .setAuthor({
-                      name: "Oops!",
-                      iconURL: message.client.user.displayAvatarURL(),
-                    })
-                    .setDescription(
-                      `You mustn't have the <@${getRoleId(
-                        role
-                      )}> role to call this command.`
-                    )
-                }
-              }
-            }
-          } else {
-            let someRoleGiven = false
-
-            for (const role of roleCond) {
-              if (Array.isArray(role)) {
-                logger.warn(
-                  `Bad command.roles structure in ${chalk.bold(
-                    commandBreadcrumb(cmd, "/")
-                  )} command.`
-                )
-              } else {
-                const id = getRoleId(role)
-
-                if (member.roles.cache.has(id)) {
-                  someRoleGiven = true
-                  break
-                }
-              }
-            }
-
-            if (!someRoleGiven)
-              return new discord.MessageEmbed()
-                .setColor("RED")
-                .setAuthor({
-                  name: "Oops!",
-                  iconURL: message.client.user.displayAvatarURL(),
-                })
-                .setDescription(
-                  `You must have at least one of the following roles to call this command.\n${[
-                    ...roleCond,
-                  ]
-                    .filter(
-                      (role): role is discord.RoleResolvable =>
-                        !Array.isArray(role)
-                    )
-                    .map((role) => `<@${getRoleId(role)}>`)
-                    .join(" ")}`
-                )
-          }
-        }
-      }
+      if (
+        message.member.roles.cache.some((role) => denyRoles.includes(role.id))
+      )
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor({
+            name: "Oops!",
+            iconURL: message.client.user.displayAvatarURL(),
+          })
+          .setDescription(
+            `You can't call this command because you have one of the following roles: ${denyRoles
+              .map((id) => `<@&${id}>`)
+              .join(", ")}`
+          )
     }
   }
 
@@ -554,19 +568,10 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           } else {
             set(null)
           }
-        } else if (positional.checkValue) {
-          const checked = await argument.checkValue(
-            positional,
-            "positional",
-            value,
-            message
-          )
-
-          if (checked !== true) return checked
         }
 
-        if (value !== null && positional.castValue) {
-          const casted = await argument.castValue(
+        if (value !== null) {
+          const casted = await argument.resolveType(
             positional,
             "positional",
             value,
@@ -577,8 +582,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           if (casted !== true) return casted
         }
 
-        if (value !== null && positional.checkCastedValue) {
-          const checked = await argument.checkCastedValue(
+        if (value !== null && positional.validate) {
+          const checked = await argument.validate(
             positional,
             "positional",
             value,
@@ -641,22 +646,13 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
         if (value === undefined) {
           if (option.default !== undefined) {
             set(await core.scrap(option.default, message))
-          } else if (option.castValue !== "array") {
+          } else if (option.type !== "array") {
             set(null)
           }
-        } else if (option.checkValue) {
-          const checked = await argument.checkValue(
-            option,
-            "argument",
-            value,
-            message
-          )
-
-          if (checked !== true) return checked
         }
 
-        if (value !== null && option.castValue) {
-          const casted = await argument.castValue(
+        if (value !== null) {
+          const casted = await argument.resolveType(
             option,
             "argument",
             value,
@@ -667,8 +663,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           if (casted !== true) return casted
         }
 
-        if (value !== null && option.checkCastedValue) {
-          const checked = await argument.checkCastedValue(
+        if (value !== null && option.validate) {
+          const checked = await argument.validate(
             option,
             "argument",
             value,
@@ -776,9 +772,9 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
   return true
 }
 
-export async function sendCommandDetails<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
-  cmd: Command<Type>
+export async function sendCommandDetails(
+  message: IMessage,
+  cmd: ICommand
 ): Promise<void> {
   const embed = new discord.MessageEmbed()
     .setColor("BLURPLE")
@@ -955,7 +951,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       value:
         (
           await Promise.all(
-            cmd.options.subs.map(async (sub: Command<any>) => {
+            cmd.options.subs.map(async (sub) => {
               const prepared = await prepareCommand(message, sub)
               if (prepared !== true) return ""
               return commandToListItem(message, sub)
@@ -976,18 +972,15 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   await message.channel.send({ embeds: [embed] })
 }
 
-export function commandToListItem<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
-  cmd: Command<Type>
-): string {
+export function commandToListItem(message: IMessage, cmd: ICommand): string {
   return `**${message.usedPrefix}${commandBreadcrumb(cmd, " ")}** - ${
     cmd.options.description ?? "no description"
   }`
 }
 
-export function isNormalMessage(
-  message: discord.Message | discord.PartialMessage
-): message is NormalMessage {
+export function isNormalMessage<
+  Base extends discord.Message | discord.PartialMessage
+>(message: Base): message is Base & NormalMessage {
   return (
     !message.system &&
     !!message.channel &&
@@ -996,14 +989,14 @@ export function isNormalMessage(
   )
 }
 
-export function isGuildMessage(
-  message: NormalMessage
-): message is GuildMessage {
+export function isGuildMessage<
+  Base extends discord.Message | discord.PartialMessage
+>(message: Base): message is Base & GuildMessage {
   return !!message.member && !!message.guild
 }
 
-export function isDirectMessage(
-  message: NormalMessage
-): message is DirectMessage {
-  return message.channel.type.toLowerCase() === "dm"
+export function isDirectMessage<
+  Base extends discord.Message | discord.PartialMessage
+>(message: Base): message is Base & DirectMessage {
+  return !!message.channel && message.channel.type.toLowerCase() === "dm"
 }

@@ -3,6 +3,7 @@ const app = await import("../dist/app.js")
 try {
   await app.orm.init()
   await app.commandHandler.init()
+  await app.slashCommandHandler.init()
   await app.listenerHandler.init()
 
   app.log("Correctly started")

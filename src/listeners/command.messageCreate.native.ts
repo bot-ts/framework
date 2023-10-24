@@ -2,9 +2,6 @@
 
 import * as app from "../app.js"
 import yargsParser from "yargs-parser"
-import { filename } from "dirname-filename-esm"
-
-const __filename = filename(import.meta)
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
@@ -28,28 +25,6 @@ const listener: app.Listener<"messageCreate"> = {
         .catch()
 
     message.usedAsDefault = false
-
-    message.send = async function (
-      this: app.NormalMessage,
-      sent: app.SentItem
-    ) {
-      return this.channel.send(sent)
-    }.bind(message)
-
-    message.sendTimeout = async function (
-      this: app.NormalMessage,
-      timeout: number,
-      sent: app.SentItem
-    ) {
-      const m = await this.channel.send(sent)
-      setTimeout(
-        function (this: app.NormalMessage) {
-          if (!this.deleted) this.delete().catch()
-        }.bind(this),
-        timeout
-      )
-      return m
-    }.bind(message)
 
     message.isFromBotOwner =
       message.author.id === (await app.getBotOwnerId(message))
@@ -92,7 +67,7 @@ const listener: app.Listener<"messageCreate"> = {
     )
       return
 
-    let cmd: app.Command<any> = app.commands.resolve(key) as app.Command<any>
+    let cmd = app.commands.resolve(key)
 
     if (!cmd) {
       if (app.defaultCommand) {
@@ -166,7 +141,8 @@ const listener: app.Listener<"messageCreate"> = {
     try {
       await cmd.options.run.bind(cmd)(message)
     } catch (error: any) {
-      app.error(error, cmd.filepath ?? __filename, true)
+      app.error(error, cmd.filepath!, true)
+
       message.channel
         .send(
           app.code.stringify({
@@ -177,7 +153,7 @@ const listener: app.Listener<"messageCreate"> = {
           })
         )
         .catch((error) => {
-          app.error(error, cmd.filepath ?? __filename, true)
+          app.error(error, cmd!.filepath!, true)
         })
     }
   },

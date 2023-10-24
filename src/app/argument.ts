@@ -7,7 +7,53 @@ import regexParser from "regex-parser"
 import * as core from "./core.js"
 import * as command from "./command.js"
 
-export interface ArgumentValues {
+type ValueOf<T> = T[keyof T]
+
+/**
+ * Extracts the outputs of an array of inputs
+ * TESTED, WORKING PERFECTLY
+ */
+export type Outputs<Inputs extends readonly TypedArgument<any, any>[]> = {
+  [K in Inputs[number]["name"]]: ArgumentTypes[Extract<
+    Inputs[number],
+    { name: K }
+  >["type"]]
+}
+
+/**
+ * Extracts the outputs of an array of inputs into an array containing the flag values
+ * TESTED, WORKING PERFECTLY
+ */
+export type OutputFlags<Inputs extends readonly NamedArgument<any>[]> = {
+  [K in Inputs[number]["name"]]: boolean
+}
+
+/**
+ * Convert the outputs of an array of inputs into an array containing the values
+ * TESTED, WORKING PERFECTLY
+ */
+export type OutputPositionalValues<
+  Inputs extends readonly TypedArgument<any, any>[]
+> = ValueOf<{
+  [K in Inputs[number]["name"]]: ArgumentTypes[Extract<
+    Inputs[number],
+    { name: K }
+  >["type"]]
+}>[]
+
+export type TypeName = keyof ArgumentTypes
+
+export interface TypedArgument<Name extends string, Type extends TypeName> {
+  readonly name: Name
+  readonly type: Type
+}
+
+export interface NamedArgument<Name extends string> {
+  readonly name: Name
+}
+
+export interface ArgumentTypes {
+  string: string
   number: number
   date: Date
   json: object
@@ -21,57 +67,119 @@ export interface ArgumentValues {
   role: discord.Role
   emote: discord.GuildEmoji | string
   invite: discord.Invite
-  command: command.Command<keyof command.CommandMessageType>
+  command: command.ICommand
 }
 
-export interface Argument {
-  name: string
+export interface IRest {
+  readonly name: string
   description: string
+  required?: core.Scrap<boolean, [message?: command.IMessage]>
+  default?: core.Scrap<string, [message?: command.IMessage]>
+  all?: boolean
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
-export interface Rest<Message extends command.NormalMessage> extends Argument {
+export interface Rest<
+  Name extends string,
+  Message extends command.NormalMessage
+> extends NamedArgument<Name> {
+  description: string
   required?: core.Scrap<boolean, [message?: Message]>
   default?: core.Scrap<string, [message?: Message]>
   all?: boolean
   missingErrorMessage?: string | discord.MessageEmbed
 }
 
-export interface Option<Message extends command.NormalMessage>
-  extends Argument {
+export interface IOption {
+  readonly name: string
+  readonly type: TypeName
+  description: string
   aliases?: string[]
-  default?: core.Scrap<string, [message?: Message]>
-  required?: core.Scrap<boolean, [message?: Message]>
-  castValue?: keyof ArgumentValues | ((value: string, message: Message) => any)
-  /**
-   * If returns string, it used as error message
-   */
-  checkValue?:
-    | RegExp
-    | string[]
-    | core.Scrap<boolean | RegExp | string, [value: string, message?: Message]>
-  checkCastedValue?: core.Scrap<
-    boolean | string,
-    [value: any, message?: Message]
-  >
-  castingDescription?: core.Scrap<string, [value: string, message?: Message]>
-  checkingErrorMessage?: string | discord.MessageEmbed
-  castingErrorMessage?: string | discord.MessageEmbed
+  default?: core.Scrap<string, [message: command.IMessage]>
+  required?: core.Scrap<boolean, [message: command.IMessage]>
+  validate?: (
+    this: void,
+    value: ArgumentTypes[TypeName],
+    message: command.IMessage
+  ) => boolean | string
+  typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
 }
 
-export type Positional<Message extends command.NormalMessage> = Omit<
-  Option<Message>,
-  "aliases"
->
+export interface Option<
+  Name extends string,
+  Type extends TypeName,
+  Message extends command.NormalMessage
+> extends TypedArgument<Name, Type> {
+  description: string
+  aliases?: readonly string[]
+  default?: core.Scrap<string, [message: Message]>
+  required?: core.Scrap<boolean, [message: Message]>
+  validate?: Readonly<
+    (
+      this: void,
+      value: ArgumentTypes[Type],
+      message: Message
+    ) => boolean | string
+  >
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
+}
 
-export interface Flag<Message extends command.NormalMessage>
-  extends Pick<Option<Message>, "name" | "aliases" | "description"> {
+export interface IPositional {
+  readonly name: string
+  readonly type: TypeName
+  description: string
+  default?: core.Scrap<string, [message: command.IMessage]>
+  required?: core.Scrap<boolean, [message: command.IMessage]>
+  validate?: (
+    this: void,
+    value: ArgumentTypes[TypeName],
+    message: command.IMessage
+  ) => boolean | string
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
+}
+
+export interface Positional<
+  Name extends string,
+  Type extends TypeName,
+  Message extends command.NormalMessage
+> extends TypedArgument<Name, Type> {
+  description: string
+  default?: core.Scrap<string, [message: Message]>
+  required?: core.Scrap<boolean, [message: Message]>
+  validate?: Readonly<
+    (
+      this: void,
+      value: ArgumentTypes[Type],
+      message: Message
+    ) => boolean | string
+  >
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
+}
+
+export interface IFlag {
+  readonly name: string
+  aliases?: string[]
+  description: string
   flag: string
 }
 
-export function resolveGivenArgument<Message extends command.NormalMessage>(
+export interface Flag<Name extends string> extends NamedArgument<Name> {
+  aliases?: readonly string[]
+  description: string
+  flag: string
+}
+
+export function resolveGivenArgument(
   parsedArgs: yargsParser.Arguments,
-  arg: Option<any> | Flag<any>
+  arg: IOption | IFlag
 ): {
   given: boolean
   nameIsGiven: boolean
@@ -105,111 +213,16 @@ export function resolveGivenArgument<Message extends command.NormalMessage>(
   return { given, usedName, value, nameIsGiven }
 }
 
-export async function checkValue<Message extends command.NormalMessage>(
-  subject: Pick<Option<any>, "checkValue" | "name" | "checkingErrorMessage">,
-  subjectType: "positional" | "argument",
-  value: string,
-  message: Message
-): Promise<discord.MessageEmbed | true> {
-  if (!subject.checkValue) return true
-
-  const errorEmbed = (
-    defaultErrorEmbed: () => discord.MessageEmbed
-  ): discord.MessageEmbed => {
-    if (typeof subject.checkingErrorMessage === "string") {
-      return defaultErrorEmbed().setDescription(subject.checkingErrorMessage)
-    } else if (subject.checkingErrorMessage) {
-      return subject.checkingErrorMessage
-    } else return defaultErrorEmbed()
-  }
-
-  if (Array.isArray(subject.checkValue)) {
-    if (!subject.checkValue.includes(value)) {
-      const joined = subject.checkValue.join(" | ")
-
-      return errorEmbed(() =>
-        new discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor({
-            name: `Bad ${subjectType} pattern "${subject.name}".`,
-            iconURL: message.client.user?.displayAvatarURL(),
-          })
-          .setDescription(`Expected choice list: \`${joined}\``)
-      )
-    } else return true
-  }
-
-  const checkResult: string | boolean | RegExp = await core.scrap(
-    subject.checkValue,
-    value,
-    message
-  )
-
-  if (typeof checkResult === "string") {
-    return errorEmbed(() =>
-      new discord.MessageEmbed()
-        .setColor("RED")
-        .setAuthor({
-          name: `Bad ${subjectType} tested "${subject.name}".`,
-          iconURL: message.client.user?.displayAvatarURL(),
-        })
-        .setDescription(checkResult)
-    )
-  }
-
-  if (typeof checkResult === "boolean") {
-    if (!checkResult) {
-      return errorEmbed(() =>
-        new discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor({
-            name: `Bad ${subjectType} tested "${subject.name}".`,
-            iconURL: message.client.user?.displayAvatarURL(),
-          })
-          .setDescription(
-            typeof subject.checkValue === "function"
-              ? core.code.stringify({
-                  content: subject.checkValue.toString(),
-                  format: true,
-                  lang: "js",
-                })
-              : subject.checkValue instanceof RegExp
-              ? `Expected pattern: \`${subject.checkValue.source}\``
-              : "Please use the `--help` flag for more information."
-          )
-      )
-    }
-
-    return true
-  }
-
-  if (!checkResult.test(value)) {
-    return errorEmbed(() =>
-      new discord.MessageEmbed()
-        .setColor("RED")
-        .setAuthor({
-          name: `Bad ${subjectType} pattern "${subject.name}".`,
-          iconURL: message.client.user?.displayAvatarURL(),
-        })
-        .setDescription(`Expected pattern: \`${checkResult.source}\``)
-    )
-  }
-  return true
-}
-
-export async function checkCastedValue<Message extends command.NormalMessage>(
-  subject: Pick<
-    Option<any>,
-    "checkCastedValue" | "name" | "checkingErrorMessage"
-  >,
+export async function validate(
+  subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   castedValue: any,
-  message: Message
+  message: command.IMessage
 ): Promise<discord.MessageEmbed | true> {
-  if (!subject.checkCastedValue) return true
+  if (!subject.validate) return true
 
   const checkResult: string | boolean = await core.scrap(
-    subject.checkCastedValue,
+    subject.validate,
     castedValue,
     message
   )
@@ -223,11 +236,11 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
       })
       .setDescription(errorMessage)
 
-    if (subject.checkingErrorMessage) {
-      if (typeof subject.checkingErrorMessage === "string") {
-        return embed.setDescription(subject.checkingErrorMessage)
+    if (subject.validationErrorMessage) {
+      if (typeof subject.validationErrorMessage === "string") {
+        return embed.setDescription(subject.validationErrorMessage)
       } else {
-        return subject.checkingErrorMessage
+        return subject.validationErrorMessage
       }
     }
 
@@ -238,9 +251,9 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
 
   if (!checkResult)
     return errorEmbed(
-      typeof subject.checkCastedValue === "function"
+      typeof subject.validate === "function"
         ? core.code.stringify({
-            content: subject.checkCastedValue.toString(),
+            content: subject.validate.toString(),
             format: true,
             lang: "js",
           })
@@ -250,21 +263,19 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
   return true
 }
 
-export async function castValue<Message extends command.NormalMessage>(
-  subject: Pick<Option<any>, "castValue" | "name" | "castingErrorMessage">,
+export async function resolveType(
+  subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
-  message: Message,
-  setValue: <K extends keyof ArgumentValues>(
-    value: ArgumentValues[K]
-  ) => unknown
+  message: command.IMessage,
+  setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown
 ): Promise<discord.MessageEmbed | true> {
   const empty = new Error("The value is empty!")
 
   const cast = async () => {
-    if (!subject.castValue) return
+    if (!subject.type) return
 
-    switch (subject.castValue) {
+    switch (subject.type) {
       case "boolean":
         if (baseValue === undefined) throw empty
         else setValue<"boolean">(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue))
@@ -467,8 +478,7 @@ export async function castValue<Message extends command.NormalMessage>(
         break
       default:
         if (baseValue === undefined) throw empty
-        else setValue<"command">(await subject.castValue(baseValue, message))
-        break
+        setValue<"string">(baseValue)
     }
   }
 
@@ -481,8 +491,8 @@ export async function castValue<Message extends command.NormalMessage>(
       lang: "js",
     })
 
-    if (subject.castingErrorMessage) {
-      if (typeof subject.castingErrorMessage === "string") {
+    if (subject.typeErrorMessage) {
+      if (typeof subject.typeErrorMessage === "string") {
         return new discord.MessageEmbed()
           .setColor("RED")
           .setAuthor({
@@ -490,10 +500,10 @@ export async function castValue<Message extends command.NormalMessage>(
             iconURL: message.client.user?.displayAvatarURL(),
           })
           .setDescription(
-            subject.castingErrorMessage.replace(/@error/g, errorCode)
+            subject.typeErrorMessage.replace(/@error/g, errorCode)
           )
       } else {
-        return subject.castingErrorMessage
+        return subject.typeErrorMessage
       }
     }
 
@@ -505,27 +515,20 @@ export async function castValue<Message extends command.NormalMessage>(
       })
       .setDescription(
         `Cannot cast the value of the "${subject.name}" ${subjectType} to ${
-          typeof subject.castValue === "function"
+          typeof subject.type === "function"
             ? "{*custom type*}"
-            : "`" + subject.castValue + "`"
+            : "`" + subject.type + "`"
         }\n${errorCode}`
       )
   }
 }
 
-export function getCastingDescriptionOf(arg: Option<any>) {
-  if (arg.castingDescription) return arg.castingDescription
-  if (!arg.castValue) return "string"
-  if (typeof arg.castValue === "string") {
-    if (arg.castValue === "array") return "Array<string>"
-    return arg.castValue
-  }
-  return "any"
+export function getCastingDescriptionOf(arg: Option<any, any, any>) {
+  if (arg.type === "array") return "Array<string>"
+  return arg.type
 }
 
-export function isFlag<Message extends command.NormalMessage>(
-  arg: Option<Message>
-): arg is Flag<Message> {
+export function isFlag(arg: any): arg is Flag<any> {
   return arg.hasOwnProperty("flag")
 }
 
