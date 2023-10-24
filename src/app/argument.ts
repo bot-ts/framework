@@ -73,8 +73,8 @@ export interface ArgumentTypes {
 export interface IRest {
   readonly name: string
   description: string
-  required?: core.Scrap<boolean, [message?: command.IMessage]>
-  default?: core.Scrap<string, [message?: command.IMessage]>
+  required?: core.Scrap<boolean, [message?: any]>
+  default?: core.Scrap<string, [message?: any]>
   all?: boolean
   missingErrorMessage?: string | discord.MessageEmbed
 }
@@ -95,12 +95,12 @@ export interface IOption {
   readonly type: TypeName
   description: string
   aliases?: string[]
-  default?: core.Scrap<string, [message: command.IMessage]>
-  required?: core.Scrap<boolean, [message: command.IMessage]>
+  default?: core.Scrap<string, [message: any]>
+  required?: core.Scrap<boolean, [message: any]>
   validate?: (
     this: void,
     value: ArgumentTypes[TypeName],
-    message: command.IMessage
+    message: any
   ) => boolean | string
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
@@ -132,12 +132,12 @@ export interface IPositional {
   readonly name: string
   readonly type: TypeName
   description: string
-  default?: core.Scrap<string, [message: command.IMessage]>
-  required?: core.Scrap<boolean, [message: command.IMessage]>
+  default?: core.Scrap<string, [message: any]>
+  required?: core.Scrap<boolean, [message: any]>
   validate?: (
     this: void,
     value: ArgumentTypes[TypeName],
-    message: command.IMessage
+    message: any
   ) => boolean | string
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed

@@ -113,7 +113,7 @@ export interface MiddlewareResult {
 }
 
 export type IMiddleware = (
-  message: IMessage,
+  message: any,
   data: any
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
