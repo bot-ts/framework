@@ -29,6 +29,9 @@ export default new app.Command({
       name: "use",
       type: "array",
       description: "NPM packages I want to includes in my code",
+      validate: (packages: string[]) => {
+        return packages.length > 0
+      },
     },
   ],
   flags: [

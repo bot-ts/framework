@@ -98,6 +98,7 @@ export interface IOption {
   default?: core.Scrap<string, [message: command.IMessage]>
   required?: core.Scrap<boolean, [message: command.IMessage]>
   validate?: (
+    this: void,
     value: ArgumentTypes[TypeName],
     message: command.IMessage
   ) => boolean | string
@@ -111,17 +112,20 @@ export interface Option<
   Type extends TypeName,
   Message extends command.NormalMessage
 > extends TypedArgument<Name, Type> {
-  readonly description: string
-  readonly aliases?: string[]
-  readonly default?: core.Scrap<string, [message: Message]>
-  readonly required?: core.Scrap<boolean, [message: Message]>
-  readonly validate?: (
-    value: ArgumentTypes[Type],
-    message: Message
-  ) => boolean | string
-  readonly typeErrorMessage?: string | discord.MessageEmbed
-  readonly missingErrorMessage?: string | discord.MessageEmbed
-  readonly validationErrorMessage?: string | discord.MessageEmbed
+  description: string
+  aliases?: readonly string[]
+  default?: core.Scrap<string, [message: Message]>
+  required?: core.Scrap<boolean, [message: Message]>
+  validate?: Readonly<
+    (
+      this: void,
+      value: ArgumentTypes[Type],
+      message: Message
+    ) => boolean | string
+  >
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface IPositional {
@@ -130,10 +134,11 @@ export interface IPositional {
   description: string
   default?: core.Scrap<string, [message: command.IMessage]>
   required?: core.Scrap<boolean, [message: command.IMessage]>
-  validate?: core.Scrap<
-    boolean | string,
-    [value: ArgumentTypes[TypeName], message: command.IMessage]
-  >
+  validate?: (
+    this: void,
+    value: ArgumentTypes[TypeName],
+    message: command.IMessage
+  ) => boolean | string
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
   validationErrorMessage?: string | discord.MessageEmbed
@@ -144,16 +149,19 @@ export interface Positional<
   Type extends TypeName,
   Message extends command.NormalMessage
 > extends TypedArgument<Name, Type> {
-  readonly description: string
-  readonly default?: core.Scrap<string, [message: Message]>
-  readonly required?: core.Scrap<boolean, [message: Message]>
-  readonly validate?: core.Scrap<
-    boolean | string,
-    [value: ArgumentTypes[Type], message: Message]
+  description: string
+  default?: core.Scrap<string, [message: Message]>
+  required?: core.Scrap<boolean, [message: Message]>
+  validate?: Readonly<
+    (
+      this: void,
+      value: ArgumentTypes[Type],
+      message: Message
+    ) => boolean | string
   >
-  readonly typeErrorMessage?: string | discord.MessageEmbed
-  readonly missingErrorMessage?: string | discord.MessageEmbed
-  readonly validationErrorMessage?: string | discord.MessageEmbed
+  typeErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface IFlag {
@@ -164,14 +172,14 @@ export interface IFlag {
 }
 
 export interface Flag<Name extends string> extends NamedArgument<Name> {
-  readonly aliases?: string[]
-  readonly description: string
-  readonly flag: string
+  aliases?: readonly string[]
+  description: string
+  flag: string
 }
 
 export function resolveGivenArgument(
   parsedArgs: yargsParser.Arguments,
-  arg: Option<any, any, any> | Flag<any>
+  arg: IOption | IFlag
 ): {
   given: boolean
   nameIsGiven: boolean

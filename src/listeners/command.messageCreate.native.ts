@@ -29,28 +29,6 @@ const listener: app.Listener<"messageCreate"> = {
 
     message.usedAsDefault = false
 
-    message.send = async function (
-      this: app.NormalMessage,
-      sent: app.SentItem
-    ) {
-      return this.channel.send(sent)
-    }.bind(message)
-
-    message.sendTimeout = async function (
-      this: app.NormalMessage,
-      timeout: number,
-      sent: app.SentItem
-    ) {
-      const m = await this.channel.send(sent)
-      setTimeout(
-        function (this: app.NormalMessage) {
-          if (!this.deleted) this.delete().catch()
-        }.bind(this),
-        timeout
-      )
-      return m
-    }.bind(message)
-
     message.isFromBotOwner =
       message.author.id === (await app.getBotOwnerId(message))
 
@@ -140,7 +118,6 @@ const listener: app.Listener<"messageCreate"> = {
     const parsedArgs = yargsParser(dynamicContent)
     const restPositional = (parsedArgs._?.slice() ?? []).map(String)
 
-    // @ts-expect-error
     message.args = restPositional.map((positional) => {
       if (/^(?:".+"|'.+')$/.test(positional))
         return positional.slice(1, positional.length - 1)

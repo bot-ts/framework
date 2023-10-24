@@ -53,23 +53,17 @@ export const commands = new (class CommandCollection extends discord.Collection<
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export interface IMessage extends discord.Message {
+  triggerCoolDown: () => void
+  usedAsDefault: boolean
+  isFromBotOwner: boolean
+  isFromGuildOwner: boolean
+  usedPrefix: string
+  client: discord.Client<true>
+  rest: string
   args: any
-  triggerCoolDown: () => void
-  send: (this: IMessage, item: SentItem) => Promise<discord.Message>
-  sendTimeout: (
-    this: IMessage,
-    timeout: number,
-    item: SentItem
-  ) => Promise<discord.Message>
-  usedAsDefault: boolean
-  isFromBotOwner: boolean
-  isFromGuildOwner: boolean
-  usedPrefix: string
-  client: discord.Client<true>
-  rest: string
 }
 
-export type NormalMessage<
+export type MessageArguments<
   RestName extends string = string,
   Positional extends readonly argument.Positional<
     any,
@@ -82,62 +76,29 @@ export type NormalMessage<
     any
   >[],
   Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
-> = discord.Message & {
-  args: { [K in RestName]: string } & argument.Outputs<Positional> &
-    argument.Outputs<Options> &
-    argument.OutputFlags<Flags> &
-    argument.OutputPositionalValues<Positional>
+> = { [K in RestName]: string } & argument.Outputs<Positional> &
+  argument.Outputs<Options> &
+  argument.OutputFlags<Flags> &
+  argument.OutputPositionalValues<Positional>
+
+export type NormalMessage = discord.Message & {
   triggerCoolDown: () => void
-  send: (
-    this: NormalMessage<RestName, Positional, Options, Flags>,
-    item: SentItem
-  ) => Promise<discord.Message>
-  sendTimeout: (
-    this: NormalMessage<RestName, Positional, Options, Flags>,
-    timeout: number,
-    item: SentItem
-  ) => Promise<discord.Message>
   usedAsDefault: boolean
   isFromBotOwner: boolean
   isFromGuildOwner: boolean
   usedPrefix: string
   client: discord.Client<true>
   rest: string
+  args: unknown
 }
 
-export type GuildMessage<
-  RestName extends string = string,
-  Positional extends readonly argument.Positional<
-    any,
-    any,
-    any
-  >[] = argument.Positional<any, any, any>[],
-  Options extends readonly argument.Option<any, any, any>[] = argument.Option<
-    any,
-    any,
-    any
-  >[],
-  Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
-> = NormalMessage<RestName, Positional, Options, Flags> & {
+export type GuildMessage = NormalMessage & {
   channel: discord.TextChannel & discord.GuildChannel
   guild: discord.Guild
   member: discord.GuildMember
 }
 
-export type DirectMessage<
-  RestName extends string = string,
-  Positional extends readonly argument.Positional<
-    any,
-    any,
-    any
-  >[] = argument.Positional<any, any, any>[],
-  Options extends readonly argument.Option<any, any, any>[] = argument.Option<
-    any,
-    any,
-    any
-  >[],
-  Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
-> = NormalMessage<RestName, Positional, Options, Flags> & {
+export type DirectMessage = NormalMessage & {
   channel: discord.DMChannel
 }
 
@@ -161,23 +122,10 @@ export type Middleware<Type extends keyof CommandMessageType> = (
   data: any
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
-export interface CommandMessageType<
-  RestName extends string = string,
-  Positional extends readonly argument.Positional<
-    any,
-    any,
-    any
-  >[] = argument.Positional<any, any, any>[],
-  Options extends readonly argument.Option<any, any, any>[] = argument.Option<
-    any,
-    any,
-    any
-  >[],
-  Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
-> {
-  guild: GuildMessage<RestName, Positional, Options, Flags>
-  dm: DirectMessage<RestName, Positional, Options, Flags>
-  all: NormalMessage<RestName, Positional, Options, Flags>
+export interface CommandMessageType {
+  guild: discord.Message & GuildMessage
+  dm: discord.Message & DirectMessage
+  all: discord.Message & NormalMessage
 }
 
 export interface ICommandOptions {
@@ -209,12 +157,12 @@ export interface CommandOptions<
   RestName extends string,
   Positional extends readonly argument.Positional<
     any,
-    argument.TypeName,
+    any,
     CommandMessageType[Type]
   >[],
   Options extends readonly argument.Option<
     any,
-    argument.TypeName,
+    any,
     CommandMessageType[Type]
   >[],
   Flags extends readonly argument.Flag<any>[]
@@ -265,26 +213,28 @@ export interface CommandOptions<
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: argument.Rest<RestName, CommandMessageType[Type]>
+  readonly rest?: argument.Rest<RestName, CommandMessageType[Type]>
 
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
-  positional?: Positional
+  readonly positional?: Positional
 
   /**
    * Yargs option arguments (e.g. `--myArgument=value`)
    */
-  options?: Options
+  readonly options?: Options
 
   /**
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
-  flags?: Flags
+  readonly flags?: Flags
 
   run: (
     this: Command<Type, RestName, Positional, Options, Flags>,
-    message: CommandMessageType<RestName, Positional, Options, Flags>[Type]
+    message: CommandMessageType[Type] & {
+      args: MessageArguments<RestName, Positional, Options, Flags>
+    }
   ) => unknown
 
   /**
@@ -346,7 +296,7 @@ export function validateCommand<
     else defaultCommand = command
   }
 
-  const help: argument.Flag<"help"> = {
+  const help: argument.IFlag = {
     name: "help",
     flag: "h",
     description: "Get help from the command",
@@ -1028,9 +978,9 @@ export function commandToListItem(message: IMessage, cmd: ICommand): string {
   }`
 }
 
-export function isNormalMessage(
-  message: discord.Message | discord.PartialMessage
-): message is NormalMessage {
+export function isNormalMessage<
+  Base extends discord.Message | discord.PartialMessage
+>(message: Base): message is Base & NormalMessage {
   return (
     !message.system &&
     !!message.channel &&
@@ -1039,14 +989,14 @@ export function isNormalMessage(
   )
 }
 
-export function isGuildMessage(
-  message: discord.Message
-): message is GuildMessage {
+export function isGuildMessage<
+  Base extends discord.Message | discord.PartialMessage
+>(message: Base): message is Base & GuildMessage {
   return !!message.member && !!message.guild
 }
 
-export function isDirectMessage(
-  message: discord.Message
-): message is DirectMessage {
-  return message.channel.type.toLowerCase() === "dm"
+export function isDirectMessage<
+  Base extends discord.Message | discord.PartialMessage
+>(message: Base): message is Base & DirectMessage {
+  return !!message.channel && message.channel.type.toLowerCase() === "dm"
 }
