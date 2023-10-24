@@ -60,6 +60,7 @@ export interface IMessage extends discord.Message {
   client: discord.Client<true>
   rest: string
   args: any
+  channel: any
 }
 
 export type MessageArguments<
