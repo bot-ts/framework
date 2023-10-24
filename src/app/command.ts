@@ -148,7 +148,7 @@ export interface ICommandOptions {
   positional?: argument.IPositional[]
   options?: argument.IOption[]
   flags?: argument.IFlag[]
-  run: (this: ICommand, message: any) => unknown | Promise<unknown> | void
+  run: any
   subs?: ICommand[]
 }
 
