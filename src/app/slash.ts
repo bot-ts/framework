@@ -67,7 +67,7 @@ export function validateSlashCommand(command: SlashCommand) {
   command.options.build?.bind(command.builder)(command.builder)
 
   logger.log(
-    `loader command ${chalk.blueBright("/" + command.options.name)}${
+    `loaded command ${chalk.blueBright("/" + command.options.name)}${
       command.native ? chalk.green(" native") : ""
     } ${chalk.grey(command.options.description)}`
   )
@@ -87,9 +87,9 @@ export async function registerSlashCommands(guildId?: string) {
     )) as unknown[]
 
     logger.log(
-      `deployed ${chalk.bold(data.length)} slash commands${
+      `deployed ${chalk.blue(data.length)} slash commands${
         guildId ? ` to new guild ${chalk.blue(guildId)}` : ""
-      }}`
+      }`
     )
   } catch (error: any) {
     logger.error(error, __filename, true)
