@@ -97,7 +97,7 @@ export interface IOption {
   aliases?: string[]
   default?: core.Scrap<string, [message: any]>
   required?: core.Scrap<boolean, [message: any]>
-  validate?: (this: void, value: any, message: any) => boolean | string
+  validate?: any
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
   validationErrorMessage?: string | discord.MessageEmbed
@@ -130,7 +130,7 @@ export interface IPositional {
   description: string
   default?: core.Scrap<string, [message: any]>
   required?: core.Scrap<boolean, [message: any]>
-  validate?: (this: void, value: any, message: any) => boolean | string
+  validate?: any
   typeErrorMessage?: string | discord.MessageEmbed
   missingErrorMessage?: string | discord.MessageEmbed
   validationErrorMessage?: string | discord.MessageEmbed
