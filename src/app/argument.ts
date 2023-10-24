@@ -94,7 +94,7 @@ export interface IOption {
   readonly name: string
   readonly type: TypeName
   description: string
-  aliases?: string[]
+  aliases?: readonly string[]
   default?: core.Scrap<string, [message: any]>
   required?: core.Scrap<boolean, [message: any]>
   validate?: any
@@ -158,7 +158,7 @@ export interface Positional<
 
 export interface IFlag {
   readonly name: string
-  aliases?: string[]
+  aliases?: readonly string[]
   description: string
   flag: string
 }
