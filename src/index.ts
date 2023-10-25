@@ -17,6 +17,7 @@ try {
   await app.commandHandler.init()
   await app.slashCommandHandler.init()
   await app.listenerHandler.init()
+  await app.checkUpdates()
   await app.client.login(process.env.BOT_TOKEN)
 } catch (error: any) {
   app.error(error, __filename, true)

@@ -4,8 +4,6 @@ import * as app from "../app.js"
 
 import time from "tims"
 
-const conf = app.fetchPackageJson()
-
 export default new app.Command({
   name: "info",
   description: "Get information about bot",
@@ -18,6 +16,8 @@ export default new app.Command({
     },
   ],
   async run(message) {
+    const conf = app.packageJSON
+
     const embed = new app.MessageEmbed()
       .setColor("BLURPLE")
       .setAuthor({

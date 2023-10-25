@@ -7,11 +7,9 @@ import * as app from "../app.js"
 
 const exec = util.promisify(cp.exec)
 
-const packageJson = app.fetchPackageJson()
-
 const alreadyInstalled = (pack: string): boolean =>
-  packageJson.dependencies.hasOwnProperty(pack) ||
-  packageJson.devDependencies.hasOwnProperty(pack)
+  app.packageJSON.dependencies.hasOwnProperty(pack) ||
+  app.packageJSON.devDependencies.hasOwnProperty(pack)
 
 export default new app.Command({
   name: "eval",
