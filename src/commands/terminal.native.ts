@@ -11,7 +11,10 @@ export default new app.Command({
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
   channelType: "all",
   botOwnerOnly: true,
-  coolDown: 5000,
+  cooldown: {
+    duration: 5000,
+    type: app.CooldownType.Global,
+  },
   rest: {
     all: true,
     name: "cmd",

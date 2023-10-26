@@ -4,52 +4,135 @@ import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
 
-import * as core from "./core.js"
+import * as util from "./util.js"
 import * as command from "./command.js"
+
+type _item<Items extends readonly any[], K extends string> = Extract<
+  Items[number],
+  { name: K }
+>
 
 type ValueOf<T> = T[keyof T]
 
 /**
  * Extracts the outputs of an array of inputs
- * TESTED, WORKING PERFECTLY
  */
-export type Outputs<Inputs extends readonly TypedArgument<any, any>[]> = {
-  [K in Inputs[number]["name"]]: ArgumentTypes[Extract<
-    Inputs[number],
-    { name: K }
-  >["type"]]
+export type Outputs<
+  Inputs extends readonly (TypedArgument<any, any, any> &
+    OptionalArgument<any, any, any>)[]
+> = {
+  readonly [K in Inputs[number]["name"]]: _item<
+    Inputs,
+    K
+  >["required"] extends true
+    ? ArgumentTypes[_item<Inputs, K>["type"]]
+    : _item<Inputs, K>["default"] extends undefined
+    ? ArgumentTypes[_item<Inputs, K>["type"]] | null
+    : ArgumentTypes[_item<Inputs, K>["type"]]
 }
+
+// const test: Outputs<
+//   [
+//     {
+//       name: "test"
+//       type: "string"
+//       required: true
+//     },
+//     {
+//       name: "test2"
+//       type: "array",
+//       validate: (value: string[]) => boolean
+//     },
+//     {
+//       name: "test3"
+//       type: "boolean"
+//       required: false
+//       default: false
+//     }
+//   ]
+// > = null!
 
 /**
  * Extracts the outputs of an array of inputs into an array containing the flag values
  * TESTED, WORKING PERFECTLY
  */
 export type OutputFlags<Inputs extends readonly NamedArgument<any>[]> = {
-  [K in Inputs[number]["name"]]: boolean
+  readonly [K in Inputs[number]["name"]]: boolean
 }
 
 /**
  * Convert the outputs of an array of inputs into an array containing the values
- * TESTED, WORKING PERFECTLY
+ * @fixme
  */
 export type OutputPositionalValues<
-  Inputs extends readonly TypedArgument<any, any>[]
+  Inputs extends readonly (TypedArgument<any, any, any> &
+    OptionalArgument<any, any, any>)[]
 > = ValueOf<{
-  [K in Inputs[number]["name"]]: ArgumentTypes[Extract<
-    Inputs[number],
-    { name: K }
-  >["type"]]
+  [K in Inputs[number]["name"]]: _item<Inputs, K>["required"] extends true
+    ? ArgumentTypes[_item<Inputs, K>["type"]]
+    : _item<Inputs, K>["default"] extends undefined
+    ? ArgumentTypes[_item<Inputs, K>["type"]] | null
+    : ArgumentTypes[_item<Inputs, K>["type"]]
 }>[]
+
+// {
+//   const test: OutputPositionalValues<
+//     [
+//       {
+//         name: "test"
+//         type: "string"
+//         required: true
+//       },
+//       {
+//         name: "test2"
+//         type: "number"
+//         required: false
+//       },
+//       {
+//         name: "test3"
+//         type: "boolean"
+//         required: false
+//         default: false
+//       }
+//     ]
+//   > = null!
+//
+//   const [a, b, c] = test
+// }
 
 export type TypeName = keyof ArgumentTypes
 
-export interface TypedArgument<Name extends string, Type extends TypeName> {
+export interface TypedArgument<
+  Name extends string,
+  Type extends TypeName,
+  Message extends command.NormalMessage
+> {
   readonly name: Name
   readonly type: Type
+  readonly validate?: (
+    this: void,
+    value: ArgumentTypes[Type],
+    message: Message
+  ) => boolean | string | Promise<boolean | string>
+
+  typeErrorMessage?: string | discord.MessageEmbed
+  validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface NamedArgument<Name extends string> {
   readonly name: Name
+}
+
+export interface OptionalArgument<
+  Required extends boolean,
+  Type extends TypeName,
+  Message extends command.NormalMessage
+> {
+  readonly required?: Required
+  readonly default?: Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes[Type], [message: Message]>
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface ArgumentTypes {
@@ -70,94 +153,84 @@ export interface ArgumentTypes {
   command: command.ICommand
 }
 
-export interface IRest {
-  readonly name: string
+export interface IRest
+  extends NamedArgument<string>,
+    OptionalArgument<boolean, "string", any> {
   description: string
-  required?: core.Scrap<boolean, [message?: any]>
-  default?: core.Scrap<string, [message?: any]>
   all?: boolean
-  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Rest<
   Name extends string,
+  Required extends boolean,
   Message extends command.NormalMessage
-> extends NamedArgument<Name> {
+> extends NamedArgument<Name>,
+    OptionalArgument<Required, "string", Message> {
   description: string
-  required?: core.Scrap<boolean, [message?: Message]>
-  default?: core.Scrap<string, [message?: Message]>
   all?: boolean
-  missingErrorMessage?: string | discord.MessageEmbed
 }
 
-export interface IOption {
-  readonly name: string
-  readonly type: TypeName
+export function rest<const Name extends string, const Required extends boolean>(
+  options: Rest<Name, Required, command.IMessage>
+): Rest<Name, Required, command.IMessage> {
+  return options
+}
+
+export interface IOption
+  extends TypedArgument<string, TypeName, any>,
+    OptionalArgument<boolean, TypeName, any> {
   description: string
   aliases?: readonly string[]
-  default?: core.Scrap<string, [message: any]>
-  required?: core.Scrap<boolean, [message: any]>
-  validate?: any
-  typeErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Option<
   Name extends string,
   Type extends TypeName,
+  Required extends boolean,
   Message extends command.NormalMessage
-> extends TypedArgument<Name, Type> {
+> extends TypedArgument<Name, Type, Message>,
+    OptionalArgument<Required, Type, Message> {
   description: string
   aliases?: readonly string[]
-  default?: core.Scrap<string, [message: Message]>
-  required?: core.Scrap<boolean, [message: Message]>
-  validate?: Readonly<
-    (
-      this: void,
-      value: ArgumentTypes[Type],
-      message: Message
-    ) => boolean | string
-  >
-  typeErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
 }
 
-export interface IPositional {
-  readonly name: string
-  readonly type: TypeName
+export function option<
+  const Name extends string,
+  const Type extends TypeName,
+  const Required extends boolean
+>(
+  options: Readonly<Option<Name, Type, Required, command.IMessage>>
+): Option<Name, Type, Required, command.IMessage> {
+  return options
+}
+
+export interface IPositional
+  extends TypedArgument<string, TypeName, any>,
+    OptionalArgument<boolean, TypeName, any> {
   description: string
-  default?: core.Scrap<string, [message: any]>
-  required?: core.Scrap<boolean, [message: any]>
-  validate?: any
-  typeErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Positional<
   Name extends string,
   Type extends TypeName,
+  Required extends boolean,
   Message extends command.NormalMessage
-> extends TypedArgument<Name, Type> {
+> extends TypedArgument<Name, Type, Message>,
+    OptionalArgument<Required, Type, Message> {
   description: string
-  default?: core.Scrap<string, [message: Message]>
-  required?: core.Scrap<boolean, [message: Message]>
-  validate?: Readonly<
-    (
-      this: void,
-      value: ArgumentTypes[Type],
-      message: Message
-    ) => boolean | string
-  >
-  typeErrorMessage?: string | discord.MessageEmbed
-  missingErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
 }
 
-export interface IFlag {
-  readonly name: string
+export function positional<
+  const Name extends string,
+  const Type extends TypeName,
+  const Required extends boolean
+>(
+  options: Positional<Name, Type, Required, command.IMessage>
+): Positional<Name, Type, Required, command.IMessage> {
+  return options
+}
+
+export interface IFlag extends NamedArgument<string> {
   aliases?: readonly string[]
   description: string
   flag: string
@@ -167,6 +240,12 @@ export interface Flag<Name extends string> extends NamedArgument<Name> {
   aliases?: readonly string[]
   description: string
   flag: string
+}
+
+export function flag<const Name extends string>(
+  options: Flag<Name>
+): Flag<Name> {
+  return options
 }
 
 export function resolveGivenArgument(
@@ -213,11 +292,7 @@ export async function validate(
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.validate) return true
 
-  const checkResult: string | boolean = await core.scrap(
-    subject.validate,
-    castedValue,
-    message
-  )
+  const checkResult = await subject.validate(castedValue, message)
 
   const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
     const embed = new discord.MessageEmbed()
@@ -244,7 +319,7 @@ export async function validate(
   if (!checkResult)
     return errorEmbed(
       typeof subject.validate === "function"
-        ? core.code.stringify({
+        ? util.code.stringify({
             content: subject.validate.toString(),
             format: true,
             lang: "js",
@@ -440,7 +515,7 @@ export async function resolveType(
             if (emote) setValue<"emote">(emote)
             else throw new Error("Unknown emote!")
           } else {
-            const emojiMatch = core.emojiRegex.exec(baseValue)
+            const emojiMatch = util.emojiRegex.exec(baseValue)
             if (emojiMatch) setValue<"emote">(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }
@@ -478,7 +553,7 @@ export async function resolveType(
     await cast()
     return true
   } catch (error: any) {
-    const errorCode = core.code.stringify({
+    const errorCode = util.code.stringify({
       content: `${error.name}: ${error.message}`,
       lang: "js",
     })
@@ -515,7 +590,9 @@ export async function resolveType(
   }
 }
 
-export function getCastingDescriptionOf(arg: Option<any, any, any>) {
+export function getCastingDescriptionOf(
+  arg: TypedArgument<any, any, any>
+): string {
   if (arg.type === "array") return "Array<string>"
   return arg.type
 }

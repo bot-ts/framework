@@ -9,12 +9,12 @@ export default new app.Command({
   channelType: "all",
   botOwnerOnly: true,
   positional: [
-    {
+    app.positional({
       name: "activated",
       description: "Is command handling activated",
-      default: () => String(!app.cache.ensure<boolean>("turn", true)),
+      default: () => !app.cache.ensure<boolean>("turn", true),
       type: "boolean",
-    },
+    }),
   ],
   async run(message) {
     app.cache.set("turn", message.args.activated)

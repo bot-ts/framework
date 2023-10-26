@@ -8,6 +8,7 @@ import yargsParser from "yargs-parser"
 
 import * as handler from "@ghom/handler"
 
+import * as util from "./util.js"
 import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as argument from "./argument.js"
@@ -65,18 +66,23 @@ export interface IMessage extends discord.Message {
 
 export type MessageArguments<
   RestName extends string = string,
+  RestRequired extends boolean = false,
   Positional extends readonly argument.Positional<
     any,
     any,
-    any
-  >[] = argument.Positional<any, any, any>[],
-  Options extends readonly argument.Option<any, any, any>[] = argument.Option<
-    any,
     any,
     any
-  >[],
+  >[] = argument.Positional<any, any, any, any>[],
+  Options extends readonly argument.Option<
+    any,
+    any,
+    any,
+    any
+  >[] = argument.Option<any, any, any, any>[],
   Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
-> = { [K in RestName]: string } & argument.Outputs<Positional> &
+> = {
+  [K in RestName]: RestRequired extends true ? string : string | null
+} & argument.Outputs<Positional> &
   argument.Outputs<Options> &
   argument.OutputFlags<Flags> &
   argument.OutputPositionalValues<Positional>
@@ -102,7 +108,24 @@ export type DirectMessage = NormalMessage & {
   channel: discord.DMChannel
 }
 
-export interface CoolDown {
+export enum CooldownType {
+  ByUser = "byUser",
+  ByGuild = "byGuild",
+  ByChannel = "byChannel",
+  Global = "global",
+}
+
+export interface ICooldown {
+  duration: util.Scrap<number, [message: any]>
+  type: CooldownType
+}
+
+export interface Cooldown<Type extends keyof CommandMessageType> {
+  duration: util.Scrap<number, [message: CommandMessageType[Type]]>
+  type: CooldownType
+}
+
+export interface CoolDownData {
   time: number
   trigger: boolean
 }
@@ -132,15 +155,15 @@ export interface ICommandOptions {
   channelType?: string
   name: string
   description: string
-  longDescription?: core.Scrap<string, [message: any]>
+  longDescription?: util.Scrap<string, [message: any]>
   isDefault?: boolean
   aliases?: string[]
-  coolDown?: core.Scrap<number, [message: any]>
-  examples?: core.Scrap<string[], [message: any]>
-  guildOwnerOnly?: core.Scrap<boolean, [message: any]>
-  botOwnerOnly?: core.Scrap<boolean, [message: any]>
-  userPermissions?: core.Scrap<discord.PermissionString[], [message: any]>
-  botPermissions?: core.Scrap<discord.PermissionString[], [message: any]>
+  cooldown?: ICooldown
+  examples?: util.Scrap<string[], [message: any]>
+  guildOwnerOnly?: util.Scrap<boolean, [message: any]>
+  botOwnerOnly?: util.Scrap<boolean, [message: any]>
+  userPermissions?: util.Scrap<discord.PermissionString[], [message: any]>
+  botPermissions?: util.Scrap<discord.PermissionString[], [message: any]>
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
   middlewares?: IMiddleware[]
@@ -155,12 +178,15 @@ export interface ICommandOptions {
 export interface CommandOptions<
   Type extends keyof CommandMessageType,
   RestName extends string,
+  RestRequired extends boolean,
   Positional extends readonly argument.Positional<
+    any,
     any,
     any,
     CommandMessageType[Type]
   >[],
   Options extends readonly argument.Option<
+    any,
     any,
     any,
     CommandMessageType[Type]
@@ -177,7 +203,7 @@ export interface CommandOptions<
   /**
    * Description displayed in command detail
    */
-  longDescription?: core.Scrap<string, [message: CommandMessageType[Type]]>
+  longDescription?: util.Scrap<string, [message: CommandMessageType[Type]]>
   /**
    * Use this command if prefix is given but without command matching
    */
@@ -187,17 +213,17 @@ export interface CommandOptions<
   /**
    * Cool down of command (in ms)
    */
-  coolDown?: core.Scrap<number, [message: CommandMessageType[Type]]>
-  examples?: core.Scrap<string[], [message: CommandMessageType[Type]]>
+  cooldown?: Cooldown<Type>
+  examples?: util.Scrap<string[], [message: CommandMessageType[Type]]>
 
   // Restriction flags and permissions
-  guildOwnerOnly?: core.Scrap<boolean, [message: CommandMessageType[Type]]>
-  botOwnerOnly?: core.Scrap<boolean, [message: CommandMessageType[Type]]>
-  userPermissions?: core.Scrap<
+  guildOwnerOnly?: util.Scrap<boolean, [message: CommandMessageType[Type]]>
+  botOwnerOnly?: util.Scrap<boolean, [message: CommandMessageType[Type]]>
+  userPermissions?: util.Scrap<
     discord.PermissionString[],
     [message: CommandMessageType[Type]]
   >
-  botPermissions?: core.Scrap<
+  botPermissions?: util.Scrap<
     discord.PermissionString[],
     [message: CommandMessageType[Type]]
   >
@@ -213,7 +239,11 @@ export interface CommandOptions<
   /**
    * The rest of message after excludes all other arguments.
    */
-  readonly rest?: argument.Rest<RestName, CommandMessageType[Type]>
+  readonly rest?: argument.Rest<
+    RestName,
+    RestRequired,
+    CommandMessageType[Type]
+  >
 
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
@@ -231,9 +261,15 @@ export interface CommandOptions<
   readonly flags?: Flags
 
   run: (
-    this: Command<Type, RestName, Positional, Options, Flags>,
+    this: Command<Type, RestName, RestRequired, Positional, Options, Flags>,
     message: CommandMessageType[Type] & {
-      args: MessageArguments<RestName, Positional, Options, Flags>
+      readonly args: MessageArguments<
+        RestName,
+        RestRequired,
+        Positional,
+        Options,
+        Flags
+      >
     }
   ) => unknown
 
@@ -257,24 +293,34 @@ export interface ICommand {
 export class Command<
   const Type extends keyof CommandMessageType = "all",
   const RestName extends string = string,
+  const RestRequired extends boolean = false,
   const Positional extends readonly argument.Positional<
     any,
-    argument.TypeName,
+    any,
+    any,
     CommandMessageType[Type]
-  >[] = argument.Positional<any, argument.TypeName, CommandMessageType[Type]>[],
+  >[] = argument.Positional<any, any, any, CommandMessageType[Type]>[],
   const Options extends readonly argument.Option<
     any,
-    argument.TypeName,
+    any,
+    any,
     CommandMessageType[Type]
-  >[] = argument.Option<any, argument.TypeName, CommandMessageType[Type]>[],
+  >[] = argument.Option<any, any, any, CommandMessageType[Type]>[],
   const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
 > {
   filepath?: string
-  parent?: Command<keyof CommandMessageType>
+  parent?: ICommand
   native = false
 
   constructor(
-    public options: CommandOptions<Type, RestName, Positional, Options, Flags>
+    public options: CommandOptions<
+      Type,
+      RestName,
+      RestRequired,
+      Positional,
+      Options,
+      Flags
+    >
   ) {}
 }
 
@@ -315,7 +361,7 @@ export function validateCommand(
           }" command must be equal to 1`
         )
 
-  if (command.options.coolDown)
+  if (command.options.cooldown)
     if (!command.options.run.toString().includes("triggerCoolDown"))
       logger.warn(
         `you forgot using ${chalk.greenBright(
@@ -357,25 +403,38 @@ export async function prepareCommand(
   }
 ): Promise<discord.MessageEmbed | boolean> {
   // coolDown
-  if (cmd.options.coolDown) {
-    const slug = core.slug("coolDown", cmd.options.name, message.channel.id)
-    const coolDown = core.cache.ensure<CoolDown>(slug, {
+  if (cmd.options.cooldown) {
+    const slug = util.slug(
+      "coolDown",
+      cmd.options.name,
+      cmd.options.cooldown.type === CooldownType.Global
+        ? "global"
+        : cmd.options.cooldown.type === CooldownType.ByUser
+        ? message.author.id
+        : cmd.options.cooldown.type === CooldownType.ByGuild
+        ? message.guildId
+        : message.channel.id
+    )
+    const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,
       trigger: false,
     })
 
     message.triggerCoolDown = () => {
-      core.cache.set(slug, {
+      util.cache.set(slug, {
         time: Date.now(),
         trigger: true,
       })
     }
 
     if (coolDown.trigger) {
-      const coolDownTime = await core.scrap(cmd.options.coolDown, message)
+      const coolDownTime = await util.scrap(
+        cmd.options.cooldown.duration,
+        message
+      )
 
       if (Date.now() > coolDown.time + coolDownTime) {
-        core.cache.set(slug, {
+        util.cache.set(slug, {
           time: 0,
           trigger: false,
         })
@@ -396,7 +455,7 @@ export async function prepareCommand(
     }
   }
 
-  const channelType = await core.scrap(cmd.options.channelType, message)
+  const channelType = await util.scrap(cmd.options.channelType, message)
 
   if (isGuildMessage(message)) {
     if (channelType === "dm")
@@ -405,7 +464,7 @@ export async function prepareCommand(
         iconURL: message.client.user.displayAvatarURL(),
       })
 
-    if (core.scrap(cmd.options.guildOwnerOnly, message))
+    if (util.scrap(cmd.options.guildOwnerOnly, message))
       if (
         message.guild.ownerId !== message.member.id &&
         process.env.BOT_OWNER !== message.member.id
@@ -416,7 +475,7 @@ export async function prepareCommand(
         })
 
     if (cmd.options.botPermissions) {
-      const botPermissions = await core.scrap(
+      const botPermissions = await util.scrap(
         cmd.options.botPermissions,
         message
       )
@@ -439,7 +498,7 @@ export async function prepareCommand(
     }
 
     if (cmd.options.userPermissions) {
-      const userPermissions = await core.scrap(
+      const userPermissions = await util.scrap(
         cmd.options.userPermissions,
         message
       )
@@ -458,7 +517,7 @@ export async function prepareCommand(
     }
 
     if (cmd.options.allowRoles) {
-      const allowRoles = await core.scrap(cmd.options.allowRoles, message)
+      const allowRoles = await util.scrap(cmd.options.allowRoles, message)
 
       if (
         message.member.roles.cache.every(
@@ -479,7 +538,7 @@ export async function prepareCommand(
     }
 
     if (cmd.options.denyRoles) {
-      const denyRoles = await core.scrap(cmd.options.denyRoles, message)
+      const denyRoles = await util.scrap(cmd.options.denyRoles, message)
 
       if (
         message.member.roles.cache.some((role) => denyRoles.includes(role.id))
@@ -505,7 +564,7 @@ export async function prepareCommand(
         iconURL: message.client.user.displayAvatarURL(),
       })
 
-  if (await core.scrap(cmd.options.botOwnerOnly, message))
+  if (await util.scrap(cmd.options.botOwnerOnly, message))
     if (process.env.BOT_OWNER !== message.author.id)
       return new discord.MessageEmbed().setColor("RED").setAuthor({
         name: "You must be my owner.",
@@ -514,7 +573,7 @@ export async function prepareCommand(
 
   if (context) {
     if (cmd.options.positional) {
-      const positionalList = await core.scrap(cmd.options.positional, message)
+      const positionalList = await util.scrap(cmd.options.positional, message)
 
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
@@ -532,7 +591,7 @@ export async function prepareCommand(
         set(value)
 
         if (!given) {
-          if (await core.scrap(positional.required, message)) {
+          if (await util.scrap(positional.required, message)) {
             if (positional.missingErrorMessage) {
               if (typeof positional.missingErrorMessage === "string") {
                 return new discord.MessageEmbed()
@@ -556,14 +615,12 @@ export async function prepareCommand(
               .setDescription(
                 positional.description
                   ? "Description: " + positional.description
-                  : `Run the following command to learn more: ${core.code.stringify(
+                  : `Run the following command to learn more: ${util.code.stringify(
                       {
                         content: `${message.usedPrefix}${context.key} --help`,
                       }
                     )}`
               )
-          } else if (positional.default !== undefined) {
-            set(await core.scrap(positional.default, message))
           } else {
             set(null)
           }
@@ -592,12 +649,16 @@ export async function prepareCommand(
           if (checked !== true) return checked
         }
 
+        if (value === null && positional.default !== undefined) {
+          set(await util.scrap(positional.default, message))
+        }
+
         context.restPositional.shift()
       }
     }
 
     if (cmd.options.options) {
-      const options = await core.scrap(cmd.options.options, message)
+      const options = await util.scrap(cmd.options.options, message)
 
       for (const option of options) {
         let { given, value } = argument.resolveGivenArgument(
@@ -612,7 +673,7 @@ export async function prepareCommand(
 
         if (value === true) value = undefined
 
-        if (!given && (await core.scrap(option.required, message))) {
+        if (!given && (await util.scrap(option.required, message))) {
           if (option.missingErrorMessage) {
             if (typeof option.missingErrorMessage === "string") {
               return new discord.MessageEmbed()
@@ -643,11 +704,7 @@ export async function prepareCommand(
         set(value)
 
         if (value === undefined) {
-          if (option.default !== undefined) {
-            set(await core.scrap(option.default, message))
-          } else if (option.type !== "array") {
-            set(null)
-          }
+          set(null)
         }
 
         if (value !== null) {
@@ -671,6 +728,10 @@ export async function prepareCommand(
           )
 
           if (checked !== true) return checked
+        }
+
+        if (value === null && option.default !== undefined) {
+          set(await util.scrap(option.default, message))
         }
       }
     }
@@ -701,12 +762,12 @@ export async function prepareCommand(
     message.rest = context.restPositional.join(" ")
 
     if (cmd.options.rest) {
-      const rest = await core.scrap(cmd.options.rest, message)
+      const rest = await util.scrap(cmd.options.rest, message)
 
       if (rest.all) message.rest = context.baseContent
 
       if (message.rest.length === 0) {
-        if (await core.scrap(rest.required, message)) {
+        if (await util.scrap(rest.required, message)) {
           if (rest.missingErrorMessage) {
             if (typeof rest.missingErrorMessage === "string") {
               return new discord.MessageEmbed()
@@ -732,7 +793,7 @@ export async function prepareCommand(
                 "Please use `--help` flag for more information."
             )
         } else if (rest.default) {
-          message.args[rest.name] = await core.scrap(rest.default, message)
+          message.args[rest.name] = await util.scrap(rest.default, message)
         }
       } else {
         message.args[rest.name] = message.rest
@@ -741,7 +802,7 @@ export async function prepareCommand(
   }
 
   if (cmd.options.middlewares) {
-    const middlewares = await core.scrap(cmd.options.middlewares, message)
+    const middlewares = await util.scrap(cmd.options.middlewares, message)
 
     let currentData: any = {}
 
@@ -782,7 +843,7 @@ export async function sendCommandDetails(
       iconURL: message.client.user.displayAvatarURL(),
     })
     .setDescription(
-      (await core.scrap(cmd.options.longDescription, message)) ??
+      (await util.scrap(cmd.options.longDescription, message)) ??
         cmd.options.description ??
         "no description"
     )
@@ -795,16 +856,16 @@ export async function sendCommandDetails(
   ]
 
   if (cmd.options.positional) {
-    const cmdPositional = await core.scrap(cmd.options.positional, message)
+    const cmdPositional = await util.scrap(cmd.options.positional, message)
 
     for (const positional of cmdPositional) {
       const dft =
         positional.default !== undefined
-          ? `="${await core.scrap(positional.default, message)}"`
+          ? `="${await util.scrap(positional.default, message)}"`
           : ""
 
       title.push(
-        (await core.scrap(positional.required, message)) && !dft
+        (await util.scrap(positional.required, message)) && !dft
           ? `<${positional.name}>`
           : `[${positional.name}${dft}]`
       )
@@ -812,14 +873,14 @@ export async function sendCommandDetails(
   }
 
   if (cmd.options.rest) {
-    const rest = await core.scrap(cmd.options.rest, message)
+    const rest = await util.scrap(cmd.options.rest, message)
     const dft =
       rest.default !== undefined
-        ? `="${await core.scrap(rest.default, message)}"`
+        ? `="${await util.scrap(rest.default, message)}"`
         : ""
 
     title.push(
-      (await core.scrap(rest.required, message))
+      (await util.scrap(rest.required, message))
         ? `<...${rest.name}>`
         : `[...${rest.name}${dft}]`
     )
@@ -835,16 +896,16 @@ export async function sendCommandDetails(
     title.push("[OPTIONS]")
 
     const options: string[] = []
-    const cmdOptions = await core.scrap(cmd.options.options, message)
+    const cmdOptions = await util.scrap(cmd.options.options, message)
 
     for (const arg of cmdOptions) {
       const dft =
         arg.default !== undefined
-          ? `="${core.scrap(arg.default, message)}"`
+          ? `="${util.scrap(arg.default, message)}"`
           : ""
 
       options.push(
-        (await core.scrap(arg.required, message))
+        (await util.scrap(arg.required, message))
           ? `\`--${arg.name}${dft}\` (\`${argument.getCastingDescriptionOf(
               arg
             )}\`) ${arg.description ?? ""}`
@@ -865,9 +926,9 @@ export async function sendCommandDetails(
 
   const specialPermissions = []
 
-  if (await core.scrap(cmd.options.botOwnerOnly, message))
+  if (await util.scrap(cmd.options.botOwnerOnly, message))
     specialPermissions.push("BOT_OWNER")
-  if (await core.scrap(cmd.options.guildOwnerOnly, message))
+  if (await util.scrap(cmd.options.guildOwnerOnly, message))
     specialPermissions.push("GUILD_OWNER")
 
   if (cmd.options.aliases) {
@@ -891,11 +952,11 @@ export async function sendCommandDetails(
   }
 
   if (cmd.options.examples) {
-    const examples = await core.scrap(cmd.options.examples, message)
+    const examples = await util.scrap(cmd.options.examples, message)
 
     embed.addFields({
       name: "examples:",
-      value: core.code.stringify({
+      value: util.code.stringify({
         content: examples
           .map((example) => message.usedPrefix + example)
           .join("\n"),
@@ -905,7 +966,7 @@ export async function sendCommandDetails(
   }
 
   if (cmd.options.botPermissions) {
-    const botPermissions = await core.scrap(cmd.options.botPermissions, message)
+    const botPermissions = await util.scrap(cmd.options.botPermissions, message)
 
     embed.addFields({
       name: "bot permissions",
@@ -915,7 +976,7 @@ export async function sendCommandDetails(
   }
 
   if (cmd.options.userPermissions) {
-    const userPermissions = await core.scrap(
+    const userPermissions = await util.scrap(
       cmd.options.userPermissions,
       message
     )
@@ -934,11 +995,11 @@ export async function sendCommandDetails(
       inline: true,
     })
 
-  if (cmd.options.coolDown) {
-    const coolDown = await core.scrap(cmd.options.coolDown, message)
+  if (cmd.options.cooldown) {
+    const coolDown = await util.scrap(cmd.options.cooldown.duration, message)
 
     embed.addFields({
-      name: "cool down",
+      name: "cooldown",
       value: tims.duration(coolDown),
       inline: true,
     })

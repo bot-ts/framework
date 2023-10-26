@@ -23,14 +23,15 @@ export default new app.Command({
     required: true,
   },
   options: [
-    {
+    app.option({
       name: "use",
       type: "array",
       description: "NPM packages I want to includes in my code",
-      validate: (packages: string[]) => {
+      validate: (packages) => {
         return packages.length > 0
       },
-    },
+      default: [],
+    }),
   ],
   flags: [
     {
@@ -49,6 +50,7 @@ export default new app.Command({
     const installed = new Set<string>()
 
     let code = message.args.code
+    let use = message.args.use
 
     if (message.args.use.length > 0) {
       const given = new Set<string>(message.args.use.filter((p: string) => p))
