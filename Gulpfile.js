@@ -140,6 +140,7 @@ function _updateDependencies(cb) {
   )
 
   localPackageJSON.main = remotePackageJSON.main
+  localPackageJSON.version = remotePackageJSON.version
 
   localPackageJSON.engines = {
     ...localPackageJSON.engines,
