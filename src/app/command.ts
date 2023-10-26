@@ -277,9 +277,9 @@ export interface CommandOptions<
    * Sub-commands
    */
   subs?: (
-    | Command<"guild", any, any, any, any>
-    | Command<"dm", any, any, any, any>
-    | Command<"all", any, any, any, any>
+    | Command<"guild", any, any, any, any, any>
+    | Command<"dm", any, any, any, any, any>
+    | Command<"all", any, any, any, any, any>
   )[]
 }
 

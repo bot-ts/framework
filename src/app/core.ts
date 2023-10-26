@@ -25,10 +25,9 @@ export async function checkUpdates() {
     logger.warn(
       `a new major version of ${chalk.blue(
         "bot.ts"
-      )} is available: ${chalk.magenta(removeJSON.version)}`
-    )
-    logger.warn(
-      `you are currently using: ${chalk.magenta(util.packageJSON.version)}`
+      )} is available: ${chalk.magenta(
+        util.packageJSON.version
+      )} => ${chalk.magenta(removeJSON.version)}`
     )
     logger.warn(
       `you can update ${chalk.blue("bot.ts")} by running ${chalk.bgWhite.black(
@@ -41,9 +40,9 @@ export async function checkUpdates() {
     removeJSON.devDependencies["make-bot.ts"]
   ) {
     logger.warn(
-      `a new version of ${chalk.blue("make-bot.ts")} is available: ${chalk.blue(
-        removeJSON.devDependencies["make-bot.ts"]
-      )}`
+      `a new version of ${chalk.blue("make-bot.ts")} is available: ${
+        util.packageJSON.devDependencies["make-bot.ts"]
+      } => ${chalk.blue(removeJSON.devDependencies["make-bot.ts"])}`
     )
     logger.warn(
       `you can update ${chalk.blue(

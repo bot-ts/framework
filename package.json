@@ -1,6 +1,6 @@
 {
   "name": "bot.ts",
-  "version": "v6.0.1-Felons",
+  "version": "v6.0.2-Felons",
   "author": "ghom",
   "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
