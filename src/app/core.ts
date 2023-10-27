@@ -15,19 +15,28 @@ import * as util from "./util.js"
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
-  const removeJSON = await axios
+  const remoteJSON = await axios
     .get(
       "https://raw.githubusercontent.com/bot-ts/framework/master/package.json",
     )
     .then((res) => res.data)
 
-  if (util.packageJSON.version !== removeJSON.version) {
+  const version = (version: string, index: number) =>
+    Number(/\d+/.exec(version)![index])
+
+  const isOlder = (localVersion: string, remoteVersion: string) =>
+    localVersion !== remoteVersion &&
+    (version(localVersion, 0) <= version(remoteVersion, 0) ||
+      version(localVersion, 1) <= version(remoteVersion, 1) ||
+      version(localVersion, 2) <= version(remoteVersion, 2))
+
+  if (isOlder(util.packageJSON.version, remoteJSON.version)) {
     logger.warn(
       `a new major version of ${chalk.blue(
         "bot.ts",
       )} is available: ${chalk.magenta(
         util.packageJSON.version,
-      )} => ${chalk.magenta(removeJSON.version)}`,
+      )} => ${chalk.magenta(remoteJSON.version)}`,
     )
     logger.warn(
       `you can update ${chalk.blue("bot.ts")} by running ${chalk.bgWhite.black(
@@ -36,13 +45,15 @@ export async function checkUpdates() {
     )
     logger.warn(chalk.bold(`this update may break your bot!`))
   } else if (
-    util.packageJSON.devDependencies["make-bot.ts"] !==
-    removeJSON.devDependencies["make-bot.ts"]
+    isOlder(
+      util.packageJSON.devDependencies["make-bot.ts"],
+      remoteJSON.devDependencies["make-bot.ts"],
+    )
   ) {
     logger.warn(
       `a new version of ${chalk.blue("make-bot.ts")} is available: ${
         util.packageJSON.devDependencies["make-bot.ts"]
-      } => ${chalk.blue(removeJSON.devDependencies["make-bot.ts"])}`,
+      } => ${chalk.blue(remoteJSON.devDependencies["make-bot.ts"])}`,
     )
     logger.warn(
       `you can update ${chalk.blue(

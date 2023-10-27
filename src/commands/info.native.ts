@@ -62,7 +62,8 @@ export default new app.Command({
               `messages: ${message.client.channels.cache.reduce(
                 (acc, channel) => {
                   return (
-                    acc + (channel.isTextBased() ? channel.messages.cache.size : 0)
+                    acc +
+                    (channel.isTextBased() ? channel.messages.cache.size : 0)
                   )
                 },
                 0,

@@ -451,7 +451,7 @@ export async function resolveType(
                   await channel.messages.fetch({
                     force: false,
                     cache: false,
-                    message: messageID
+                    message: messageID,
                   }),
                 )
               } else throw new Error("Invalid channel type!")
