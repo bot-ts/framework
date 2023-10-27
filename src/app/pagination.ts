@@ -5,7 +5,6 @@ import discord from "discord.js"
 import * as logger from "./logger.js"
 
 import { filename } from "dirname-filename-esm"
-import { ButtonBuilder } from "@discordjs/builders"
 
 const __filename = filename(import.meta)
 

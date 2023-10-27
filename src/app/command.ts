@@ -1,6 +1,6 @@
 // system file, please don't modify it
 
-import discord, { ChannelType } from "discord.js"
+import discord from "discord.js"
 import chalk from "chalk"
 import tims from "tims"
 import path from "path"
@@ -1058,5 +1058,5 @@ export function isGuildMessage<
 export function isDirectMessage<
   Base extends discord.Message | discord.PartialMessage,
 >(message: Base): message is Base & DirectMessage {
-  return !!message.channel && message.channel.type === ChannelType.DM
+  return !!message.channel && message.channel.type === discord.ChannelType.DM
 }

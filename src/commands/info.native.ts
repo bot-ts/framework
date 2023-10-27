@@ -22,7 +22,7 @@ export default new app.Command({
       .setColor("Blurple")
       .setAuthor({
         name: `Information about ${message.client.user.tag}`,
-        iconURL: message.client.user?.displayAvatarURL({}),
+        iconURL: message.client.user?.displayAvatarURL(),
       })
       .setDescription(conf.description)
       .setTimestamp()
