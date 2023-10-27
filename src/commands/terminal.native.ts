@@ -26,8 +26,8 @@ export default new app.Command({
 
     const toEdit = await message.channel.send({
       embeds: [
-        new discord.MessageEmbed()
-          .setColor("BLURPLE")
+        new discord.EmbedBuilder()
+          .setColor("Blurple")
           .setTitle("The process is running..."),
       ],
     })
@@ -37,8 +37,8 @@ export default new app.Command({
         ? err.stack ?? err.message
         : stderr.trim() || stdout || null
 
-      const embed = new discord.MessageEmbed()
-        .setColor(err ? "RED" : "BLURPLE")
+      const embed = new discord.EmbedBuilder()
+        .setColor(err ? "Red" : "Blurple")
         .setTitle(
           err ? "\\❌ An error has occurred." : "\\✔ Successfully executed.",
         )

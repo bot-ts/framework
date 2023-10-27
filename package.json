@@ -1,6 +1,6 @@
 {
   "name": "bot.ts",
-  "version": "v6.0.4-Felons",
+  "version": "v7.0.0-Senchu",
   "author": "ghom",
   "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
@@ -38,7 +38,7 @@
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
     "dirname-filename-esm": "^1.1.1",
-    "discord.js": "^13.8.1",
+    "discord.js": "^14.13.0",
     "dotenv": "^16.0.1",
     "figlet": "^1.5.2",
     "ghom-eval": "^1.1.3",

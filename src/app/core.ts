@@ -82,7 +82,7 @@ if (process.env.BOT_TIMEZONE) dayjs.tz.setDefault(process.env.BOT_TIMEZONE)
 export { dayjs }
 
 export interface EventEmitters {
-  message:
+  messageCreate:
     | discord.TextBasedChannel
     | discord.User
     | discord.GuildMember
