@@ -17,8 +17,8 @@ const listener: app.Listener<"messageCreate"> = {
       return message.channel
         .send({
           embeds: [
-            new app.MessageEmbed()
-              .setColor("BLURPLE")
+            new app.EmbedBuilder()
+              .setColor("Blurple")
               .setDescription(`My prefix is \`${prefix}\``),
           ],
         })

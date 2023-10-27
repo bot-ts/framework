@@ -24,7 +24,7 @@ export default new app.Command({
       } else {
         await message.channel.send({
           embeds: [
-            new app.MessageEmbed().setColor("RED").setAuthor({
+            new app.EmbedBuilder().setColor("Red").setAuthor({
               name: `Unknown command "${message.args.command}"`,
               iconURL: message.client.user?.displayAvatarURL(),
             }),
@@ -45,8 +45,8 @@ export default new app.Command({
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.MessageEmbed()
-              .setColor("BLURPLE")
+            return new app.EmbedBuilder()
+              .setColor("Blurple")
               .setAuthor({
                 name: "Command list",
                 iconURL: message.client.user?.displayAvatarURL(),

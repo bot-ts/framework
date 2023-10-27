@@ -25,8 +25,8 @@ export default new app.Command({
 
     return message.channel.send({
       embeds: [
-        new app.MessageEmbed()
-          .setColor("BLURPLE")
+        new app.EmbedBuilder()
+          .setColor("Blurple")
           .setTitle(
             `Result of SQL query ${
               Array.isArray(result) ? `(${result.length} items)` : ""
@@ -58,7 +58,7 @@ export default new app.Command({
       async run(message) {
         const fields = await Promise.all(
           app.orm.cachedTables.map(
-            async (table): Promise<app.EmbedFieldData> => {
+            async (table): Promise<app.EmbedField> => {
               const columns: {
                 defaultValue: unknown
                 type: string
@@ -91,8 +91,8 @@ export default new app.Command({
 
         return message.channel.send({
           embeds: [
-            new app.MessageEmbed()
-              .setColor("BLURPLE")
+            new app.EmbedBuilder()
+              .setColor("Blurple")
               .setTitle("Database plan")
               .setDescription(
                 `**${fields.length}** tables, **${fields.reduce(
