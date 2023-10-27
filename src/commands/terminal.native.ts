@@ -40,7 +40,7 @@ export default new app.Command({
       const embed = new discord.MessageEmbed()
         .setColor(err ? "RED" : "BLURPLE")
         .setTitle(
-          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
+          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed.",
         )
 
       if (output)
@@ -52,7 +52,7 @@ export default new app.Command({
               .slice(0, 2000)
               .reverse()
               .join(""),
-          })
+          }),
         )
 
       toEdit.edit({ embeds: [embed] }).catch(() => {

@@ -27,7 +27,7 @@ export const commandHandler = new handler.Handler(
       file.default.filepath = filepath
       return commands.add(file.default)
     },
-  }
+  },
 )
 
 export let defaultCommand: ICommand | null = null
@@ -79,7 +79,7 @@ export type MessageArguments<
     any,
     any
   >[] = argument.Option<any, any, any, any>[],
-  Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
+  Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[],
 > = {
   [K in RestName]: RestRequired extends true ? string : string | null
 } & argument.Outputs<Positional> &
@@ -137,12 +137,12 @@ export interface MiddlewareResult {
 
 export type IMiddleware = (
   message: any,
-  data: any
+  data: any,
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
 export type Middleware<Type extends keyof CommandMessageType> = (
   message: CommandMessageType[Type],
-  data: any
+  data: any,
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
 export interface CommandMessageType {
@@ -191,7 +191,7 @@ export interface CommandOptions<
     any,
     CommandMessageType[Type]
   >[],
-  Flags extends readonly argument.Flag<any>[]
+  Flags extends readonly argument.Flag<any>[],
 > {
   channelType?: Type
 
@@ -270,7 +270,7 @@ export interface CommandOptions<
         Options,
         Flags
       >
-    }
+    },
   ) => unknown
 
   /**
@@ -306,7 +306,7 @@ export class Command<
     any,
     CommandMessageType[Type]
   >[] = argument.Option<any, any, any, CommandMessageType[Type]>[],
-  const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[]
+  const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[],
 > {
   filepath?: string
   parent?: ICommand
@@ -320,13 +320,13 @@ export class Command<
       Positional,
       Options,
       Flags
-    >
+    >,
   ) {}
 }
 
 export function validateCommand(
   command: ICommand,
-  parent?: ICommand
+  parent?: ICommand,
 ): void | never {
   command.parent = parent
 
@@ -334,11 +334,11 @@ export function validateCommand(
     if (defaultCommand)
       logger.error(
         `the ${chalk.blueBright(
-          command.options.name
+          command.options.name,
         )} command wants to be a default command but the ${chalk.blueBright(
-          defaultCommand.options.name
+          defaultCommand.options.name,
         )} command is already the default command`,
-        command.filepath ?? __filename
+        command.filepath ?? __filename,
       )
     else defaultCommand = command
   }
@@ -358,21 +358,21 @@ export function validateCommand(
         throw new Error(
           `The "${flag.name}" flag length of "${
             path ? path + " " + command.options.name : command.options.name
-          }" command must be equal to 1`
+          }" command must be equal to 1`,
         )
 
   if (command.options.cooldown)
     if (!command.options.run.toString().includes("triggerCoolDown"))
       logger.warn(
         `you forgot using ${chalk.greenBright(
-          "message.triggerCoolDown()"
-        )} in the ${chalk.blueBright(command.options.name)} command.`
+          "message.triggerCoolDown()",
+        )} in the ${chalk.blueBright(command.options.name)} command.`,
       )
 
   logger.log(
     `loaded command ${chalk.blueBright(commandBreadcrumb(command))}${
       command.native ? ` ${chalk.green("native")}` : ""
-    } ${chalk.grey(command.options.description)}`
+    } ${chalk.grey(command.options.description)}`,
   )
 
   if (command.options.subs)
@@ -400,7 +400,7 @@ export async function prepareCommand(
     baseContent: string
     parsedArgs: yargsParser.Arguments
     key: string
-  }
+  },
 ): Promise<discord.MessageEmbed | boolean> {
   // coolDown
   if (cmd.options.cooldown) {
@@ -413,7 +413,7 @@ export async function prepareCommand(
         ? message.author.id
         : cmd.options.cooldown.type === CooldownType.ByGuild
         ? message.guildId
-        : message.channel.id
+        : message.channel.id,
     )
     const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,
@@ -430,7 +430,7 @@ export async function prepareCommand(
     if (coolDown.trigger) {
       const coolDownTime = await util.scrap(
         cmd.options.cooldown.duration,
-        message
+        message,
       )
 
       if (Date.now() > coolDown.time + coolDownTime) {
@@ -441,7 +441,7 @@ export async function prepareCommand(
       } else {
         return new discord.MessageEmbed().setColor("RED").setAuthor({
           name: `Please wait ${Math.ceil(
-            (coolDown.time + coolDownTime - Date.now()) / 1000
+            (coolDown.time + coolDownTime - Date.now()) / 1000,
           )} seconds...`,
           iconURL: message.client.user.displayAvatarURL(),
         })
@@ -450,7 +450,7 @@ export async function prepareCommand(
   } else {
     message.triggerCoolDown = () => {
       logger.warn(
-        `You must setup the coolDown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`
+        `You must setup the coolDown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`,
       )
     }
   }
@@ -477,7 +477,7 @@ export async function prepareCommand(
     if (cmd.options.botPermissions) {
       const botPermissions = await util.scrap(
         cmd.options.botPermissions,
-        message
+        message,
       )
 
       for (const permission of botPermissions)
@@ -493,14 +493,14 @@ export async function prepareCommand(
               iconURL: message.client.user.displayAvatarURL(),
             })
             .setDescription(
-              `I need the \`${permission}\` permission to call this command.`
+              `I need the \`${permission}\` permission to call this command.`,
             )
     }
 
     if (cmd.options.userPermissions) {
       const userPermissions = await util.scrap(
         cmd.options.userPermissions,
-        message
+        message,
       )
 
       for (const permission of userPermissions)
@@ -512,7 +512,7 @@ export async function prepareCommand(
               iconURL: message.client.user.displayAvatarURL(),
             })
             .setDescription(
-              `You need the \`${permission}\` permission to call this command.`
+              `You need the \`${permission}\` permission to call this command.`,
             )
     }
 
@@ -521,7 +521,7 @@ export async function prepareCommand(
 
       if (
         message.member.roles.cache.every(
-          (role) => !allowRoles.includes(role.id)
+          (role) => !allowRoles.includes(role.id),
         )
       )
         return new discord.MessageEmbed()
@@ -533,7 +533,7 @@ export async function prepareCommand(
           .setDescription(
             `You need one of the following roles to call this command: ${allowRoles
               .map((id) => `<@&${id}>`)
-              .join(", ")}`
+              .join(", ")}`,
           )
     }
 
@@ -552,7 +552,7 @@ export async function prepareCommand(
           .setDescription(
             `You can't call this command because you have one of the following roles: ${denyRoles
               .map((id) => `<@&${id}>`)
-              .join(", ")}`
+              .join(", ")}`,
           )
     }
   }
@@ -618,8 +618,8 @@ export async function prepareCommand(
                   : `Run the following command to learn more: ${util.code.stringify(
                       {
                         content: `${message.usedPrefix}${context.key} --help`,
-                      }
-                    )}`
+                      },
+                    )}`,
               )
           } else {
             set(null)
@@ -632,7 +632,7 @@ export async function prepareCommand(
             "positional",
             value,
             message,
-            set
+            set,
           )
 
           if (casted !== true) return casted
@@ -643,7 +643,7 @@ export async function prepareCommand(
             positional,
             "positional",
             value,
-            message
+            message,
           )
 
           if (checked !== true) return checked
@@ -663,7 +663,7 @@ export async function prepareCommand(
       for (const option of options) {
         let { given, value } = argument.resolveGivenArgument(
           context.parsedArgs,
-          option
+          option,
         )
 
         const set = (v: any) => {
@@ -697,7 +697,7 @@ export async function prepareCommand(
             .setDescription(
               option.description
                 ? "Description: " + option.description
-                : `Example: \`--${option.name}=someValue\``
+                : `Example: \`--${option.name}=someValue\``,
             )
         }
 
@@ -713,7 +713,7 @@ export async function prepareCommand(
             "argument",
             value,
             message,
-            set
+            set,
           )
 
           if (casted !== true) return casted
@@ -724,7 +724,7 @@ export async function prepareCommand(
             option,
             "argument",
             value,
-            message
+            message,
           )
 
           if (checked !== true) return checked
@@ -740,7 +740,7 @@ export async function prepareCommand(
       for (const flag of cmd.options.flags) {
         let { nameIsGiven, value } = argument.resolveGivenArgument(
           context.parsedArgs,
-          flag
+          flag,
         )
 
         const set = (v: boolean) => {
@@ -790,7 +790,7 @@ export async function prepareCommand(
             })
             .setDescription(
               rest.description ??
-                "Please use `--help` flag for more information."
+                "Please use `--help` flag for more information.",
             )
         } else if (rest.default) {
           message.args[rest.name] = await util.scrap(rest.default, message)
@@ -834,7 +834,7 @@ export async function prepareCommand(
 
 export async function sendCommandDetails(
   message: IMessage,
-  cmd: ICommand
+  cmd: ICommand,
 ): Promise<void> {
   const embed = new discord.MessageEmbed()
     .setColor("BLURPLE")
@@ -845,7 +845,7 @@ export async function sendCommandDetails(
     .setDescription(
       (await util.scrap(cmd.options.longDescription, message)) ??
         cmd.options.description ??
-        "no description"
+        "no description",
     )
 
   const title = [
@@ -867,7 +867,7 @@ export async function sendCommandDetails(
       title.push(
         (await util.scrap(positional.required, message)) && !dft
           ? `<${positional.name}>`
-          : `[${positional.name}${dft}]`
+          : `[${positional.name}${dft}]`,
       )
     }
   }
@@ -882,7 +882,7 @@ export async function sendCommandDetails(
     title.push(
       (await util.scrap(rest.required, message))
         ? `<...${rest.name}>`
-        : `[...${rest.name}${dft}]`
+        : `[...${rest.name}${dft}]`,
     )
   }
 
@@ -907,11 +907,11 @@ export async function sendCommandDetails(
       options.push(
         (await util.scrap(arg.required, message))
           ? `\`--${arg.name}${dft}\` (\`${argument.getCastingDescriptionOf(
-              arg
+              arg,
             )}\`) ${arg.description ?? ""}`
           : `\`[--${arg.name}${dft}]\` (\`${argument.getCastingDescriptionOf(
-              arg
-            )}\`) ${arg.description ?? ""}`
+              arg,
+            )}\`) ${arg.description ?? ""}`,
       )
     }
 
@@ -978,7 +978,7 @@ export async function sendCommandDetails(
   if (cmd.options.userPermissions) {
     const userPermissions = await util.scrap(
       cmd.options.userPermissions,
-      message
+      message,
     )
 
     embed.addFields({
@@ -1015,7 +1015,7 @@ export async function sendCommandDetails(
               const prepared = await prepareCommand(message, sub)
               if (prepared !== true) return ""
               return commandToListItem(message, sub)
-            })
+            }),
           )
         )
           .filter((line) => line.length > 0)
@@ -1039,7 +1039,7 @@ export function commandToListItem(message: IMessage, cmd: ICommand): string {
 }
 
 export function isNormalMessage<
-  Base extends discord.Message | discord.PartialMessage
+  Base extends discord.Message | discord.PartialMessage,
 >(message: Base): message is Base & NormalMessage {
   return (
     !message.system &&
@@ -1050,13 +1050,13 @@ export function isNormalMessage<
 }
 
 export function isGuildMessage<
-  Base extends discord.Message | discord.PartialMessage
+  Base extends discord.Message | discord.PartialMessage,
 >(message: Base): message is Base & GuildMessage {
   return !!message.member && !!message.guild
 }
 
 export function isDirectMessage<
-  Base extends discord.Message | discord.PartialMessage
+  Base extends discord.Message | discord.PartialMessage,
 >(message: Base): message is Base & DirectMessage {
   return !!message.channel && message.channel.type.toLowerCase() === "dm"
 }

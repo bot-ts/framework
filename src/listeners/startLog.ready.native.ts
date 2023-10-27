@@ -18,8 +18,8 @@ const listener: app.Listener<"ready"> = {
     setTimeout(() => {
       app.log(
         `ok i'm ready! ${chalk.blue(
-          "My default prefix is"
-        )} ${chalk.bgBlueBright.black(process.env.BOT_PREFIX)}`
+          "My default prefix is",
+        )} ${chalk.bgBlueBright.black(process.env.BOT_PREFIX)}`,
       )
 
       figlet(app.packageJSON.name, (err, value) => {
@@ -38,7 +38,7 @@ const listener: app.Listener<"ready"> = {
               right: " ",
               bottom: " ",
             },
-          })
+          }),
         )
       })
     }, 500)

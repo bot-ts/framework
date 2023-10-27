@@ -40,7 +40,7 @@ export default new app.Command({
                 const prepared = await app.prepareCommand(message, cmd)
                 if (prepared !== true) return ""
                 return app.commandToListItem(message, cmd)
-              })
+              }),
             )
           ).filter((line) => line.length > 0),
           10,
@@ -53,7 +53,7 @@ export default new app.Command({
               })
               .setDescription(page.join("\n"))
               .setFooter({ text: `${message.usedPrefix}help <command>` })
-          }
+          },
         ),
         filter: (reaction, user) => user.id === message.author.id,
         channel: message.channel,

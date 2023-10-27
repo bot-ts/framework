@@ -148,7 +148,7 @@ const listener: app.Listener<"messageCreate"> = {
               error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
             }`,
             lang: "js",
-          })
+          }),
         )
         .catch((error) => {
           app.error(error, cmd!.filepath!, true)

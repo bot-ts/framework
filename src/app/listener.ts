@@ -37,13 +37,13 @@ export const listenerHandler = new handler.Handler(
 
       logger.log(
         `loaded listener ${chalk.magenta(category)} ${chalk.yellow(
-          listener.once ? "once" : "on"
+          listener.once ? "once" : "on",
         )} ${chalk.blueBright(listener.event)}${
           isNative ? ` ${chalk.green("native")}` : ""
-        } ${chalk.grey(listener.description)}`
+        } ${chalk.grey(listener.description)}`,
       )
     },
-  }
+  },
 )
 
 export interface MoreClientEvents {

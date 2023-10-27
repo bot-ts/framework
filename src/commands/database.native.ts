@@ -30,7 +30,7 @@ export default new app.Command({
           .setTitle(
             `Result of SQL query ${
               Array.isArray(result) ? `(${result.length} items)` : ""
-            }`
+            }`,
           )
           .setDescription(
             app.limitDataToShow(
@@ -41,8 +41,8 @@ export default new app.Command({
                   lang: "json",
                   format: { printWidth: 80 },
                   content: JSON.stringify(data),
-                })
-            )
+                }),
+            ),
           )
           .setFooter({ text: `Result of : ${query}` }),
       ],
@@ -67,7 +67,7 @@ export default new app.Command({
                 return Object.entries(cols).map(
                   ([name, { defaultValue, type }]) => {
                     return { name, type, defaultValue }
-                  }
+                  },
                 )
               })
 
@@ -80,13 +80,13 @@ export default new app.Command({
                     ({ name, type, defaultValue }) =>
                       `[\`${type.slice(0, 5)}\`] \`${name}${
                         defaultValue ? `?` : ""
-                      }\``
+                      }\``,
                   )
                   .join("\n"),
                 inline: true,
               }
-            }
-          )
+            },
+          ),
         )
 
         return message.channel.send({
@@ -99,13 +99,13 @@ export default new app.Command({
                   (acc, current) => {
                     return acc + current.value.split("\n").length
                   },
-                  0
-                )}** columns`
+                  0,
+                )}** columns`,
               )
               .addFields(
                 ...fields.sort((a, b) => {
                   return a.value.split("\n").length - b.value.split("\n").length
-                })
+                }),
               ),
           ],
         })

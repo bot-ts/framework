@@ -40,7 +40,7 @@ export default new app.Command({
                 maxPartCount: 2,
               })}`,
               `memory: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
-                2
+                2,
               )}mb`,
               `ping: ${message.client.ws.ping}ms`,
               `database: ${app.orm.database.client.constructor.name}`,
@@ -65,7 +65,7 @@ export default new app.Command({
                     acc + (channel.isText() ? channel.messages.cache.size : 0)
                   )
                 },
-                0
+                0,
               )}`,
             ].join("\n"),
           }),

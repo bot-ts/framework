@@ -19,7 +19,7 @@ type ValueOf<T> = T[keyof T]
  */
 export type Outputs<
   Inputs extends readonly (TypedArgument<any, any, any> &
-    OptionalArgument<any, any, any>)[]
+    OptionalArgument<any, any, any>)[],
 > = {
   readonly [K in Inputs[number]["name"]]: _item<
     Inputs,
@@ -66,7 +66,7 @@ export type OutputFlags<Inputs extends readonly NamedArgument<any>[]> = {
  */
 export type OutputPositionalValues<
   Inputs extends readonly (TypedArgument<any, any, any> &
-    OptionalArgument<any, any, any>)[]
+    OptionalArgument<any, any, any>)[],
 > = ValueOf<{
   [K in Inputs[number]["name"]]: _item<Inputs, K>["required"] extends true
     ? ArgumentTypes[_item<Inputs, K>["type"]]
@@ -105,14 +105,14 @@ export type TypeName = keyof ArgumentTypes
 export interface TypedArgument<
   Name extends string,
   Type extends TypeName,
-  Message extends command.NormalMessage
+  Message extends command.NormalMessage,
 > {
   readonly name: Name
   readonly type: Type
   readonly validate?: (
     this: void,
     value: ArgumentTypes[Type],
-    message: Message
+    message: Message,
   ) => boolean | string | Promise<boolean | string>
 
   typeErrorMessage?: string | discord.MessageEmbed
@@ -126,7 +126,7 @@ export interface NamedArgument<Name extends string> {
 export interface OptionalArgument<
   Required extends boolean,
   Type extends TypeName,
-  Message extends command.NormalMessage
+  Message extends command.NormalMessage,
 > {
   readonly required?: Required
   readonly default?: Required extends true
@@ -163,7 +163,7 @@ export interface IRest
 export interface Rest<
   Name extends string,
   Required extends boolean,
-  Message extends command.NormalMessage
+  Message extends command.NormalMessage,
 > extends NamedArgument<Name>,
     OptionalArgument<Required, "string", Message> {
   description: string
@@ -171,7 +171,7 @@ export interface Rest<
 }
 
 export function rest<const Name extends string, const Required extends boolean>(
-  options: Rest<Name, Required, command.IMessage>
+  options: Rest<Name, Required, command.IMessage>,
 ): Rest<Name, Required, command.IMessage> {
   return options
 }
@@ -187,7 +187,7 @@ export interface Option<
   Name extends string,
   Type extends TypeName,
   Required extends boolean,
-  Message extends command.NormalMessage
+  Message extends command.NormalMessage,
 > extends TypedArgument<Name, Type, Message>,
     OptionalArgument<Required, Type, Message> {
   description: string
@@ -197,9 +197,9 @@ export interface Option<
 export function option<
   const Name extends string,
   const Type extends TypeName,
-  const Required extends boolean
+  const Required extends boolean,
 >(
-  options: Readonly<Option<Name, Type, Required, command.IMessage>>
+  options: Readonly<Option<Name, Type, Required, command.IMessage>>,
 ): Option<Name, Type, Required, command.IMessage> {
   return options
 }
@@ -214,7 +214,7 @@ export interface Positional<
   Name extends string,
   Type extends TypeName,
   Required extends boolean,
-  Message extends command.NormalMessage
+  Message extends command.NormalMessage,
 > extends TypedArgument<Name, Type, Message>,
     OptionalArgument<Required, Type, Message> {
   description: string
@@ -223,9 +223,9 @@ export interface Positional<
 export function positional<
   const Name extends string,
   const Type extends TypeName,
-  const Required extends boolean
+  const Required extends boolean,
 >(
-  options: Positional<Name, Type, Required, command.IMessage>
+  options: Positional<Name, Type, Required, command.IMessage>,
 ): Positional<Name, Type, Required, command.IMessage> {
   return options
 }
@@ -243,14 +243,14 @@ export interface Flag<Name extends string> extends NamedArgument<Name> {
 }
 
 export function flag<const Name extends string>(
-  options: Flag<Name>
+  options: Flag<Name>,
 ): Flag<Name> {
   return options
 }
 
 export function resolveGivenArgument(
   parsedArgs: yargsParser.Arguments,
-  arg: IOption | IFlag
+  arg: IOption | IFlag,
 ): {
   given: boolean
   nameIsGiven: boolean
@@ -288,7 +288,7 @@ export async function validate(
   subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   castedValue: any,
-  message: command.IMessage
+  message: command.IMessage,
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.validate) return true
 
@@ -324,7 +324,7 @@ export async function validate(
             format: true,
             lang: "js",
           })
-        : "Please use the `--help` flag for more information."
+        : "Please use the `--help` flag for more information.",
     )
 
   return true
@@ -335,7 +335,7 @@ export async function resolveType(
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
   message: command.IMessage,
-  setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown
+  setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown,
 ): Promise<discord.MessageEmbed | true> {
   const empty = new Error("The value is empty!")
 
@@ -432,7 +432,7 @@ export async function resolveType(
             }
           } else
             throw new Error(
-              'The "GuildMember" casting is only available in a guild!'
+              'The "GuildMember" casting is only available in a guild!',
             )
         } else throw empty
         break
@@ -440,7 +440,7 @@ export async function resolveType(
         if (baseValue) {
           const match =
             /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
-              baseValue
+              baseValue,
             )
           if (match) {
             const [, channelID, messageID] = match
@@ -451,7 +451,7 @@ export async function resolveType(
                   await channel.messages.fetch(messageID, {
                     force: false,
                     cache: false,
-                  })
+                  }),
                 )
               } else throw new Error("Invalid channel type!")
             } else throw new Error("Unknown channel!")
@@ -502,7 +502,7 @@ export async function resolveType(
             }
           } else
             throw new Error(
-              'The "GuildRole" casting is only available in a guild!'
+              'The "GuildRole" casting is only available in a guild!',
             )
         } else throw empty
         break
@@ -526,13 +526,13 @@ export async function resolveType(
           if (command.isGuildMessage(message)) {
             const invites = await message.guild.invites.fetch()
             const invite = invites.find(
-              (invite) => invite.code === baseValue || invite.url === baseValue
+              (invite) => invite.code === baseValue || invite.url === baseValue,
             )
             if (invite) setValue<"invite">(invite)
             else throw new Error("Unknown invite!")
           } else
             throw new Error(
-              'The "Invite" casting is only available in a guild!'
+              'The "Invite" casting is only available in a guild!',
             )
         } else throw empty
         break
@@ -567,7 +567,7 @@ export async function resolveType(
             iconURL: message.client.user?.displayAvatarURL(),
           })
           .setDescription(
-            subject.typeErrorMessage.replace(/@error/g, errorCode)
+            subject.typeErrorMessage.replace(/@error/g, errorCode),
           )
       } else {
         return subject.typeErrorMessage
@@ -585,13 +585,13 @@ export async function resolveType(
           typeof subject.type === "function"
             ? "{*custom type*}"
             : "`" + subject.type + "`"
-        }\n${errorCode}`
+        }\n${errorCode}`,
       )
   }
 }
 
 export function getCastingDescriptionOf(
-  arg: TypedArgument<any, any, any>
+  arg: TypedArgument<any, any, any>,
 ): string {
   if (arg.type === "array") return "Array<string>"
   return arg.type

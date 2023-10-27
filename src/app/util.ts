@@ -17,7 +17,7 @@ export function rootPath(...path: string[]): string {
 }
 
 export const packageJSON = JSON.parse(
-  fs.readFileSync(rootPath("package.json"), "utf-8")
+  fs.readFileSync(rootPath("package.json"), "utf-8"),
 )
 
 export const startedAt = Date.now()
@@ -27,17 +27,17 @@ export function uptime(): number {
 }
 
 export function onceMessage<
-  Event extends keyof Pick<discord.ClientEvents, keyof core.EventEmitters>
+  Event extends keyof Pick<discord.ClientEvents, keyof core.EventEmitters>,
 >(
   emitter: core.EventEmitters[Event],
-  cb: (...args: discord.ClientEvents[Event]) => unknown
+  cb: (...args: discord.ClientEvents[Event]) => unknown,
 ) {
   // @ts-ignore
   core.messageEmitter.once(emitter.id, cb)
 }
 
 export function emitMessage<
-  Event extends keyof Pick<discord.ClientEvents, keyof core.EventEmitters>
+  Event extends keyof Pick<discord.ClientEvents, keyof core.EventEmitters>,
 >(emitter: core.EventEmitters[Event], ...args: discord.ClientEvents[Event]) {
   core.messageEmitter.emit(emitter.id, ...args)
 }
@@ -45,19 +45,19 @@ export function emitMessage<
 export function divider<T, Out>(
   items: T[],
   itemCountByDivision: number,
-  mapping: (section: T[], index: number, all: T[][]) => Promise<Out> | Out
+  mapping: (section: T[], index: number, all: T[][]) => Promise<Out> | Out,
 ): Promise<Out[]>
 export function divider<T, Out>(items: T[], itemCountByDivision: number): T[][]
 export function divider<T, Out>(
   items: T[],
   itemCountByDivision: number,
-  mapping?: (section: T[], index: number, all: T[][]) => Out
+  mapping?: (section: T[], index: number, all: T[][]) => Out,
 ): T[][] | Promise<Out[]> {
   const divided: T[][] = []
   const divisionCount = Math.ceil(items.length / itemCountByDivision)
   for (let i = 0; i < divisionCount; i++) {
     divided.push(
-      items.slice(itemCountByDivision * i, itemCountByDivision * (i + 1))
+      items.slice(itemCountByDivision * i, itemCountByDivision * (i + 1)),
     )
   }
 
@@ -125,7 +125,7 @@ export enum MaxLength {
 export function limitDataToShow(
   data: any,
   maxLength: MaxLength | number,
-  transformation: (data: any) => string
+  transformation: (data: any) => string,
 ): string {
   if (Array.isArray(data)) {
     const gap = 20
@@ -159,7 +159,7 @@ export function limitDataToShow(
 export function forceTextSize(
   text: string | number,
   size: number,
-  before = false
+  before = false,
 ): string {
   text = String(text)
   if (text.length < size) {

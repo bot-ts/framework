@@ -84,19 +84,19 @@ export default new app.Command({
 
     const req = Object.fromEntries(
       await Promise.all(
-        [...installed].map(async (pack) => [pack, await import(pack)])
-      )
+        [...installed].map(async (pack) => [pack, await import(pack)]),
+      ),
     )
 
     const evaluated = await ge.evaluate(
       code,
       { message, app, req },
-      "{ message, app, req }"
+      "{ message, app, req }",
     )
 
     if (message.args.muted) {
       await message.channel.send(
-        `\\✔ successfully evaluated in ${evaluated.duration}ms`
+        `\\✔ successfully evaluated in ${evaluated.duration}ms`,
       )
     } else {
       const embed = new app.MessageEmbed()
@@ -104,7 +104,7 @@ export default new app.Command({
         .setTitle(
           `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
             evaluated.failed ? "(failed)" : ""
-          }`
+          }`,
         )
         .setDescription(
           app.code.stringify({
@@ -112,7 +112,7 @@ export default new app.Command({
               .slice(0, 2000)
               .replace(/```/g, "\\`\\`\\`"),
             lang: "js",
-          })
+          }),
         )
 
       if (message.args.information)

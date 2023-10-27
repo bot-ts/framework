@@ -17,22 +17,22 @@ export async function checkUpdates() {
   // fetch latest bot.ts codebase
   const removeJSON = await axios
     .get(
-      "https://raw.githubusercontent.com/bot-ts/framework/master/package.json"
+      "https://raw.githubusercontent.com/bot-ts/framework/master/package.json",
     )
     .then((res) => res.data)
 
   if (util.packageJSON.version !== removeJSON.version) {
     logger.warn(
       `a new major version of ${chalk.blue(
-        "bot.ts"
+        "bot.ts",
       )} is available: ${chalk.magenta(
-        util.packageJSON.version
-      )} => ${chalk.magenta(removeJSON.version)}`
+        util.packageJSON.version,
+      )} => ${chalk.magenta(removeJSON.version)}`,
     )
     logger.warn(
       `you can update ${chalk.blue("bot.ts")} by running ${chalk.bgWhite.black(
-        `gulp update`
-      )}`
+        `gulp update`,
+      )}`,
     )
     logger.warn(chalk.bold(`this update may break your bot!`))
   } else if (
@@ -42,19 +42,19 @@ export async function checkUpdates() {
     logger.warn(
       `a new version of ${chalk.blue("make-bot.ts")} is available: ${
         util.packageJSON.devDependencies["make-bot.ts"]
-      } => ${chalk.blue(removeJSON.devDependencies["make-bot.ts"])}`
+      } => ${chalk.blue(removeJSON.devDependencies["make-bot.ts"])}`,
     )
     logger.warn(
       `you can update ${chalk.blue(
-        "make-bot.ts"
-      )} by running ${chalk.bgWhite.black(`gulp update`)}`
+        "make-bot.ts",
+      )} by running ${chalk.bgWhite.black(`gulp update`)}`,
     )
     logger.warn(chalk.bold(`this update may break your bot!`))
   } else {
     logger.log(
       `you are using the latest version of ${chalk.blue(
-        "bot.ts"
-      )} and ${chalk.blue("make-bot.ts")}`
+        "bot.ts",
+      )} and ${chalk.blue("make-bot.ts")}`,
     )
   }
 }
@@ -66,9 +66,9 @@ import(`dayjs/locale/${locale ?? "en"}.js`)
   .catch(() =>
     logger.warn(
       `The ${chalk.bold(
-        locale
-      )} locale is incorrect, please use an existing locale code.`
-    )
+        locale,
+      )} locale is incorrect, please use an existing locale code.`,
+    ),
   )
 
 dayjs.extend(utc)

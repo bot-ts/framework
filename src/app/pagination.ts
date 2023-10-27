@@ -23,7 +23,7 @@ export interface PaginatorOptions {
   channel: discord.TextBasedChannel
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
-    user: discord.User | discord.PartialUser
+    user: discord.User | discord.PartialUser,
   ) => boolean
   idleTime?: number
   customLabels?: Partial<PaginatorLabels>
@@ -62,7 +62,7 @@ export abstract class Paginator {
     if (options.customEmojis || Paginator.defaults.customEmojis)
       this.emojis = Object.assign(
         Paginator.defaultEmojis,
-        options.customEmojis ?? Paginator.defaults.customEmojis
+        options.customEmojis ?? Paginator.defaults.customEmojis,
       )
     else this.emojis = Paginator.defaultEmojis
 
@@ -102,7 +102,7 @@ export abstract class Paginator {
                 .setStyle(
                   this.options.buttonStyle ??
                     Paginator.defaults.buttonStyle ??
-                    "SECONDARY"
+                    "SECONDARY",
                 )
 
               if (
@@ -112,18 +112,18 @@ export abstract class Paginator {
                 button.setLabel(
                   this.options.customLabels?.[key] ??
                     Paginator.defaults.customLabels?.[key] ??
-                    key
+                    key,
                 )
               else button.setEmoji(this.emojis[key])
 
               button.setDisabled(
                 disabled ||
                   (key === "start" && this._pageIndex === 0) ||
-                  (key === "end" && this._pageIndex === pageCount - 1)
+                  (key === "end" && this._pageIndex === pageCount - 1),
               )
 
               return button
-            })
+            }),
           ),
         ]
   }
@@ -153,7 +153,7 @@ export abstract class Paginator {
 
   public async handleReaction(
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
-    user: discord.User | discord.PartialUser
+    user: discord.User | discord.PartialUser,
   ) {
     reaction.users.remove(user as discord.User).catch()
 
@@ -221,7 +221,7 @@ export abstract class Paginator {
     clearTimeout(this._deactivation as NodeJS.Timeout)
     this._deactivation = setTimeout(
       () => this.deactivate().catch(),
-      this.options.idleTime ?? Paginator.defaults.idleTime ?? 60000
+      this.options.idleTime ?? Paginator.defaults.idleTime ?? 60000,
     )
   }
 
@@ -245,24 +245,24 @@ export abstract class Paginator {
       }
 
     Paginator.instances = Paginator.instances.filter(
-      (paginator) => paginator._messageID !== this._messageID
+      (paginator) => paginator._messageID !== this._messageID,
     )
   }
 
   public static getByMessage(
     message:
       | discord.PartialMessage
-      | discord.ButtonInteraction<discord.CacheType>["message"]
+      | discord.ButtonInteraction<discord.CacheType>["message"],
   ): Paginator | undefined {
     return this.instances.find(
-      (paginator) => paginator._messageID === message.id
+      (paginator) => paginator._messageID === message.id,
     )
   }
 }
 
 export class DynamicPaginator extends Paginator {
   constructor(
-    public readonly options: PaginatorOptions & DynamicPaginatorOptions
+    public readonly options: PaginatorOptions & DynamicPaginatorOptions,
   ) {
     super(options)
   }
@@ -282,7 +282,7 @@ export class DynamicPaginator extends Paginator {
 
 export class StaticPaginator extends Paginator {
   constructor(
-    public readonly options: PaginatorOptions & StaticPaginatorOptions
+    public readonly options: PaginatorOptions & StaticPaginatorOptions,
   ) {
     super(options)
 

@@ -25,7 +25,7 @@ export const slashCommandHandler = new handler.Handler(
       command.native = filepath.endsWith("native.js")
       slashCommands.add(command)
     },
-  }
+  },
 )
 
 export const slashCommands = new (class extends discord.Collection<
@@ -43,11 +43,11 @@ export interface SlashCommandOptions {
   description: string
   build?: (
     this: builders.SlashCommandBuilder,
-    builder: builders.SlashCommandBuilder
+    builder: builders.SlashCommandBuilder,
   ) => unknown
   run: (
     this: discord.CommandInteraction,
-    interaction: discord.CommandInteraction
+    interaction: discord.CommandInteraction,
   ) => unknown
 }
 
@@ -69,7 +69,7 @@ export function validateSlashCommand(command: SlashCommand) {
   logger.log(
     `loaded command ${chalk.blueBright("/" + command.options.name)}${
       command.native ? chalk.green(" native") : ""
-    } ${chalk.grey(command.options.description)}`
+    } ${chalk.grey(command.options.description)}`,
   )
 }
 
@@ -83,13 +83,13 @@ export async function registerSlashCommands(guildId?: string) {
         : v10.Routes.applicationCommands(process.env.BOT_ID!),
       {
         body: slashCommands.map((cmd) => cmd.builder.toJSON()),
-      }
+      },
     )) as unknown[]
 
     logger.log(
       `deployed ${chalk.blue(data.length)} slash commands${
         guildId ? ` to new guild ${chalk.blue(guildId)}` : ""
-      }`
+      }`,
     )
   } catch (error: any) {
     logger.error(error, __filename, true)
