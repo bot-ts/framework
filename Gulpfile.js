@@ -217,6 +217,15 @@ function _removeDuplicates() {
     .pipe(vinyl(del))
 }
 
+function _generateReadme(cb) {
+  const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
+  const database = ["mysql2", "sqlite3", "pg"].find(
+    (name) => name in packageJSON.dependencies
+  )
+
+  cb()
+}
+
 export const build = gulp.series(_cleanDist, _build, _copyKeepers)
 export const watch = gulp.series(_cleanDist, _build, _copyKeepers, _watch)
 export const update = gulp.series(
@@ -231,3 +240,4 @@ export const update = gulp.series(
   _gitLog,
   _cleanTemp
 )
+export const readme = gulp.series(_cleanDist, _build, _generateReadme)
