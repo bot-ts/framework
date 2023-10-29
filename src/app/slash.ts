@@ -1,7 +1,6 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
-import * as builders from "@discordjs/builders"
 import * as rest from "@discordjs/rest"
 import v10 from "discord-api-types/v10"
 import path from "path"
@@ -42,8 +41,8 @@ export interface SlashCommandOptions {
   name: string
   description: string
   build?: (
-    this: builders.SlashCommandBuilder,
-    builder: builders.SlashCommandBuilder,
+    this: discord.SlashCommandBuilder,
+    builder: discord.SlashCommandBuilder,
   ) => unknown
   run: (
     this: discord.CommandInteraction,
@@ -54,7 +53,7 @@ export interface SlashCommandOptions {
 export class SlashCommand {
   filepath?: string
   native = false
-  builder = new builders.SlashCommandBuilder()
+  builder = new discord.SlashCommandBuilder()
 
   constructor(public options: SlashCommandOptions) {}
 }
