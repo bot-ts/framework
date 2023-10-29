@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/bot-ts/framework#readme",
   "dependencies": {
-    "@discordjs/builders": "^0.15.0",
     "@discordjs/rest": "^0.5.0",
     "@ghom/handler": "^2.0.0",
     "@ghom/logger": "^1.2.0",
