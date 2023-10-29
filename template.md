@@ -1,36 +1,44 @@
-# {packageJSON.name} Discord bot
+# {{packageJSON.name}} Discord bot
 
-> Made with [bot.ts](https://ghom.gitbook.io/bot-ts/) by **{packageJSON.author}**  
-> CLI version: `{packageJSON.devDependencies["make-bot.ts"]}`  
-> Bot.ts version: `{packageJSON.version}`  
-> Licence: `{packageJSON.license}`
+> Made with [bot.ts](https://ghom.gitbook.io/bot-ts/) by **{{packageJSON.author}}**  
+> CLI version: `{{packageJSON.devDependencies["make-bot.ts"]}}`  
+> Bot.ts version: `{{packageJSON.version}}`  
+> Licence: `{{packageJSON.license}}`
 
-{packageJSON.description}
+{{packageJSON.description}}
 
 # Specifications
 
 You can find the documentation of bot.ts [here](https://ghom.gitbook.io/bot-ts/).  
-Below you will find the specifications for **{packageJSON.name}**.  
+Below you will find the specifications for **{{packageJSON.name}}**.  
+
+# Configuration file
+
+```ts
+{{configFile}}
+```
 
 ## Commands
 
-{commands}
+### Slash commands
 
-## Events
+{{Array.from(slash).map(([path, command]) => `- ${command.options.name}`).join("  \n")}}
 
-{events}
+### Textual commands
 
-## Config
+{{Array.from(commands).map(([path, command]) => `- ${command.options.name}`).join("  \n")}}
 
-{config}
+## Listeners
+
+{{Array.from(listeners).map(([path, listener]) => `- ${path.split(/\\|\//).pop()}`).join("  \n")}}
 
 ## Database
 
-Using **{app.getClientName()}** as database.  
-Below you will find a list of all the tables used by **{packageJSON.name}**.
+Using **{{database}}@{{packageJSON.dependencies[database]}}** as database.  
+Below you will find a list of all the tables used by **{{packageJSON.name}}**.
 
-{tables}
+{{tables.size > 0 ? Array.from(tables).map(([path, table]) => `- ${table.options.name}`).join("  \n") : "> No tables have been created yet."}}
 
 ## Information
 
-- Redaction date: **{new Date().toLocaleDateString()}**
+- Redaction date: **{{new Date().toLocaleDateString("en-EN")}}**

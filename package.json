@@ -13,6 +13,7 @@
     "start.test": "npm run build && node tests/index.test.js",
     "format": "prettier --write src tests",
     "update": "gulp update",
+    "readme": "gulp readme",
     "test": "tsc --noEmit && npm run start.test"
   },
   "prettier": {
