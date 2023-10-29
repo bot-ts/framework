@@ -21,14 +21,17 @@ export async function checkUpdates() {
     )
     .then((res) => res.data)
 
-  const version = (version: string, index: number) =>
-    Number(/\d+/.exec(version)![index])
+  const versionValue = (version: string): number => {
+    const [, major, minor, patch] = /(\d+)\.(\d+)\.(\d+)/
+      .exec(version)!
+      .map(Number)
+
+    return (major << 16) + (minor << 8) + patch
+  }
 
   const isOlder = (localVersion: string, remoteVersion: string) =>
     localVersion !== remoteVersion &&
-    (version(localVersion, 0) <= version(remoteVersion, 0) ||
-      version(localVersion, 1) <= version(remoteVersion, 1) ||
-      version(localVersion, 2) <= version(remoteVersion, 2))
+    versionValue(localVersion) <= versionValue(remoteVersion)
 
   if (isOlder(util.packageJSON.version, remoteJSON.version)) {
     logger.warn(
