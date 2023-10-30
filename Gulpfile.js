@@ -25,7 +25,7 @@ function _gitLog(cb) {
       `[${chalk.blueBright(newVersion.shortCommit)}]`,
       `${newVersion.date} -`,
       `${chalk.grey(newVersion.message)}`,
-    ].join(" ")
+    ].join(" "),
   )
 
   cb()
@@ -45,20 +45,20 @@ function _checkGulpfile(cb) {
     .then(async (remote) => {
       const local = await fs.promises.readFile(
         path.join(__dirname, "Gulpfile.js"),
-        "utf8"
+        "utf8",
       )
 
       if (remote !== local) {
         await fs.promises.writeFile(
           path.join(__dirname, "Gulpfile.js"),
           remote,
-          "utf8"
+          "utf8",
         )
 
         log(
           `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
-            "update"
-          )} command.`
+            "update",
+          )} command.`,
         )
 
         process.exit(0)
@@ -82,7 +82,7 @@ function _build() {
         loader: {
           ".ts": "ts",
         },
-      })
+      }),
     )
     .pipe(gulp.dest("dist"))
 }
@@ -122,7 +122,7 @@ function _copyTemp() {
         "temp/tests/**/*.js",
         "!temp/src/app/database.ts",
       ],
-      { base: "temp" }
+      { base: "temp" },
     )
     .pipe(gulp.dest(__dirname, { overwrite: true }))
 }
@@ -136,7 +136,7 @@ function _copyConfig() {
 function _updateDependencies(cb) {
   const localPackageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
   const remotePackageJSON = JSON.parse(
-    fs.readFileSync("./temp/package.json", "utf8")
+    fs.readFileSync("./temp/package.json", "utf8"),
   )
 
   localPackageJSON.main = remotePackageJSON.main
@@ -165,10 +165,10 @@ function _updateDependencies(cb) {
           `Updated  '${chalk.cyan(key)}' [${
             dependencies[key]
               ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
-                  newDependencies[key]
+                  newDependencies[key],
                 )}`
               : chalk.blueBright(newDependencies[key])
-          }]`
+          }]`,
         )
         dependencies[key] = newDependencies[key]
       }
@@ -180,7 +180,7 @@ function _updateDependencies(cb) {
   fs.writeFileSync(
     "./package.json",
     JSON.stringify(localPackageJSON, null, 2),
-    "utf8"
+    "utf8",
   )
 
   cp.exec("npm i", cb)
@@ -189,10 +189,10 @@ function _updateDependencies(cb) {
 function _updateDatabaseFile() {
   const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
   const database = ["mysql2", "sqlite3", "pg"].find(
-    (name) => name in packageJSON.dependencies
+    (name) => name in packageJSON.dependencies,
   )
   return gulp
-    .src("node_modules/make-bot.ts/templates/" + database)
+    .src("node_modules/@ghom/bot.ts-cli/templates/" + database)
     .pipe(rename("database.ts"))
     .pipe(gulp.dest("src/app"))
 }
@@ -209,10 +209,10 @@ function _removeDuplicates() {
         fs.existsSync(
           path.join(
             file.dirname,
-            file.basename.replace(".native" + file.extname, file.extname)
-          )
-        )
-      )
+            file.basename.replace(".native" + file.extname, file.extname),
+          ),
+        ),
+      ),
     )
     .pipe(vinyl(del))
 }
@@ -229,5 +229,5 @@ export const update = gulp.series(
   _updateDependencies,
   _updateDatabaseFile,
   _gitLog,
-  _cleanTemp
+  _cleanTemp,
 )

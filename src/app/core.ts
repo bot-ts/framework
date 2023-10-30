@@ -49,18 +49,18 @@ export async function checkUpdates() {
     logger.warn(chalk.bold(`this update may break your bot!`))
   } else if (
     isOlder(
-      util.packageJSON.devDependencies["make-bot.ts"],
-      remoteJSON.devDependencies["make-bot.ts"],
+      util.packageJSON.devDependencies["@ghom/bot.ts-cli"],
+      remoteJSON.devDependencies["@ghom/bot.ts-cli"],
     )
   ) {
     logger.warn(
-      `a new version of ${chalk.blue("make-bot.ts")} is available: ${
-        util.packageJSON.devDependencies["make-bot.ts"]
-      } => ${chalk.blue(remoteJSON.devDependencies["make-bot.ts"])}`,
+      `a new version of ${chalk.blue("@ghom/bot.ts-cli")} is available: ${
+        util.packageJSON.devDependencies["@ghom/bot.ts-cli"]
+      } => ${chalk.blue(remoteJSON.devDependencies["@ghom/bot.ts-cli"])}`,
     )
     logger.warn(
       `you can update ${chalk.blue(
-        "make-bot.ts",
+        "@ghom/bot.ts-cli",
       )} by running ${chalk.bgWhite.black(`gulp update`)}`,
     )
     logger.warn(chalk.bold(`this update may break your bot!`))
@@ -68,7 +68,7 @@ export async function checkUpdates() {
     logger.log(
       `you are using the latest version of ${chalk.blue(
         "bot.ts",
-      )} and ${chalk.blue("make-bot.ts")}`,
+      )} and ${chalk.blue("@ghom/bot.ts-cli")}`,
     )
   }
 }
