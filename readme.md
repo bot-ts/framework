@@ -1,10 +1,10 @@
 <div align="center">
+  <div class="title"></div>
   <div>
     <a href="https://ghom.gitbook.io/bot-ts/">
-      <img src="https://raw.githubusercontent.com/bot-ts/docs/master/.gitbook/assets/bot.ts-banner.png"/>
+      <img src="https://raw.githubusercontent.com/GhomKrosmonaute/bot.ts-docs/master/.gitbook/assets/bot.ts-banner.png"/>
     </a>
   </div>
-  <br/>
   <div>
     <a href="https://discord.gg/3vC2XWK"><img src="https://img.shields.io/discord/507389389098188820?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
     <a href="https://www.npmjs.com/package/@ghom/bot.ts-cli"><img src="https://img.shields.io/npm/v/@ghom/bot.ts-cli.svg?maxAge=3600" alt="CLI version" /></a>
@@ -52,4 +52,4 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 * [use this template](https://github.com/bot-ts/framework/generate)
 * [Follow tool NEWS](https://discord.gg/kYxDWWQJ8q)
 
-![logs](https://user-images.githubusercontent.com/19586013/117373587-ce706a80-aecb-11eb-8e7b-4102094a50fa.png)
+![logs](https://media.discordapp.net/attachments/609313381421154304/1168543147593306254/image.png?ex=6552259c&is=653fb09c&hm=981d9b8dc3f0fd0643178c5b2beabde20b448a6cec7a41db476740195336210e&=&width=1147&height=588)
