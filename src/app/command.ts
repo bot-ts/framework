@@ -9,7 +9,6 @@ import yargsParser from "yargs-parser"
 import * as handler from "@ghom/handler"
 
 import * as util from "./util.js"
-import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as argument from "./argument.js"
 
