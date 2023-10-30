@@ -1,5 +1,5 @@
 {
-  "name": "bot.ts",
+  "name": "@ghom/bot.ts",
   "version": "v7.0.0-Senchu",
   "author": "ghom",
   "description": "Discord bot in TypeScript",
@@ -70,7 +70,7 @@
     "gulp-esbuild": "^0.11.2",
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
-    "make-bot.ts": "^6.0.5",
+    "@ghom/bot.ts-cli": "^7.0.0",
     "nodemon": "^2.0.19",
     "typescript": "^5.2.2",
     "vinyl-paths": "^4.0.0"

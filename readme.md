@@ -7,8 +7,8 @@
   <br/>
   <div>
     <a href="https://discord.gg/3vC2XWK"><img src="https://img.shields.io/discord/507389389098188820?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
-    <a href="https://www.npmjs.com/package/make-bot.ts"><img src="https://img.shields.io/npm/v/make-bot.ts.svg?maxAge=3600" alt="CLI version" /></a>
-    <a href="https://www.npmjs.com/package/make-bot.ts"><img src="https://img.shields.io/npm/dm/make-bot.ts.svg?maxAge=3600" alt="CLI downloads" /></a>
+    <a href="https://www.npmjs.com/package/@ghom/bot.ts-cli"><img src="https://img.shields.io/npm/v/@ghom/bot.ts-cli.svg?maxAge=3600" alt="CLI version" /></a>
+    <a href="https://www.npmjs.com/package/@ghom/bot.ts-cli"><img src="https://img.shields.io/npm/dm/@ghom/bot.ts-cli.svg?maxAge=3600" alt="CLI downloads" /></a>
     <a href="https://github.com/bot-ts/framework/actions/workflows/tests.native.yml"><img src="https://github.com/bot-ts/framework/actions/workflows/tests.native.yml/badge.svg?branch=master" alt="Tests" /></a>
     <img alt="Dependency status" src="https://img.shields.io/librariesio/github/bot-ts/framework">
     <a href="https://github.com/bot-ts/framework"><img alt="Github stars" src="https://img.shields.io/github/stars/bot-ts/framework?color=black&logo=github"></a>
@@ -22,7 +22,7 @@
 **bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
 
 * Advanced handler. \(for commands and listeners\)
-* [CLI](https://www.npmjs.com/package/make-bot.ts) to generate command and listener files.
+* [CLI](https://www.npmjs.com/package/@ghom/bot.ts-cli) to generate command and listener files.
 * Very practical file structure. \(all the app parts are includes and exported from [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts)\)
 * [Yargs](http://yargs.js.org/) shell-based argument system for textual commands.
 * Some essential [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners). \(including an advanced "eval" command\)
@@ -47,7 +47,7 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 ## Annexes
 
 * [Documentation](https://ghom.gitbook.io/bot-ts/)
-* [CLI on NPN](https://www.npmjs.com/package/make-bot.ts)
+* [CLI on NPN](https://www.npmjs.com/package/@ghom/bot.ts-cli)
 * [Discord server](https://discord.gg/3vC2XWK)
 * [use this template](https://github.com/bot-ts/framework/generate)
 * [Follow tool NEWS](https://discord.gg/kYxDWWQJ8q)
