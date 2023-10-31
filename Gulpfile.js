@@ -12,6 +12,7 @@ import cp from "child_process"
 import path from "path"
 import fs from "fs"
 
+import { Handler } from "@ghom/handler"
 import { dirname } from "dirname-filename-esm"
 
 const __dirname = dirname(import.meta)
@@ -217,8 +218,48 @@ function _removeDuplicates() {
     .pipe(vinyl(del))
 }
 
+async function _generateReadme(cb) {
+  const packageJSON = JSON.parse(
+    await fs.promises.readFile("./package.json", "utf8"),
+  )
+  const database = ["mysql2", "sqlite3", "pg"].find(
+    (name) => name in packageJSON.dependencies,
+  )
+  const configFile = await fs.promises.readFile("./src/config.ts", "utf8")
+  const template = await fs.promises.readFile("./template.md", "utf8")
+
+  const handle = async (dirname) => {
+    const handler = new Handler(path.join(__dirname, "dist", dirname), {
+      pattern: /\.js$/i,
+      loader: async (filepath) => {
+        return (await import(`file://${filepath}`)).default
+      },
+    })
+
+    await handler.init()
+
+    return handler.elements
+  }
+
+  const slash = await handle("slash")
+  const commands = await handle("commands")
+  const listeners = await handle("listeners")
+  const namespaces = await handle("namespaces")
+  const tables = await handle("tables")
+
+  const readme = template.replace(/\{\{(.+?)}}/g, (match, key) => {
+    log(`Evaluated '${chalk.cyan(key)}'`)
+    return eval(key)
+  })
+
+  console.log(readme)
+
+  cb()
+}
+
 export const build = gulp.series(_cleanDist, _build, _copyKeepers)
-export const watch = gulp.series(_cleanDist, _build, _copyKeepers, _watch)
+export const watch = gulp.series(build, _watch)
+export const readme = gulp.series(build, _generateReadme)
 export const update = gulp.series(
   _checkGulpfile,
   _cleanTemp,
