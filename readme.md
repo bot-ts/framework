@@ -1,8 +1,8 @@
 <div align="center">
   <div class="title"></div>
-  <div>
+  <div class="banner">
     <a href="https://ghom.gitbook.io/bot-ts/">
-      <img src="https://raw.githubusercontent.com/GhomKrosmonaute/bot.ts-docs/master/.gitbook/assets/bot.ts-banner.png"/>
+      <img src="https://media.discordapp.net/attachments/609313381421154304/1168550107239690240/bot.ts_banner.png"/>
     </a>
   </div>
   <div>
@@ -21,18 +21,18 @@
 
 **bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
 
-* Advanced handler. \(for commands and listeners\)
-* [CLI](https://www.npmjs.com/package/@ghom/bot.ts-cli) to generate command and listener files.
+* Basic file handler using [@ghom/handler](https://www.npmjs.com/package/@ghom/handler) package.
+* Advanced CLI to generate files from [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli) package.
 * Very practical file structure. \(all the app parts are includes and exported from [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts)\)
 * [Yargs](http://yargs.js.org/) shell-based argument system for textual commands.
+* Efficient typing of arguments using [GhomKrosmonaute/prop-transfer-typings.ts](https://gist.github.com/GhomKrosmonaute/00da4eb3e8ac48a751602288fcf71835) Gist.
 * Some essential [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners). \(including an advanced "eval" command\)
-* Some scripts in [package.json](https://github.com/bot-ts/framework/blob/master/package.json). \(including a TypeScript watcher\)
-* [Knex](http://knexjs.org/) database provider [here](https://github.com/bot-ts/framework/blob/master/src/app/database.ts), configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3).
+* Some scripts in [package.json](https://github.com/bot-ts/framework/blob/master/package.json). \(documentation [here](https://ghom.gitbook.io/bot-ts/command-line/overview)\)
+* [Knex](http://knexjs.org/) ORM configured by default with [sqlite3](https://www.npmjs.com/package/sqlite3): [@ghom/orm](https://www.npmjs.com/package/@ghom/orm)
 * Efficient [pagination](https://github.com/bot-ts/framework/blob/master/src/app/pagination.ts) system. \(example in [help](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34) command\)
 * [ESBuild](https://esbuild.github.io) configuration for a build faster than 100ms.
-* Faster [Gulp](https://gulpjs.com/) based file watcher.
 * GitHub Actions checks for TYpeScript typings [here](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
-* Beautiful console logger using [Chalk](https://github.com/chalk/chalk).
+* Beautiful console logger using [Chalk](https://github.com/chalk/chalk) and [@ghom/logger](https://www.npmjs.com/package/@ghom/logger).
 * [Gulp](https://gulpjs.com/) based framework updater.
 
 ## Why using bot.ts ?
@@ -52,4 +52,4 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 * [use this template](https://github.com/bot-ts/framework/generate)
 * [Follow tool NEWS](https://discord.gg/kYxDWWQJ8q)
 
-![logs](https://media.discordapp.net/attachments/609313381421154304/1168543147593306254/image.png?ex=6552259c&is=653fb09c&hm=981d9b8dc3f0fd0643178c5b2beabde20b448a6cec7a41db476740195336210e&=&width=1147&height=588)
+![logs](https://media.discordapp.net/attachments/609313381421154304/1168543147593306254/image.png)
