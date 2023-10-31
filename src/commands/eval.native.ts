@@ -99,8 +99,8 @@ export default new app.Command({
         `\\✔ successfully evaluated in ${evaluated.duration}ms`,
       )
     } else {
-      const embed = new app.MessageEmbed()
-        .setColor(evaluated.failed ? "RED" : "BLURPLE")
+      const embed = new app.EmbedBuilder()
+        .setColor(evaluated.failed ? "Red" : "Blurple")
         .setTitle(
           `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
             evaluated.failed ? "(failed)" : ""

@@ -1,6 +1,6 @@
 {
-  "name": "bot.ts",
-  "version": "v6.0.5-Felons",
+  "name": "@ghom/bot.ts",
+  "version": "v7.0.0-Senchu",
   "author": "ghom",
   "description": "Discord bot in TypeScript",
   "main": "dist/index.js",
@@ -13,6 +13,7 @@
     "start.test": "npm run build && node tests/index.test.js",
     "format": "prettier --write src tests",
     "update": "gulp update",
+    "readme": "gulp readme",
     "test": "tsc --noEmit && npm run start.test"
   },
   "prettier": {
@@ -29,7 +30,6 @@
   },
   "homepage": "https://github.com/bot-ts/framework#readme",
   "dependencies": {
-    "@discordjs/builders": "^0.15.0",
     "@discordjs/rest": "^0.5.0",
     "@ghom/handler": "^2.0.0",
     "@ghom/logger": "^1.2.0",
@@ -38,12 +38,12 @@
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
     "dirname-filename-esm": "^1.1.1",
-    "discord.js": "^13.8.1",
+    "discord.js": "^14.13.0",
     "dotenv": "^16.0.1",
     "figlet": "^1.5.2",
     "ghom-eval": "^1.1.3",
     "ghom-prettify": "^2.0.1",
-    "knex": "^2.1.0",
+    "knex": "^3.0.1",
     "prettier": "^3.0.3",
     "regex-parser": "^2.2.11",
     "sqlite3": "^5.0.8",
@@ -71,13 +71,14 @@
     "gulp-esbuild": "^0.11.2",
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
-    "make-bot.ts": "^6.0.5",
+    "@ghom/bot.ts-cli": "^7.0.3",
     "nodemon": "^2.0.19",
     "typescript": "^5.2.2",
     "vinyl-paths": "^4.0.0"
   },
   "engines": {
     "node": ">=18.x.x",
-    "npm": ">=9.x.x"
+    "npm": ">=9.x.x",
+    "git": ">=2.x.x"
   }
 }

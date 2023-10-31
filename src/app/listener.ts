@@ -10,6 +10,8 @@ import * as handler from "@ghom/handler"
 import * as logger from "./logger.js"
 import client from "./client.js"
 
+const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
+
 export const listenerHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "listeners"),
   {
@@ -18,9 +20,19 @@ export const listenerHandler = new handler.Handler(
       const file = await import("file://" + filepath)
       const listener: Listener<any> = file.default
 
+      if (listener.event === "ready") readyListeners.set(listener, false)
+
       client[listener.once ? "once" : "on"](listener.event, async (...args) => {
         try {
           await listener.run(...args)
+
+          if (listener.event === "ready") {
+            readyListeners.set(listener, true)
+
+            if (readyListeners.every((launched) => launched)) {
+              client.emit("afterReady", ...args)
+            }
+          }
         } catch (error: any) {
           logger.error(error, filepath, true)
         }
@@ -48,6 +60,7 @@ export const listenerHandler = new handler.Handler(
 
 export interface MoreClientEvents {
   raw: [packet: apiTypes.GatewayDispatchPayload]
+  afterReady: [discord.Client<true>]
 }
 
 export type AllClientEvents = discord.ClientEvents & MoreClientEvents

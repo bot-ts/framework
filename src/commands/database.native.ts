@@ -25,8 +25,8 @@ export default new app.Command({
 
     return message.channel.send({
       embeds: [
-        new app.MessageEmbed()
-          .setColor("BLURPLE")
+        new app.EmbedBuilder()
+          .setColor("Blurple")
           .setTitle(
             `Result of SQL query ${
               Array.isArray(result) ? `(${result.length} items)` : ""
@@ -57,42 +57,40 @@ export default new app.Command({
       aliases: ["tables", "schema", "list", "view"],
       async run(message) {
         const fields = await Promise.all(
-          app.orm.cachedTables.map(
-            async (table): Promise<app.EmbedFieldData> => {
-              const columns: {
-                defaultValue: unknown
-                type: string
-                name: string
-              }[] = await table.getColumns().then((cols) => {
-                return Object.entries(cols).map(
-                  ([name, { defaultValue, type }]) => {
-                    return { name, type, defaultValue }
-                  },
+          app.orm.cachedTables.map(async (table): Promise<app.EmbedField> => {
+            const columns: {
+              defaultValue: unknown
+              type: string
+              name: string
+            }[] = await table.getColumns().then((cols) => {
+              return Object.entries(cols).map(
+                ([name, { defaultValue, type }]) => {
+                  return { name, type, defaultValue }
+                },
+              )
+            })
+
+            const rowCount = await table.count()
+
+            return {
+              name: `${table.options.name} x${rowCount}`,
+              value: columns
+                .map(
+                  ({ name, type, defaultValue }) =>
+                    `[\`${type.slice(0, 5)}\`] \`${name}${
+                      defaultValue ? `?` : ""
+                    }\``,
                 )
-              })
-
-              const rowCount = await table.count()
-
-              return {
-                name: `${table.options.name} x${rowCount}`,
-                value: columns
-                  .map(
-                    ({ name, type, defaultValue }) =>
-                      `[\`${type.slice(0, 5)}\`] \`${name}${
-                        defaultValue ? `?` : ""
-                      }\``,
-                  )
-                  .join("\n"),
-                inline: true,
-              }
-            },
-          ),
+                .join("\n"),
+              inline: true,
+            }
+          }),
         )
 
         return message.channel.send({
           embeds: [
-            new app.MessageEmbed()
-              .setColor("BLURPLE")
+            new app.EmbedBuilder()
+              .setColor("Blurple")
               .setTitle("Database plan")
               .setDescription(
                 `**${fields.length}** tables, **${fields.reduce(

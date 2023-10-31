@@ -18,11 +18,11 @@ export default new app.Command({
   async run(message) {
     const conf = app.packageJSON
 
-    const embed = new app.MessageEmbed()
-      .setColor("BLURPLE")
+    const embed = new app.EmbedBuilder()
+      .setColor("Blurple")
       .setAuthor({
         name: `Information about ${message.client.user.tag}`,
-        iconURL: message.client.user?.displayAvatarURL({ dynamic: true }),
+        iconURL: message.client.user?.displayAvatarURL(),
       })
       .setDescription(conf.description)
       .setTimestamp()
@@ -62,7 +62,8 @@ export default new app.Command({
               `messages: ${message.client.channels.cache.reduce(
                 (acc, channel) => {
                   return (
-                    acc + (channel.isText() ? channel.messages.cache.size : 0)
+                    acc +
+                    (channel.isTextBased() ? channel.messages.cache.size : 0)
                   )
                 },
                 0,

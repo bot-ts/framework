@@ -115,8 +115,8 @@ export interface TypedArgument<
     message: Message,
   ) => boolean | string | Promise<boolean | string>
 
-  typeErrorMessage?: string | discord.MessageEmbed
-  validationErrorMessage?: string | discord.MessageEmbed
+  typeErrorMessage?: string | discord.EmbedBuilder
+  validationErrorMessage?: string | discord.EmbedBuilder
 }
 
 export interface NamedArgument<Name extends string> {
@@ -132,7 +132,7 @@ export interface OptionalArgument<
   readonly default?: Required extends true
     ? never
     : util.Scrap<ArgumentTypes[Type], [message: Message]>
-  missingErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.EmbedBuilder
 }
 
 export interface ArgumentTypes {
@@ -145,7 +145,7 @@ export interface ArgumentTypes {
   array: Array<string>
   user: discord.User
   member: discord.GuildMember
-  channel: discord.AnyChannel
+  channel: discord.Channel
   message: discord.Message
   role: discord.Role
   emote: discord.GuildEmoji | string
@@ -289,14 +289,14 @@ export async function validate(
   subjectType: "positional" | "argument",
   castedValue: any,
   message: command.IMessage,
-): Promise<discord.MessageEmbed | true> {
+): Promise<discord.EmbedBuilder | true> {
   if (!subject.validate) return true
 
   const checkResult = await subject.validate(castedValue, message)
 
-  const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
-    const embed = new discord.MessageEmbed()
-      .setColor("RED")
+  const errorEmbed = (errorMessage: string): discord.EmbedBuilder => {
+    const embed = new discord.EmbedBuilder()
+      .setColor("Red")
       .setAuthor({
         name: `Bad ${subjectType} tested "${subject.name}".`,
         iconURL: message.client.user?.displayAvatarURL(),
@@ -336,7 +336,7 @@ export async function resolveType(
   baseValue: string | undefined,
   message: command.IMessage,
   setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown,
-): Promise<discord.MessageEmbed | true> {
+): Promise<discord.EmbedBuilder | true> {
   const empty = new Error("The value is empty!")
 
   const cast = async () => {
@@ -386,13 +386,13 @@ export async function resolveType(
             if (channel) setValue<"channel">(channel)
             else throw new Error("Unknown channel!")
           } else {
-            const search = (channel: discord.AnyChannel) => {
+            const search = (channel: discord.Channel) => {
               return (
                 "name" in channel && // @ts-ignore
                 channel.name.toLowerCase().includes(baseValue.toLowerCase())
               )
             }
-            let channel: discord.AnyChannel | undefined
+            let channel: discord.Channel | undefined
             if (command.isGuildMessage(message))
               channel = message.guild.channels.cache.find(search)
             channel ??= message.client.channels.cache.find(search)
@@ -446,11 +446,12 @@ export async function resolveType(
             const [, channelID, messageID] = match
             const channel = message.client.channels.cache.get(channelID)
             if (channel) {
-              if (channel.isText()) {
+              if (channel.isTextBased()) {
                 setValue<"message">(
-                  await channel.messages.fetch(messageID, {
+                  await channel.messages.fetch({
                     force: false,
                     cache: false,
+                    message: messageID,
                   }),
                 )
               } else throw new Error("Invalid channel type!")
@@ -560,8 +561,8 @@ export async function resolveType(
 
     if (subject.typeErrorMessage) {
       if (typeof subject.typeErrorMessage === "string") {
-        return new discord.MessageEmbed()
-          .setColor("RED")
+        return new discord.EmbedBuilder()
+          .setColor("Red")
           .setAuthor({
             name: `Bad ${subjectType} type "${subject.name}".`,
             iconURL: message.client.user?.displayAvatarURL(),
@@ -574,8 +575,8 @@ export async function resolveType(
       }
     }
 
-    return new discord.MessageEmbed()
-      .setColor("RED")
+    return new discord.EmbedBuilder()
+      .setColor("Red")
       .setAuthor({
         name: `Bad ${subjectType} type "${subject.name}".`,
         iconURL: message.client.user?.displayAvatarURL(),

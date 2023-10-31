@@ -9,7 +9,6 @@ import yargsParser from "yargs-parser"
 import * as handler from "@ghom/handler"
 
 import * as util from "./util.js"
-import * as core from "./core.js"
 import * as logger from "./logger.js"
 import * as argument from "./argument.js"
 
@@ -162,8 +161,8 @@ export interface ICommandOptions {
   examples?: util.Scrap<string[], [message: any]>
   guildOwnerOnly?: util.Scrap<boolean, [message: any]>
   botOwnerOnly?: util.Scrap<boolean, [message: any]>
-  userPermissions?: util.Scrap<discord.PermissionString[], [message: any]>
-  botPermissions?: util.Scrap<discord.PermissionString[], [message: any]>
+  userPermissions?: util.Scrap<discord.PermissionsString[], [message: any]>
+  botPermissions?: util.Scrap<discord.PermissionsString[], [message: any]>
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
   middlewares?: IMiddleware[]
@@ -220,11 +219,11 @@ export interface CommandOptions<
   guildOwnerOnly?: util.Scrap<boolean, [message: CommandMessageType[Type]]>
   botOwnerOnly?: util.Scrap<boolean, [message: CommandMessageType[Type]]>
   userPermissions?: util.Scrap<
-    discord.PermissionString[],
+    discord.PermissionsString[],
     [message: CommandMessageType[Type]]
   >
   botPermissions?: util.Scrap<
-    discord.PermissionString[],
+    discord.PermissionsString[],
     [message: CommandMessageType[Type]]
   >
 
@@ -401,7 +400,7 @@ export async function prepareCommand(
     parsedArgs: yargsParser.Arguments
     key: string
   },
-): Promise<discord.MessageEmbed | boolean> {
+): Promise<discord.EmbedBuilder | boolean> {
   // coolDown
   if (cmd.options.cooldown) {
     const slug = util.slug(
@@ -439,7 +438,7 @@ export async function prepareCommand(
           trigger: false,
         })
       } else {
-        return new discord.MessageEmbed().setColor("RED").setAuthor({
+        return new discord.EmbedBuilder().setColor("Red").setAuthor({
           name: `Please wait ${Math.ceil(
             (coolDown.time + coolDownTime - Date.now()) / 1000,
           )} seconds...`,
@@ -459,7 +458,7 @@ export async function prepareCommand(
 
   if (isGuildMessage(message)) {
     if (channelType === "dm")
-      return new discord.MessageEmbed().setColor("RED").setAuthor({
+      return new discord.EmbedBuilder().setColor("Red").setAuthor({
         name: "This command must be used in DM.",
         iconURL: message.client.user.displayAvatarURL(),
       })
@@ -469,7 +468,7 @@ export async function prepareCommand(
         message.guild.ownerId !== message.member.id &&
         process.env.BOT_OWNER !== message.member.id
       )
-        return new discord.MessageEmbed().setColor("RED").setAuthor({
+        return new discord.EmbedBuilder().setColor("Red").setAuthor({
           name: "You must be the guild owner.",
           iconURL: message.client.user.displayAvatarURL(),
         })
@@ -486,8 +485,8 @@ export async function prepareCommand(
             .resolve(message.client.user)
             ?.permissions.has(permission, true)
         )
-          return new discord.MessageEmbed()
-            .setColor("RED")
+          return new discord.EmbedBuilder()
+            .setColor("Red")
             .setAuthor({
               name: "Oops!",
               iconURL: message.client.user.displayAvatarURL(),
@@ -505,8 +504,8 @@ export async function prepareCommand(
 
       for (const permission of userPermissions)
         if (!message.member.permissions.has(permission, true))
-          return new discord.MessageEmbed()
-            .setColor("RED")
+          return new discord.EmbedBuilder()
+            .setColor("Red")
             .setAuthor({
               name: "Oops!",
               iconURL: message.client.user.displayAvatarURL(),
@@ -524,8 +523,8 @@ export async function prepareCommand(
           (role) => !allowRoles.includes(role.id),
         )
       )
-        return new discord.MessageEmbed()
-          .setColor("RED")
+        return new discord.EmbedBuilder()
+          .setColor("Red")
           .setAuthor({
             name: "Oops!",
             iconURL: message.client.user.displayAvatarURL(),
@@ -543,8 +542,8 @@ export async function prepareCommand(
       if (
         message.member.roles.cache.some((role) => denyRoles.includes(role.id))
       )
-        return new discord.MessageEmbed()
-          .setColor("RED")
+        return new discord.EmbedBuilder()
+          .setColor("Red")
           .setAuthor({
             name: "Oops!",
             iconURL: message.client.user.displayAvatarURL(),
@@ -559,14 +558,14 @@ export async function prepareCommand(
 
   if (channelType === "guild")
     if (isDirectMessage(message))
-      return new discord.MessageEmbed().setColor("RED").setAuthor({
+      return new discord.EmbedBuilder().setColor("Red").setAuthor({
         name: "This command must be used in a guild.",
         iconURL: message.client.user.displayAvatarURL(),
       })
 
   if (await util.scrap(cmd.options.botOwnerOnly, message))
     if (process.env.BOT_OWNER !== message.author.id)
-      return new discord.MessageEmbed().setColor("RED").setAuthor({
+      return new discord.EmbedBuilder().setColor("Red").setAuthor({
         name: "You must be my owner.",
         iconURL: message.client.user.displayAvatarURL(),
       })
@@ -594,8 +593,8 @@ export async function prepareCommand(
           if (await util.scrap(positional.required, message)) {
             if (positional.missingErrorMessage) {
               if (typeof positional.missingErrorMessage === "string") {
-                return new discord.MessageEmbed()
-                  .setColor("RED")
+                return new discord.EmbedBuilder()
+                  .setColor("Red")
                   .setAuthor({
                     name: `Missing positional "${positional.name}"`,
                     iconURL: message.client.user.displayAvatarURL(),
@@ -606,8 +605,8 @@ export async function prepareCommand(
               }
             }
 
-            return new discord.MessageEmbed()
-              .setColor("RED")
+            return new discord.EmbedBuilder()
+              .setColor("Red")
               .setAuthor({
                 name: `Missing positional "${positional.name}"`,
                 iconURL: message.client.user.displayAvatarURL(),
@@ -676,8 +675,8 @@ export async function prepareCommand(
         if (!given && (await util.scrap(option.required, message))) {
           if (option.missingErrorMessage) {
             if (typeof option.missingErrorMessage === "string") {
-              return new discord.MessageEmbed()
-                .setColor("RED")
+              return new discord.EmbedBuilder()
+                .setColor("Red")
                 .setAuthor({
                   name: `Missing option "${option.name}"`,
                   iconURL: message.client.user.displayAvatarURL(),
@@ -688,8 +687,8 @@ export async function prepareCommand(
             }
           }
 
-          return new discord.MessageEmbed()
-            .setColor("RED")
+          return new discord.EmbedBuilder()
+            .setColor("Red")
             .setAuthor({
               name: `Missing option "${option.name}"`,
               iconURL: message.client.user.displayAvatarURL(),
@@ -770,8 +769,8 @@ export async function prepareCommand(
         if (await util.scrap(rest.required, message)) {
           if (rest.missingErrorMessage) {
             if (typeof rest.missingErrorMessage === "string") {
-              return new discord.MessageEmbed()
-                .setColor("RED")
+              return new discord.EmbedBuilder()
+                .setColor("Red")
                 .setAuthor({
                   name: `Missing rest "${rest.name}"`,
                   iconURL: message.client.user.displayAvatarURL(),
@@ -782,8 +781,8 @@ export async function prepareCommand(
             }
           }
 
-          return new discord.MessageEmbed()
-            .setColor("RED")
+          return new discord.EmbedBuilder()
+            .setColor("Red")
             .setAuthor({
               name: `Missing rest "${rest.name}"`,
               iconURL: message.client.user.displayAvatarURL(),
@@ -815,8 +814,8 @@ export async function prepareCommand(
       }
 
       if (typeof result === "string")
-        return new discord.MessageEmbed()
-          .setColor("RED")
+        return new discord.EmbedBuilder()
+          .setColor("Red")
           .setAuthor({
             name: `${
               middleware.name ? `"${middleware.name}" m` : "M"
@@ -836,8 +835,8 @@ export async function sendCommandDetails(
   message: IMessage,
   cmd: ICommand,
 ): Promise<void> {
-  const embed = new discord.MessageEmbed()
-    .setColor("BLURPLE")
+  const embed = new discord.EmbedBuilder()
+    .setColor("Blurple")
     .setAuthor({
       name: "Command details",
       iconURL: message.client.user.displayAvatarURL(),
@@ -1058,5 +1057,5 @@ export function isGuildMessage<
 export function isDirectMessage<
   Base extends discord.Message | discord.PartialMessage,
 >(message: Base): message is Base & DirectMessage {
-  return !!message.channel && message.channel.type.toLowerCase() === "dm"
+  return !!message.channel && message.channel.type === discord.ChannelType.DM
 }
