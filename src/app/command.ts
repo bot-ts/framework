@@ -13,6 +13,7 @@ import * as logger from "./logger.js"
 import * as argument from "./argument.js"
 
 import { filename } from "dirname-filename-esm"
+import { ArgumentTypes } from "./argument.js"
 
 const __filename = filename(import.meta)
 
@@ -70,14 +71,16 @@ export type MessageArguments<
     any,
     any,
     any,
+    any,
     any
-  >[] = argument.Positional<any, any, any, any>[],
+  >[] = argument.Positional<any, any, any, any, any>[],
   Options extends readonly argument.Option<
     any,
     any,
     any,
+    any,
     any
-  >[] = argument.Option<any, any, any, any>[],
+  >[] = argument.Option<any, any, any, any, any>[],
   Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[],
 > = {
   [K in RestName]: RestRequired extends true ? string : string | null
@@ -178,13 +181,18 @@ export interface CommandOptions<
   Type extends keyof CommandMessageType,
   RestName extends string,
   RestRequired extends boolean,
+  RestDefault extends RestRequired extends true
+    ? never
+    : util.Scrap<ArgumentTypes["string"], [message: CommandMessageType[Type]]>,
   Positional extends readonly argument.Positional<
+    any,
     any,
     any,
     any,
     CommandMessageType[Type]
   >[],
   Options extends readonly argument.Option<
+    any,
     any,
     any,
     any,
@@ -241,6 +249,7 @@ export interface CommandOptions<
   readonly rest?: argument.Rest<
     RestName,
     RestRequired,
+    RestDefault,
     CommandMessageType[Type]
   >
 
@@ -260,7 +269,15 @@ export interface CommandOptions<
   readonly flags?: Flags
 
   run: (
-    this: Command<Type, RestName, RestRequired, Positional, Options, Flags>,
+    this: Command<
+      Type,
+      RestName,
+      RestRequired,
+      RestDefault,
+      Positional,
+      Options,
+      Flags
+    >,
     message: CommandMessageType[Type] & {
       readonly args: MessageArguments<
         RestName,
@@ -276,9 +293,9 @@ export interface CommandOptions<
    * Sub-commands
    */
   subs?: (
-    | Command<"guild", any, any, any, any, any>
-    | Command<"dm", any, any, any, any, any>
-    | Command<"all", any, any, any, any, any>
+    | Command<"guild", any, any, any, any, any, any>
+    | Command<"dm", any, any, any, any, any, any>
+    | Command<"all", any, any, any, any, any, any>
   )[]
 }
 
@@ -293,18 +310,28 @@ export class Command<
   const Type extends keyof CommandMessageType = "all",
   const RestName extends string = string,
   const RestRequired extends boolean = false,
+  const RestDefault extends RestRequired extends true
+    ? never
+    : util.Scrap<
+        ArgumentTypes["string"],
+        [message: CommandMessageType[Type]]
+      > = RestRequired extends true
+    ? never
+    : util.Scrap<ArgumentTypes["string"], [message: CommandMessageType[Type]]>,
   const Positional extends readonly argument.Positional<
     any,
     any,
     any,
+    any,
     CommandMessageType[Type]
-  >[] = argument.Positional<any, any, any, CommandMessageType[Type]>[],
+  >[] = argument.Positional<any, any, any, any, CommandMessageType[Type]>[],
   const Options extends readonly argument.Option<
     any,
     any,
     any,
+    any,
     CommandMessageType[Type]
-  >[] = argument.Option<any, any, any, CommandMessageType[Type]>[],
+  >[] = argument.Option<any, any, any, any, CommandMessageType[Type]>[],
   const Flags extends readonly argument.Flag<any>[] = argument.Flag<any>[],
 > {
   filepath?: string
@@ -316,6 +343,7 @@ export class Command<
       Type,
       RestName,
       RestRequired,
+      RestDefault,
       Positional,
       Options,
       Flags

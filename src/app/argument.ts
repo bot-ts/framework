@@ -19,7 +19,7 @@ type ValueOf<T> = T[keyof T]
  */
 export type Outputs<
   Inputs extends readonly (TypedArgument<any, any, any> &
-    OptionalArgument<any, any, any>)[],
+    OptionalArgument<any, any, any, any>)[],
 > = {
   readonly [K in Inputs[number]["name"]]: _item<
     Inputs,
@@ -66,7 +66,7 @@ export type OutputFlags<Inputs extends readonly NamedArgument<any>[]> = {
  */
 export type OutputPositionalValues<
   Inputs extends readonly (TypedArgument<any, any, any> &
-    OptionalArgument<any, any, any>)[],
+    OptionalArgument<any, any, any, any>)[],
 > = ValueOf<{
   [K in Inputs[number]["name"]]: _item<Inputs, K>["required"] extends true
     ? ArgumentTypes[_item<Inputs, K>["type"]]
@@ -125,13 +125,14 @@ export interface NamedArgument<Name extends string> {
 
 export interface OptionalArgument<
   Required extends boolean,
+  Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes[Type], [message: Message]>,
   Type extends TypeName,
   Message extends command.NormalMessage,
 > {
   readonly required?: Required
-  readonly default?: Required extends true
-    ? never
-    : util.Scrap<ArgumentTypes[Type], [message: Message]>
+  readonly default?: Default
   missingErrorMessage?: string | discord.EmbedBuilder
 }
 
@@ -155,7 +156,7 @@ export interface ArgumentTypes {
 
 export interface IRest
   extends NamedArgument<string>,
-    OptionalArgument<boolean, "string", any> {
+    OptionalArgument<boolean, any, "string", any> {
   description: string
   all?: boolean
 }
@@ -163,22 +164,32 @@ export interface IRest
 export interface Rest<
   Name extends string,
   Required extends boolean,
+  Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes["string"], [message: Message]>,
   Message extends command.NormalMessage,
 > extends NamedArgument<Name>,
-    OptionalArgument<Required, "string", Message> {
+    OptionalArgument<Required, Default, "string", Message> {
   description: string
   all?: boolean
 }
 
-export function rest<const Name extends string, const Required extends boolean>(
-  options: Rest<Name, Required, command.IMessage>,
-): Rest<Name, Required, command.IMessage> {
+export function rest<
+  const Name extends string,
+  const Required extends boolean,
+  const Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes["string"], [message: Message]>,
+  const Message extends command.NormalMessage = command.IMessage,
+>(
+  options: Rest<Name, Required, Default, Message>,
+): Rest<Name, Required, Default, Message> {
   return options
 }
 
 export interface IOption
   extends TypedArgument<string, TypeName, any>,
-    OptionalArgument<boolean, TypeName, any> {
+    OptionalArgument<boolean, any, TypeName, any> {
   description: string
   aliases?: readonly string[]
 }
@@ -187,9 +198,12 @@ export interface Option<
   Name extends string,
   Type extends TypeName,
   Required extends boolean,
+  Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes[Type], [message: Message]>,
   Message extends command.NormalMessage,
 > extends TypedArgument<Name, Type, Message>,
-    OptionalArgument<Required, Type, Message> {
+    OptionalArgument<Required, Default, Type, Message> {
   description: string
   aliases?: readonly string[]
 }
@@ -198,15 +212,19 @@ export function option<
   const Name extends string,
   const Type extends TypeName,
   const Required extends boolean,
+  const Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes[Type], [message: Message]>,
+  const Message extends command.NormalMessage = command.IMessage,
 >(
-  options: Readonly<Option<Name, Type, Required, command.IMessage>>,
-): Option<Name, Type, Required, command.IMessage> {
+  options: Readonly<Option<Name, Type, Required, Default, Message>>,
+): Option<Name, Type, Required, Default, Message> {
   return options
 }
 
 export interface IPositional
   extends TypedArgument<string, TypeName, any>,
-    OptionalArgument<boolean, TypeName, any> {
+    OptionalArgument<boolean, any, TypeName, any> {
   description: string
 }
 
@@ -214,9 +232,12 @@ export interface Positional<
   Name extends string,
   Type extends TypeName,
   Required extends boolean,
+  Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes[Type], [message: Message]>,
   Message extends command.NormalMessage,
 > extends TypedArgument<Name, Type, Message>,
-    OptionalArgument<Required, Type, Message> {
+    OptionalArgument<Required, Default, Type, Message> {
   description: string
 }
 
@@ -224,9 +245,13 @@ export function positional<
   const Name extends string,
   const Type extends TypeName,
   const Required extends boolean,
+  const Default extends Required extends true
+    ? never
+    : util.Scrap<ArgumentTypes[Type], [message: Message]>,
+  const Message extends command.NormalMessage = command.IMessage,
 >(
-  options: Positional<Name, Type, Required, command.IMessage>,
-): Positional<Name, Type, Required, command.IMessage> {
+  options: Positional<Name, Type, Required, Default, Message>,
+): Positional<Name, Type, Required, Default, Message> {
   return options
 }
 
