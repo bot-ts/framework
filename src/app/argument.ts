@@ -27,8 +27,8 @@ export type Outputs<
   >["required"] extends true
     ? ArgumentTypes[_item<Inputs, K>["type"]]
     : _item<Inputs, K>["default"] extends undefined
-    ? ArgumentTypes[_item<Inputs, K>["type"]] | null
-    : ArgumentTypes[_item<Inputs, K>["type"]]
+      ? ArgumentTypes[_item<Inputs, K>["type"]] | null
+      : ArgumentTypes[_item<Inputs, K>["type"]]
 }
 
 // const test: Outputs<
@@ -71,8 +71,8 @@ export type OutputPositionalValues<
   [K in Inputs[number]["name"]]: _item<Inputs, K>["required"] extends true
     ? ArgumentTypes[_item<Inputs, K>["type"]]
     : _item<Inputs, K>["default"] extends undefined
-    ? ArgumentTypes[_item<Inputs, K>["type"]] | null
-    : ArgumentTypes[_item<Inputs, K>["type"]]
+      ? ArgumentTypes[_item<Inputs, K>["type"]] | null
+      : ArgumentTypes[_item<Inputs, K>["type"]]
 }>[]
 
 // {
