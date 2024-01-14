@@ -20,11 +20,32 @@ export const commandHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "commands"),
   {
     pattern: /\.js$/,
-    onLoad: async (filepath) => {
+    hotReload: true,
+    hotReloadTimeout: 1000,
+    loader: async (filepath) => {
       const file = await import("file://" + filepath)
       if (filepath.endsWith(".native.js")) file.default.native = true
       file.default.filepath = filepath
-      return commands.add(file.default)
+      return file.default as ICommand
+    },
+    reloader: async (filepath) => {
+      const file = await import(`file://${filepath}?update=${Date.now()}`)
+      if (filepath.endsWith(".native.js")) file.default.native = true
+      file.default.filepath = filepath
+      return file.default as ICommand
+    },
+    onLoad: async (filepath, command) => {
+      commands.add(command!)
+    },
+    onReload: async (filepath, command) => {
+      const oldCommand = commands.resolve(command!.options.name)
+
+      try {
+        commands.add(command!)
+      } catch (error) {
+        commands.set(oldCommand!.options.name, oldCommand!)
+        throw error
+      }
     },
   },
 )
@@ -409,10 +430,10 @@ export async function prepareCommand(
       cmd.options.cooldown.type === CooldownType.Global
         ? "global"
         : cmd.options.cooldown.type === CooldownType.ByUser
-        ? message.author.id
-        : cmd.options.cooldown.type === CooldownType.ByGuild
-        ? message.guildId
-        : message.channel.id,
+          ? message.author.id
+          : cmd.options.cooldown.type === CooldownType.ByGuild
+            ? message.guildId
+            : message.channel.id,
     )
     const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,
