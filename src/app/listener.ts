@@ -19,10 +19,6 @@ export const listenerHandler = new handler.Handler(
     pattern: /\.js$/,
     hotReload: true,
     loader: async (filepath) => {
-      const file = await import("file://" + filepath)
-      return file.default as Listener<any>
-    },
-    reloader: async (filepath) => {
       const file = await import(`file://${filepath}?update=${Date.now()}`)
       return file.default as Listener<any>
     },

@@ -23,12 +23,6 @@ export const commandHandler = new handler.Handler(
     hotReload: true,
     hotReloadTimeout: 1000,
     loader: async (filepath) => {
-      const file = await import("file://" + filepath)
-      if (filepath.endsWith(".native.js")) file.default.native = true
-      file.default.filepath = filepath
-      return file.default as ICommand
-    },
-    reloader: async (filepath) => {
       const file = await import(`file://${filepath}?update=${Date.now()}`)
       if (filepath.endsWith(".native.js")) file.default.native = true
       file.default.filepath = filepath
@@ -37,7 +31,7 @@ export const commandHandler = new handler.Handler(
     onLoad: async (filepath, command) => {
       commands.add(command!)
     },
-    onReload: async (filepath, command) => {
+    onChange: async (filepath, command) => {
       const oldCommand = commands.resolve(command!.options.name)
 
       try {
