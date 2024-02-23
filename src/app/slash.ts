@@ -17,9 +17,11 @@ export const slashCommandHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "slash"),
   {
     pattern: /\.js$/,
-    onLoad: async (filepath) => {
+    loader: async (filepath) => {
       const file = await import("file://" + filepath)
-      const command = file.default as SlashCommand
+      return file.default as SlashCommand
+    },
+    onLoad: async (filepath, command) => {
       command.filepath = filepath
       command.native = filepath.endsWith("native.js")
       slashCommands.add(command)
@@ -40,6 +42,8 @@ export const slashCommands = new (class extends discord.Collection<
 export interface SlashCommandOptions {
   name: string
   description: string
+  guildOnly?: boolean
+  threadOnly?: boolean
   build?: (
     this: discord.SlashCommandBuilder,
     builder: discord.SlashCommandBuilder,
@@ -93,4 +97,24 @@ export async function registerSlashCommands(guildId?: string) {
   } catch (error: any) {
     logger.error(error, __filename, true)
   }
+}
+
+export async function prepareSlashCommand(
+  interaction: discord.CommandInteraction,
+  command: SlashCommand,
+): Promise<boolean | discord.EmbedBuilder> {
+  if (command.options.guildOnly && !interaction.inGuild()) {
+    return new discord.EmbedBuilder()
+      .setColor("Red")
+      .setDescription("This command can only be used in a server")
+  }
+
+  if (command.options.threadOnly) {
+    if (!interaction.channel || !interaction.channel.isThread())
+      return new discord.EmbedBuilder()
+        .setColor("Red")
+        .setDescription("This command can only be used in a thread")
+  }
+
+  return true
 }

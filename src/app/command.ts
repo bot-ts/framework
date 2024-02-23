@@ -20,11 +20,14 @@ export const commandHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "commands"),
   {
     pattern: /\.js$/,
-    onLoad: async (filepath) => {
+    loader: async (filepath) => {
       const file = await import("file://" + filepath)
-      if (filepath.endsWith(".native.js")) file.default.native = true
-      file.default.filepath = filepath
-      return commands.add(file.default)
+      return file.default as ICommand
+    },
+    onLoad: async (filepath, command) => {
+      if (filepath.endsWith(".native.js")) command.native = true
+      command.filepath = filepath
+      return commands.add(command)
     },
   },
 )
@@ -409,10 +412,10 @@ export async function prepareCommand(
       cmd.options.cooldown.type === CooldownType.Global
         ? "global"
         : cmd.options.cooldown.type === CooldownType.ByUser
-        ? message.author.id
-        : cmd.options.cooldown.type === CooldownType.ByGuild
-        ? message.guildId
-        : message.channel.id,
+          ? message.author.id
+          : cmd.options.cooldown.type === CooldownType.ByGuild
+            ? message.guildId
+            : message.channel.id,
     )
     const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,

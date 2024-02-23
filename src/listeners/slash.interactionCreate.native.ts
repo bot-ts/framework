@@ -10,6 +10,13 @@ const listener: app.Listener<"interactionCreate"> = {
 
     if (!cmd) return interaction.reply("Command not found")
 
+    const prepared = await app.prepareSlashCommand(interaction, cmd)
+
+    if (typeof prepared !== "boolean")
+      return interaction.reply({ embeds: [prepared] }).catch()
+
+    if (!prepared) return
+
     try {
       await cmd.options.run.bind(interaction)(interaction)
     } catch (error: any) {

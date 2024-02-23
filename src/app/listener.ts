@@ -16,10 +16,11 @@ export const listenerHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "listeners"),
   {
     pattern: /\.js$/,
-    onLoad: async (filepath) => {
+    loader: async (filepath) => {
       const file = await import("file://" + filepath)
-      const listener: Listener<any> = file.default
-
+      return file.default as Listener<any>
+    },
+    onLoad: async (filepath, listener) => {
       if (listener.event === "ready") readyListeners.set(listener, false)
 
       client[listener.once ? "once" : "on"](listener.event, async (...args) => {
