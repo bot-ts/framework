@@ -184,7 +184,7 @@ function _updateDependencies(cb) {
     "utf8",
   )
 
-  cp.exec("npm i", cb)
+  cp.exec("npm i --force", cb)
 }
 
 function _updateDatabaseFile() {
