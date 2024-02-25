@@ -184,7 +184,9 @@ function _updateDependencies(cb) {
     "utf8",
   )
 
-  cp.exec("npm i --force", cb)
+  import("@esbuild/linux-x64")
+    .then(() => cp.exec("npm i", cb))
+    .catch((err) => cp.exec("npm i --force", cb))
 }
 
 function _updateDatabaseFile() {

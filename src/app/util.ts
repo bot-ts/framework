@@ -17,6 +17,7 @@ import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
 import * as util from "./util.js"
+import { ModuleLinker } from "vm"
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
