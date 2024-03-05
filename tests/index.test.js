@@ -3,7 +3,7 @@ process.env.BOT_MODE = "test"
 const app = await import("../dist/app.js")
 
 try {
-  await app.orm.init()
+  await app.orm.handler.init()
   await app.commandHandler.init()
   await app.slashCommandHandler.init()
   await app.listenerHandler.init()
