@@ -12,13 +12,13 @@ const listener: app.Listener<"interactionCreate"> = {
 
     const prepared = await app.prepareSlashCommand(interaction, cmd)
 
-    if (typeof prepared !== "boolean")
+    if (prepared instanceof app.EmbedBuilder)
       return interaction.reply({ embeds: [prepared] }).catch()
 
     if (!prepared) return
 
     try {
-      await cmd.options.run.bind(interaction)(interaction)
+      await cmd.options.run.bind(prepared)(prepared)
     } catch (error: any) {
       app.error(error, cmd.filepath!, true)
 

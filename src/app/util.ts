@@ -10,6 +10,7 @@ import axios from "axios"
 import chalk from "chalk"
 import EventEmitter from "events"
 
+import v10 from "discord-api-types/v10"
 import utc from "dayjs/plugin/utc.js"
 import relative from "dayjs/plugin/relativeTime.js"
 import timezone from "dayjs/plugin/timezone.js"
@@ -17,7 +18,8 @@ import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
 import * as util from "./util.js"
-import { ModuleLinker } from "vm"
+
+export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
