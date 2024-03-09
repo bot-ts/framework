@@ -2,7 +2,7 @@ import * as app from "../src/app.js"
 
 export const config: app.Config = {
   ignoreBots: true,
-  async getPrefix() {
+  getPrefix() {
     return process.env.BOT_PREFIX!
   },
   client: {

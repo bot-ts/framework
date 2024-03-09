@@ -5,7 +5,7 @@ import * as app from "../app.js"
 export default new app.Command({
   name: "help",
   description: "Help menu",
-  longDescription: "Display all commands of bot or detail a target command.",
+  longDescription: "Show command details or list all commands",
   channelType: "all",
   aliases: ["h", "usage", "detail", "details"],
   positional: [

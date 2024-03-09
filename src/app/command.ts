@@ -12,6 +12,8 @@ import * as util from "./util.js"
 import * as logger from "./logger.js"
 import * as argument from "./argument.js"
 
+import { config } from "../config.js"
+
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
@@ -838,6 +840,13 @@ export async function sendCommandDetails(
   message: IMessage,
   cmd: ICommand,
 ): Promise<void> {
+  if (config.detailCommand) {
+    const options = await config.detailCommand(message, cmd)
+    await message.channel.send(options)
+
+    return
+  }
+
   const embed = new discord.EmbedBuilder()
     .setColor("Blurple")
     .setAuthor({
@@ -1062,3 +1071,8 @@ export function isDirectMessage<
 >(message: Base): message is Base & DirectMessage {
   return !!message.channel && message.channel.type === discord.ChannelType.DM
 }
+
+export type MessageCreateOptionsResolvable =
+  | string
+  | discord.MessagePayload
+  | discord.MessageCreateOptions

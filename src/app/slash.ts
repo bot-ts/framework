@@ -10,6 +10,8 @@ import * as handler from "@ghom/handler"
 import * as logger from "./logger.js"
 import * as util from "./util.js"
 
+import { config } from "../config.js"
+
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
@@ -172,7 +174,7 @@ export async function registerSlashCommands(guildId?: string) {
 }
 
 export async function prepareSlashCommand(
-  interaction: discord.CommandInteraction,
+  interaction: discord.CommandInteraction | ISlashCommandInteraction,
   command: ISlashCommand,
 ): Promise<ISlashCommandInteraction | discord.EmbedBuilder> {
   // @ts-ignore
@@ -257,3 +259,37 @@ export async function prepareSlashCommand(
 
   return output
 }
+
+export function slashCommandToListItem(
+  computed: discord.ApplicationCommand,
+): string {
+  return `</${computed.name}:${computed.id}> - ${
+    computed.description || "no description"
+  }`
+}
+
+export async function sendSlashCommandDetails(
+  interaction: ISlashCommandInteraction,
+  computed: discord.ApplicationCommand,
+) {
+  interaction.reply(
+    config.detailSlashCommand
+      ? await config.detailSlashCommand(interaction, computed)
+      : {
+          embeds: [
+            new discord.EmbedBuilder()
+              .setColor("Blurple")
+              .setAuthor({
+                name: computed.name,
+                iconURL: computed.client.user?.displayAvatarURL(),
+              })
+              .setDescription(computed.description || "no description"),
+          ],
+        },
+  )
+}
+
+export type InteractionReplyOptionsResolvable =
+  | string
+  | discord.MessagePayload
+  | discord.InteractionReplyOptions

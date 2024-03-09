@@ -20,7 +20,11 @@ export interface PaginatorOptions {
   useReactions?: boolean
   useButtonLabels?: boolean
   buttonStyle?: discord.ButtonStyle
-  channel: discord.TextBasedChannel
+  channel:
+    | discord.TextBasedChannel
+    | discord.DMChannel
+    | discord.ThreadChannel
+    | discord.GuildTextBasedChannel
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser,
