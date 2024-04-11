@@ -4,11 +4,19 @@ export default new app.SlashCommand({
   name: "help",
   description: "Show slash command details or list all slash commands",
   guildOnly: true,
-  options: {
-    command: {
-      description: "The target command name.",
-      type: "String",
-    },
+  // options: {
+  //   command: {
+  //     description: "The target command name.",
+  //     type: "String",
+  //   },
+  // },
+  build(builder) {
+    builder.addStringOption((option) =>
+      option
+        .setName("command")
+        .setDescription("The target command name.")
+        .setRequired(false),
+    )
   },
   async run(interaction) {
     const target = interaction.options.command
