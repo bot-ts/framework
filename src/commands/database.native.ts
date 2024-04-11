@@ -19,7 +19,8 @@ export default new app.Command({
       .replace(/\$guild/g, `"${message.guild?.id}"`)
       .replace(/\$channel/g, `"${message.channel.id}"`)
       .replace(/\$me/g, `"${message.author.id}"`)
-      .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, '"$1"')
+      .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, "'$1'")
+      .replace(/from ([a-z]+)/gi, 'from "$1"')
 
     const result = await app.orm.raw(query)
 
@@ -29,12 +30,12 @@ export default new app.Command({
           .setColor("Blurple")
           .setTitle(
             `Result of SQL query ${
-              Array.isArray(result) ? `(${result.length} items)` : ""
+              result.rows ? `(${result.rows.length} items)` : ""
             }`,
           )
           .setDescription(
             app.limitDataToShow(
-              result,
+              result.rows,
               app.MaxLength.EmbedDescription,
               (data) =>
                 app.code.stringify({
