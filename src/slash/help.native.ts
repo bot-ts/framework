@@ -24,7 +24,10 @@ export default new app.SlashCommand({
           (
             await Promise.all(
               app.slashCommands.map(async (cmd) => {
-                const prepared = await app.prepareSlashCommand(interaction, cmd)
+                const prepared = await app.prepareSlashCommand(
+                  interaction.base,
+                  cmd,
+                )
 
                 if (prepared instanceof app.EmbedBuilder) return ""
 

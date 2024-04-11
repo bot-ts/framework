@@ -123,6 +123,7 @@ export interface ISlashCommandInteraction
     discord.CommandInteraction,
     "guild" | "guildId" | "channel" | "options"
   > {
+  base: discord.CommandInteraction
   guild?: discord.Guild
   guildId?: string
   channel:
@@ -146,6 +147,9 @@ export interface SlashCommandInteraction<
     discord.CommandInteraction,
     "guild" | "guildId" | "channel" | "options"
   > {
+  base: GuildOnly extends true
+    ? discord.CommandInteraction<"raw" | "cached">
+    : discord.CommandInteraction
   guild: GuildOnly extends true ? discord.Guild : undefined
   guildId: GuildOnly extends true ? string : undefined
   channel: ChannelType extends "dm"
@@ -276,11 +280,12 @@ export async function registerSlashCommands(guildId?: string) {
 }
 
 export async function prepareSlashCommand(
-  interaction: discord.CommandInteraction | ISlashCommandInteraction,
+  interaction: discord.CommandInteraction,
   command: ISlashCommand,
 ): Promise<ISlashCommandInteraction | discord.EmbedBuilder> {
   // @ts-ignore
   const output: ISlashCommandInteraction = {
+    base: interaction,
     ...interaction,
     guild: undefined,
     guildId: undefined,
@@ -301,7 +306,7 @@ export async function prepareSlashCommand(
     (command.options.guildOnly !== false &&
       command.options.channelType !== "dm")
   ) {
-    if (!interaction.inGuild?.() || !interaction.guild)
+    if (!interaction.inGuild() || !interaction.guild)
       return new discord.EmbedBuilder()
         .setColor("Red")
         .setDescription("This command can only be used in a guild")
