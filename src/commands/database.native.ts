@@ -16,9 +16,9 @@ export default new app.Command({
   },
   async run(message) {
     const query = message.args.query
-      .replace(/\$guild/g, `"${message.guild?.id}"`)
-      .replace(/\$channel/g, `"${message.channel.id}"`)
-      .replace(/\$me/g, `"${message.author.id}"`)
+      .replace(/\$guild/g, `'${message.guild?.id}'`)
+      .replace(/\$channel/g, `'${message.channel.id}'`)
+      .replace(/\$me/g, `'${message.author.id}'`)
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, "'$1'")
       .replace(/from ([a-z]+)/gi, 'from "$1"')
 
