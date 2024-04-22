@@ -117,11 +117,15 @@ export const messageEmitter = new EventEmitter()
  * Make a path from root of project and return it
  */
 export function rootPath(..._path: string[]): string {
+  return path.relative(process.cwd(), path.join(..._path))
+}
+
+export function fullPath(..._path: string[]): string {
   return path.join(process.cwd(), ..._path)
 }
 
 export const packageJSON = JSON.parse(
-  fs.readFileSync(rootPath("package.json"), "utf-8"),
+  fs.readFileSync(fullPath("package.json"), "utf-8"),
 )
 
 export const startedAt = Date.now()
