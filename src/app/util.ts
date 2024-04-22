@@ -353,6 +353,15 @@ export class ResponseCache<Params extends any[], Value> {
     }
     return this._cache.value
   }
+
+  set(value: Value): Value {
+    this._cache = {
+      value,
+      expires: Date.now() + this._timeout,
+    }
+
+    return value
+  }
 }
 
 export interface Code {
