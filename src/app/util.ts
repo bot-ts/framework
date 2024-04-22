@@ -331,12 +331,12 @@ export const cache = new (class Cache {
   }
 })()
 
-interface ResponseCacheData<Value> {
+export interface ResponseCacheData<Value> {
   value: Value
   expires: number
 }
 
-class ResponseCache<Value> {
+export class ResponseCache<Value> {
   private _cache?: ResponseCacheData<Value>
 
   constructor(
