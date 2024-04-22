@@ -435,7 +435,7 @@ export async function getFileGitURL(
 
     if (!remote) return
 
-    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}${rootPath(filepath).replace("/dist/", "/src/")}`
+    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${rootPath(filepath).replace("/dist/", "/src/").replace(".js", ".ts")}`
   } catch (error) {
     return
   }
