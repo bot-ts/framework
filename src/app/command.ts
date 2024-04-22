@@ -479,17 +479,15 @@ export async function prepareCommand(
         })
 
     if (cmd.options.botPermissions) {
+      const member = await message.guild.members.fetch(message.client.user)
+
       const botPermissions = await util.scrap(
         cmd.options.botPermissions,
         message,
       )
 
       for (const permission of botPermissions)
-        if (
-          !message.guild.members
-            .resolve(message.client.user)
-            ?.permissions.has(permission, true)
-        )
+        if (!member.permissions.has(permission, true))
           return new discord.EmbedBuilder()
             .setColor("Red")
             .setAuthor({
