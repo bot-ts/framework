@@ -1,6 +1,7 @@
 // system file, please don't modify it
 
-import discord, { Guild } from "discord.js"
+import url from "url"
+import discord from "discord.js"
 import * as rest from "@discordjs/rest"
 import v10 from "discord-api-types/v10"
 import path from "path"
@@ -21,7 +22,7 @@ export const slashCommandHandler = new handler.Handler(
   {
     pattern: /\.js$/,
     loader: async (filepath) => {
-      const file = await import("file://" + filepath)
+      const file = await import(url.pathToFileURL(filepath).href)
       return file.default as ISlashCommand
     },
     onLoad: async (filepath, command) => {

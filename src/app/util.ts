@@ -9,6 +9,7 @@ import * as prettier from "prettier"
 import axios from "axios"
 import chalk from "chalk"
 import EventEmitter from "events"
+import simpleGit from "simple-git"
 
 import v10 from "discord-api-types/v10"
 import utc from "dayjs/plugin/utc.js"
@@ -17,7 +18,6 @@ import timezone from "dayjs/plugin/timezone.js"
 import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
-import * as util from "./util.js"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -41,12 +41,12 @@ export async function checkUpdates() {
     localVersion !== remoteVersion &&
     versionValue(localVersion) <= versionValue(remoteVersion)
 
-  if (isOlder(util.packageJSON.version, remoteJSON.version)) {
+  if (isOlder(packageJSON.version, remoteJSON.version)) {
     logger.warn(
       `a new major version of ${chalk.blue(
         "bot.ts",
       )} is available: ${chalk.magenta(
-        util.packageJSON.version,
+        packageJSON.version,
       )} => ${chalk.magenta(remoteJSON.version)}`,
     )
     logger.warn(
@@ -57,13 +57,13 @@ export async function checkUpdates() {
     logger.warn(chalk.bold(`this update may break your bot!`))
   } else if (
     isOlder(
-      util.packageJSON.devDependencies["@ghom/bot.ts-cli"],
+      packageJSON.devDependencies["@ghom/bot.ts-cli"],
       remoteJSON.devDependencies["@ghom/bot.ts-cli"],
     )
   ) {
     logger.warn(
       `a new version of ${chalk.blue("@ghom/bot.ts-cli")} is available: ${
-        util.packageJSON.devDependencies["@ghom/bot.ts-cli"]
+        packageJSON.devDependencies["@ghom/bot.ts-cli"]
       } => ${chalk.blue(remoteJSON.devDependencies["@ghom/bot.ts-cli"])}`,
     )
     logger.warn(
@@ -327,6 +327,30 @@ export const cache = new (class Cache {
   }
 })()
 
+interface ResponseCacheData<Value> {
+  value: Value
+  expires: number
+}
+
+class ResponseCache<Value> {
+  private _cache?: ResponseCacheData<Value>
+
+  constructor(
+    private _request: () => Promise<Value>,
+    private _timeout: number,
+  ) {}
+
+  async get(): Promise<Value> {
+    if (!this._cache || this._cache.expires < Date.now()) {
+      this._cache = {
+        value: await this._request(),
+        expires: Date.now() + this._timeout,
+      }
+    }
+    return this._cache.value
+  }
+}
+
 export interface Code {
   lang?: string
   content: string
@@ -367,4 +391,27 @@ export const code = {
    * format the code using prettier and return it
    */
   format: prettify.format,
+}
+
+export async function getFileGitURL(
+  filepath: string,
+): Promise<string | undefined> {
+  const git = simpleGit(process.cwd())
+
+  try {
+    const remotes = await git.getRemotes(true)
+    const branchName = (await git.branch()).current
+
+    const remote = remotes.find(
+      (remote) =>
+        remote.name === "origin" &&
+        remote.refs.fetch.startsWith("https://github.com/"),
+    )
+
+    if (!remote) return
+
+    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}${filepath}`
+  } catch (error) {
+    return
+  }
 }

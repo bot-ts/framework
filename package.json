@@ -46,6 +46,7 @@
     "knex": "^3.0.1",
     "prettier": "^3.0.3",
     "regex-parser": "^2.2.11",
+    "simple-git": "^3.24.0",
     "sqlite3": "^5.0.8",
     "tims": "^2.1.0",
     "yargs-parser": "^21.0.1"
