@@ -1,7 +1,7 @@
 // system file, please don't modify it
 
 import fs from "fs"
-import { join } from "path"
+import path from "path"
 import dayjs from "dayjs"
 import discord from "discord.js"
 import prettify from "ghom-prettify"
@@ -115,10 +115,9 @@ export const messageEmitter = new EventEmitter()
 
 /**
  * Make a path from root of project and return it
- * @param path
  */
-export function rootPath(...path: string[]): string {
-  return join(process.cwd(), ...path)
+export function rootPath(..._path: string[]): string {
+  return path.join(process.cwd(), ..._path)
 }
 
 export const packageJSON = JSON.parse(
@@ -432,7 +431,7 @@ export async function getFileGitURL(
 
     if (!remote) return
 
-    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}${filepath}`
+    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}${rootPath(filepath).replace("/dist/", "/src/")}`
   } catch (error) {
     return
   }

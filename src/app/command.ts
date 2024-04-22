@@ -334,6 +334,7 @@ export function validateCommand(
   parent?: ICommand,
 ): void | never {
   command.parent = parent
+  command.filepath ??= parent?.filepath
 
   if (command.options.isDefault) {
     if (defaultCommand)
