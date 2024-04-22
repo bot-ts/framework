@@ -1,4 +1,4 @@
-import * as app from "../src/app.js"
+import * as app from "./app.js"
 
 export const config: app.Config = {
   ignoreBots: true,
@@ -22,6 +22,7 @@ export const config: app.Config = {
       "DirectMessages",
       "DirectMessageReactions",
       "DirectMessageTyping",
+      "MessageContent",
     ],
   },
 }

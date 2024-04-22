@@ -153,6 +153,8 @@ export abstract class Paginator {
     await interaction
       .update(await this.formatPage(await this.getCurrentPage()))
       .catch((error) => logger.error(error, __filename, true))
+
+    await interaction.deferUpdate()
   }
 
   public async handleReaction(

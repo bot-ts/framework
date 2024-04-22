@@ -13,6 +13,8 @@ const listener: app.Listener<"interactionCreate"> = {
       const paginator = app.Paginator.getByMessage(interaction.message)
 
       if (paginator) return paginator.handleInteraction(interaction)
+
+      await interaction.deferUpdate()
     }
   },
 }
