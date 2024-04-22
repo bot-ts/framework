@@ -336,18 +336,18 @@ export interface ResponseCacheData<Value> {
   expires: number
 }
 
-export class ResponseCache<Value> {
+export class ResponseCache<Params extends any[], Value> {
   private _cache?: ResponseCacheData<Value>
 
   constructor(
-    private _request: () => Promise<Value>,
+    private _request: (...params: Params) => Promise<Value>,
     private _timeout: number,
   ) {}
 
-  async get(): Promise<Value> {
+  async get(...params: Params): Promise<Value> {
     if (!this._cache || this._cache.expires < Date.now()) {
       this._cache = {
-        value: await this._request(),
+        value: await this._request(...params),
         expires: Date.now() + this._timeout,
       }
     }
