@@ -337,7 +337,7 @@ export interface ResponseCacheData<Value> {
 }
 
 export class ResponseCache<Params extends any[], Value> {
-  private _cache?: ResponseCacheData<Value>
+  private _cache = new Map<string, ResponseCacheData<Value>>()
 
   constructor(
     private _request: (...params: Params) => Promise<Value>,
@@ -345,20 +345,26 @@ export class ResponseCache<Params extends any[], Value> {
   ) {}
 
   async get(...params: Params): Promise<Value> {
-    if (!this._cache || this._cache.expires < Date.now()) {
-      this._cache = {
+    const key = JSON.stringify(params)
+    const cached = this._cache.get(key)
+
+    if (!cached || cached.expires < Date.now()) {
+      this._cache.set(key, {
         value: await this._request(...params),
         expires: Date.now() + this._timeout,
-      }
+      })
     }
-    return this._cache.value
+
+    return this._cache.get(key)!.value
   }
 
-  set(value: Value): Value {
-    this._cache = {
+  set(params: Params, value: Value): Value {
+    const key = JSON.stringify(params)
+
+    this._cache.set(key, {
       value,
       expires: Date.now() + this._timeout,
-    }
+    })
 
     return value
   }
