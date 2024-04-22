@@ -979,7 +979,7 @@ export async function sendCommandDetails(
 
     embed.addFields({
       name: "examples:",
-      value: util.code.stringify({
+      value: await util.code.stringify({
         content: examples
           .map((example) => message.usedPrefix + example)
           .join("\n"),

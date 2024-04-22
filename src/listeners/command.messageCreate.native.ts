@@ -143,7 +143,7 @@ const listener: app.Listener<"messageCreate"> = {
 
       message.channel
         .send(
-          app.code.stringify({
+          await app.code.stringify({
             content: `Error: ${
               error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
             }`,

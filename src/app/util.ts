@@ -186,20 +186,20 @@ export function getDatabaseDriverName() {
   } else throw new Error("No database driver found in package.json")
 }
 
-export function whileLoop<Value>(options: {
-  resolveValue: (index: number) => Value
+export async function whileLoop<Value>(options: {
+  resolveValue: (index: number) => Promise<Value>
   canIterate: (value: Value, tick: number) => boolean
   iteration: (value: Value, tick: number) => unknown
   after?: (value: Value, ticks: number) => unknown
-}): Value {
+}): Promise<Value> {
   const { resolveValue, canIterate, iteration } = options
 
-  let value = resolveValue(0)
+  let value = await resolveValue(0)
   let tick = 0
 
   while (canIterate(value, tick)) {
     iteration(value, tick)
-    value = resolveValue(tick)
+    value = await resolveValue(tick)
     tick++
   }
 
@@ -227,38 +227,42 @@ export enum MaxLength {
  * @param maxLength
  * @param transformation
  */
-export function limitDataToShow(
+export async function limitDataToShow(
   data: any,
   maxLength: MaxLength | number,
-  transformation: (data: any) => string,
-): string {
+  transformation: (data: any) => Promise<string> | string,
+): Promise<string> {
   if (Array.isArray(data)) {
     const gap = 20
 
-    return whileLoop({
-      resolveValue: () => transformation(data),
-      canIterate: (value, tick) =>
-        value.length > maxLength - gap && data.length > 1 && tick < 1000,
-      iteration: () => data.pop(),
-      after: (value, ticks) => {
-        if (ticks >= 1) data.push(`... (+ ${ticks} more)`.slice(0, gap))
-      },
-    }).slice(0, maxLength)
+    return (
+      await whileLoop({
+        resolveValue: async () => transformation(data),
+        canIterate: (value, tick) =>
+          value.length > maxLength - gap && data.length > 1 && tick < 1000,
+        iteration: () => data.pop(),
+        after: (value, ticks) => {
+          if (ticks >= 1) data.push(`... (+ ${ticks} more)`.slice(0, gap))
+        },
+      })
+    ).slice(0, maxLength)
   }
 
   if (typeof data === "string") {
-    return whileLoop({
-      resolveValue: () => transformation(data),
-      canIterate: (value, tick) =>
-        value.length > maxLength - 3 && data.length > 1 && tick < 1000,
-      iteration: () => (data = data.split(" ").slice(0, -1).join(" ")),
-      after: (value, ticks) => {
-        if (ticks >= 1) data += "..."
-      },
-    }).slice(0, maxLength)
+    return (
+      await whileLoop({
+        resolveValue: async () => transformation(data),
+        canIterate: (value, tick) =>
+          value.length > maxLength - 3 && data.length > 1 && tick < 1000,
+        iteration: () => (data = data.split(" ").slice(0, -1).join(" ")),
+        after: (value, ticks) => {
+          if (ticks >= 1) data += "..."
+        },
+      })
+    ).slice(0, maxLength)
   }
 
-  return transformation(data).slice(0, maxLength - 3) + "..."
+  return (await transformation(data)).slice(0, maxLength - 3) + "..."
 }
 
 export function forceTextSize(
@@ -372,17 +376,20 @@ export const code = {
   /**
    * inject the code in the code block and return code block
    */
-  stringify({
+  async stringify({
     lang,
     content,
     format,
-  }: Code & { format?: true | prettier.Options }): string {
+  }: Code & { format?: true | prettier.Options }): Promise<string> {
     return (
       "```" +
       (lang ?? "") +
       "\n" +
       (format
-        ? prettify.format(content, lang, format === true ? undefined : format)
+        ? await prettify.format(
+            content,
+            format === true ? { lang: lang as any } : format,
+          )
         : content) +
       "\n```"
     )

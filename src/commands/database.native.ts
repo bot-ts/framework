@@ -34,7 +34,7 @@ export default new app.Command({
             }`,
           )
           .setDescription(
-            app.limitDataToShow(
+            await app.limitDataToShow(
               result.rows,
               app.MaxLength.EmbedDescription,
               (data) =>

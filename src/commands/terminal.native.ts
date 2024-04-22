@@ -32,32 +32,36 @@ export default new app.Command({
       ],
     })
 
-    cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
-      const output = err
-        ? err.stack ?? err.message
-        : stderr.trim() || stdout || null
+    cp.exec(
+      message.rest,
+      { cwd: process.cwd() },
+      async (err, stdout, stderr) => {
+        const output = err
+          ? err.stack ?? err.message
+          : stderr.trim() || stdout || null
 
-      const embed = new discord.EmbedBuilder()
-        .setColor(err ? "Red" : "Blurple")
-        .setTitle(
-          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed.",
-        )
+        const embed = new discord.EmbedBuilder()
+          .setColor(err ? "Red" : "Blurple")
+          .setTitle(
+            err ? "\\❌ An error has occurred." : "\\✔ Successfully executed.",
+          )
 
-      if (output)
-        embed.setDescription(
-          app.code.stringify({
-            content: output
-              .split("")
-              .reverse()
-              .slice(0, 2000)
-              .reverse()
-              .join(""),
-          }),
-        )
+        if (output)
+          embed.setDescription(
+            await app.code.stringify({
+              content: output
+                .split("")
+                .reverse()
+                .slice(0, 2000)
+                .reverse()
+                .join(""),
+            }),
+          )
 
-      toEdit.edit({ embeds: [embed] }).catch(() => {
-        message.channel.send({ embeds: [embed] }).catch()
-      })
-    })
+        toEdit.edit({ embeds: [embed] }).catch(() => {
+          message.channel.send({ embeds: [embed] }).catch()
+        })
+      },
+    )
   },
 })

@@ -319,7 +319,7 @@ export async function validate(
   if (!checkResult)
     return errorEmbed(
       typeof subject.validate === "function"
-        ? util.code.stringify({
+        ? await util.code.stringify({
             content: subject.validate.toString(),
             format: true,
             lang: "js",
@@ -554,7 +554,7 @@ export async function resolveType(
     await cast()
     return true
   } catch (error: any) {
-    const errorCode = util.code.stringify({
+    const errorCode = await util.code.stringify({
       content: `${error.name}: ${error.message}`,
       lang: "js",
     })

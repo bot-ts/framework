@@ -24,7 +24,7 @@ const listener: app.Listener<"interactionCreate"> = {
 
       if (interaction.replied || interaction.deferred) {
         interaction.followUp({
-          content: app.code.stringify({
+          content: await app.code.stringify({
             content: `Error: ${
               error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
             }`,
@@ -35,7 +35,7 @@ const listener: app.Listener<"interactionCreate"> = {
       } else {
         interaction
           .reply({
-            content: app.code.stringify({
+            content: await app.code.stringify({
               content: `Error: ${
                 error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
               }`,

@@ -29,7 +29,7 @@ export default new app.Command({
       .addFields([
         {
           name: conf.name,
-          value: app.code.stringify({
+          value: await app.code.stringify({
             lang: "yml",
             content: [
               `author: ${
@@ -50,7 +50,7 @@ export default new app.Command({
         },
         {
           name: "Cache",
-          value: app.code.stringify({
+          value: await app.code.stringify({
             lang: "yml",
             content: [
               `guilds: ${message.client.guilds.cache.size}`,
@@ -86,7 +86,7 @@ export default new app.Command({
               },
               {
                 name: "Dependencies",
-                value: app.code.stringify({
+                value: await app.code.stringify({
                   lang: "yml",
                   content: Object.entries(conf.dependencies)
                     .map(([name, version]) => {
@@ -98,7 +98,7 @@ export default new app.Command({
               },
               {
                 name: "Dev dependencies",
-                value: app.code.stringify({
+                value: await app.code.stringify({
                   lang: "yml",
                   content: Object.entries(conf.devDependencies)
                     .map(([name, version]) => {

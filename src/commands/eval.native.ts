@@ -107,7 +107,7 @@ export default new app.Command({
           }`,
         )
         .setDescription(
-          app.code.stringify({
+          await app.code.stringify({
             content: evaluated.output
               .slice(0, 2000)
               .replace(/```/g, "\\`\\`\\`"),
@@ -118,7 +118,7 @@ export default new app.Command({
       if (message.args.information)
         embed.addFields({
           name: "Information",
-          value: app.code.stringify({
+          value: await app.code.stringify({
             content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
             lang: "yaml",
           }),
