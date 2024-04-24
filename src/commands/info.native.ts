@@ -58,6 +58,9 @@ export default new app.Command({
             content: [
               `guilds: ${message.client.guilds.cache.size}`,
               `users: ${message.client.users.cache.size}`,
+              `members: ${message.client.guilds.cache.reduce((acc, guild) => {
+                return acc + guild.members.cache.size
+              }, 0)}`,
               `channels: ${message.client.channels.cache.size}`,
               `roles: ${message.client.guilds.cache.reduce((acc, guild) => {
                 return acc + guild.roles.cache.size
