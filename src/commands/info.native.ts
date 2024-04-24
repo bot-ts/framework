@@ -18,6 +18,8 @@ export default new app.Command({
   async run(message) {
     const conf = app.packageJSON
 
+    const databaseClient = app.getDatabaseDriverName()
+
     const embed = new app.EmbedBuilder()
       .setColor("Blurple")
       .setAuthor({
@@ -43,7 +45,8 @@ export default new app.Command({
                 2,
               )}mb`,
               `ping: ${message.client.ws.ping}ms`,
-              `database: ${app.orm.database.client.constructor.name}`,
+              `database: ${databaseClient}@${app.packageJSON.dependencies[databaseClient]}`,
+              `node version: ${process.version}`,
             ].join("\n"),
           }),
           inline: true,
