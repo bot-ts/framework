@@ -7,21 +7,21 @@ const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Handle messages for commands",
   async run(message) {
-    if (app.config.ignoreBots && message.author.bot) return
+    const config = app.getConfig()
+
+    if (config.ignoreBots && message.author.bot) return
 
     if (!app.isNormalMessage(message)) return
 
-    const prefix = await app.config.getPrefix(message)
+    const prefix = await config.getPrefix(message)
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel
-        .send({
-          embeds: [
-            new app.EmbedBuilder()
-              .setColor("Blurple")
-              .setDescription(`My prefix is \`${prefix}\``),
-          ],
-        })
+        .send(
+          await app.getSystemMessage("default", {
+            description: `My prefix is \`${prefix}\``,
+          }),
+        )
         .catch()
 
     message.usedAsDefault = false

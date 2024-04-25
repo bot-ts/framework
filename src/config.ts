@@ -1,6 +1,6 @@
 import * as app from "./app.js"
 
-export const config: app.Config = {
+export const config: app.Scrap<app.Config> = {
   ignoreBots: true,
   getPrefix() {
     return process.env.BOT_PREFIX!

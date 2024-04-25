@@ -3,9 +3,8 @@
 import discord from "discord.js"
 
 import * as logger from "./logger.js"
+import * as config from "./config.js"
 import * as util from "./util.js"
-
-import { config } from "../config.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -52,7 +51,7 @@ export abstract class Paginator {
   static instances: Paginator[] = []
   static defaultPlaceHolder = "Oops, no data found"
   static keys: PaginatorKey[] = ["start", "previous", "next", "end"]
-  static defaultEmojis: PaginatorEmojis = config.paginatorEmojis ?? {
+  static defaultEmojis: PaginatorEmojis = {
     previous: "◀️",
     next: "▶️",
     start: "⏪",
@@ -313,4 +312,9 @@ export class StaticPaginator extends Paginator {
       Paginator.defaultPlaceHolder
     )
   }
+}
+
+export async function initPagination() {
+  const { paginatorEmojis } = config.getConfig()
+  if (paginatorEmojis) Paginator.defaultEmojis = paginatorEmojis
 }

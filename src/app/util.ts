@@ -18,8 +18,7 @@ import timezone from "dayjs/plugin/timezone.js"
 import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
-
-import { config } from "../config.js"
+import * as config from "./config.js"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -458,7 +457,7 @@ const defaultSystemEmojis: SystemEmojis = {
 }
 
 export function getSystemEmoji(name: keyof SystemEmojis): string {
-  return config.systemEmojis?.[name] ?? defaultSystemEmojis[name]
+  return config.getConfig().systemEmojis?.[name] ?? defaultSystemEmojis[name]
 }
 
 export interface SystemMessageOptions {
@@ -624,7 +623,7 @@ export function getSystemMessage<Key extends keyof SystemMessages>(
     ? Options
     : never,
 ): Promise<SystemMessage> {
-  return (config.systemMessages?.[name] ?? defaultSystemMessages[name])(
-    options as any,
-  )
+  return (
+    config.getConfig().systemMessages?.[name] ?? defaultSystemMessages[name]
+  )(options as any)
 }

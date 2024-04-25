@@ -5,7 +5,10 @@ import type * as discord from "discord.js"
 import type * as pagination from "./pagination.js"
 import type * as command from "./command.js"
 import type * as slash from "./slash.js"
-import type * as util from "./util.js"
+
+import * as util from "./util.js"
+
+import { config } from "../config.js"
 
 export interface Config {
   /**
@@ -64,4 +67,19 @@ export interface Config {
    * Custom messages for the system
    */
   systemMessages?: Partial<util.SystemMessages>
+}
+
+const finalConfig: {
+  data: Config | null
+} = {
+  data: null,
+}
+
+export function getConfig() {
+  if (!finalConfig.data) throw new Error("Config not initialized")
+  return finalConfig.data
+}
+
+export async function initConfig() {
+  finalConfig.data = await util.scrap(config)
 }

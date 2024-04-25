@@ -12,8 +12,7 @@ import * as handler from "@ghom/handler"
 import * as util from "./util.js"
 import * as logger from "./logger.js"
 import * as argument from "./argument.js"
-
-import { config } from "../config.js"
+import * as config from "./config.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -839,8 +838,10 @@ export async function sendCommandDetails(
   message: IMessage,
   cmd: ICommand,
 ): Promise<void> {
-  if (config.detailCommand) {
-    const options = await config.detailCommand(message, cmd)
+  const { detailCommand, openSource } = config.getConfig()
+
+  if (detailCommand) {
+    const options = await detailCommand(message, cmd)
     await message.channel.send(options)
 
     return
@@ -860,7 +861,7 @@ export async function sendCommandDetails(
 
   const breadcrumb = commandBreadcrumb(cmd)
 
-  if (config.openSource && util.packageJSON.repository?.url && cmd.filepath) {
+  if (openSource && util.packageJSON.repository?.url && cmd.filepath) {
     let url = commandGitURLs.get(breadcrumb)
 
     if (!url) url = await util.getFileGitURL(cmd.filepath)

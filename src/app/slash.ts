@@ -9,9 +9,8 @@ import chalk from "chalk"
 
 import * as handler from "@ghom/handler"
 import * as logger from "./logger.js"
+import * as config from "./config.js"
 import * as util from "./util.js"
-
-import { config } from "../config.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -396,9 +395,11 @@ export async function sendSlashCommandDetails(
   interaction: ISlashCommandInteraction,
   computed: discord.ApplicationCommand,
 ) {
+  const { detailSlashCommand } = config.getConfig()
+
   interaction.reply(
-    config.detailSlashCommand
-      ? await config.detailSlashCommand(interaction, computed)
+    detailSlashCommand
+      ? await detailSlashCommand(interaction, computed)
       : {
           embeds: [
             new discord.EmbedBuilder()
