@@ -22,14 +22,14 @@ export default new app.Command({
       if (cmd) {
         return app.sendCommandDetails(message, cmd)
       } else {
-        await message.channel.send({
-          embeds: [
-            new app.EmbedBuilder().setColor("Red").setAuthor({
+        await message.channel.send(
+          await app.getSystemMessage("error", {
+            author: {
               name: `Unknown command "${message.args.command}"`,
               iconURL: message.client.user?.displayAvatarURL(),
-            }),
-          ],
-        })
+            },
+          }),
+        )
       }
     } else {
       new app.StaticPaginator({
@@ -45,14 +45,14 @@ export default new app.Command({
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.EmbedBuilder()
-              .setColor("Blurple")
-              .setAuthor({
+            return app.getSystemMessage("default", {
+              description: page.join("\n"),
+              author: {
                 name: "Command list",
                 iconURL: message.client.user?.displayAvatarURL(),
-              })
-              .setDescription(page.join("\n"))
-              .setFooter({ text: `${message.usedPrefix}help <command>` })
+              },
+              footer: { text: `${message.usedPrefix}help <command>` },
+            })
           },
         ),
         filter: (reaction, user) => user.id === message.author.id,

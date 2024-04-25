@@ -466,6 +466,8 @@ export interface SystemMessageOptions {
   description: string
   error: Error
   author: discord.EmbedAuthorOptions
+  footer: discord.EmbedFooterOptions
+  fields: discord.EmbedField[]
   allowedMentions: discord.MessageCreateOptions["allowedMentions"]
 }
 
@@ -485,7 +487,14 @@ export interface SystemMessages {
 }
 
 const defaultSystemMessages: SystemMessages = {
-  default: async ({ allowedMentions, title, description, author }) => ({
+  default: async ({
+    allowedMentions,
+    fields,
+    title,
+    description,
+    author,
+    footer,
+  }) => ({
     allowedMentions,
     embeds: [
       new discord.EmbedBuilder()
@@ -500,10 +509,19 @@ const defaultSystemMessages: SystemMessages = {
                   : `${getSystemEmoji("loading")} ${author.name}`,
               }
             : null,
-        ),
+        )
+        .setFooter(footer ?? null)
+        .addFields(fields ?? []),
     ],
   }),
-  success: async ({ allowedMentions, title, description, author }) => ({
+  success: async ({
+    allowedMentions,
+    fields,
+    title,
+    description,
+    author,
+    footer,
+  }) => ({
     allowedMentions,
     embeds: [
       new discord.EmbedBuilder()
@@ -524,54 +542,73 @@ const defaultSystemMessages: SystemMessages = {
               : `${getSystemEmoji("success")} ${description}`
             : null,
         )
-        .setColor(discord.Colors.Green),
+        .setColor(discord.Colors.Green)
+        .setFooter(footer ?? null)
+        .addFields(fields ?? []),
     ],
   }),
-  error: async ({ allowedMentions, title, description, author, error }) => ({
+  error: async ({
     allowedMentions,
-    embeds: [
-      new discord.EmbedBuilder()
-        .setTitle(title ? `${getSystemEmoji("error")} ${title}` : null)
-        .setAuthor(
-          author
-            ? {
-                name: title
-                  ? author.name
-                  : `${getSystemEmoji("error")} ${author.name}`,
-              }
-            : null,
-        )
-        .setDescription(
-          description
-            ? title || author
-              ? description
-              : `${getSystemEmoji("error")} ${description}`
-            : null,
-        )
-        .setColor(discord.Colors.Red)
-        .addFields(
-          error
-            ? [
-                {
-                  name: error.name ?? "Error",
-                  value: await code.stringify({
-                    content: `${
-                      error.message
-                        ?.replace(/\x1b\[\d+m/g, "")
-                        .split("")
-                        .reverse()
-                        .slice(0, 2000)
-                        .reverse()
-                        .join("") ?? "unknown"
-                    }`,
-                    lang: "js",
-                  }),
-                },
-              ]
-            : [],
-        ),
-    ],
-  }),
+    fields,
+    title,
+    description,
+    author,
+    footer,
+    error,
+  }) => {
+    const formattedError = error
+      ? await code.stringify({
+          content: `${
+            error.message
+              ?.replace(/\x1b\[\d+m/g, "")
+              .split("")
+              .reverse()
+              .slice(0, 2000)
+              .reverse()
+              .join("") ?? "unknown"
+          }`,
+          lang: "js",
+        })
+      : null
+
+    return {
+      allowedMentions,
+      embeds: [
+        new discord.EmbedBuilder()
+          .setTitle(title ? `${getSystemEmoji("error")} ${title}` : null)
+          .setAuthor(
+            author
+              ? {
+                  name: title
+                    ? author.name
+                    : `${getSystemEmoji("error")} ${author.name}`,
+                }
+              : null,
+          )
+          .setDescription(
+            description
+              ? title || author
+                ? description
+                : `${getSystemEmoji("error")} ${description}`
+              : error && fields
+                ? `${error.name ?? "Error"}: ${formattedError!}`
+                : null,
+          )
+          .setColor(discord.Colors.Red)
+          .addFields(
+            error && description && !fields
+              ? [
+                  {
+                    name: error.name ?? "Error",
+                    value: formattedError!,
+                  },
+                ]
+              : [],
+          )
+          .setFooter(footer ?? null),
+      ],
+    }
+  },
 }
 
 export function getSystemMessage<Key extends keyof SystemMessages>(

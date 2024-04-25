@@ -57,20 +57,32 @@ export default new app.Command({
 
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
-          await message.channel.send(`\\✔ **${pack}** - installed`)
+          await message.channel.send(
+            `${app.getSystemEmoji("success")} **${pack}** - installed`,
+          )
 
           installed.add(pack)
         } else {
           let log
 
           try {
-            log = await message.channel.send(`\\⏳ **${pack}** - install...`)
+            log = await message.channel.send(
+              `${app.getSystemEmoji("loading")} **${pack}** - install...`,
+            )
             await exec(`npm i ${pack}@latest`)
-            await log.edit(`\\✔ **${pack}** - installed`)
+            await log.edit(
+              `${app.getSystemEmoji("success")} **${pack}** - installed`,
+            )
             installed.add(pack)
           } catch (error) {
-            if (log) await log.edit(`\\❌ **${pack}** - error`)
-            else await message.channel.send(`\\❌ **${pack}** - error`)
+            if (log)
+              await log.edit(
+                `${app.getSystemEmoji("error")} **${pack}** - error`,
+              )
+            else
+              await message.channel.send(
+                `${app.getSystemEmoji("error")} **${pack}** - error`,
+              )
           }
         }
       }
@@ -99,31 +111,32 @@ export default new app.Command({
         `\\✔ successfully evaluated in ${evaluated.duration}ms`,
       )
     } else {
-      const embed = new app.EmbedBuilder()
-        .setColor(evaluated.failed ? "Red" : "Blurple")
-        .setTitle(
-          `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
-            evaluated.failed ? "(failed)" : ""
-          }`,
-        )
-        .setDescription(
-          await app.code.stringify({
-            content: evaluated.output
-              .slice(0, 2000)
-              .replace(/```/g, "\\`\\`\\`"),
-            lang: "js",
-          }),
-        )
+      const systemMessageOptions: Partial<app.SystemMessageOptions> = {
+        title: `Result of JS evaluation ${evaluated.failed ? "(failed)" : ""}`,
+        description: await app.code.stringify({
+          content: evaluated.output.slice(0, 2000).replace(/```/g, "\\`\\`\\`"),
+          lang: "js",
+        }),
+      }
 
       if (message.args.information)
-        embed.addFields({
-          name: "Information",
-          value: await app.code.stringify({
-            content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
-            lang: "yaml",
-          }),
-        })
-      await message.channel.send({ embeds: [embed] })
+        systemMessageOptions.fields = [
+          {
+            name: "Information",
+            value: await app.code.stringify({
+              content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
+              lang: "yaml",
+            }),
+            inline: true,
+          },
+        ]
+
+      await message.channel.send(
+        await app.getSystemMessage(
+          evaluated.failed ? "error" : "success",
+          systemMessageOptions,
+        ),
+      )
     }
 
     let somePackagesRemoved = false
@@ -136,16 +149,26 @@ export default new app.Command({
       let log
 
       try {
-        log = await message.channel.send(`\\⏳ **${pack}** - uninstall...`)
+        log = await message.channel.send(
+          `${app.getSystemEmoji("loading")} **${pack}** - uninstall...`,
+        )
         await exec(`npm remove --purge ${pack}`)
-        await log.edit(`\\✔ **${pack}** - uninstalled`)
+        await log.edit(
+          `${app.getSystemEmoji("success")} **${pack}** - uninstalled`,
+        )
       } catch (error) {
-        if (log) await log.edit(`\\❌ **${pack}** - error`)
-        else await message.channel.send(`\\❌ **${pack}** - error`)
+        if (log)
+          await log.edit(`${app.getSystemEmoji("error")} **${pack}** - error`)
+        else
+          await message.channel.send(
+            `${app.getSystemEmoji("error")} **${pack}** - error`,
+          )
       }
     }
 
     if (somePackagesRemoved)
-      return message.channel.send(`\\✔ process completed`)
+      return message.channel.send(
+        `${app.getSystemEmoji("success")} process completed`,
+      )
   },
 })

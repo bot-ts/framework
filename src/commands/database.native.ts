@@ -24,30 +24,24 @@ export default new app.Command({
 
     const result = await app.orm.raw(query)
 
-    return message.channel.send({
-      embeds: [
-        new app.EmbedBuilder()
-          .setColor("Blurple")
-          .setTitle(
-            `Result of SQL query ${
-              result.rows ? `(${result.rows.length} items)` : ""
-            }`,
-          )
-          .setDescription(
-            await app.limitDataToShow(
-              result.rows,
-              app.MaxLength.EmbedDescription,
-              (data) =>
-                app.code.stringify({
-                  lang: "json",
-                  format: { printWidth: 80 },
-                  content: JSON.stringify(data),
-                }),
-            ),
-          )
-          .setFooter({ text: `Result of : ${query}` }),
-      ],
+    const systemMessage = await app.getSystemMessage("success", {
+      title: `Result of SQL query ${
+        result.rows ? `(${result.rows.length} items)` : ""
+      }`,
+      description: await app.limitDataToShow(
+        result.rows,
+        app.MaxLength.EmbedDescription,
+        (data) =>
+          app.code.stringify({
+            lang: "json",
+            format: { printWidth: 80 },
+            content: JSON.stringify(data),
+          }),
+      ),
+      footer: { text: `Result of : ${query}` },
     })
+
+    return message.channel.send(systemMessage)
   },
   subs: [
     new app.Command({
@@ -88,26 +82,20 @@ export default new app.Command({
           }),
         )
 
-        return message.channel.send({
-          embeds: [
-            new app.EmbedBuilder()
-              .setColor("Blurple")
-              .setTitle("Database plan")
-              .setDescription(
-                `**${fields.length}** tables, **${fields.reduce(
-                  (acc, current) => {
-                    return acc + current.value.split("\n").length
-                  },
-                  0,
-                )}** columns`,
-              )
-              .addFields(
-                ...fields.sort((a, b) => {
-                  return a.value.split("\n").length - b.value.split("\n").length
-                }),
-              ),
-          ],
-        })
+        return message.channel.send(
+          await app.getSystemMessage("default", {
+            title: "Database plan",
+            description: `**${fields.length}** tables, **${fields.reduce(
+              (acc, current) => {
+                return acc + current.value.split("\n").length
+              },
+              0,
+            )}** columns`,
+            fields: fields.sort((a, b) => {
+              return a.value.split("\n").length - b.value.split("\n").length
+            }),
+          }),
+        )
       },
     }),
   ],

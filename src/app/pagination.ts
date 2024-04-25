@@ -3,6 +3,7 @@
 import discord from "discord.js"
 
 import * as logger from "./logger.js"
+import * as util from "./util.js"
 
 import { config } from "../config.js"
 
@@ -16,7 +17,7 @@ export type PaginatorKey = "previous" | "next" | "start" | "end"
 export type PaginatorEmojis = Record<PaginatorKey, string>
 export type PaginatorLabels = Record<PaginatorKey, string>
 
-export type Page = discord.EmbedBuilder | string
+export type Page = util.SystemMessage
 
 export interface PaginatorOptions {
   useReactions?: boolean
@@ -139,9 +140,10 @@ export abstract class Paginator {
       ? undefined
       : await this.getComponents()
 
-    return typeof page === "string"
-      ? { content: page, components }
-      : { embeds: [page], components }
+    return {
+      ...page,
+      components,
+    }
   }
 
   protected abstract getCurrentPage(): Promise<Page> | Page
@@ -295,7 +297,9 @@ export class StaticPaginator extends Paginator {
     super(options)
 
     if (options.pages.length === 0)
-      options.pages.push(options.placeHolder ?? Paginator.defaultPlaceHolder)
+      options.pages.push(
+        options.placeHolder ?? { content: Paginator.defaultPlaceHolder },
+      )
   }
 
   protected getPageCount(): number {
