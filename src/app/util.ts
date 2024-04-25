@@ -19,6 +19,7 @@ import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
 import * as config from "./config.js"
+import * as client from "./client.js"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -457,7 +458,13 @@ const defaultSystemEmojis: SystemEmojis = {
 }
 
 export function getSystemEmoji(name: keyof SystemEmojis): string {
-  return config.getConfig().systemEmojis?.[name] ?? defaultSystemEmojis[name]
+  const rawEmoji =
+    config.getConfig().systemEmojis?.[name] ?? defaultSystemEmojis[name]
+
+  return (
+    client.ClientSingleton.get().emojis.resolve(rawEmoji)?.toString() ??
+    rawEmoji
+  )
 }
 
 export interface SystemMessageOptions {

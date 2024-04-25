@@ -54,12 +54,12 @@ export interface Config {
   client: discord.ClientOptions
 
   /**
-   * Custom emotes for the paginator
+   * Custom emotes for the paginator (use guild emojis IDs or web emotes)
    */
   paginatorEmojis?: pagination.PaginatorEmojis
 
   /**
-   * Custom emotes for system messages
+   * Custom emotes for system messages (use guild emojis IDs or web emotes)
    */
   systemEmojis?: Partial<util.SystemEmojis>
 
