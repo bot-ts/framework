@@ -51,14 +51,14 @@ export default new app.SlashCommand({
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.EmbedBuilder()
-              .setColor("Blurple")
-              .setAuthor({
+            return app.getSystemMessage("default", {
+              description: page.join("\n"),
+              author: {
                 name: "Command list",
                 iconURL: interaction.client.user?.displayAvatarURL(),
-              })
-              .setDescription(page.join("\n"))
-              .setFooter({ text: `/help <command>` })
+              },
+              footer: { text: `/help <command>` },
+            })
           },
         ),
         filter: (reaction, user) => user.id === interaction.user.id,
