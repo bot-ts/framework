@@ -506,18 +506,10 @@ const defaultSystemMessages: SystemMessages = {
     allowedMentions,
     embeds: [
       new discord.EmbedBuilder()
-        .setTitle(title ? `${getSystemEmoji("loading")} ${title}` : null)
+        .setTitle(title ?? null)
         .setDescription(description ?? null)
         .setColor(discord.Colors.Blurple)
-        .setAuthor(
-          author
-            ? {
-                name: title
-                  ? author.name
-                  : `${getSystemEmoji("loading")} ${author.name}`,
-              }
-            : null,
-        )
+        .setAuthor(author ?? null)
         .setFooter(footer ?? null)
         .addFields(fields ?? [])
         .setTimestamp(timestamp ?? null),
