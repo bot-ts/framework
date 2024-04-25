@@ -467,6 +467,7 @@ export interface SystemMessageOptions {
   error: Error
   author: discord.EmbedAuthorOptions
   footer: discord.EmbedFooterOptions
+  timestamp: number | Date
   fields: discord.EmbedField[]
   allowedMentions: discord.MessageCreateOptions["allowedMentions"]
 }
@@ -494,6 +495,7 @@ const defaultSystemMessages: SystemMessages = {
     description,
     author,
     footer,
+    timestamp,
   }) => ({
     allowedMentions,
     embeds: [
@@ -511,7 +513,8 @@ const defaultSystemMessages: SystemMessages = {
             : null,
         )
         .setFooter(footer ?? null)
-        .addFields(fields ?? []),
+        .addFields(fields ?? [])
+        .setTimestamp(timestamp ?? null),
     ],
   }),
   success: async ({
@@ -521,6 +524,7 @@ const defaultSystemMessages: SystemMessages = {
     description,
     author,
     footer,
+    timestamp,
   }) => ({
     allowedMentions,
     embeds: [
@@ -544,7 +548,8 @@ const defaultSystemMessages: SystemMessages = {
         )
         .setColor(discord.Colors.Green)
         .setFooter(footer ?? null)
-        .addFields(fields ?? []),
+        .addFields(fields ?? [])
+        .setTimestamp(timestamp ?? null),
     ],
   }),
   error: async ({
@@ -554,6 +559,7 @@ const defaultSystemMessages: SystemMessages = {
     description,
     author,
     footer,
+    timestamp,
     error,
   }) => {
     const formattedError = error
@@ -605,7 +611,8 @@ const defaultSystemMessages: SystemMessages = {
                 ]
               : [],
           )
-          .setFooter(footer ?? null),
+          .setFooter(footer ?? null)
+          .setTimestamp(timestamp ?? null),
       ],
     }
   },
