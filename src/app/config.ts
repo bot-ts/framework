@@ -1,8 +1,11 @@
 // system file, please don't modify it
 
 import type * as discord from "discord.js"
+
+import type * as pagination from "./pagination.js"
 import type * as command from "./command.js"
 import type * as slash from "./slash.js"
+import type * as util from "./util.js"
 
 export interface Config {
   /**
@@ -46,4 +49,19 @@ export interface Config {
    * Options for the Discord Client constructor
    */
   client: discord.ClientOptions
+
+  /**
+   * Custom emotes for the paginator
+   */
+  paginatorEmojis?: pagination.PaginatorEmojis
+
+  /**
+   * Custom emotes for system messages
+   */
+  systemEmojis?: Partial<util.SystemEmojis>
+
+  /**
+   * Custom messages for the system
+   */
+  systemMessages?: Partial<util.SystemMessages>
 }

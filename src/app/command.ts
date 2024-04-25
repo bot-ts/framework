@@ -407,7 +407,7 @@ export async function prepareCommand(
     parsedArgs: yargsParser.Arguments
     key: string
   },
-): Promise<discord.EmbedBuilder | boolean> {
+): Promise<util.SystemMessage | boolean> {
   // coolDown
   if (cmd.options.cooldown) {
     const slug = util.slug(
@@ -445,11 +445,13 @@ export async function prepareCommand(
           trigger: false,
         })
       } else {
-        return new discord.EmbedBuilder().setColor("Red").setAuthor({
-          name: `Please wait ${Math.ceil(
-            (coolDown.time + coolDownTime - Date.now()) / 1000,
-          )} seconds...`,
-          iconURL: message.client.user.displayAvatarURL(),
+        return util.getSystemMessage("error", {
+          author: {
+            name: `Please wait ${Math.ceil(
+              (coolDown.time + coolDownTime - Date.now()) / 1000,
+            )} seconds...`,
+            iconURL: message.client.user.displayAvatarURL(),
+          },
         })
       }
     }
@@ -465,9 +467,11 @@ export async function prepareCommand(
 
   if (isGuildMessage(message)) {
     if (channelType === "dm")
-      return new discord.EmbedBuilder().setColor("Red").setAuthor({
-        name: "This command must be used in DM.",
-        iconURL: message.client.user.displayAvatarURL(),
+      return util.getSystemMessage("error", {
+        author: {
+          name: "This command must be used in DM.",
+          iconURL: message.client.user.displayAvatarURL(),
+        },
       })
 
     if (util.scrap(cmd.options.guildOwnerOnly, message))
@@ -475,9 +479,11 @@ export async function prepareCommand(
         message.guild.ownerId !== message.member.id &&
         process.env.BOT_OWNER !== message.member.id
       )
-        return new discord.EmbedBuilder().setColor("Red").setAuthor({
-          name: "You must be the guild owner.",
-          iconURL: message.client.user.displayAvatarURL(),
+        return util.getSystemMessage("error", {
+          author: {
+            name: "You must be the guild owner.",
+            iconURL: message.client.user.displayAvatarURL(),
+          },
         })
 
     if (cmd.options.botPermissions) {
@@ -490,15 +496,13 @@ export async function prepareCommand(
 
       for (const permission of botPermissions)
         if (!member.permissions.has(permission, true))
-          return new discord.EmbedBuilder()
-            .setColor("Red")
-            .setAuthor({
+          return util.getSystemMessage("error", {
+            description: `I need the \`${permission}\` permission to call this command.`,
+            author: {
               name: "Oops!",
               iconURL: message.client.user.displayAvatarURL(),
-            })
-            .setDescription(
-              `I need the \`${permission}\` permission to call this command.`,
-            )
+            },
+          })
     }
 
     if (cmd.options.userPermissions) {
@@ -509,15 +513,13 @@ export async function prepareCommand(
 
       for (const permission of userPermissions)
         if (!message.member.permissions.has(permission, true))
-          return new discord.EmbedBuilder()
-            .setColor("Red")
-            .setAuthor({
+          return util.getSystemMessage("error", {
+            description: `You need the \`${permission}\` permission to call this command.`,
+            author: {
               name: "Oops!",
               iconURL: message.client.user.displayAvatarURL(),
-            })
-            .setDescription(
-              `You need the \`${permission}\` permission to call this command.`,
-            )
+            },
+          })
     }
 
     if (cmd.options.allowRoles) {
@@ -528,17 +530,16 @@ export async function prepareCommand(
           (role) => !allowRoles.includes(role.id),
         )
       )
-        return new discord.EmbedBuilder()
-          .setColor("Red")
-          .setAuthor({
+        return util.getSystemMessage("error", {
+          description: `You need one of the following roles to call this command: ${allowRoles
+            .map((id) => `<@&${id}>`)
+            .join(", ")}`,
+          author: {
             name: "Oops!",
             iconURL: message.client.user.displayAvatarURL(),
-          })
-          .setDescription(
-            `You need one of the following roles to call this command: ${allowRoles
-              .map((id) => `<@&${id}>`)
-              .join(", ")}`,
-          )
+          },
+          allowedMentions: { parse: [] },
+        })
     }
 
     if (cmd.options.denyRoles) {
@@ -547,32 +548,34 @@ export async function prepareCommand(
       if (
         message.member.roles.cache.some((role) => denyRoles.includes(role.id))
       )
-        return new discord.EmbedBuilder()
-          .setColor("Red")
-          .setAuthor({
+        return util.getSystemMessage("error", {
+          description: `You can't call this command because you have one of the following roles: ${denyRoles
+            .map((id) => `<@&${id}>`)
+            .join(", ")}`,
+          author: {
             name: "Oops!",
             iconURL: message.client.user.displayAvatarURL(),
-          })
-          .setDescription(
-            `You can't call this command because you have one of the following roles: ${denyRoles
-              .map((id) => `<@&${id}>`)
-              .join(", ")}`,
-          )
+          },
+        })
     }
   }
 
   if (channelType === "guild")
     if (isDirectMessage(message))
-      return new discord.EmbedBuilder().setColor("Red").setAuthor({
-        name: "This command must be used in a guild.",
-        iconURL: message.client.user.displayAvatarURL(),
+      return util.getSystemMessage("error", {
+        author: {
+          name: "This command must be used in a guild.",
+          iconURL: message.client.user.displayAvatarURL(),
+        },
       })
 
   if (await util.scrap(cmd.options.botOwnerOnly, message))
     if (process.env.BOT_OWNER !== message.author.id)
-      return new discord.EmbedBuilder().setColor("Red").setAuthor({
-        name: "You must be my owner.",
-        iconURL: message.client.user.displayAvatarURL(),
+      return util.getSystemMessage("error", {
+        author: {
+          name: "You must be my owner.",
+          iconURL: message.client.user.displayAvatarURL(),
+        },
       })
 
   if (context) {
@@ -597,34 +600,31 @@ export async function prepareCommand(
         if (!given) {
           if (await util.scrap(positional.required, message)) {
             if (positional.missingErrorMessage) {
-              if (typeof positional.missingErrorMessage === "string") {
-                return new discord.EmbedBuilder()
-                  .setColor("Red")
-                  .setAuthor({
+              if (typeof positional.missingErrorMessage === "string")
+                return util.getSystemMessage("error", {
+                  description: positional.missingErrorMessage,
+                  author: {
                     name: `Missing positional "${positional.name}"`,
                     iconURL: message.client.user.displayAvatarURL(),
-                  })
-                  .setDescription(positional.missingErrorMessage)
-              } else {
-                return positional.missingErrorMessage
-              }
+                  },
+                })
+
+              return { embeds: [positional.missingErrorMessage] }
             }
 
-            return new discord.EmbedBuilder()
-              .setColor("Red")
-              .setAuthor({
+            return util.getSystemMessage("error", {
+              description: positional.description
+                ? "Description: " + positional.description
+                : `Run the following command to learn more: ${util.code.stringify(
+                    {
+                      content: `${message.usedPrefix}${context.key} --help`,
+                    },
+                  )}`,
+              author: {
                 name: `Missing positional "${positional.name}"`,
                 iconURL: message.client.user.displayAvatarURL(),
-              })
-              .setDescription(
-                positional.description
-                  ? "Description: " + positional.description
-                  : `Run the following command to learn more: ${util.code.stringify(
-                      {
-                        content: `${message.usedPrefix}${context.key} --help`,
-                      },
-                    )}`,
-              )
+              },
+            })
           } else {
             set(null)
           }
@@ -637,6 +637,7 @@ export async function prepareCommand(
             value,
             message,
             set,
+            cmd,
           )
 
           if (casted !== true) return casted
@@ -679,30 +680,27 @@ export async function prepareCommand(
 
         if (!given && (await util.scrap(option.required, message))) {
           if (option.missingErrorMessage) {
-            if (typeof option.missingErrorMessage === "string") {
-              return new discord.EmbedBuilder()
-                .setColor("Red")
-                .setAuthor({
+            if (typeof option.missingErrorMessage === "string")
+              return util.getSystemMessage("error", {
+                description: option.missingErrorMessage,
+                author: {
                   name: `Missing option "${option.name}"`,
                   iconURL: message.client.user.displayAvatarURL(),
-                })
-                .setDescription(option.missingErrorMessage)
-            } else {
-              return option.missingErrorMessage
-            }
+                },
+              })
+
+            return { embeds: [option.missingErrorMessage] }
           }
 
-          return new discord.EmbedBuilder()
-            .setColor("Red")
-            .setAuthor({
+          return util.getSystemMessage("error", {
+            description: option.description
+              ? "Description: " + option.description
+              : `Example: \`--${option.name}=someValue\``,
+            author: {
               name: `Missing option "${option.name}"`,
               iconURL: message.client.user.displayAvatarURL(),
-            })
-            .setDescription(
-              option.description
-                ? "Description: " + option.description
-                : `Example: \`--${option.name}=someValue\``,
-            )
+            },
+          })
         }
 
         set(value)
@@ -718,6 +716,7 @@ export async function prepareCommand(
             value,
             message,
             set,
+            cmd,
           )
 
           if (casted !== true) return casted
@@ -773,29 +772,27 @@ export async function prepareCommand(
       if (message.rest.length === 0) {
         if (await util.scrap(rest.required, message)) {
           if (rest.missingErrorMessage) {
-            if (typeof rest.missingErrorMessage === "string") {
-              return new discord.EmbedBuilder()
-                .setColor("Red")
-                .setAuthor({
+            if (typeof rest.missingErrorMessage === "string")
+              return util.getSystemMessage("error", {
+                description: rest.missingErrorMessage,
+                author: {
                   name: `Missing rest "${rest.name}"`,
                   iconURL: message.client.user.displayAvatarURL(),
-                })
-                .setDescription(rest.missingErrorMessage)
-            } else {
-              return rest.missingErrorMessage
-            }
+                },
+              })
+
+            return { embeds: [rest.missingErrorMessage] }
           }
 
-          return new discord.EmbedBuilder()
-            .setColor("Red")
-            .setAuthor({
+          return util.getSystemMessage("error", {
+            description:
+              rest.description ??
+              "Please use `--help` flag for more information.",
+            author: {
               name: `Missing rest "${rest.name}"`,
               iconURL: message.client.user.displayAvatarURL(),
-            })
-            .setDescription(
-              rest.description ??
-                "Please use `--help` flag for more information.",
-            )
+            },
+          })
         } else if (rest.default) {
           message.args[rest.name] = await util.scrap(rest.default, message)
         }
@@ -819,15 +816,15 @@ export async function prepareCommand(
       }
 
       if (typeof result === "string")
-        return new discord.EmbedBuilder()
-          .setColor("Red")
-          .setAuthor({
+        return util.getSystemMessage("error", {
+          description: result,
+          author: {
             name: `${
               middleware.name ? `"${middleware.name}" m` : "M"
             }iddleware error`,
             iconURL: message.client.user.displayAvatarURL(),
-          })
-          .setDescription(result)
+          },
+        })
 
       if (!result) return false
     }

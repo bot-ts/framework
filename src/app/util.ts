@@ -19,6 +19,8 @@ import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
 
+import { config } from "../config.js"
+
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
 export async function checkUpdates() {
@@ -439,4 +441,146 @@ export async function getFileGitURL(
   } catch (error) {
     return
   }
+}
+
+export interface SystemEmojis {
+  success: string
+  error: string
+  loading: string
+  warning: string
+}
+
+const defaultSystemEmojis: SystemEmojis = {
+  success: "✅",
+  error: "❌",
+  loading: "⏳",
+  warning: "⚠️",
+}
+
+export function getSystemEmoji(name: keyof SystemEmojis): string {
+  return config.systemEmojis?.[name] ?? defaultSystemEmojis[name]
+}
+
+export interface SystemMessageOptions {
+  title: string
+  description: string
+  error: Error
+  author: discord.EmbedAuthorOptions
+  allowedMentions: discord.MessageCreateOptions["allowedMentions"]
+}
+
+export type SystemMessage = Pick<
+  discord.MessageCreateOptions,
+  "embeds" | "content" | "files" | "allowedMentions"
+>
+
+export interface SystemMessages {
+  default: (
+    options: Partial<Omit<SystemMessageOptions, "error">>,
+  ) => Promise<SystemMessage>
+  success: (
+    options: Partial<Omit<SystemMessageOptions, "error">>,
+  ) => Promise<SystemMessage>
+  error: (options: Partial<SystemMessageOptions>) => Promise<SystemMessage>
+}
+
+const defaultSystemMessages: SystemMessages = {
+  default: async ({ allowedMentions, title, description, author }) => ({
+    allowedMentions,
+    embeds: [
+      new discord.EmbedBuilder()
+        .setTitle(title ? `${getSystemEmoji("loading")} ${title}` : null)
+        .setDescription(description ?? null)
+        .setColor(discord.Colors.Blurple)
+        .setAuthor(
+          author
+            ? {
+                name: title
+                  ? author.name
+                  : `${getSystemEmoji("loading")} ${author.name}`,
+              }
+            : null,
+        ),
+    ],
+  }),
+  success: async ({ allowedMentions, title, description, author }) => ({
+    allowedMentions,
+    embeds: [
+      new discord.EmbedBuilder()
+        .setTitle(title ? `${getSystemEmoji("success")} ${title}` : null)
+        .setAuthor(
+          author
+            ? {
+                name: title
+                  ? author.name
+                  : `${getSystemEmoji("success")} ${author.name}`,
+              }
+            : null,
+        )
+        .setDescription(
+          description
+            ? title || author
+              ? description
+              : `${getSystemEmoji("success")} ${description}`
+            : null,
+        )
+        .setColor(discord.Colors.Green),
+    ],
+  }),
+  error: async ({ allowedMentions, title, description, author, error }) => ({
+    allowedMentions,
+    embeds: [
+      new discord.EmbedBuilder()
+        .setTitle(title ? `${getSystemEmoji("error")} ${title}` : null)
+        .setAuthor(
+          author
+            ? {
+                name: title
+                  ? author.name
+                  : `${getSystemEmoji("error")} ${author.name}`,
+              }
+            : null,
+        )
+        .setDescription(
+          description
+            ? title || author
+              ? description
+              : `${getSystemEmoji("error")} ${description}`
+            : null,
+        )
+        .setColor(discord.Colors.Red)
+        .addFields(
+          error
+            ? [
+                {
+                  name: error.name ?? "Error",
+                  value: await code.stringify({
+                    content: `${
+                      error.message
+                        ?.replace(/\x1b\[\d+m/g, "")
+                        .split("")
+                        .reverse()
+                        .slice(0, 2000)
+                        .reverse()
+                        .join("") ?? "unknown"
+                    }`,
+                    lang: "js",
+                  }),
+                },
+              ]
+            : [],
+        ),
+    ],
+  }),
+}
+
+export function getSystemMessage<Key extends keyof SystemMessages>(
+  name: Key,
+  options: SystemMessages[Key] extends (options: infer Options) => any
+    ? Options
+    : never,
+): Promise<SystemMessage> {
+  return (config.systemMessages?.[name] ?? defaultSystemMessages[name])(
+    options as any,
+  )
 }

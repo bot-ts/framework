@@ -24,15 +24,13 @@ export default new app.Command({
   async run(message) {
     message.triggerCoolDown()
 
-    const toEdit = await message.channel.send({
-      embeds: [
-        new discord.EmbedBuilder()
-          .setColor("Blurple")
-          .setTitle("The process is running..."),
-      ],
-    })
+    const toEdit = await message.channel.send(
+      await app.getSystemMessage("default", {
+        title: "The process is running...",
+      }),
+    )
 
-    const embed = new discord.EmbedBuilder()
+    let systemMessage: app.SystemMessage
 
     try {
       const output = cp.execSync(message.rest, {
@@ -40,37 +38,21 @@ export default new app.Command({
         encoding: "utf-8",
       })
 
-      embed
-        .setColor("Blurple")
-        .setTitle("\\✔ Done")
-        .setDescription(
-          await app.code.stringify({
-            content: output
-              .split("")
-              .reverse()
-              .slice(0, 2000)
-              .reverse()
-              .join(""),
-          }),
-        )
-    } catch (err: any) {
-      embed
-        .setColor("Red")
-        .setTitle("\\❌ Errored")
-        .setDescription(
-          await app.code.stringify({
-            content: (err.stack ?? err.message)
-              .split("")
-              .reverse()
-              .slice(0, 2000)
-              .reverse()
-              .join(""),
-          }),
-        )
+      systemMessage = await app.getSystemMessage("success", {
+        title: "The process is done",
+        description: await app.code.stringify({
+          content: output.split("").reverse().slice(0, 2000).reverse().join(""),
+        }),
+      })
+    } catch (error: any) {
+      systemMessage = await app.getSystemMessage("error", {
+        title: "The process is errored",
+        error,
+      })
     }
 
-    toEdit.edit({ embeds: [embed] }).catch(() => {
-      message.channel.send({ embeds: [embed] }).catch()
+    toEdit.edit(systemMessage).catch(() => {
+      message.channel.send(systemMessage).catch()
     })
   },
 })

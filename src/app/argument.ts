@@ -5,6 +5,7 @@ import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
 
 import * as util from "./util.js"
+import * as logger from "./logger.js"
 import * as command from "./command.js"
 
 type _item<Items extends readonly any[], K extends string> = Extract<
@@ -289,29 +290,35 @@ export async function validate(
   subjectType: "positional" | "argument",
   castedValue: any,
   message: command.IMessage,
-): Promise<discord.EmbedBuilder | true> {
+): Promise<util.SystemMessage | true> {
   if (!subject.validate) return true
 
   const checkResult = await subject.validate(castedValue, message)
 
-  const errorEmbed = (errorMessage: string): discord.EmbedBuilder => {
-    const embed = new discord.EmbedBuilder()
-      .setColor("Red")
-      .setAuthor({
-        name: `Bad ${subjectType} tested "${subject.name}".`,
-        iconURL: message.client.user?.displayAvatarURL(),
-      })
-      .setDescription(errorMessage)
-
+  const errorEmbed = async (
+    errorMessage: string,
+  ): Promise<util.SystemMessage> => {
     if (subject.validationErrorMessage) {
       if (typeof subject.validationErrorMessage === "string") {
-        return embed.setDescription(subject.validationErrorMessage)
-      } else {
-        return subject.validationErrorMessage
+        return util.getSystemMessage("error", {
+          description: subject.validationErrorMessage,
+          author: {
+            name: `Bad ${subjectType} tested "${subject.name}".`,
+            iconURL: message.client.user?.displayAvatarURL(),
+          },
+        })
       }
+
+      return { embeds: [subject.validationErrorMessage] }
     }
 
-    return embed
+    return util.getSystemMessage("error", {
+      description: errorMessage,
+      author: {
+        name: `Bad ${subjectType} tested "${subject.name}".`,
+        iconURL: message.client.user?.displayAvatarURL(),
+      },
+    })
   }
 
   if (typeof checkResult === "string") return errorEmbed(checkResult)
@@ -336,7 +343,8 @@ export async function resolveType(
   baseValue: string | undefined,
   message: command.IMessage,
   setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown,
-): Promise<discord.EmbedBuilder | true> {
+  cmd: command.ICommand,
+): Promise<util.SystemMessage | true> {
   const empty = new Error("The value is empty!")
 
   const cast = async () => {
@@ -561,33 +569,32 @@ export async function resolveType(
 
     if (subject.typeErrorMessage) {
       if (typeof subject.typeErrorMessage === "string") {
-        return new discord.EmbedBuilder()
-          .setColor("Red")
-          .setAuthor({
+        return util.getSystemMessage("error", {
+          description: subject.typeErrorMessage.replace(/@error/g, errorCode),
+          author: {
             name: `Bad ${subjectType} type "${subject.name}".`,
             iconURL: message.client.user?.displayAvatarURL(),
-          })
-          .setDescription(
-            subject.typeErrorMessage.replace(/@error/g, errorCode),
-          )
-      } else {
-        return subject.typeErrorMessage
+          },
+        })
       }
+
+      return { embeds: [subject.typeErrorMessage] }
     }
 
-    return new discord.EmbedBuilder()
-      .setColor("Red")
-      .setAuthor({
+    if (typeof subject.type === "function")
+      logger.error(
+        `The "${subject.name}" argument of the "${cmd.options.name}" command must have a custom typeErrorMessage because it is a custom type.`,
+      )
+
+    return util.getSystemMessage("error", {
+      description: `Cannot convert the given "${subject.name}" ${subjectType}${
+        typeof subject.type === "function" ? "" : " into `" + subject.type + "`"
+      }\n${errorCode}`,
+      author: {
         name: `Bad ${subjectType} type "${subject.name}".`,
         iconURL: message.client.user?.displayAvatarURL(),
-      })
-      .setDescription(
-        `Cannot cast the value of the "${subject.name}" ${subjectType} to ${
-          typeof subject.type === "function"
-            ? "{*custom type*}"
-            : "`" + subject.type + "`"
-        }\n${errorCode}`,
-      )
+      },
+    })
   }
 }
 

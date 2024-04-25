@@ -22,25 +22,17 @@ const listener: app.Listener<"interactionCreate"> = {
     } catch (error: any) {
       app.error(error, cmd.filepath!, true)
 
+      const errorMessage = await app.getSystemMessage("error", { error })
+
       if (interaction.replied || interaction.deferred) {
         interaction.followUp({
-          content: await app.code.stringify({
-            content: `Error: ${
-              error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
-            }`,
-            lang: "js",
-          }),
+          ...errorMessage,
           ephemeral: true,
         })
       } else {
         interaction
           .reply({
-            content: await app.code.stringify({
-              content: `Error: ${
-                error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
-              }`,
-              lang: "js",
-            }),
+            ...errorMessage,
             ephemeral: true,
           })
           .catch((error) => {

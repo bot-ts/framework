@@ -132,7 +132,7 @@ const listener: app.Listener<"messageCreate"> = {
     })
 
     if (typeof prepared !== "boolean")
-      return message.channel.send({ embeds: [prepared] }).catch()
+      return message.channel.send(prepared).catch()
 
     if (!prepared) return
 
@@ -142,14 +142,7 @@ const listener: app.Listener<"messageCreate"> = {
       app.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(
-          await app.code.stringify({
-            content: `Error: ${
-              error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
-            }`,
-            lang: "js",
-          }),
-        )
+        .send(await app.getSystemMessage("error", { error }))
         .catch((error) => {
           app.error(error, cmd!.filepath!, true)
         })
