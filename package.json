@@ -6,6 +6,9 @@
   "main": "dist/index.js",
   "type": "module",
   "style": "options",
+  "imports": {
+    "@app": "./dist/app.js"
+  },
   "scripts": {
     "build": "gulp build",
     "watch": "gulp watch",
@@ -49,6 +52,7 @@
     "simple-git": "^3.24.0",
     "sqlite3": "^5.0.8",
     "tims": "^2.1.0",
+    "types-package-json": "^2.0.39",
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
@@ -63,7 +67,6 @@
     "@types/vinyl-paths": "^0.0.31",
     "@types/ws": "^8.5.3",
     "@types/yargs-parser": "^21.0.0",
-    "axios": "^0.27.2",
     "del": "^6.1.1",
     "discord-api-types": "^0.36.1",
     "esbuild": "^0.19.5",

@@ -1,4 +1,3 @@
-import fetch from "axios"
 import gulp from "gulp"
 import esbuild from "gulp-esbuild"
 import filter from "gulp-filter"
@@ -42,7 +41,7 @@ function _cleanTemp() {
 
 function _checkGulpfile(cb) {
   fetch("https://raw.githubusercontent.com/bot-ts/framework/master/Gulpfile.js")
-    .then((res) => res.data)
+    .then((res) => res.text())
     .then(async (remote) => {
       const local = await fs.promises.readFile(
         path.join(__dirname, "Gulpfile.js"),

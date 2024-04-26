@@ -20,15 +20,14 @@ export default new app.Command({
 
     const databaseClient = app.getDatabaseDriverName()
 
-    const embed = new app.EmbedBuilder()
-      .setColor("Blurple")
-      .setAuthor({
+    const systemMessageOptions: Partial<app.SystemMessageOptions> = {
+      description: conf.description ?? "No description",
+      author: {
         name: `Information about ${message.client.user.tag}`,
         iconURL: message.client.user?.displayAvatarURL(),
-      })
-      .setDescription(conf.description)
-      .setTimestamp()
-      .addFields([
+      },
+      timestamp: new Date(),
+      fields: [
         {
           name: conf.name,
           value: await app.code.stringify({
@@ -45,8 +44,8 @@ export default new app.Command({
                 2,
               )}mb`,
               `ping: ${message.client.ws.ping}ms`,
-              `database: ${databaseClient}@${app.packageJSON.dependencies[databaseClient]}`,
-              `node version: ${process.version}`,
+              `database: ${databaseClient}@${app.packageJSON.dependencies?.[databaseClient] ?? "unknown"}`,
+              `node: ${process.version}`,
             ].join("\n"),
           }),
           inline: true,
@@ -78,44 +77,50 @@ export default new app.Command({
           }),
           inline: true,
         },
-      ])
+      ],
+    }
 
-    return message.channel.send({
-      embeds: [
-        !message.args.dependencies
-          ? embed
-          : embed.addFields([
-              {
-                name: app.blankChar,
-                value: app.blankChar,
-                inline: false,
-              },
-              {
-                name: "Dependencies",
-                value: await app.code.stringify({
+    if (message.args.dependencies)
+      systemMessageOptions.fields?.push(
+        {
+          name: app.blankChar,
+          value: app.blankChar,
+          inline: false,
+        },
+        {
+          name: "Dependencies",
+          value:
+            conf.dependencies && Object.keys(conf.dependencies).length > 0
+              ? await app.code.stringify({
                   lang: "yml",
                   content: Object.entries(conf.dependencies)
                     .map(([name, version]) => {
                       return `${name.replace(/@/g, "")}: ${version}`
                     })
                     .join("\n"),
-                }),
-                inline: true,
-              },
-              {
-                name: "Dev dependencies",
-                value: await app.code.stringify({
+                })
+              : "No dependencies",
+          inline: true,
+        },
+        {
+          name: "Dev dependencies",
+          value:
+            conf.devDependencies && Object.keys(conf.devDependencies).length > 0
+              ? await app.code.stringify({
                   lang: "yml",
                   content: Object.entries(conf.devDependencies)
                     .map(([name, version]) => {
                       return `${name.replace(/@/g, "")}: ${version}`
                     })
                     .join("\n"),
-                }),
-                inline: true,
-              },
-            ]),
-      ],
-    })
+                })
+              : "No dev dependencies",
+          inline: true,
+        },
+      )
+
+    return message.channel.send(
+      await app.getSystemMessage("default", systemMessageOptions),
+    )
   },
 })

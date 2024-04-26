@@ -6,10 +6,11 @@ import dayjs from "dayjs"
 import discord from "discord.js"
 import prettify from "ghom-prettify"
 import * as prettier from "prettier"
-import axios from "axios"
 import chalk from "chalk"
 import EventEmitter from "events"
 import simpleGit from "simple-git"
+
+import type { PackageJson } from "types-package-json"
 
 import v10 from "discord-api-types/v10"
 import utc from "dayjs/plugin/utc.js"
@@ -25,11 +26,9 @@ export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
-  const remoteJSON = await axios
-    .get(
-      "https://raw.githubusercontent.com/bot-ts/framework/master/package.json",
-    )
-    .then((res) => res.data)
+  const remoteJSON: PackageJson = await fetch(
+    "https://raw.githubusercontent.com/bot-ts/framework/master/package.json",
+  ).then((res) => res.json() as any)
 
   const versionValue = (version: string): number => {
     const [, major, minor, patch] = /(\d+)\.(\d+)\.(\d+)/
@@ -58,6 +57,8 @@ export async function checkUpdates() {
     )
     logger.warn(chalk.bold(`this update may break your bot!`))
   } else if (
+    packageJSON.devDependencies &&
+    remoteJSON.devDependencies &&
     isOlder(
       packageJSON.devDependencies["@ghom/bot.ts-cli"],
       remoteJSON.devDependencies["@ghom/bot.ts-cli"],
@@ -128,7 +129,7 @@ export function fullPath(..._path: string[]): string {
 
 export const packageJSON = JSON.parse(
   fs.readFileSync(fullPath("package.json"), "utf-8"),
-)
+) as PackageJson
 
 export const startedAt = Date.now()
 
