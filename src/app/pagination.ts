@@ -271,7 +271,8 @@ export abstract class Paginator {
 
 export class DynamicPaginator extends Paginator {
   constructor(
-    public readonly options: PaginatorOptions & DynamicPaginatorOptions,
+    public override readonly options: PaginatorOptions &
+      DynamicPaginatorOptions,
   ) {
     super(options)
   }
@@ -291,7 +292,7 @@ export class DynamicPaginator extends Paginator {
 
 export class StaticPaginator extends Paginator {
   constructor(
-    public readonly options: PaginatorOptions & StaticPaginatorOptions,
+    public override readonly options: PaginatorOptions & StaticPaginatorOptions,
   ) {
     super(options)
 
