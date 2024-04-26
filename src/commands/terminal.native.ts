@@ -3,7 +3,7 @@
 import cp from "child_process"
 import discord from "discord.js"
 
-import * as app from "../app.js"
+import * as app from "#app"
 
 export default new app.Command({
   name: "terminal",

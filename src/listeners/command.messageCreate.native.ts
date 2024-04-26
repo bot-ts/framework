@@ -1,6 +1,6 @@
 // system file, please don't modify it
 
-import * as app from "../app.js"
+import * as app from "#app"
 import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {

@@ -1,6 +1,6 @@
 process.env.BOT_MODE = "test"
 
-const app = await import("../dist/app.js")
+const app = await import("#app")
 
 try {
   await app.orm.handler.init()

@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",

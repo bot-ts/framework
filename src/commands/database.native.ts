@@ -1,6 +1,6 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as app from "@app"
+import * as app from "#app"
 
 export default new app.Command({
   name: "database",

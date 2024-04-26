@@ -3,7 +3,7 @@
 import cp from "child_process"
 import util from "util"
 import * as ge from "ghom-eval"
-import * as app from "../app.js"
+import * as app from "#app"
 
 const exec = util.promisify(cp.exec)
 

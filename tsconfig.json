@@ -14,7 +14,7 @@
     "noImplicitOverride": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@app": ["./src/app.ts"],
+      "#app": ["./src/app.ts"],
     }
   },
 }

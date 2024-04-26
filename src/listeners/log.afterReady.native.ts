@@ -4,7 +4,7 @@ import figlet from "figlet"
 import boxen from "boxen"
 import chalk from "chalk"
 
-import * as app from "../app.js"
+import * as app from "#app"
 
 import { filename } from "dirname-filename-esm"
 

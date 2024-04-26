@@ -10,7 +10,7 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER", "BOT_ID"]) {
   }
 }
 
-const app = await import("./app.js")
+const app = await import("#app")
 
 try {
   await app.orm.init()

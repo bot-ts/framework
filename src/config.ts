@@ -1,4 +1,4 @@
-import * as app from "./app.js"
+import * as app from "#app"
 
 export const config: app.Scrap<app.Config> = {
   ignoreBots: true,

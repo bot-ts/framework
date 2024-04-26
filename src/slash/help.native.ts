@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 export default new app.SlashCommand({
   name: "help",

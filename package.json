@@ -7,7 +7,7 @@
   "type": "module",
   "style": "options",
   "imports": {
-    "@app": "./dist/app.js"
+    "#app": "./dist/app.js"
   },
   "scripts": {
     "build": "gulp build",

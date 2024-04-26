@@ -1,6 +1,6 @@
 // system file, please don't modify it
 
-import * as app from "../app.js"
+import * as app from "#app"
 
 const listener: app.Listener<"messageDelete"> = {
   event: "messageDelete",
