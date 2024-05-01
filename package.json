@@ -8,7 +8,7 @@
   "style": "options",
   "imports": {
     "#app": "./dist/app.js",
-    "#app/*": "./dist/app/*",
+    "#app/*": "./dist/*",
     "#tables/*": "./dist/tables/*"
   },
   "scripts": {

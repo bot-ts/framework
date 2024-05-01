@@ -15,7 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "#app": ["./src/app.ts"],
-      "#app/*": ["./src/app/*"],
+      "#app/*": ["./src/*"],
       "#tables/*": ["./src/tables/*"],
     }
   },
