@@ -133,13 +133,14 @@ function _copyConfig() {
     .pipe(gulp.dest(__dirname, { overwrite: false }))
 }
 
-function _updateDependencies(cb) {
+function _updatePackageJSON(cb) {
   const localPackageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
   const remotePackageJSON = JSON.parse(
     fs.readFileSync("./temp/package.json", "utf8"),
   )
 
   localPackageJSON.main = remotePackageJSON.main
+  localPackageJSON.type = remotePackageJSON.type
   localPackageJSON.version = remotePackageJSON.version
 
   localPackageJSON.engines = {
@@ -150,6 +151,11 @@ function _updateDependencies(cb) {
   localPackageJSON.scripts = {
     ...localPackageJSON.scripts,
     ...remotePackageJSON.scripts,
+  }
+
+  localPackageJSON.imports = {
+    ...localPackageJSON.imports,
+    ...remotePackageJSON.imports,
   }
 
   for (const baseKey of ["dependencies", "devDependencies"]) {
@@ -268,7 +274,7 @@ export const update = gulp.series(
   _copyTemp,
   _copyConfig,
   _removeDuplicates,
-  _updateDependencies,
+  _updatePackageJSON,
   _updateDatabaseFile,
   _gitLog,
   _cleanTemp,
