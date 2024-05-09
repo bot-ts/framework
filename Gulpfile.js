@@ -120,6 +120,7 @@ function _copyTemp() {
         "temp/template.env",
         "temp/tsconfig.json",
         "temp/tests/**/*.js",
+        "temp/templates/*",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" },
