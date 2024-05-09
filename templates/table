@@ -1,0 +1,12 @@
+import * as app from "#app"
+
+export interface {{ Name }} {
+  // type of table
+}
+
+export default new app.Table<{{ Name }}>({
+  name: "{{ name }}",
+  setup: (table) => {
+    // setup table columns => http://knexjs.org/#Schema-Building
+  },
+})

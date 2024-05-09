@@ -1,0 +1,13 @@
+import * as app from "#app"
+
+export default new app.SlashCommand({
+  name: "{{ name }}",
+  description: "The {{ name }} command",
+  run(interaction) {
+    // todo: code here
+    return interaction.reply({
+      content: "{{ name }} command is not yet implemented.",
+      ephemeral: true,
+    })
+  },
+})

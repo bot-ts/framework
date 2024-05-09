@@ -1,0 +1,11 @@
+import * as app from "#app"
+
+export default new app.Command({
+  name: "{{ name }}",
+  description: "The {{ name }} command",
+  channelType: "all",
+  async run(message) {
+    // todo: code here
+    return message.channel.send("{{ name }} command is not yet implemented.")
+  }
+})
