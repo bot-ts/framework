@@ -201,7 +201,7 @@ function _updateDatabaseFile() {
     (name) => name in packageJSON.dependencies,
   )
   return gulp
-    .src("node_modules/@ghom/bot.ts-cli/templates/" + database)
+    .src("templates/" + database)
     .pipe(rename("database.ts"))
     .pipe(gulp.dest("src/app"))
 }
