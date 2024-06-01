@@ -19,6 +19,8 @@ export default new app.SlashCommand({
     )
   },
   async run(interaction) {
+    await interaction.base.deferReply({ ephemeral: true })
+
     const target = interaction.options.command
 
     const command = interaction.guild.commands.cache.find(
