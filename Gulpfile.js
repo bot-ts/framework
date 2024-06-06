@@ -178,6 +178,7 @@ function _copyTemp() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
+        "temp/.eslintrc.json",
         "temp/.github/workflows/**/*.native.*",
         "temp/template.env",
         "temp/tsconfig.json",
