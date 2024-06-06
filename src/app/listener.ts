@@ -4,7 +4,7 @@ import url from "url"
 import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
-import apiTypes from "discord-api-types/v8.js"
+import apiTypes from "discord-api-types/v8"
 
 import * as handler from "@ghom/handler"
 

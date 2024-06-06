@@ -76,6 +76,7 @@
     "discord-api-types": "^0.36.1",
     "esbuild": "^0.19.5",
     "eslint": "^8.57.0",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.29.1",
     "esm": "^3.2.25",
     "fancy-log": "^2.0.0",
