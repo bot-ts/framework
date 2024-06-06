@@ -32,10 +32,17 @@
     "@typescript-eslint/no-explicit-any": "off",
     "no-prototype-builtins":  "off",
     "no-control-regex": "off",
-    "no-misleading-character-class": "off"
+    "no-misleading-character-class": "off",
+    "no-empty": "off"
   },
   "settings": {
     "import/resolver": {
+      "alias": {
+        "map": [
+          ["#tables", "./src/tables"]
+        ],
+        "extensions": [".ts", ".js", ".jsx", ".tsx"]
+      },
       "node": {
         "extensions": [".js", ".jsx", ".ts", ".tsx"],
         "moduleDirectory": ["node_modules", "src/"]
