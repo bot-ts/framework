@@ -181,6 +181,7 @@ function _overrideNativeFiles() {
         "temp/.eslintrc.json",
         "temp/.github/workflows/**/*.native.*",
         "temp/template.env",
+        "temp/template.md",
         "temp/tsconfig.json",
         "temp/tests/**/*.js",
         "temp/templates/*",
