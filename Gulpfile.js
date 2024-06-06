@@ -11,6 +11,7 @@ import chalk from "chalk"
 import git from "git-commit-info"
 import cp from "child_process"
 import path from "path"
+import util from "util"
 import fs from "fs"
 
 import "dotenv/config"
@@ -19,6 +20,13 @@ import { Handler } from "@ghom/handler"
 import { dirname } from "dirname-filename-esm"
 
 const __dirname = dirname(import.meta)
+
+function _npmInstall(cb) {
+  // eslint-disable-next-line import/no-unresolved
+  import("@esbuild/linux-x64")
+    .then(() => cp.exec("npm i", cb))
+    .catch(() => cp.exec("npm i --force", cb))
+}
 
 function _gitLog(cb) {
   const newVersion = git({ cwd: path.join(__dirname, "temp") })
@@ -59,6 +67,49 @@ function _checkGulpfile(cb) {
           remote,
           "utf8",
         )
+
+        {
+          // check for new dependencies in gulpfile
+
+          // eslint-disable-next-line no-undef
+          const remotePackageJSON = await fetch(
+            "https://raw.githubusercontent.com/bot-ts/framework/master/package.json",
+          ).then((res) => res.json())
+
+          const localPackageJSON = JSON.parse(
+            await fs.promises.readFile(
+              path.join(__dirname, "package.json"),
+              "utf8",
+            ),
+          )
+
+          const gulpDevDependencies = Object.entries(
+            remotePackageJSON.devDependencies,
+          )
+
+          let packageJSONUpdated = false
+
+          for (const [name, version] of gulpDevDependencies) {
+            if (remote.includes(`"${name}"`) && !local.includes(`"${name}"`)) {
+              log(
+                `Added    '${chalk.cyan(name)}' [${chalk.blueBright(version)}]`,
+              )
+
+              localPackageJSON.devDependencies[name] = version
+              packageJSONUpdated = true
+            }
+          }
+
+          if (packageJSONUpdated) {
+            await fs.promises.writeFile(
+              path.join(__dirname, "package.json"),
+              JSON.stringify(localPackageJSON, null, 2),
+              "utf8",
+            )
+
+            await new Promise((resolve) => _npmInstall(resolve))
+          }
+        }
 
         log(
           `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
@@ -201,10 +252,7 @@ function _updatePackageJSON(cb) {
     "utf8",
   )
 
-  // eslint-disable-next-line import/no-unresolved
-  import("@esbuild/linux-x64")
-    .then(() => cp.exec("npm i", cb))
-    .catch((err) => cp.exec("npm i --force", cb))
+  _npmInstall(cb)
 }
 
 function _updateDatabaseFile() {
