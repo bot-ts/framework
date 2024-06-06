@@ -8,9 +8,9 @@ import path from "path"
 import chalk from "chalk"
 
 import * as handler from "@ghom/handler"
-import * as logger from "./logger.js"
-import * as config from "./config.js"
-import * as util from "./util.js"
+import * as logger from "./logger.ts"
+import * as config from "./config.ts"
+import * as util from "./util.ts"
 
 import { filename } from "dirname-filename-esm"
 
@@ -118,11 +118,7 @@ export interface ISlashCommand {
   options: ISlashCommandOptions
 }
 
-export interface ISlashCommandInteraction
-  extends Omit<
-    discord.CommandInteraction,
-    "guild" | "guildId" | "channel" | "options"
-  > {
+export interface ISlashCommandInteraction {
   base: discord.CommandInteraction
   guild?: discord.Guild
   guildId?: string
@@ -283,10 +279,8 @@ export async function prepareSlashCommand(
   interaction: discord.CommandInteraction,
   command: ISlashCommand,
 ): Promise<ISlashCommandInteraction | discord.EmbedBuilder> {
-  // @ts-ignore
   const output: ISlashCommandInteraction = {
     base: interaction,
-    ...interaction,
     guild: undefined,
     guildId: undefined,
     channel: interaction.channel!,
@@ -369,7 +363,7 @@ export async function prepareSlashCommand(
     for (const name in command.options.options) {
       const option = command.options.options[name]
 
-      let value = interaction.options.get(name) ?? option.default ?? null
+      const value = interaction.options.get(name) ?? option.default ?? null
 
       if (option.required && value === null)
         return new discord.EmbedBuilder()
@@ -397,7 +391,7 @@ export async function sendSlashCommandDetails(
 ) {
   const { detailSlashCommand } = config.getConfig()
 
-  interaction.reply(
+  interaction.base.reply(
     detailSlashCommand
       ? await detailSlashCommand(interaction, computed)
       : {

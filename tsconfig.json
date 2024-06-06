@@ -13,10 +13,11 @@
     "esModuleInterop": true,
     "noImplicitOverride": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
     "paths": {
       "#app": ["./src/app.ts"],
       "#app/*": ["./src/*"],
-      "#tables/*": ["./src/tables/*"],
+      "#tables/*": ["./src/tables/*"]
     }
   },
 }

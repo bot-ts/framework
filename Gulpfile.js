@@ -3,6 +3,7 @@ import esbuild from "gulp-esbuild"
 import filter from "gulp-filter"
 import vinyl from "vinyl-paths"
 import rename from "gulp-rename"
+import replace from "gulp-replace"
 import del from "del"
 import log from "fancy-log"
 import chalk from "chalk"
@@ -83,6 +84,9 @@ function _build() {
           ".ts": "ts",
         },
       }),
+    )
+    .pipe(
+      replace(/((?:import|export) .*? from\s+['"].*?)\.ts(['"])/g, "$1.js$2"),
     )
     .pipe(gulp.dest("dist"))
 }
@@ -265,6 +269,22 @@ async function _generateReadme(cb) {
   cb()
 }
 
+function _addJSExtensions() {
+  return gulp
+    .src(["src/**/*.ts"])
+    .pipe(
+      filter((file) =>
+        fs.existsSync(
+          path.join(
+            file.dirname,
+            file.basename.replace(".native" + file.extname, file.extname),
+          ),
+        ),
+      ),
+    )
+    .pipe(vinyl(del))
+}
+
 export const build = gulp.series(_cleanDist, _build, _copyKeepers)
 export const watch = gulp.series(build, _watch)
 export const readme = gulp.series(build, _generateReadme)
@@ -280,3 +300,4 @@ export const update = gulp.series(
   _gitLog,
   _cleanTemp,
 )
+export const fix = gulp.series(_addJSExtensions)

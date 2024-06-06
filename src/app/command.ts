@@ -9,10 +9,10 @@ import yargsParser from "yargs-parser"
 
 import * as handler from "@ghom/handler"
 
-import * as util from "./util.js"
-import * as logger from "./logger.js"
-import * as argument from "./argument.js"
-import * as config from "./config.js"
+import * as util from "./util.ts"
+import * as logger from "./logger.ts"
+import * as argument from "./argument.ts"
+import * as config from "./config.ts"
 
 import { filename } from "dirname-filename-esm"
 
@@ -665,6 +665,7 @@ export async function prepareCommand(
       const options = await util.scrap(cmd.options.options, message)
 
       for (const option of options) {
+        // eslint-disable-next-line prefer-const
         let { given, value } = argument.resolveGivenArgument(
           context.parsedArgs,
           option,
@@ -740,6 +741,7 @@ export async function prepareCommand(
 
     if (cmd.options.flags) {
       for (const flag of cmd.options.flags) {
+        // eslint-disable-next-line prefer-const
         let { nameIsGiven, value } = argument.resolveGivenArgument(
           context.parsedArgs,
           flag,

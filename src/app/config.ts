@@ -2,13 +2,13 @@
 
 import type * as discord from "discord.js"
 
-import type * as pagination from "./pagination.js"
-import type * as command from "./command.js"
-import type * as slash from "./slash.js"
+import type * as pagination from "./pagination.ts"
+import type * as command from "./command.ts"
+import type * as slash from "./slash.ts"
 
-import * as util from "./util.js"
+import * as util from "./util.ts"
 
-import { config } from "../config.js"
+import { config } from "../config.ts"
 
 export interface Config {
   /**

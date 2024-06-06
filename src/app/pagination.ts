@@ -2,9 +2,9 @@
 
 import discord from "discord.js"
 
-import * as logger from "./logger.js"
-import * as config from "./config.js"
-import * as util from "./util.js"
+import * as logger from "./logger.ts"
+import * as config from "./config.ts"
+import * as util from "./util.ts"
 
 import { filename } from "dirname-filename-esm"
 

@@ -50,10 +50,10 @@ export default new app.Command({
     const installed = new Set<string>()
 
     let code = message.args.code
-    let use = message.args.use
+    const use = message.args.use
 
-    if (message.args.use.length > 0) {
-      const given = new Set<string>(message.args.use.filter((p: string) => p))
+    if (use.length > 0) {
+      const given = new Set<string>(use.filter((p: string) => p))
 
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
