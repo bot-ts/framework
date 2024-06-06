@@ -2,7 +2,7 @@
   "name": "@ghom/bot.ts",
   "version": "v7.0.0-Senchu",
   "author": "ghom",
-  "description": "Discord bot in TypeScript",
+  "description": "A Discord bot in TypeScript made with [bot.ts](https://ghom.gitbook.io/bot-ts/)",
   "main": "dist/index.js",
   "type": "module",
   "style": "options",

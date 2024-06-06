@@ -1,3 +1,4 @@
+import discord from "discord.js"
 import gulp from "gulp"
 import esbuild from "gulp-esbuild"
 import filter from "gulp-filter"
@@ -11,6 +12,8 @@ import git from "git-commit-info"
 import cp from "child_process"
 import path from "path"
 import fs from "fs"
+
+import "dotenv/config"
 
 import { Handler } from "@ghom/handler"
 import { dirname } from "dirname-filename-esm"
@@ -41,6 +44,7 @@ function _cleanTemp() {
 }
 
 function _checkGulpfile(cb) {
+  // eslint-disable-next-line no-undef
   fetch("https://raw.githubusercontent.com/bot-ts/framework/master/Gulpfile.js")
     .then((res) => res.text())
     .then(async (remote) => {
@@ -62,6 +66,7 @@ function _checkGulpfile(cb) {
           )} command.`,
         )
 
+        // eslint-disable-next-line no-undef
         process.exit(0)
       } else cb()
     })
@@ -99,10 +104,12 @@ function _watch(cb) {
   const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
 
   spawn.stdout.on("data", (data) => {
+    // eslint-disable-next-line no-undef
     console.log(`${data}`.trim())
   })
 
   spawn.stderr.on("data", (data) => {
+    // eslint-disable-next-line no-undef
     console.error(`${data}`.trim())
   })
 
@@ -194,6 +201,7 @@ function _updatePackageJSON(cb) {
     "utf8",
   )
 
+  // eslint-disable-next-line import/no-unresolved
   import("@esbuild/linux-x64")
     .then(() => cp.exec("npm i", cb))
     .catch((err) => cp.exec("npm i --force", cb))
@@ -231,6 +239,19 @@ function _removeDuplicates() {
 }
 
 async function _generateReadme(cb) {
+  const client = new discord.Client({
+    intents: [],
+  })
+
+  // eslint-disable-next-line no-undef
+  await client.login(process.env.BOT_TOKEN)
+
+  const avatar =
+    client.user.displayAvatarURL({ format: "png", size: 128 }) +
+    "&fit=cover&mask=circle"
+
+  await client.destroy()
+
   const packageJSON = JSON.parse(
     await fs.promises.readFile("./package.json", "utf8"),
   )
@@ -264,7 +285,7 @@ async function _generateReadme(cb) {
     return eval(key)
   })
 
-  console.log(readme)
+  await fs.promises.writeFile(".readme.md", readme, "utf8")
 
   cb()
 }
