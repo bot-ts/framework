@@ -169,7 +169,7 @@ function _watch(cb) {
   gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(_cleanDist, _build))
 }
 
-function _copyTemp() {
+function _overrideNativeFiles() {
   return gulp
     .src(
       [
@@ -351,7 +351,7 @@ export const update = gulp.series(
   _checkGulpfile,
   _cleanTemp,
   _downloadTemp,
-  _copyTemp,
+  _overrideNativeFiles,
   _copyConfig,
   _removeDuplicates,
   _updatePackageJSON,
