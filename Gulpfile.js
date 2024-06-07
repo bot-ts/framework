@@ -337,7 +337,7 @@ async function _generateReadme(cb) {
 
   await fs.promises.writeFile(
     // eslint-disable-next-line no-undef
-    `${process.env.BOT_MODE === "dev" ? "." : ""}readme.md`,
+    `${process.env.BOT_MODE === "factory" ? "." : ""}readme.md`,
     readme,
     "utf8",
   )
