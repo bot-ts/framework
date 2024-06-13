@@ -289,6 +289,8 @@ function _removeDuplicates() {
 }
 
 async function _generateReadme(cb) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+
   const client = new discord.Client({
     intents: [],
   })
@@ -330,7 +332,7 @@ async function _generateReadme(cb) {
   const namespaces = await handle("namespaces")
   const tables = await handle("tables")
 
-  const readme = template.replace(/\{\{(.+?)}}/g, (match, key) => {
+  const readme = template.replace(/\{\{(.+?)}}/gs, (match, key) => {
     log(`Evaluated '${chalk.cyan(key)}'`)
     return eval(key)
   })
@@ -343,6 +345,8 @@ async function _generateReadme(cb) {
   )
 
   cb()
+
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
 
 export const build = gulp.series(_cleanDist, _build, _copyKeepers)

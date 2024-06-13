@@ -26,15 +26,22 @@ Below you will find the specifications for **{{packageJSON.name}}**.
 
 ### Slash commands
 
-{{Array.from(slash).map(([path, command]) => `- ${command.options.name} - ${command.options.description}`).join("  \n")}}
+{{Array.from(slash).map(([path, command]) => `- \`/${command.options.name}\` - ${command.options.description}`).join("  \n")}}
 
 ### Textual commands
 
-{{Array.from(commands).map(([path, command]) => `- ${command.options.name} - ${command.options.description}`).join("  \n")}}
+{{Array.from(commands).map(([path, command]) => `- \`${command.options.name}\` - ${command.options.description}`).join("  \n")}}
 
 ## Listeners
 
-{{Array.from(listeners).map(([path, listener]) => `- ${path.split(/\\|\//).pop()}`).join("  \n")}}
+{{Object.entries(Array.from(listeners).reduce((all, [path, listener]) => {
+    const category = path.split(/\\|\//).pop().split(".")[0]
+    if(all[category]) all[category].push([path, listener])
+    else all[category] = [[path, listener]]
+    return all
+}, {})).map(([category, values]) => `### ${category[0].toUpperCase() + category.slice(1)}  \n\n${
+    values.map(([path, listener]) => `- \`${listener.event}\` - ${listener.description}`).join("  \n")
+}` ).join("  \n")}}
 
 ## Database
 
