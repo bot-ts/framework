@@ -6,3 +6,5 @@ const error = logger.error.bind(logger)
 const success = logger.success.bind(logger)
 
 export { log, warn, error, success }
+
+export { Logger } from "@ghom/logger"

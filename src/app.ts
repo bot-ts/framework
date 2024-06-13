@@ -1,3 +1,3 @@
 export * from "discord.js"
 export * from "./app.native.ts"
-export * as discord from "discord.js"
+export * as discord from "discord.js"
