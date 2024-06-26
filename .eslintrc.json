@@ -24,7 +24,11 @@
       "error",
       {
         "ignore": [
-          "^#app$"
+          "^#app$",
+          "^#config$",
+          "^#env$",
+          "^#client$",
+          "^#logger$"
         ]
       }
     ],
