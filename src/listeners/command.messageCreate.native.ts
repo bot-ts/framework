@@ -25,7 +25,7 @@ const listener: app.Listener<"messageCreate"> = {
         .catch()
 
     message.usedAsDefault = false
-    message.isFromBotOwner = message.author.id === process.env.BOT_OWNER!
+    message.isFromBotOwner = message.author.id === app.env.BOT_OWNER
 
     app.emitMessage(message.channel, message)
     app.emitMessage(message.author, message)
@@ -61,7 +61,7 @@ const listener: app.Listener<"messageCreate"> = {
     if (
       key !== "turn" &&
       !app.cache.ensure<boolean>("turn", true) &&
-      message.author.id !== process.env.BOT_OWNER
+      message.author.id !== app.env.BOT_OWNER
     )
       return
 

@@ -18,6 +18,8 @@ import relative from "dayjs/plugin/relativeTime.js"
 import timezone from "dayjs/plugin/timezone.js"
 import toObject from "dayjs/plugin/toObject.js"
 
+import env from "./env.ts"
+
 import * as logger from "./logger.ts"
 import * as config from "./config.ts"
 import * as client from "./client.ts"
@@ -84,7 +86,7 @@ export async function checkUpdates() {
   }
 }
 
-const locale = process.env.BOT_LOCALE
+const locale = env.BOT_LOCALE
 
 import(`dayjs/locale/${locale ?? "en"}.js`)
   .then(() => dayjs.locale(locale ?? "en"))
@@ -102,7 +104,7 @@ dayjs.extend(timezone)
 dayjs.extend(toObject)
 dayjs.utc(1)
 
-if (process.env.BOT_TIMEZONE) dayjs.tz.setDefault(process.env.BOT_TIMEZONE)
+if (env.BOT_TIMEZONE) dayjs.tz.setDefault(env.BOT_TIMEZONE)
 
 export { dayjs }
 

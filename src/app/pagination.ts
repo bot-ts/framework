@@ -7,7 +7,6 @@ import * as config from "./config.ts"
 import * as util from "./util.ts"
 
 import { filename } from "dirname-filename-esm"
-
 const __filename = filename(import.meta)
 
 export type PaginatorKey = "previous" | "next" | "start" | "end"

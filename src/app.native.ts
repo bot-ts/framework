@@ -18,3 +18,5 @@ export * as command from "./app/command.ts"
 export * as logger from "./app/logger.ts"
 export * as slash from "./app/slash.ts"
 export * as util from "./app/util.ts"
+
+export { default as env } from "./app/env.ts"

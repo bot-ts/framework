@@ -3,7 +3,7 @@ import * as app from "#app"
 export const config: app.Config = {
   ignoreBots: true,
   getPrefix() {
-    return process.env.BOT_PREFIX!
+    return app.env.BOT_PREFIX!
   },
   client: {
     intents: [

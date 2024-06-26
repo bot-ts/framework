@@ -2,6 +2,7 @@
 
 import { ORM } from "@ghom/orm"
 import { logger } from "@ghom/logger"
+import env from "./env.ts"
 import path from "path"
 import fs from "fs"
 
@@ -16,7 +17,7 @@ export const orm = new ORM({
     useNullAsDefault: true,
     connection: {
       filename: path.join(dataDirectory, "sqlite3.db"),
-      timezone: process.env.BOT_TIMEZONE || "UTC",
+      timezone: env.BOT_TIMEZONE || "UTC",
     },
   },
   logger,

@@ -2,6 +2,7 @@
 
 import { ORM } from "@ghom/orm"
 import { logger } from "@ghom/logger"
+import env from "./env.ts"
 import path from "path"
 
 export const orm = new ORM({
