@@ -14,7 +14,6 @@ const app = await import("#app")
 
 try {
   await app.orm.init()
-  await app.initConfig()
   await app.commandHandler.init()
   await app.slashCommandHandler.init()
   await app.listenerHandler.init()
