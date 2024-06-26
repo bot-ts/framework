@@ -1,17 +1,8 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
-import * as config from "./config.ts"
+import config from "#config"
 
-export class ClientSingleton {
-  private static instance: discord.Client
+const client = new discord.Client(config.client)
 
-  private constructor() {}
-
-  static get(): discord.Client {
-    if (!ClientSingleton.instance) {
-      ClientSingleton.instance = new discord.Client(config.getConfig().client)
-    }
-    return ClientSingleton.instance
-  }
-}
+export default client

@@ -1,9 +1,10 @@
-import * as app from "#app"
+import type { Config } from "#app"
+import discord from "discord.js"
 
-export const config: app.Config = {
+const config: Config = {
   ignoreBots: true,
-  getPrefix() {
-    return app.env.BOT_PREFIX!
+  async getPrefix() {
+    return import("#env").then((env) => env.default.BOT_PREFIX)
   },
   client: {
     intents: [
@@ -24,14 +25,14 @@ export const config: app.Config = {
       "DirectMessageTyping",
       "MessageContent",
     ],
-    makeCache: app.Options.cacheWithLimits({
-      ...app.Options.DefaultMakeCacheSettings,
+    makeCache: discord.Options.cacheWithLimits({
+      ...discord.Options.DefaultMakeCacheSettings,
 
       // don't cache reactions
       ReactionManager: 0,
     }),
     sweepers: {
-      ...app.Options.DefaultSweeperSettings,
+      ...discord.Options.DefaultSweeperSettings,
       messages: {
         // every day
         interval: 1000 * 60 * 60 * 24,
@@ -42,3 +43,5 @@ export const config: app.Config = {
     },
   },
 }
+
+export default config

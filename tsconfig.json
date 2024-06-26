@@ -16,6 +16,10 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "#app": ["./src/app.ts"],
+      "#config": ["./src/config.ts"],
+      "#env": ["./src/app/env.ts"],
+      "#client": ["./src/app/client.ts"],
+      "#logger": ["./src/app/logger.ts"],
       "#app/*": ["./src/*"],
       "#tables/*": ["./src/tables/*"]
     }

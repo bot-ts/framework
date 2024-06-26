@@ -8,8 +8,6 @@ import type * as logger from "./logger.ts"
 import type * as slash from "./slash.ts"
 import type * as util from "./util.ts"
 
-import { config } from "../config.ts"
-
 export interface Config {
   /**
    * Ignore bots messages for textual commands if enabled
@@ -72,8 +70,4 @@ export interface Config {
    * Custom options for the system logger
    */
   logger?: logger.LoggerOptions
-}
-
-export function getConfig(): Config {
-  return config
 }

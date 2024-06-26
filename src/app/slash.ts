@@ -9,10 +9,10 @@ import chalk from "chalk"
 
 import * as handler from "@ghom/handler"
 
-import env from "./env.ts"
+import env from "#env"
+import logger from "#logger"
+import config from "#config"
 
-import * as logger from "./logger.ts"
-import * as config from "./config.ts"
 import * as util from "./util.ts"
 
 import { filename } from "dirname-filename-esm"
@@ -389,7 +389,7 @@ export async function sendSlashCommandDetails(
   interaction: ISlashCommandInteraction,
   computed: discord.ApplicationCommand,
 ) {
-  const { detailSlashCommand } = config.getConfig()
+  const { detailSlashCommand } = config
 
   interaction.base.reply(
     detailSlashCommand

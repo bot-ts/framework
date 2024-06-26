@@ -1,9 +1,8 @@
 import { logger, Logger } from "@ghom/logger"
-import { getConfig } from "./config.ts"
 
-const { logger: loggerOptions } = getConfig()
+import config from "#config"
 
-export const systemLogger = loggerOptions ? new Logger(loggerOptions) : logger
+export const systemLogger = config.logger ? new Logger(config.logger) : logger
 
 const log = systemLogger.log.bind(systemLogger)
 const warn = systemLogger.warn.bind(systemLogger)
@@ -22,3 +21,5 @@ export {
 } from "@ghom/logger"
 
 export type * from "@ghom/logger"
+
+export default systemLogger

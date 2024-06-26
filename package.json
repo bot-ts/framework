@@ -8,6 +8,10 @@
   "style": "options",
   "imports": {
     "#app": "./dist/app.js",
+    "#env": "./dist/app/env.js",
+    "#config": "./dist/config.js",
+    "#client": "./dist/app/client.js",
+    "#logger": "./dist/app/logger.js",
     "#app/*": "./dist/*",
     "#tables/*": "./dist/tables/*"
   },

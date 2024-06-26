@@ -9,12 +9,12 @@ import yargsParser from "yargs-parser"
 
 import * as handler from "@ghom/handler"
 
-import env from "./env.ts"
-
 import * as util from "./util.ts"
 import * as logger from "./logger.ts"
 import * as argument from "./argument.ts"
-import * as config from "./config.ts"
+
+import env from "#env"
+import config from "#config"
 
 import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
@@ -841,7 +841,7 @@ export async function sendCommandDetails(
   message: IMessage,
   cmd: ICommand,
 ): Promise<void> {
-  const { detailCommand, openSource } = config.getConfig()
+  const { detailCommand, openSource } = config
 
   if (detailCommand) {
     const options = await detailCommand(message, cmd)

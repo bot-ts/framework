@@ -1,14 +1,13 @@
 // system file, please don't modify it
 
 import * as app from "#app"
+import config from "#config"
 import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Handle messages for commands",
   async run(message) {
-    const config = app.getConfig()
-
     if (config.ignoreBots && message.author.bot) return
 
     if (!app.isNormalMessage(message)) return

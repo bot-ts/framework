@@ -12,7 +12,7 @@ try {
   await app.listenerHandler.init()
   await app.initPagination()
   await app.checkUpdates()
-  await app.ClientSingleton.get().login(env.BOT_TOKEN)
+  await app.client.login(env.BOT_TOKEN)
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)

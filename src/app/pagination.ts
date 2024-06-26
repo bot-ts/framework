@@ -2,8 +2,9 @@
 
 import discord from "discord.js"
 
+import config from "#config"
+
 import * as logger from "./logger.ts"
-import * as config from "./config.ts"
 import * as util from "./util.ts"
 
 import { filename } from "dirname-filename-esm"
@@ -315,6 +316,6 @@ export class StaticPaginator extends Paginator {
 }
 
 export async function initPagination() {
-  const { paginatorEmojis } = config.getConfig()
+  const { paginatorEmojis } = config
   if (paginatorEmojis) Paginator.defaultEmojis = paginatorEmojis
 }
