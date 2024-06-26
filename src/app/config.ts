@@ -6,8 +6,7 @@ import type * as pagination from "./pagination.ts"
 import type * as command from "./command.ts"
 import type * as logger from "./logger.ts"
 import type * as slash from "./slash.ts"
-
-import * as util from "./util.ts"
+import type * as util from "./util.ts"
 
 import { config } from "../config.ts"
 

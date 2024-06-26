@@ -24,8 +24,6 @@ import * as logger from "./logger.ts"
 import * as config from "./config.ts"
 import * as client from "./client.ts"
 
-const _env = env ?? process.env
-
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
 export async function checkUpdates() {
@@ -88,7 +86,7 @@ export async function checkUpdates() {
   }
 }
 
-const locale = _env.BOT_LOCALE
+const locale = env.BOT_LOCALE
 
 import(`dayjs/locale/${locale ?? "en"}.js`)
   .then(() => dayjs.locale(locale ?? "en"))
@@ -106,7 +104,7 @@ dayjs.extend(timezone)
 dayjs.extend(toObject)
 dayjs.utc(1)
 
-if (_env.BOT_TIMEZONE) dayjs.tz.setDefault(_env.BOT_TIMEZONE)
+if (env.BOT_TIMEZONE) dayjs.tz.setDefault(env.BOT_TIMEZONE)
 
 export { dayjs }
 
