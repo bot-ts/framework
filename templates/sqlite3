@@ -1,7 +1,7 @@
 // system file, please don't modify it
 
 import { ORM } from "@ghom/orm"
-import { logger } from "@ghom/logger"
+import * as logger from "./logger.ts"
 import env from "./env.ts"
 import path from "path"
 import fs from "fs"

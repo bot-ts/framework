@@ -1,10 +1,10 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
 
 export interface {{ Name }} {
   // type of table
 }
 
-export default new app.Table<{{ Name }}>({
+export default new Table<{{ Name }}>({
   name: "{{ name }}",
   setup: (table) => {
     // setup table columns => http://knexjs.org/#Schema-Building
