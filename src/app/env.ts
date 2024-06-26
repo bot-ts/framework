@@ -71,12 +71,17 @@ const envSchema = z.object({
 })
 
 let env: z.infer<typeof envSchema>
-try {
-  env = envSchema.parse(process.env)
-} catch (error) {
-  const { errors } = error as ZodError
-  errors.forEach((err) => logger.error(err.message, ".env"))
-  process.exit(1)
+
+if (process.env.BOT_MODE !== "test") {
+  try {
+    env = envSchema.parse(process.env)
+  } catch (error) {
+    const { errors } = error as ZodError
+    errors.forEach((err) => logger.error(err.message, ".env"))
+    process.exit(1)
+  }
+} else {
+  env = process.env as unknown as z.infer<typeof envSchema>
 }
 
 export default env
