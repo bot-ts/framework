@@ -447,7 +447,7 @@ export async function resolveType(
       case "message":
         if (baseValue) {
           const match =
-            /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
+            /^https?:\/\/(?:www\.)?(?:ptb\.|canary\.)?(?:discord|discordapp)\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
               baseValue,
             )
           if (match) {
