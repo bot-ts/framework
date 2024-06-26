@@ -1,5 +1,5 @@
 <div align="center">
-  <div class="title"></div>
+  <h1> @ghom/bot.ts </h1><p> A Discord bot in TypeScript made with <a href='https://ghom.gitbook.io/bot-ts/'>bot.ts</a> </p>
   <div class="banner">
     <a href="https://ghom.gitbook.io/bot-ts/">
       <img src="https://raw.githubusercontent.com/bot-ts/docs/master/.gitbook/assets/bot.ts-banner.png" alt="bot.ts banner"/>
@@ -47,9 +47,7 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 ## Annexes
 
 * [Documentation](https://ghom.gitbook.io/bot-ts/)
-* [CLI on NPN](https://www.npmjs.com/package/@ghom/bot.ts-cli)
-* [Discord server](https://discord.gg/3vC2XWK)
-* [use this template](https://github.com/bot-ts/framework/generate)
-* [Follow tool NEWS](https://discord.gg/kYxDWWQJ8q)
-
-![logs](https://media.discordapp.net/attachments/609313381421154304/1168543147593306254/image.png)
+* [Package](https://www.npmjs.com/package/@ghom/bot.ts-cli)
+* [Discord](https://discord.gg/kYxDWWQJ8q)
+* [Github](https://github.com/bot-ts)
+* [Community](https://discord.gg/3vC2XWK)
