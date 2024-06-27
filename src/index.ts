@@ -6,7 +6,7 @@ import env from "./app/env.ts"
 const app = await import("#app")
 
 try {
-  await app.orm.init()
+  await app.database.init()
   await app.commandHandler.init()
   await app.slashCommandHandler.init()
   await app.listenerHandler.init()

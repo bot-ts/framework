@@ -5,7 +5,7 @@ import * as logger from "./logger.ts"
 import env from "./env.ts"
 import path from "path"
 
-export const orm = new ORM({
+const orm = new ORM({
   location: path.join(process.cwd(), "dist", "tables"),
   database: {
     client: "mysql2",
@@ -23,3 +23,5 @@ export const orm = new ORM({
 })
 
 export * from "@ghom/orm"
+
+export default orm

@@ -12,10 +12,12 @@
     "#config": "./dist/config.js",
     "#client": "./dist/app/client.js",
     "#logger": "./dist/app/logger.js",
-    "#app/*": "./dist/*",
+    "#database": "./dist/app/database.js",
+    "#src/*": "./dist/*",
     "#tables/*": "./dist/tables/*"
   },
   "scripts": {
+    "bot": "npx @ghom/bot.ts-cli",
     "build": "gulp build",
     "watch": "gulp watch",
     "start": "npm run build && node dist/index",

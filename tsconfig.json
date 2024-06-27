@@ -20,7 +20,8 @@
       "#env": ["./src/app/env.ts"],
       "#client": ["./src/app/client.ts"],
       "#logger": ["./src/app/logger.ts"],
-      "#app/*": ["./src/*"],
+      "#database": ["./src/app/database.ts"],
+      "#src/*": ["./src/*"],
       "#tables/*": ["./src/tables/*"]
     }
   },

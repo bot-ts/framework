@@ -4,7 +4,7 @@ import discord from "discord.js"
 const config: Config = {
   ignoreBots: true,
   async getPrefix() {
-    return import("#env").then((env) => env.default.BOT_PREFIX)
+    return import("#env").then(({ default: env }) => env.BOT_PREFIX)
   },
   client: {
     intents: [

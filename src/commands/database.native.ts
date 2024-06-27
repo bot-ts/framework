@@ -22,7 +22,7 @@ export default new app.Command({
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, "'$1'")
       .replace(/from ([a-z]+)/gi, 'from "$1"')
 
-    const result = await app.orm.raw(query)
+    const result = await app.database.raw(query)
 
     const systemMessage = await app.getSystemMessage("success", {
       title: `Result of SQL query ${
@@ -52,34 +52,36 @@ export default new app.Command({
       aliases: ["tables", "schema", "list", "view"],
       async run(message) {
         const fields = await Promise.all(
-          app.orm.cachedTables.map(async (table): Promise<app.EmbedField> => {
-            const columns: {
-              defaultValue: unknown
-              type: string
-              name: string
-            }[] = await table.getColumns().then((cols) => {
-              return Object.entries(cols).map(
-                ([name, { defaultValue, type }]) => {
-                  return { name, type, defaultValue }
-                },
-              )
-            })
-
-            const rowCount = await table.count()
-
-            return {
-              name: `${table.options.name} x${rowCount}`,
-              value: columns
-                .map(
-                  ({ name, type, defaultValue }) =>
-                    `[\`${type.slice(0, 5)}\`] \`${name}${
-                      defaultValue ? `?` : ""
-                    }\``,
+          app.database.cachedTables.map(
+            async (table): Promise<app.EmbedField> => {
+              const columns: {
+                defaultValue: unknown
+                type: string
+                name: string
+              }[] = await table.getColumns().then((cols) => {
+                return Object.entries(cols).map(
+                  ([name, { defaultValue, type }]) => {
+                    return { name, type, defaultValue }
+                  },
                 )
-                .join("\n"),
-              inline: true,
-            }
-          }),
+              })
+
+              const rowCount = await table.count()
+
+              return {
+                name: `${table.options.name} x${rowCount}`,
+                value: columns
+                  .map(
+                    ({ name, type, defaultValue }) =>
+                      `[\`${type.slice(0, 5)}\`] \`${name}${
+                        defaultValue ? `?` : ""
+                      }\``,
+                  )
+                  .join("\n"),
+                inline: true,
+              }
+            },
+          ),
         )
 
         return message.channel.send(

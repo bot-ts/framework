@@ -10,7 +10,7 @@ const dataDirectory = path.join(process.cwd(), "data")
 
 if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
-export const orm = new ORM({
+const orm = new ORM({
   location: path.join(process.cwd(), "dist", "tables"),
   database: {
     client: "sqlite3",
@@ -24,3 +24,5 @@ export const orm = new ORM({
 })
 
 export * from "@ghom/orm"
+
+export default orm

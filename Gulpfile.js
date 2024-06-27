@@ -135,10 +135,8 @@ function _build() {
       esbuild({
         sourcemap: "inline",
         format: "esm",
-        target: "node16",
-        loader: {
-          ".ts": "ts",
-        },
+        target: "node20",
+        loader: { ".ts": "ts" },
       }),
     )
     .pipe(
