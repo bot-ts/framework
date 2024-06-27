@@ -1,5 +1,5 @@
 import type { Config } from "#app"
-import discord from "discord.js"
+import { Options } from "discord.js"
 
 const config: Config = {
   ignoreBots: true,
@@ -25,14 +25,14 @@ const config: Config = {
       "DirectMessageTyping",
       "MessageContent",
     ],
-    makeCache: discord.Options.cacheWithLimits({
-      ...discord.Options.DefaultMakeCacheSettings,
+    makeCache: Options.cacheWithLimits({
+      ...Options.DefaultMakeCacheSettings,
 
       // don't cache reactions
       ReactionManager: 0,
     }),
     sweepers: {
-      ...discord.Options.DefaultSweeperSettings,
+      ...Options.DefaultSweeperSettings,
       messages: {
         // every day
         interval: 1000 * 60 * 60 * 24,

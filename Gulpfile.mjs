@@ -1,31 +1,76 @@
-import discord from "discord.js"
-import gulp from "gulp"
-import esbuild from "gulp-esbuild"
-import filter from "gulp-filter"
-import vinyl from "vinyl-paths"
-import rename from "gulp-rename"
-import replace from "gulp-replace"
-import del from "del"
-import log from "fancy-log"
-import chalk from "chalk"
-import git from "git-commit-info"
 import cp from "child_process"
 import path from "path"
-import util from "util"
 import fs from "fs"
 
 import "dotenv/config"
 
-import { Handler } from "@ghom/handler"
-import { dirname } from "dirname-filename-esm"
+import chalk from "chalk"
+import dayjs from "dayjs"
+
+const discord = await __importOrInstall("discord.js@14")
+const gulp = await __importOrInstall("gulp", true)
+const esbuild = await __importOrInstall("gulp-esbuild", true)
+const filter = await __importOrInstall("gulp-filter", true)
+const vinyl = await __importOrInstall("vinyl-paths", true)
+const rename = await __importOrInstall("gulp-rename", true)
+const replace = await __importOrInstall("gulp-replace", true)
+const del = await __importOrInstall("del@6.1.1", true)
+const log = await __importOrInstall("fancy-log", true)
+const git = await __importOrInstall("git-commit-info", true)
+
+const { Handler } = await __importOrInstall("@ghom/handler")
+const { dirname } = await __importOrInstall("dirname-filename-esm")
 
 const __dirname = dirname(import.meta)
 
+async function __importOrInstall(packageName, importDefault = false) {
+  let namespace = null
+
+  try {
+    namespace = await import(packageName.split(/\b@/)[0])
+  } catch (e) {
+    // eslint-disable-next-line no-undef
+    console.log(
+      `[${dayjs().format("HH:mm:ss")}] Package  '${chalk.cyan(packageName)}' not found. Installing...`,
+    )
+    try {
+      await __install(packageName)
+      // eslint-disable-next-line no-undef
+      console.log(
+        `[${dayjs().format("HH:mm:ss")}] Package  '${chalk.cyan(packageName)}' installed successfully.`,
+      )
+      namespace = await import(packageName.split(/\b@/)[0])
+    } catch (installError) {
+      throw new Error(
+        `Failed to install "${packageName}": ${installError.message}`,
+      )
+    }
+  }
+
+  console.log(`[${dayjs().format("HH:mm:ss")}] Imported '${chalk.cyan(packageName)}'`)
+
+  return importDefault ? namespace.default : namespace
+}
+
+function __install(packageName = "") {
+  return new Promise((resolve, reject) => {
+    // eslint-disable-next-line import/no-unresolved
+    import("@esbuild/linux-x64")
+      .then(() =>
+        cp.exec(`npm i ${packageName}`, (err) =>
+          err ? reject(err) : resolve(),
+        ),
+      )
+      .catch(() =>
+        cp.exec(`npm i ${packageName} --force`, (err) =>
+          err ? reject(err) : resolve(),
+        ),
+      )
+  })
+}
+
 function _npmInstall(cb) {
-  // eslint-disable-next-line import/no-unresolved
-  import("@esbuild/linux-x64")
-    .then(() => cp.exec("npm i", cb))
-    .catch(() => cp.exec("npm i --force", cb))
+  __install().then(cb).catch(cb)
 }
 
 function _gitLog(cb) {
