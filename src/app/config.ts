@@ -32,9 +32,7 @@ export interface Config {
   detailCommand?: (
     message: command.IMessage,
     command: command.ICommand,
-  ) =>
-    | Promise<command.MessageCreateOptionsResolvable>
-    | command.MessageCreateOptionsResolvable
+  ) => Promise<util.SystemMessage> | util.SystemMessage
 
   /**
    * Custom help command for slash commands
