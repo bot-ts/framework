@@ -28,7 +28,7 @@ export const commandHandler = new handler.Handler(
       return file.default as ICommand
     },
     onLoad: async (filepath, command) => {
-      if (filepath.endsWith(".native.js")) command.native = true
+      command.native = filepath.endsWith(".native.js")
       command.filepath = filepath
       return commands.add(command)
     },

@@ -3,20 +3,13 @@ import { Options } from "discord.js"
 
 const config: Config = {
   ignoreBots: true,
+  openSource: true,
   async getPrefix() {
     return import("#env").then(({ default: env }) => env.BOT_PREFIX)
   },
   client: {
     intents: [
       "Guilds",
-      "GuildMembers",
-      "GuildModeration",
-      "GuildEmojisAndStickers",
-      "GuildIntegrations",
-      "GuildWebhooks",
-      "GuildInvites",
-      "GuildVoiceStates",
-      "GuildPresences",
       "GuildMessages",
       "GuildMessageReactions",
       "GuildMessageTyping",

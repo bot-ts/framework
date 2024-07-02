@@ -10,8 +10,8 @@ export default new app.SlashCommand({
   //     type: "String",
   //   },
   // },
-  build(builder) {
-    builder.addStringOption((option) =>
+  build() {
+    this.addStringOption((option) =>
       option
         .setName("command")
         .setDescription("The target command name.")
@@ -21,9 +21,12 @@ export default new app.SlashCommand({
   async run(interaction) {
     const commandName = interaction.options.command as string
 
-    const command = interaction.guild.commands.cache.find(
-      (cmd) => cmd.name === commandName,
-    )
+    const commands = [
+      ...(await interaction.client.application.commands.fetch()).values(),
+      ...(await interaction.guild.commands.fetch()).values(),
+    ]
+
+    const command = commands.find((cmd) => cmd.name === commandName)
 
     if (command) return app.sendSlashCommandDetails(interaction, command)
     else {
@@ -33,11 +36,9 @@ export default new app.SlashCommand({
         pages: await app.divider(
           app.slashCommands
             .map((cmd) => {
-              const command = interaction.guild.commands.cache.find(
-                (c) => c.name === cmd.options.name,
-              )
+              const command = commands.find((c) => c.name === cmd.options.name)
 
-              if (!command) return ""
+              if (!command) return `unknown command ${cmd.options.name}`
 
               return app.slashCommandToListItem(command)
             })

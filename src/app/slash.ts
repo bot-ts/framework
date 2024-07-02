@@ -28,9 +28,9 @@ export const slashCommandHandler = new handler.Handler(
       return file.default as ISlashCommand
     },
     onLoad: async (filepath, command) => {
-      command.filepath = filepath
       command.native = filepath.endsWith("native.js")
-      slashCommands.add(command)
+      command.filepath = filepath
+      return slashCommands.add(command)
     },
   },
 )
@@ -386,6 +386,10 @@ export async function sendSlashCommandDetails(
 ) {
   const { detailSlashCommand } = config
 
+  const command = slashCommands.get(computed.name)
+
+  if (!command) throw new Error(`Command ${computed.name} not found`)
+
   await interaction.base.reply(
     detailSlashCommand
       ? await detailSlashCommand(interaction, computed)
@@ -393,8 +397,23 @@ export async function sendSlashCommandDetails(
           author: {
             name: computed.name,
             iconURL: computed.client.user?.displayAvatarURL(),
+            url: config.openSource
+              ? await util.getFileGitURL(command.filepath!)
+              : undefined,
           },
-          description: computed.description || "no description",
+          description: `Use directly: </${computed.name}:${computed.id}>\nDescription: ${computed.description || "no description"}`,
+          footer: config.openSource
+            ? {
+                text: util.convertDistPathToSrc(
+                  util.rootPath(command.filepath!),
+                ),
+              }
+            : undefined,
+          fields: computed.options.map((option) => ({
+            name: option.name,
+            value: option.description || "no description",
+            inline: true,
+          })),
         }),
   )
 }

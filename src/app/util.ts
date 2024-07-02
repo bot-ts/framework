@@ -423,6 +423,10 @@ export const code = {
   format: prettify.format,
 }
 
+export function convertDistPathToSrc(path: string) {
+  return path.replace(/dist([/\\])/, "src$1").replace(".js", ".ts")
+}
+
 export async function getFileGitURL(
   filepath: string,
 ): Promise<string | undefined> {
@@ -440,7 +444,7 @@ export async function getFileGitURL(
 
     if (!remote) return
 
-    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${rootPath(filepath).replace("dist/", "src/").replace(".js", ".ts")}`
+    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(/\\/g, "/")}`
   } catch (error) {
     return
   }
