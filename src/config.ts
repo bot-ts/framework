@@ -34,11 +34,11 @@ const config: Config = {
     sweepers: {
       ...Options.DefaultSweeperSettings,
       messages: {
-        // every day
-        interval: 1000 * 60 * 60 * 24,
+        // every hour (in second)
+        interval: 60 * 60,
 
-        // 3 days
-        lifetime: 1000 * 60 * 60 * 24 * 3,
+        // 6 hours
+        lifetime: 60 * 60 * 6,
       },
     },
   },

@@ -123,6 +123,7 @@ export interface ISlashCommand {
 
 export interface ISlashCommandInteraction {
   base: discord.CommandInteraction
+  client: discord.Client<true>
   guild?: discord.Guild
   guildId?: string
   channel:
@@ -142,13 +143,11 @@ export interface SlashCommandInteraction<
     string,
     SlashCommandOption<SlashCommandOptionTypeName>
   >,
-> extends Omit<
-    discord.CommandInteraction,
-    "guild" | "guildId" | "channel" | "options"
-  > {
+> {
   base: GuildOnly extends true
     ? discord.CommandInteraction<"raw" | "cached">
     : discord.CommandInteraction
+  client: discord.Client<true>
   guild: GuildOnly extends true ? discord.Guild : undefined
   guildId: GuildOnly extends true ? string : undefined
   channel: ChannelType extends "dm"
@@ -281,9 +280,10 @@ export async function registerSlashCommands(guildId?: string) {
 export async function prepareSlashCommand(
   interaction: discord.CommandInteraction,
   command: ISlashCommand,
-): Promise<ISlashCommandInteraction | discord.EmbedBuilder> {
+): Promise<ISlashCommandInteraction | never> {
   const output: ISlashCommandInteraction = {
     base: interaction,
+    client: interaction.client,
     guild: undefined,
     guildId: undefined,
     channel: interaction.channel!,
@@ -291,9 +291,7 @@ export async function prepareSlashCommand(
   }
 
   if (command.options.botOwnerOnly && interaction.user.id !== env.BOT_OWNER)
-    return new discord.EmbedBuilder()
-      .setColor("Red")
-      .setDescription("This command can only be used by the bot owner")
+    throw new Error("This command can only be used by the bot owner")
 
   if (
     command.options.guildOnly ||
@@ -301,9 +299,7 @@ export async function prepareSlashCommand(
       command.options.channelType !== "dm")
   ) {
     if (!interaction.inGuild() || !interaction.guild)
-      return new discord.EmbedBuilder()
-        .setColor("Red")
-        .setDescription("This command can only be used in a guild")
+      throw new Error("This command can only be used in a guild")
 
     output.guild = interaction.guild
     output.guildId = interaction.guildId
@@ -312,9 +308,7 @@ export async function prepareSlashCommand(
       command.options.guildOwnerOnly &&
       interaction.user.id !== interaction.guild.ownerId
     )
-      return new discord.EmbedBuilder()
-        .setColor("Red")
-        .setDescription("This command can only be used by the guild owner")
+      throw new Error("This command can only be used by the guild owner")
 
     if (command.options.allowRoles || command.options.denyRoles) {
       const member = await interaction.guild.members.fetch(interaction.user.id)
@@ -325,11 +319,9 @@ export async function prepareSlashCommand(
             command.options.allowRoles?.includes(role.id),
           )
         )
-          return new discord.EmbedBuilder()
-            .setColor("Red")
-            .setDescription(
-              "You don't have the required role to use this command",
-            )
+          throw new Error(
+            "You don't have the required role to use this command",
+          )
       }
 
       if (command.options.denyRoles) {
@@ -338,25 +330,19 @@ export async function prepareSlashCommand(
             command.options.denyRoles?.includes(role.id),
           )
         )
-          return new discord.EmbedBuilder()
-            .setColor("Red")
-            .setDescription(
-              "You have a role that is not allowed to use this command",
-            )
+          throw new Error(
+            "You have a role that is not allowed to use this command",
+          )
       }
     }
   }
 
   if (command.options.channelType === "thread") {
     if (!interaction.channel || !interaction.channel.isThread())
-      return new discord.EmbedBuilder()
-        .setColor("Red")
-        .setDescription("This command can only be used in a thread")
+      throw new Error("This command can only be used in a thread")
   } else if (command.options.channelType === "dm") {
     if (!interaction.channel || !interaction.channel.isDMBased())
-      return new discord.EmbedBuilder()
-        .setColor("Red")
-        .setDescription("This command can only be used in a DM")
+      throw new Error("This command can only be used in a DM")
   }
 
   if (command.options.options) {
@@ -366,12 +352,21 @@ export async function prepareSlashCommand(
       const value = interaction.options.get(name) ?? option.default ?? null
 
       if (option.required && value === null)
-        return new discord.EmbedBuilder()
-          .setColor("Red")
-          .setDescription(`Option "${name}" is required`)
+        throw new Error(`Option "${name}" is required`)
 
       output.options[name] = value
     }
+  }
+
+  if (interaction.options.data.length > 0) {
+    output.options = interaction.options.data.reduce(
+      (acc, option) => {
+        if (option.name in output.options) return acc
+        acc[option.name] = option.value
+        return acc
+      },
+      {} as Record<string, any>,
+    )
   }
 
   return output
@@ -391,27 +386,18 @@ export async function sendSlashCommandDetails(
 ) {
   const { detailSlashCommand } = config
 
-  interaction.base.reply(
+  await interaction.base.reply(
     detailSlashCommand
       ? await detailSlashCommand(interaction, computed)
-      : {
-          embeds: [
-            new discord.EmbedBuilder()
-              .setColor("Blurple")
-              .setAuthor({
-                name: computed.name,
-                iconURL: computed.client.user?.displayAvatarURL(),
-              })
-              .setDescription(computed.description || "no description"),
-          ],
-        },
+      : await util.getSystemMessage("default", {
+          author: {
+            name: computed.name,
+            iconURL: computed.client.user?.displayAvatarURL(),
+          },
+          description: computed.description || "no description",
+        }),
   )
 }
-
-export type InteractionReplyOptionsResolvable =
-  | string
-  | discord.MessagePayload
-  | discord.InteractionReplyOptions
 
 export type SlashCommandOptionTypeName =
   keyof typeof discord.ApplicationCommandOptionType

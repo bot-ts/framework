@@ -8,24 +8,46 @@ const listener: app.Listener<"interactionCreate"> = {
 
     const cmd = app.slashCommands.get(interaction.commandName)
 
-    if (!cmd) return interaction.reply("Command not found")
+    if (!cmd)
+      return interaction.reply(
+        await app.getSystemMessage("error", {
+          description: "Command not found",
+        }),
+      )
 
-    const prepared = await app.prepareSlashCommand(interaction, cmd)
+    let prepared: app.ISlashCommandInteraction
 
-    if (prepared instanceof app.EmbedBuilder)
-      return interaction.reply({ embeds: [prepared] }).catch()
-
-    if (!prepared) return
+    try {
+      prepared = await app.prepareSlashCommand(interaction, cmd)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return interaction.reply(await app.getSystemMessage("error", { error }))
+      } else {
+        return interaction.reply(
+          await app.getSystemMessage("error", {
+            description: "An unknown error while preparing the command",
+          }),
+        )
+      }
+    }
 
     try {
       await cmd.options.run.bind(prepared)(prepared)
-    } catch (error: any) {
-      app.error(error, cmd.filepath!, true)
+    } catch (error: unknown) {
+      let errorMessage: app.SystemMessage
 
-      const errorMessage = await app.getSystemMessage("error", { error })
+      if (error instanceof Error) {
+        app.error(error, cmd.filepath!, true)
+
+        errorMessage = await app.getSystemMessage("error", { error })
+      } else {
+        errorMessage = await app.getSystemMessage("error", {
+          description: "An unknown error while executing the command",
+        })
+      }
 
       if (interaction.replied || interaction.deferred) {
-        interaction.followUp({
+        interaction[interaction.replied ? "followUp" : "editReply"]({
           ...errorMessage,
           ephemeral: true,
         })

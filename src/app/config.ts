@@ -42,9 +42,7 @@ export interface Config {
   detailSlashCommand?: (
     interaction: slash.ISlashCommandInteraction,
     command: discord.ApplicationCommand,
-  ) =>
-    | Promise<slash.InteractionReplyOptionsResolvable>
-    | slash.InteractionReplyOptionsResolvable
+  ) => Promise<util.SystemMessage> | util.SystemMessage
 
   /**
    * Options for the Discord Client constructor

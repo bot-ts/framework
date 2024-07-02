@@ -19,38 +19,29 @@ export default new app.SlashCommand({
     )
   },
   async run(interaction) {
-    await interaction.base.deferReply({ ephemeral: true })
-
-    const target = interaction.options.command
+    const commandName = interaction.options.command as string
 
     const command = interaction.guild.commands.cache.find(
-      (cmd) => cmd.name === target,
+      (cmd) => cmd.name === commandName,
     )
 
     if (command) return app.sendSlashCommandDetails(interaction, command)
     else {
+      await interaction.base.deferReply()
+
       new app.StaticPaginator({
         pages: await app.divider(
-          (
-            await Promise.all(
-              app.slashCommands.map(async (cmd) => {
-                const prepared = await app.prepareSlashCommand(
-                  interaction.base,
-                  cmd,
-                )
+          app.slashCommands
+            .map((cmd) => {
+              const command = interaction.guild.commands.cache.find(
+                (c) => c.name === cmd.options.name,
+              )
 
-                if (prepared instanceof app.EmbedBuilder) return ""
+              if (!command) return ""
 
-                const command = interaction.guild.commands.cache.find(
-                  (c) => c.name === cmd.options.name,
-                )
-
-                if (!command) return ""
-
-                return app.slashCommandToListItem(command)
-              }),
-            )
-          ).filter((line) => line.length > 0),
+              return app.slashCommandToListItem(command)
+            })
+            .filter((line) => line.length > 0),
           10,
           (page) => {
             return app.getSystemMessage("default", {
@@ -63,7 +54,7 @@ export default new app.SlashCommand({
             })
           },
         ),
-        filter: (reaction, user) => user.id === interaction.user.id,
+        filter: (reaction, user) => user.id === interaction.base.user.id,
         channel: interaction.channel,
       })
     }
