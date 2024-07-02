@@ -18,7 +18,7 @@ const listener: app.Listener<"afterReady"> = {
     app.log(
       `ok i'm ready! ${chalk.blue(
         "My default prefix is",
-      )} ${chalk.bgBlueBright.black(app.env.BOT_PREFIX)}`,
+      )} ${chalk.bold.blueBright(app.env.BOT_PREFIX)}`,
     )
 
     figlet(app.packageJSON.name, (err, value) => {

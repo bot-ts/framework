@@ -47,7 +47,10 @@ async function __importOrInstall(packageName, importDefault = false) {
     }
   }
 
-  console.log(`[${dayjs().format("HH:mm:ss")}] Imported '${chalk.cyan(packageName)}'`)
+  // eslint-disable-next-line no-undef
+  console.log(
+    `[${dayjs().format("HH:mm:ss")}] Imported '${chalk.cyan(packageName)}'`,
+  )
 
   return importDefault ? namespace.default : namespace
 }

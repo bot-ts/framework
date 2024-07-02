@@ -46,13 +46,13 @@ export async function checkUpdates() {
   if (isOlder(packageJSON.version, remoteJSON.version)) {
     logger.warn(
       `a new major version of ${chalk.blue(
-        "bot.ts",
+        "@ghom/bot.ts",
       )} is available: ${chalk.magenta(
         packageJSON.version,
       )} => ${chalk.magenta(remoteJSON.version)}`,
     )
     logger.warn(
-      `you can update ${chalk.blue("bot.ts")} by running ${chalk.bgWhite.black(
+      `you can update ${chalk.blue("@ghom/bot.ts")} by running ${chalk.bgWhite.black(
         `gulp update`,
       )}`,
     )
@@ -79,7 +79,7 @@ export async function checkUpdates() {
   } else {
     logger.log(
       `you are using the latest version of ${chalk.blue(
-        "bot.ts",
+        "@ghom/bot.ts",
       )} and ${chalk.blue("@ghom/bot.ts-cli")}`,
     )
   }
