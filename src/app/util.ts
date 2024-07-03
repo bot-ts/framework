@@ -530,16 +530,8 @@ const defaultSystemMessages: SystemMessages = {
     allowedMentions,
     embeds: [
       new discord.EmbedBuilder()
-        .setTitle(title ? `${getSystemEmoji("success")} ${title}` : null)
-        .setAuthor(
-          author
-            ? {
-                name: title
-                  ? author.name
-                  : `${getSystemEmoji("success")} ${author.name}`,
-              }
-            : null,
-        )
+        .setTitle(title ?? null)
+        .setAuthor(author ?? null)
         .setDescription(
           description
             ? title || author
@@ -582,16 +574,8 @@ const defaultSystemMessages: SystemMessages = {
       allowedMentions,
       embeds: [
         new discord.EmbedBuilder()
-          .setTitle(title ? `${getSystemEmoji("error")} ${title}` : null)
-          .setAuthor(
-            author
-              ? {
-                  name: title
-                    ? author.name
-                    : `${getSystemEmoji("error")} ${author.name}`,
-                }
-              : null,
-          )
+          .setTitle(title ?? null)
+          .setAuthor(author ?? null)
           .setDescription(
             description
               ? title || author
