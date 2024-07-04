@@ -134,7 +134,10 @@ export abstract class Paginator {
         ]
   }
 
-  protected async formatPage(page: Page, withoutComponents?: true) {
+  protected async formatPage(
+    page: Page,
+    withoutComponents?: true,
+  ): Promise<Page> {
     const components = withoutComponents
       ? undefined
       : await this.getComponents()
@@ -153,8 +156,8 @@ export abstract class Paginator {
 
     await this.updatePageIndex(key)
 
-    await interaction
-      .update(await this.formatPage(await this.getCurrentPage()))
+    await interaction.message
+      .edit(await this.formatPage(await this.getCurrentPage()))
       .catch((error) => logger.error(error, __filename, true))
 
     await interaction.deferUpdate()
