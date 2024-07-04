@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import "dotenv/config"
 
-import { z, ZodError } from "zod"
+import { z } from "zod"
 import fs from "fs"
 import path from "path"
 import chalk from "chalk"
 
 import * as logger from "./logger.ts"
+import { config } from "#config"
 
 const localeList: { key: string; name: string }[] = JSON.parse(
   fs.readFileSync(
@@ -70,18 +72,28 @@ const envSchema = z.object({
   DB_DATABASE: z.string().optional(),
 })
 
-let env: z.infer<typeof envSchema>
+type CustomSchema = (typeof config)["options"]["envSchema"]
+
+type Env = z.infer<typeof envSchema> & z.infer<CustomSchema>
+
+let env: Env //=> envSchema (pas bon, il manque les custom values)
 
 if (process.env.BOT_MODE !== "test") {
   try {
-    env = envSchema.parse(process.env)
+    // @ts-ignore
+    env = {
+      ...envSchema.parse(process.env),
+      ...("envSchema" in config.options
+        ? config.options.envSchema?.parse(process.env)
+        : {}),
+    }
   } catch (error) {
-    const { errors } = error as ZodError
+    const { errors } = error as z.ZodError
     errors.forEach((err) => logger.error(err.message, ".env"))
     process.exit(1)
   }
 } else {
-  env = process.env as unknown as z.infer<typeof envSchema>
+  env = process.env as unknown as Env
 }
 
 export default env

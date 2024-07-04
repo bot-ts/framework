@@ -1,12 +1,11 @@
-import type { Config } from "#app"
+import { Config } from "#src/app/config.ts"
 import { Options } from "discord.js"
+import { z } from "zod"
 
-const config: Config = {
+export const config = new Config({
   ignoreBots: true,
   openSource: true,
-  async getPrefix() {
-    return import("#env").then(({ default: env }) => env.BOT_PREFIX)
-  },
+  envSchema: z.object({}),
   client: {
     intents: [
       "Guilds",
@@ -35,6 +34,6 @@ const config: Config = {
       },
     },
   },
-}
+})
 
-export default config
+export default config.options

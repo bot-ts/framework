@@ -2,6 +2,8 @@
 
 import * as app from "#app"
 import config from "#config"
+import env from "#env"
+
 import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {
@@ -12,7 +14,9 @@ const listener: app.Listener<"messageCreate"> = {
 
     if (!app.isNormalMessage(message)) return
 
-    const prefix = await config.getPrefix(message)
+    const prefix = config.getPrefix
+      ? await config.getPrefix(message)
+      : env.BOT_PREFIX
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel
