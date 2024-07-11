@@ -471,6 +471,7 @@ export function getSystemEmoji(name: keyof SystemEmojis): string {
 }
 
 export interface SystemMessageOptions {
+  url: string
   title: string
   description: string
   error: Error
@@ -500,6 +501,7 @@ export interface SystemMessages {
 
 const defaultSystemMessages: SystemMessages = {
   default: async ({
+    url,
     allowedMentions,
     fields,
     title,
@@ -521,10 +523,12 @@ const defaultSystemMessages: SystemMessages = {
         .setAuthor(author ?? null)
         .setFooter(footer ?? null)
         .addFields(fields ?? [])
-        .setTimestamp(timestamp ?? null),
+        .setTimestamp(timestamp ?? null)
+        .setURL(url ?? null),
     ],
   }),
   success: async ({
+    url,
     allowedMentions,
     fields,
     title,
@@ -552,10 +556,12 @@ const defaultSystemMessages: SystemMessages = {
         .setColor(discord.Colors.Green)
         .setFooter(footer ?? null)
         .addFields(fields ?? [])
-        .setTimestamp(timestamp ?? null),
+        .setTimestamp(timestamp ?? null)
+        .setURL(url ?? null),
     ],
   }),
   error: async ({
+    url,
     allowedMentions,
     fields,
     title,
@@ -611,7 +617,8 @@ const defaultSystemMessages: SystemMessages = {
               : [],
           )
           .setFooter(footer ?? null)
-          .setTimestamp(timestamp ?? null),
+          .setTimestamp(timestamp ?? null)
+          .setURL(url ?? null),
       ],
     }
   },
