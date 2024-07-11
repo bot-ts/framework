@@ -11,7 +11,7 @@ try {
   await app.initPagination()
   await app.checkUpdates()
 
-  app.log("correctly started")
+  app.success("no bugs found")
   // eslint-disable-next-line no-undef
   process.exit(0)
 } catch (error) {
