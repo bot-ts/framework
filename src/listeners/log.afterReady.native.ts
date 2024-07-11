@@ -15,7 +15,7 @@ const listener: app.Listener<"afterReady"> = {
   description: "Just log that bot is ready",
   once: true,
   async run() {
-    app.log(
+    app.success(
       `ok i'm ready! ${chalk.blue(
         "My default prefix is",
       )} ${chalk.bold.blueBright(app.env.BOT_PREFIX)}`,
