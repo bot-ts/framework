@@ -94,14 +94,20 @@ const listener: app.Listener<"messageCreate"> = {
             depth++
             break
           } else if (sub.options.aliases) {
+            let found = false
+
             for (const alias of sub.options.aliases) {
               if (alias === subKey) {
                 key += ` ${subKey}`
                 cursor = 0
                 cmd = sub
                 depth++
+                found = true
+                break
               }
             }
+
+            if (found) break
           }
           cursor++
         }
