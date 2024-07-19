@@ -24,22 +24,25 @@ export default new app.Command({
 
     const result = await app.database.raw(query)
 
-    const systemMessage = await app.getSystemMessage("success", {
-      title: `Result of SQL query ${
-        result.rows ? `(${result.rows.length} items)` : ""
-      }`,
-      description: await app.limitDataToShow(
-        result.rows,
-        app.MaxLength.EmbedDescription,
-        (data) =>
-          app.code.stringify({
-            lang: "json",
-            format: { printWidth: 80 },
-            content: JSON.stringify(data),
-          }),
-      ),
-      footer: { text: `Result of : ${query}` },
-    })
+    const systemMessage = Array.isArray(result.rows)
+      ? await app.getSystemMessage("success", {
+          title: `Result of SQL query (${result.rows.length} items)`,
+          description: await app.limitDataToShow(
+            result.rows,
+            app.MaxLength.EmbedDescription,
+            (data) =>
+              app.code.stringify({
+                lang: "json",
+                format: { printWidth: 80 },
+                content: JSON.stringify(data),
+              }),
+          ),
+          footer: { text: `Result of : ${query}` },
+        })
+      : await app.getSystemMessage("success", {
+          title: `SQL query done`,
+          footer: { text: `Query : ${query}` },
+        })
 
     return message.channel.send(systemMessage)
   },
