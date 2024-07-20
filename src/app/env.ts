@@ -44,6 +44,9 @@ const envSchema = z.object({
         : "https://discord.com/developers/applications"
     }`,
   }),
+  BOT_NAME: z.string({
+    message: `You need to add a ${chalk.bold("BOT_NAME")} in the .env file, for example: BOT_NAME="my-discord-bot"`,
+  }),
   BOT_MODE: z.enum(["factory", "test", "development", "production"], {
     message: `You need to add a ${chalk.bold("BOT_MODE")} in the .env file, for example: BOT_MODE="development"`,
   }),
