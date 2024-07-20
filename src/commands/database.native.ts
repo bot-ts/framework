@@ -22,19 +22,21 @@ export default new app.Command({
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, "'$1'")
       .replace(/from ([a-z]+)/gi, 'from "$1"')
 
-    const result = await app.database.raw(query)
+    let result = await app.database.raw(query)
 
-    const systemMessage = Array.isArray(result.rows)
+    result = result.rows ?? result
+
+    const systemMessage = Array.isArray(result)
       ? await app.getSystemMessage("success", {
-          title: `Result of SQL query (${result.rows.length} items)`,
+          title: `Result of SQL query (${result.length} items)`,
           description: await app.limitDataToShow(
-            result.rows,
+            result,
             app.MaxLength.EmbedDescription,
             (data) =>
               app.code.stringify({
                 lang: "json",
-                format: { printWidth: 80 },
-                content: JSON.stringify(data),
+                format: { printWidth: 50 },
+                content: "const result = " + JSON.stringify(data),
               }),
           ),
           footer: { text: `Result of : ${query}` },
