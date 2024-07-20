@@ -607,14 +607,15 @@ const defaultSystemMessages: SystemMessages = {
           )
           .setColor(discord.Colors.Red)
           .addFields(
-            error && description && !fields
+            error && description
               ? [
                   {
                     name: error.name ?? "Error",
                     value: formattedError!,
                   },
+                  ...(fields ?? []),
                 ]
-              : [],
+              : fields ?? [],
           )
           .setFooter(footer ?? null)
           .setTimestamp(timestamp ?? null)
