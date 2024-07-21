@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  value-bot:
+  bot:
     build:
       context: .
       dockerfile: Dockerfile
