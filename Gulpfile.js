@@ -225,6 +225,8 @@ function _overrideNativeFiles() {
         "temp/.gitattributes",
         "temp/.gitignore",
         "temp/.eslintrc.json",
+        "temp/Dockerfile",
+        "temp/compose.yml",
         "temp/.github/workflows/**/*.native.*",
         "temp/template.env",
         "temp/template.md",
