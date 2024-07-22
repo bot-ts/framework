@@ -499,7 +499,7 @@ export interface SystemMessages {
   error: (options: Partial<SystemMessageOptions>) => Promise<SystemMessage>
 }
 
-const defaultSystemMessages: SystemMessages = {
+export const defaultSystemMessages: SystemMessages = {
   default: async ({
     url,
     allowedMentions,

@@ -22,23 +22,27 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
 
   /**
    * Ignore bots messages for textual commands if enabled
+   * @default false
    */
   ignoreBots?: boolean
 
   /**
    * Add a source link to the help command and make possible
    * to show the source code of any command if enabled
+   * @default false
    */
   openSource?: boolean
 
   /**
    * Get the prefix for the bot from a message object
    * (using a database or cache for example)
+   * @default () => env.BOT_PREFIX
    */
   getPrefix?: (message: command.NormalMessage) => Promise<string> | string
 
   /**
    * Custom help command for textual commands
+   * @default command.sendCommandDetails
    */
   detailCommand?: (
     message: command.IMessage,
@@ -47,6 +51,7 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
 
   /**
    * Custom help command for slash commands
+   * @default slash.sendSlashCommandDetails
    */
   detailSlashCommand?: (
     interaction: slash.ISlashCommandInteraction,
@@ -55,21 +60,29 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
 
   /**
    * Custom emotes for the paginator (use guild emojis IDs or web emotes)
+   * @default { first: "⏮️", back: "◀️", next: "▶️", last: "⏭️" }
    */
   paginatorEmojis?: pagination.PaginatorEmojis
 
   /**
    * Custom emotes for system messages (use guild emojis IDs or web emotes)
+   * @default { error: "❌", success: "✅", warning: "⚠️", loading: "⏳" }
    */
   systemEmojis?: Partial<util.SystemEmojis>
 
   /**
    * Custom messages for the system
+   * @default util.defaultSystemMessages
    */
   systemMessages?: Partial<util.SystemMessages>
 
   /**
    * Custom options for the system logger
+   * @default <pre>{
+   *   pattern: app.defaultLoggerPattern,
+   *   colors: app.defaultLoggerColors,
+   *   renders: app.defaultLoggerRenders
+   * }</pre>
    */
   logger?: logger.LoggerOptions
 }
