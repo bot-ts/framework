@@ -6,6 +6,8 @@ import chalk from "chalk"
 
 import * as app from "#app"
 
+import config from "#config"
+
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
@@ -21,25 +23,26 @@ const listener: app.Listener<"afterReady"> = {
       )} ${chalk.bold.blueBright(app.env.BOT_PREFIX)}`,
     )
 
-    figlet(app.packageJSON.name, (err, value) => {
-      if (err) return app.error(err, __filename, true)
+    if (config.printNameOnReady)
+      figlet(app.packageJSON.name, (err, value) => {
+        if (err) return app.error(err, __filename, true)
 
-      console.log(
-        boxen(chalk.blueBright(value), {
-          float: "center",
-          borderStyle: {
-            topLeft: " ",
-            topRight: " ",
-            bottomLeft: " ",
-            bottomRight: " ",
-            top: " ",
-            left: " ",
-            right: " ",
-            bottom: " ",
-          },
-        }),
-      )
-    })
+        console.log(
+          boxen(chalk.blueBright(value), {
+            float: "center",
+            borderStyle: {
+              topLeft: " ",
+              topRight: " ",
+              bottomLeft: " ",
+              bottomRight: " ",
+              top: " ",
+              left: " ",
+              right: " ",
+              bottom: " ",
+            },
+          }),
+        )
+      })
   },
 }
 

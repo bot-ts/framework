@@ -34,6 +34,12 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
   openSource?: boolean
 
   /**
+   * Display the bot name in the console when the bot is ready
+   * @default false
+   */
+  printNameOnReady?: boolean
+
+  /**
    * Get the prefix for the bot from a message object
    * (using a database or cache for example)
    * @default () => env.BOT_PREFIX
