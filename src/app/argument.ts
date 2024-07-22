@@ -372,11 +372,13 @@ export async function resolveType(
         if (baseValue) setValue<"json">(JSON.parse(baseValue))
         else throw empty
         break
-      case "number":
-        setValue<"number">(Number(baseValue))
-        if (!/^-?(?:0|[1-9]\d*)$/.test(baseValue ?? ""))
-          throw new Error("The value is not a Number!")
+      case "number": {
+        if (baseValue === undefined) throw empty
+        const formatted = Number(baseValue.replace(",", ".").replace(/_/g, ""))
+        setValue<"number">(formatted)
+        if (isNaN(formatted)) throw new Error("The value is not a Number!")
         break
+      }
       case "regex":
         if (baseValue) setValue<"regex">(regexParser(baseValue))
         else throw empty
