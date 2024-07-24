@@ -1,5 +1,5 @@
 import { Config } from "#src/app/config.ts"
-import { Options } from "discord.js"
+import { Options, Partials } from "discord.js"
 import { z } from "zod"
 
 export const config = new Config({
@@ -18,6 +18,7 @@ export const config = new Config({
       "DirectMessageTyping",
       "MessageContent",
     ],
+    partials: [Partials.Channel],
     makeCache: Options.cacheWithLimits({
       ...Options.DefaultMakeCacheSettings,
 

@@ -56,6 +56,8 @@ const listener: app.Listener<"messageCreate"> = {
       const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
       message.usedPrefix = `${used} `
       cut(match)
+    } else if (app.isDirectMessage(message)) {
+      message.usedPrefix = ""
     } else return
 
     let key = dynamicContent.split(/\s+/)[0]
