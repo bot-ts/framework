@@ -354,13 +354,15 @@ async function _generateReadme(cb) {
     (config) => config.default,
   )
 
-  const invitation = await client.generateInvite({
-    scopes: [
-      discord.OAuth2Scopes.Bot,
-      discord.OAuth2Scopes.ApplicationsCommands,
-    ],
-    permissions: config.permissions,
-  })
+  const invitation = client.application.botPublic
+    ? await client.generateInvite({
+        scopes: [
+          discord.OAuth2Scopes.Bot,
+          discord.OAuth2Scopes.ApplicationsCommands,
+        ],
+        permissions: config.permissions,
+      })
+    : null
 
   await client.destroy()
 
