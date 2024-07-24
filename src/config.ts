@@ -7,6 +7,7 @@ export const config = new Config({
   openSource: true,
   printNameOnReady: true,
   envSchema: z.object({}),
+  permissions: ["Administrator"],
   client: {
     intents: [
       "Guilds",

@@ -9,7 +9,10 @@
 
 ## Description
 
-{{packageJSON.description}}
+{{packageJSON.description}}  
+{{invitation 
+    ? `You can invite the bot via [this link](${invitation}) in your Discord server!` 
+    : "This bot is private and cannot be invited in other servers."}}
 
 ## Specifications
 

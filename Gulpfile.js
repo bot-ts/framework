@@ -350,6 +350,18 @@ async function _generateReadme(cb) {
     client.user.displayAvatarURL({ format: "png", size: 128 }) +
     "&fit=cover&mask=circle"
 
+  const config = await import("./dist/config.js").then(
+    (config) => config.default,
+  )
+
+  const invitation = await client.generateInvite({
+    scopes: [
+      discord.OAuth2Scopes.Bot,
+      discord.OAuth2Scopes.ApplicationsCommands,
+    ],
+    permissions: config.permissions,
+  })
+
   await client.destroy()
 
   const packageJSON = JSON.parse(

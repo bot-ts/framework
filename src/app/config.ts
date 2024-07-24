@@ -21,6 +21,11 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
   envSchema: ZodSchema
 
   /**
+   * Custom permissions for the bot invitation link
+   */
+  permissions: discord.PermissionResolvable[]
+
+  /**
    * Ignore bots messages for textual commands if enabled
    * @default false
    */
