@@ -26,11 +26,11 @@ Below you will find the specifications for **{{packageJSON.name}}**.
 
 ### Slash commands
 
-{{Array.from(slash).map(([path, command]) => `- \`/${command.options.name}\` - ${command.options.description}`).join("  \n")}}
+{{Array.from(slash).map(([path, command]) => `- [/${command.options.name}](${path}) - ${command.options.description}`).join("  \n")}}
 
 ### Textual commands
 
-{{Array.from(commands).map(([path, command]) => `- \`${command.options.name}\` - ${command.options.description}`).join("  \n")}}
+{{Array.from(commands).map(([path, command]) => `- [${command.options.name}](${path}) - ${command.options.description}`).join("  \n")}}
 
 ## Listeners
 
@@ -40,15 +40,15 @@ Below you will find the specifications for **{{packageJSON.name}}**.
     else all[category] = [[path, listener]]
     return all
 }, {})).map(([category, values]) => `### ${category[0].toUpperCase() + category.slice(1)}  \n\n${
-    values.map(([path, listener]) => `- \`${listener.event}\` - ${listener.description}`).join("  \n")
-}` ).join("  \n")}}
+    values.map(([path, listener]) => `- [${listener.event}](${path}) - ${listener.description}`).join("  \n")
+}` ).join("  \n\n")}}
 
 ## Database
 
 Using **{{database}}@{{packageJSON.dependencies[database]}}** as database.  
 Below you will find a list of all the tables used by **{{packageJSON.name}}**.
 
-{{tables.size > 0 ? Array.from(tables).map(([path, table]) => `- ${table.options.name}`).join("  \n") : "> No tables have been created yet."}}
+{{tables.size > 0 ? Array.from(tables).map(([path, table]) => `- [${table.options.name}](${path})`).join("  \n") : "> No tables have been created yet."}}
 
 ## Information
 

@@ -361,6 +361,10 @@ async function _generateReadme(cb) {
   const configFile = await fs.promises.readFile("./src/config.ts", "utf8")
   const template = await fs.promises.readFile("./template.md", "utf8")
 
+  /**
+   * @param dirname {string}
+   * @return {Promise<Map<any>>}
+   */
   const handle = async (dirname) => {
     const handler = new Handler(path.join(__dirname, "dist", dirname), {
       pattern: /\.js$/i,
@@ -371,7 +375,22 @@ async function _generateReadme(cb) {
 
     await handler.init()
 
-    return handler.elements
+    // crop all the paths from the root directory
+
+    const output = new Map()
+
+    for (const [_path, value] of handler.elements) {
+      output.set(
+        path
+          .relative(__dirname, _path)
+          .replace("dist", "./src")
+          .replace(/\\/g, "/")
+          .replace(/\.js$/, ".ts"),
+        value,
+      )
+    }
+
+    return output
   }
 
   const slash = await handle("slash")
