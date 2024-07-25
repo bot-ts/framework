@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   bot:
     build:
@@ -8,7 +6,4 @@ services:
     container_name: ${BOT_NAME}
     restart: always
     volumes:
-      - sqlite_data:/data
-
-volumes:
-  sqlite_data:
+      - ./data:/data
