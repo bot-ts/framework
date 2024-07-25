@@ -1,6 +1,6 @@
 // system file, please don't modify it
 
-import { ORM } from "@ghom/orm"
+import * as orm from "@ghom/orm"
 import * as logger from "./logger.ts"
 import env from "./env.ts"
 import path from "path"
@@ -10,7 +10,7 @@ const dataDirectory = path.join(process.cwd(), "data")
 
 if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
-const orm = new ORM({
+const client = new orm.ORM({
   location: path.join(process.cwd(), "dist", "tables"),
   database: {
     client: "sqlite3",
@@ -25,4 +25,4 @@ const orm = new ORM({
 
 export * from "@ghom/orm"
 
-export default orm
+export default client

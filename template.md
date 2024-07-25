@@ -51,7 +51,9 @@ Below you will find the specifications for **{{packageJSON.name}}**.
 Using **{{database}}@{{packageJSON.dependencies[database]}}** as database.  
 Below you will find a list of all the tables used by **{{packageJSON.name}}**.
 
-{{tables.size > 0 ? Array.from(tables).map(([path, table]) => `- [${table.options.name}](${path})`).join("  \n") : "> No tables have been created yet."}}
+{{tables.size > 0 ? Array.from(tables).map(([path, table]) => 
+    `- [${table.options.name}](${path}) - ${table.options.description}`
+).join("  \n") : "> No tables have been created yet."}}
 
 ## Information
 
