@@ -4,7 +4,12 @@ export default new app.SlashCommand({
   name: "{{ name }}",
   description: "The {{ name }} command",
   run(interaction) {
-    // todo: code here
+    // todo: code of commands and sub commands here
+
+    // Example for subcommand group
+
+    if(
+
     return interaction.reply({
       content: "{{ name }} command is not yet implemented.",
       ephemeral: true,

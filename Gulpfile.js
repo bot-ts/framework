@@ -5,25 +5,31 @@ import fs from "fs"
 
 import "dotenv/config"
 
+import gulp from "gulp"
 import dayjs from "dayjs"
 
 const discord = await __importOrInstall("discord.js@14")
-const gulp = await __importOrInstall("gulp", true)
-const esbuild = await __importOrInstall("gulp-esbuild", true)
-const filter = await __importOrInstall("gulp-filter", true)
-const vinyl = await __importOrInstall("vinyl-paths", true)
-const rename = await __importOrInstall("gulp-rename", true)
-const replace = await __importOrInstall("gulp-replace", true)
-const del = await __importOrInstall("del@6.1.1", true)
-const log = await __importOrInstall("fancy-log", true)
-const git = await __importOrInstall("git-commit-info", true)
+const through2 = await __importOrInstall("through2", true, true)
+const PluginError = await __importOrInstall("plugin-error", true, true)
+const esbuild = await __importOrInstall("gulp-esbuild", true, true)
+const filter = await __importOrInstall("gulp-filter", true, true)
+const vinyl = await __importOrInstall("vinyl-paths", true, true)
+const rename = await __importOrInstall("gulp-rename", true, true)
+const del = await __importOrInstall("del@6.1.1", true, true)
+const log = await __importOrInstall("fancy-log", true, true)
+const git = await __importOrInstall("git-commit-info", true, true)
 
 const { Handler } = await __importOrInstall("@ghom/handler")
 const { dirname } = await __importOrInstall("dirname-filename-esm")
 
 const __dirname = dirname(import.meta)
 
-async function __importOrInstall(packageName, importDefault = false) {
+async function __importOrInstall(
+  packageName,
+  importDefault = false,
+  optional = false,
+  withTypes = false,
+) {
   let namespace = null
 
   try {
@@ -34,7 +40,7 @@ async function __importOrInstall(packageName, importDefault = false) {
       `[${dayjs().format("HH:mm:ss")}] Package  '${util.styleText("cyan", packageName)}' not found. Installing...`,
     )
     try {
-      await __install(packageName)
+      await __install(packageName, optional, withTypes)
       // eslint-disable-next-line no-undef
       console.log(
         `[${dayjs().format("HH:mm:ss")}] Package  '${util.styleText("cyan", packageName)}' installed successfully.`,
@@ -55,20 +61,52 @@ async function __importOrInstall(packageName, importDefault = false) {
   return importDefault ? namespace.default : namespace
 }
 
-function __install(packageName = "") {
-  return new Promise((resolve, reject) => {
+async function __install(
+  packageName = "",
+  optional = false,
+  withTypes = false,
+) {
+  let isLinux = false
+
+  try {
     // eslint-disable-next-line import/no-unresolved
-    import("@esbuild/linux-x64")
-      .then(() =>
-        cp.exec(`npm i ${packageName}`, (err) =>
-          err ? reject(err) : resolve(),
-        ),
+    await import("@esbuild/linux-x64")
+
+    isLinux = true
+  } catch (err) {}
+
+  await new Promise((resolve, reject) => {
+    cp.exec(
+      `npm i ${packageName} ${optional ? "--save-optional" : ""} ${isLinux ? "" : "--force"}`,
+      (err) => (err ? reject(err) : resolve()),
+    )
+  })
+
+  if (withTypes) {
+    await new Promise((resolve, reject) => {
+      cp.exec(
+        `npm i @types/${packageName.split(/\b@/)[0]} ${optional ? "--save-optional" : ""} ${isLinux ? "" : "--force"}`,
+        (err) => (err ? reject(err) : resolve()),
       )
-      .catch(() =>
-        cp.exec(`npm i ${packageName} --force`, (err) =>
-          err ? reject(err) : resolve(),
-        ),
-      )
+    })
+  }
+}
+
+function __replace(regex, replacement) {
+  return through2.obj(function (file, enc, cb) {
+    if (file.isStream()) {
+      this.emit("error", new PluginError("replace", "Streams not supported!"))
+      return cb()
+    }
+
+    if (file.isBuffer()) {
+      const content = file.contents.toString(enc)
+      const updatedContent = content.replace(regex, replacement)
+      // eslint-disable-next-line no-undef
+      file.contents = Buffer.from(updatedContent, enc)
+    }
+
+    cb(null, file)
   })
 }
 
@@ -178,6 +216,8 @@ function _downloadTemp(cb) {
 }
 
 function _build() {
+  // eslint-disable-next-line no-undef
+  // process.traceDeprecation = true
   return gulp
     .src("src/**/*.ts")
     .pipe(
@@ -189,7 +229,7 @@ function _build() {
       }),
     )
     .pipe(
-      replace(/((?:import|export) .*? from\s+['"].*?)\.ts(['"])/g, "$1.js$2"),
+      __replace(/((?:import|export) .*? from\s+['"].*?)\.ts(['"])/g, "$1.js$2"),
     )
     .pipe(gulp.dest("dist"))
 }

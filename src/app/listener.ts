@@ -50,7 +50,10 @@ export const listenerHandler = new handler.Handler(
         .join(" ")
 
       logger.log(
-        `loaded listener ${util.styleText("magenta", category)} ${util.styleText(
+        `loaded listener ${util.styleText(
+          "magenta",
+          category,
+        )} ${util.styleText(
           "yellow",
           listener.once ? "once" : "on",
         )} ${util.styleText("blueBright", listener.event)}${

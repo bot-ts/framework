@@ -47,13 +47,19 @@ export async function checkUpdates() {
 
   if (isOlder(packageJSON.version, remoteJSON.version)) {
     logger.warn(
-      `a new major version of ${util.styleText("blue", "@ghom/bot.ts")} is available: ${util.styleText("magenta", packageJSON.version)} => ${util.styleText("magenta", remoteJSON.version)}`,
+      `a new major version of ${util.styleText(
+        "blue",
+        "@ghom/bot.ts",
+      )} is available: ${util.styleText(
+        "magenta",
+        packageJSON.version,
+      )} => ${util.styleText("magenta", remoteJSON.version)}`,
     )
     logger.warn(
-      `you can update ${util.styleText("blue", "@ghom/bot.ts")} by running ${util.styleText(
-        ["bgWhite", "black"],
-        `gulp update`,
-      )}`,
+      `you can update ${util.styleText(
+        "blue",
+        "@ghom/bot.ts",
+      )} by running ${util.styleText(["bgWhite", "black"], `gulp update`)}`,
     )
     logger.warn(util.styleText("bold", "this update may break your bot!"))
   } else if (
@@ -65,9 +71,15 @@ export async function checkUpdates() {
     )
   ) {
     logger.warn(
-      `a new version of ${util.styleText("blue", "@ghom/bot.ts-cli")} is available: ${
+      `a new version of ${util.styleText(
+        "blue",
+        "@ghom/bot.ts-cli",
+      )} is available: ${
         packageJSON.devDependencies["@ghom/bot.ts-cli"]
-      } => ${util.styleText("blue", remoteJSON.devDependencies["@ghom/bot.ts-cli"])}`,
+      } => ${util.styleText(
+        "blue",
+        remoteJSON.devDependencies["@ghom/bot.ts-cli"],
+      )}`,
     )
     logger.warn(
       `you can update ${util.styleText(
@@ -447,7 +459,13 @@ export async function getFileGitURL(
 
     if (!remote) return
 
-    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(/\\/g, "/")}`
+    return `${remote.refs.fetch.replace(
+      ".git",
+      "",
+    )}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(
+      /\\/g,
+      "/",
+    )}`
   } catch (error) {
     return
   }

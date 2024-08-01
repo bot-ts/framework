@@ -44,7 +44,9 @@ export default new app.Command({
                 2,
               )}mb`,
               `ping: ${message.client.ws.ping}ms`,
-              `database: ${databaseClient}@${app.packageJSON.dependencies?.[databaseClient] ?? "unknown"}`,
+              `database: ${databaseClient}@${
+                app.packageJSON.dependencies?.[databaseClient] ?? "unknown"
+              }`,
               `node: ${process.version}`,
             ].join("\n"),
           }),

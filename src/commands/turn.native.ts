@@ -19,7 +19,9 @@ export default new app.Command({
   async run(message) {
     app.cache.set("turn", message.args.activated)
     return message.channel.send(
-      `${app.getSystemEmoji("success")} Command handling ${message.args.activated ? "activated" : "disabled"} `,
+      `${app.getSystemEmoji("success")} Command handling ${
+        message.args.activated ? "activated" : "disabled"
+      } `,
     )
   },
 })

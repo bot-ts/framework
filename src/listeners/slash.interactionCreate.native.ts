@@ -4,7 +4,7 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle interactions of slash commands",
   async run(interaction) {
-    if (!interaction.isCommand()) return
+    if (!interaction.isChatInputCommand()) return
 
     const cmd = app.slashCommands.get(interaction.commandName)
 
@@ -15,10 +15,8 @@ const listener: app.Listener<"interactionCreate"> = {
         }),
       )
 
-    let prepared: app.ISlashCommandInteraction
-
     try {
-      prepared = await app.prepareSlashCommand(interaction, cmd)
+      await app.prepareSlashCommand(interaction, cmd)
     } catch (error: unknown) {
       if (error instanceof Error) {
         return interaction.reply(await app.getSystemMessage("error", { error }))
@@ -32,7 +30,7 @@ const listener: app.Listener<"interactionCreate"> = {
     }
 
     try {
-      await cmd.options.run.bind(prepared)(prepared)
+      await cmd.options.run.bind(interaction)(interaction)
     } catch (error: unknown) {
       let errorMessage: app.SystemMessage
 
