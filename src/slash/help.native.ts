@@ -53,7 +53,7 @@ export default new app.SlashCommand({
           },
         ),
         filter: (reaction, user) => user.id === interaction.user.id,
-        channel: interaction.channel!,
+        target: interaction,
       })
     }
   },

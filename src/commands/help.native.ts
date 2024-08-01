@@ -56,7 +56,7 @@ export default new app.Command({
           },
         ),
         filter: (reaction, user) => user.id === message.author.id,
-        channel: message.channel,
+        target: message.channel,
       })
     }
   },

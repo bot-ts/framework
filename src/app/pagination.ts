@@ -10,6 +10,46 @@ import * as util from "./util.ts"
 import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
+const sendToTarget = async (
+  target: PaginatorTarget,
+  page: Page,
+): Promise<discord.Message> => {
+  if (target instanceof discord.Message) return target.edit(page)
+  if (target instanceof discord.ChatInputCommandInteraction)
+    return target.editReply(page)
+  return target.send(page)
+}
+
+const updateTargetMessage = async (
+  target: PaginatorTarget,
+  page: Page,
+  messageId?: string,
+) => {
+  if (target instanceof discord.Message) return target.edit(page)
+  if (target instanceof discord.ChatInputCommandInteraction)
+    return target.editReply(page)
+  const message = await getTargetMessage(target, messageId)
+  if (message) await message.edit(page)
+}
+
+const getTargetMessage = async (
+  target: PaginatorTarget,
+  messageId?: string,
+): Promise<discord.Message | undefined> => {
+  if (target instanceof discord.Message) return target
+  if (target instanceof discord.ChatInputCommandInteraction)
+    return target.fetchReply()
+  return target.messages.fetch(messageId as string)
+}
+
+export type PaginatorTarget =
+  | discord.TextBasedChannel
+  | discord.DMChannel
+  | discord.ThreadChannel
+  | discord.GuildTextBasedChannel
+  | discord.Message
+  | discord.ChatInputCommandInteraction
+
 export type PaginatorKey = "previous" | "next" | "start" | "end"
 
 /** As Snowflakes for guild emojis or icons for web emotes */
@@ -22,11 +62,13 @@ export interface PaginatorOptions {
   useReactions?: boolean
   useButtonLabels?: boolean
   buttonStyle?: discord.ButtonStyle
-  channel:
+  target:
     | discord.TextBasedChannel
     | discord.DMChannel
     | discord.ThreadChannel
     | discord.GuildTextBasedChannel
+    | discord.Message
+    | discord.ChatInputCommandInteraction
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser,
@@ -60,7 +102,7 @@ export abstract class Paginator {
 
   protected _pageIndex = 0
   protected _deactivation?: NodeJS.Timeout
-  protected _messageID: string | undefined
+  protected _messageId: string | undefined
 
   public emojis: PaginatorEmojis
 
@@ -76,9 +118,12 @@ export abstract class Paginator {
 
     Promise.resolve(this.getCurrentPage())
       .then(async (page) => {
-        const message = await options.channel.send(await this.formatPage(page))
+        const message = await sendToTarget(
+          options.target,
+          await this.formatPage(page),
+        )
 
-        this._messageID = message.id
+        this._messageId = message.id
 
         const pageCount = await this.getPageCount()
 
@@ -184,11 +229,11 @@ export abstract class Paginator {
     const updated = await this.updatePageIndex(currentKey)
 
     if (updated) {
-      if (this._messageID)
-        await this.options.channel.messages.cache
-          .get(this._messageID)
-          ?.edit(await this.formatPage(await this.getCurrentPage()))
-          .catch((error: any) => logger.error(error, __filename, true))
+      await updateTargetMessage(
+        this.options.target,
+        await this.formatPage(await this.getCurrentPage()),
+        this._messageId,
+      ).catch((error: any) => logger.error(error, __filename, true))
     }
   }
 
@@ -238,11 +283,11 @@ export abstract class Paginator {
   }
 
   public async deactivate() {
-    if (!this._messageID) return
+    if (!this._messageId) return
 
     clearTimeout(this._deactivation as NodeJS.Timeout)
 
-    const message = this.options.channel.messages.cache.get(this._messageID)
+    const message = await getTargetMessage(this.options.target, this._messageId)
 
     // if message is not deleted
     if (message && !message.deletable)
@@ -257,7 +302,7 @@ export abstract class Paginator {
       }
 
     Paginator.instances = Paginator.instances.filter(
-      (paginator) => paginator._messageID !== this._messageID,
+      (paginator) => paginator._messageId !== this._messageId,
     )
   }
 
@@ -267,7 +312,7 @@ export abstract class Paginator {
       | discord.ButtonInteraction<discord.CacheType>["message"],
   ): Paginator | undefined {
     return this.instances.find(
-      (paginator) => paginator._messageID === message.id,
+      (paginator) => paginator._messageId === message.id,
     )
   }
 }
