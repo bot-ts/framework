@@ -230,9 +230,9 @@ export async function sendSlashCommandDetails(
               ? await util.getFileGitURL(command.filepath!)
               : undefined,
           },
-          description: `Use directly: </${computed.name}:${
+          description: `</${computed.name}:${
             computed.id
-          }>\nDescription: ${computed.description || "no description"}`,
+          }> - ${computed.description || "no description"}`,
           footer: config.openSource
             ? {
                 text: util.convertDistPathToSrc(
