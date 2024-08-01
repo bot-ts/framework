@@ -2,7 +2,6 @@
 
 import url from "url"
 import discord from "discord.js"
-import chalk from "chalk"
 import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
@@ -339,9 +338,11 @@ export function validateCommand(
   if (command.options.isDefault) {
     if (defaultCommand)
       logger.error(
-        `the ${chalk.blueBright(
+        `the ${util.styleText(
+          "blueBright",
           command.options.name,
-        )} command wants to be a default command but the ${chalk.blueBright(
+        )} command wants to be a default command but the ${util.styleText(
+          "blueBright",
           defaultCommand.options.name,
         )} command is already the default command`,
         command.filepath ?? __filename,
@@ -370,15 +371,16 @@ export function validateCommand(
   if (command.options.cooldown)
     if (!command.options.run.toString().includes("triggerCoolDown"))
       logger.warn(
-        `you forgot using ${chalk.greenBright(
+        `you forgot using ${util.styleText(
+          "greenBright",
           "message.triggerCoolDown()",
-        )} in the ${chalk.blueBright(command.options.name)} command.`,
+        )} in the ${util.styleText("blueBright", command.options.name)} command.`,
       )
 
   logger.log(
-    `loaded command ${chalk.blueBright(commandBreadcrumb(command))}${
-      command.native ? ` ${chalk.green("native")}` : ""
-    } ${chalk.grey(command.options.description)}`,
+    `loaded command ${util.styleText("blueBright", commandBreadcrumb(command))}${
+      command.native ? ` ${util.styleText("green", "native")}` : ""
+    } ${util.styleText("grey", command.options.description)}`,
   )
 
   if (command.options.subs)

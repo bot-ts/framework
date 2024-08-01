@@ -3,7 +3,7 @@
 import url from "url"
 import discord from "discord.js"
 import path from "path"
-import chalk from "chalk"
+import util from "util"
 import apiTypes from "discord-api-types/v8"
 
 import * as handler from "@ghom/handler"
@@ -50,11 +50,12 @@ export const listenerHandler = new handler.Handler(
         .join(" ")
 
       logger.log(
-        `loaded listener ${chalk.magenta(category)} ${chalk.yellow(
+        `loaded listener ${util.styleText("magenta", category)} ${util.styleText(
+          "yellow",
           listener.once ? "once" : "on",
-        )} ${chalk.blueBright(listener.event)}${
-          isNative ? ` ${chalk.green("native")}` : ""
-        } ${chalk.grey(listener.description)}`,
+        )} ${util.styleText("blueBright", listener.event)}${
+          isNative ? ` ${util.styleText("green", "native")}` : ""
+        } ${util.styleText("grey", listener.description)}`,
       )
     },
   },

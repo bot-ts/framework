@@ -1,10 +1,10 @@
 import cp from "child_process"
 import path from "path"
+import util from "util"
 import fs from "fs"
 
 import "dotenv/config"
 
-import chalk from "chalk"
 import dayjs from "dayjs"
 
 const discord = await __importOrInstall("discord.js@14")
@@ -31,13 +31,13 @@ async function __importOrInstall(packageName, importDefault = false) {
   } catch (e) {
     // eslint-disable-next-line no-undef
     console.log(
-      `[${dayjs().format("HH:mm:ss")}] Package  '${chalk.cyan(packageName)}' not found. Installing...`,
+      `[${dayjs().format("HH:mm:ss")}] Package  '${util.styleText("cyan", packageName)}' not found. Installing...`,
     )
     try {
       await __install(packageName)
       // eslint-disable-next-line no-undef
       console.log(
-        `[${dayjs().format("HH:mm:ss")}] Package  '${chalk.cyan(packageName)}' installed successfully.`,
+        `[${dayjs().format("HH:mm:ss")}] Package  '${util.styleText("cyan", packageName)}' installed successfully.`,
       )
       namespace = await import(packageName.split(/\b@/)[0])
     } catch (installError) {
@@ -49,7 +49,7 @@ async function __importOrInstall(packageName, importDefault = false) {
 
   // eslint-disable-next-line no-undef
   console.log(
-    `[${dayjs().format("HH:mm:ss")}] Imported '${chalk.cyan(packageName)}'`,
+    `[${dayjs().format("HH:mm:ss")}] Imported '${util.styleText("cyan", packageName)}'`,
   )
 
   return importDefault ? namespace.default : namespace
@@ -81,10 +81,10 @@ function _gitLog(cb) {
 
   log(
     [
-      `Updated  '${chalk.cyan("bot.ts")}'`,
-      `[${chalk.blueBright(newVersion.shortCommit)}]`,
+      `Updated  '${util.styleText("cyan", "bot.ts")}'`,
+      `[${util.styleText("blueBright", newVersion.shortCommit)}]`,
       `${newVersion.date} -`,
-      `${chalk.grey(newVersion.message)}`,
+      `${util.styleText("grey", newVersion.message)}`,
     ].join(" "),
   )
 
@@ -140,7 +140,7 @@ function _checkGulpfile(cb) {
           for (const [name, version] of gulpDevDependencies) {
             if (remote.includes(`"${name}"`) && !local.includes(`"${name}"`)) {
               log(
-                `Added    '${chalk.cyan(name)}' [${chalk.blueBright(version)}]`,
+                `Added    '${util.styleText("cyan", name)}' [${util.styleText("blueBright", version)}]`,
               )
 
               localPackageJSON.devDependencies[name] = version
@@ -160,7 +160,8 @@ function _checkGulpfile(cb) {
         }
 
         log(
-          `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
+          `${util.styleText("red", "Gulpfile updated!")} Please re-run the ${util.styleText(
+            "cyan",
             "update",
           )} command.`,
         )
@@ -281,12 +282,13 @@ function _updatePackageJSON(cb) {
         dependencies[key] !== newDependencies[key]
       ) {
         log(
-          `Updated  '${chalk.cyan(key)}' [${
+          `Updated  '${util.styleText("cyan", key)}' [${
             dependencies[key]
-              ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
+              ? `${util.styleText("blueBright", dependencies[key])} => ${util.styleText(
+                  "blueBright",
                   newDependencies[key],
                 )}`
-              : chalk.blueBright(newDependencies[key])
+              : util.styleText("blueBright", newDependencies[key])
           }]`,
         )
         dependencies[key] = newDependencies[key]
@@ -414,7 +416,7 @@ async function _generateReadme(cb) {
   const tables = await handle("tables")
 
   const readme = template.replace(/\{\{(.+?)}}/gs, (match, key) => {
-    log(`Evaluated '${chalk.cyan(key)}'`)
+    log(`Evaluated '${util.styleText("cyan", key)}'`)
     return eval(key)
   })
 

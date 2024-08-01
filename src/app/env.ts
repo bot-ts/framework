@@ -4,7 +4,7 @@ import "dotenv/config"
 import { z } from "zod"
 import fs from "fs"
 import path from "path"
-import chalk from "chalk"
+import util from "util"
 
 import * as logger from "./logger.ts"
 import { config } from "#config"
@@ -25,48 +25,48 @@ const timezones = Intl.supportedValuesOf("timeZone") as [string, ...string[]]
 
 const envSchema = z.object({
   BOT_TOKEN: z.string({
-    message: `You need to add your ${chalk.bold("BOT_TOKEN")} in the .env file. You can found this token on this page in the "Bot" tab: ${
+    message: `You need to add your ${util.styleText("bold", "BOT_TOKEN")} in the .env file. You can found this token on this page in the "Bot" tab: ${
       process.env.BOT_ID
         ? `https://discord.com/developers/applications/${process.env.BOT_ID}/information`
         : "https://discord.com/developers/applications"
     }`,
   }),
   BOT_PREFIX: z.string({
-    message: `You need to add a ${chalk.bold("BOT_PREFIX")} in the .env file, for example: BOT_PREFIX="!"`,
+    message: `You need to add a ${util.styleText("bold", "BOT_PREFIX")} in the .env file, for example: BOT_PREFIX="!"`,
   }),
   BOT_OWNER: z.string({
-    message: `You need to add your ${chalk.bold("BOT_OWNER")} Discord ID in the .env file, for example: BOT_OWNER="123456789012345678"`,
+    message: `You need to add your ${util.styleText("bold", "BOT_OWNER")} Discord ID in the .env file, for example: BOT_OWNER="123456789012345678"`,
   }),
   BOT_ID: z.string({
-    message: `You need to add the ${chalk.bold("BOT_ID")} in the .env file. You can found this ID on this page in the "General Information" tab: ${
+    message: `You need to add the ${util.styleText("bold", "BOT_ID")} in the .env file. You can found this ID on this page in the "General Information" tab: ${
       process.env.BOT_ID
         ? `https://discord.com/developers/applications/${process.env.BOT_ID}/information`
         : "https://discord.com/developers/applications"
     }`,
   }),
   BOT_NAME: z.string({
-    message: `You need to add a ${chalk.bold("BOT_NAME")} in the .env file, for example: BOT_NAME="my-discord-bot"`,
+    message: `You need to add a ${util.styleText("bold", "BOT_NAME")} in the .env file, for example: BOT_NAME="my-discord-bot"`,
   }),
   BOT_MODE: z.enum(["factory", "test", "development", "production"], {
-    message: `You need to add a ${chalk.bold("BOT_MODE")} in the .env file, for example: BOT_MODE="development"`,
+    message: `You need to add a ${util.styleText("bold", "BOT_MODE")} in the .env file, for example: BOT_MODE="development"`,
   }),
   BOT_LOCALE: z
     .enum(localeKeys, {
-      message: `Your ${chalk.bold("BOT_LOCALE")} in the .env file is not valid. You can choose between this list:\n=> ${localeKeys.join(", ")}`,
+      message: `Your ${util.styleText("bold", "BOT_LOCALE")} in the .env file is not valid. You can choose between this list:\n=> ${localeKeys.join(", ")}`,
     })
     .optional(),
   BOT_TIMEZONE: z
     .enum(timezones, {
-      message: `Your ${chalk.bold("BOT_TIMEZONE")} in the .env file is not valid. You can choose between this list:\n=> ${timezones.join(", ")}`,
+      message: `Your ${util.styleText("bold", "BOT_TIMEZONE")} in the .env file is not valid. You can choose between this list:\n=> ${timezones.join(", ")}`,
     })
     .optional(),
   DB_PORT: z.coerce
     .number({
-      message: `The ${chalk.bold("DB_PORT")} must be a valid port number between 0 and 65535`,
+      message: `The ${util.styleText("bold", "DB_PORT")} must be a valid port number between 0 and 65535`,
     })
     .max(
       65535,
-      `The ${chalk.bold("DB_PORT")} must be a valid port number between 0 and 65535`,
+      `The ${util.styleText("bold", "DB_PORT")} must be a valid port number between 0 and 65535`,
     )
     .optional(),
   DB_HOST: z.string().optional(),

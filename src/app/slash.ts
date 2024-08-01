@@ -5,7 +5,6 @@ import discord from "discord.js"
 import * as rest from "@discordjs/rest"
 import v10 from "discord-api-types/v10"
 import path from "path"
-import chalk from "chalk"
 
 import * as handler from "@ghom/handler"
 
@@ -248,9 +247,9 @@ export function validateSlashCommand(command: ISlashCommand) {
   command.options.build?.bind(command.builder)(command.builder)
 
   logger.log(
-    `loaded command ${chalk.blueBright("/" + command.options.name)}${
-      command.native ? chalk.green(" native") : ""
-    } ${chalk.grey(command.options.description)}`,
+    `loaded command ${util.styleText("blueBright", "/" + command.options.name)}${
+      command.native ? util.styleText("green", " native") : ""
+    } ${util.styleText("grey", command.options.description)}`,
   )
 }
 
@@ -268,8 +267,8 @@ export async function registerSlashCommands(guildId?: string) {
     )) as unknown[]
 
     logger.log(
-      `deployed ${chalk.blue(data.length)} slash commands${
-        guildId ? ` to new guild ${chalk.blue(guildId)}` : ""
+      `deployed ${util.styleText("blue", String(data.length))} slash commands${
+        guildId ? ` to new guild ${util.styleText("blue", guildId)}` : ""
       }`,
     )
   } catch (error: any) {

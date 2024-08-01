@@ -2,7 +2,7 @@
 
 import figlet from "figlet"
 import boxen from "boxen"
-import chalk from "chalk"
+import util from "util"
 
 import * as app from "#app"
 
@@ -18,17 +18,20 @@ const listener: app.Listener<"afterReady"> = {
   once: true,
   async run() {
     app.success(
-      `ok i'm ready! ${chalk.blue(
+      `ok i'm ready! ${util.styleText(
+        "blue",
         "My default prefix is",
-      )} ${chalk.bold.blueBright(app.env.BOT_PREFIX)}`,
+      )} ${util.styleText(["bold", "blueBright"], app.env.BOT_PREFIX)}`,
     )
 
     if (config.printNameOnReady)
       figlet(app.packageJSON.name, (err, value) => {
         if (err) return app.error(err, __filename, true)
+        if (!value)
+          return app.error("No value returned from figlet", __filename, true)
 
         console.log(
-          boxen(chalk.blueBright(value), {
+          boxen(util.styleText("blueBright", value), {
             float: "center",
             borderStyle: {
               topLeft: " ",

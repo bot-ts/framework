@@ -2,11 +2,11 @@
 
 import fs from "fs"
 import path from "path"
+import util from "util"
 import dayjs from "dayjs"
 import discord from "discord.js"
 import prettify from "ghom-prettify"
 import * as prettier from "prettier"
-import chalk from "chalk"
 import EventEmitter from "events"
 import simpleGit from "simple-git"
 
@@ -22,6 +22,8 @@ import env from "#env"
 import client from "#client"
 import config from "#config"
 import logger from "#logger"
+
+export { styleText, promisify } from "util"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -45,18 +47,15 @@ export async function checkUpdates() {
 
   if (isOlder(packageJSON.version, remoteJSON.version)) {
     logger.warn(
-      `a new major version of ${chalk.blue(
-        "@ghom/bot.ts",
-      )} is available: ${chalk.magenta(
-        packageJSON.version,
-      )} => ${chalk.magenta(remoteJSON.version)}`,
+      `a new major version of ${util.styleText("blue", "@ghom/bot.ts")} is available: ${util.styleText("magenta", packageJSON.version)} => ${util.styleText("magenta", remoteJSON.version)}`,
     )
     logger.warn(
-      `you can update ${chalk.blue("@ghom/bot.ts")} by running ${chalk.bgWhite.black(
+      `you can update ${util.styleText("blue", "@ghom/bot.ts")} by running ${util.styleText(
+        ["bgWhite", "black"],
         `gulp update`,
       )}`,
     )
-    logger.warn(chalk.bold(`this update may break your bot!`))
+    logger.warn(util.styleText("bold", "this update may break your bot!"))
   } else if (
     packageJSON.devDependencies &&
     remoteJSON.devDependencies &&
@@ -66,36 +65,40 @@ export async function checkUpdates() {
     )
   ) {
     logger.warn(
-      `a new version of ${chalk.blue("@ghom/bot.ts-cli")} is available: ${
+      `a new version of ${util.styleText("blue", "@ghom/bot.ts-cli")} is available: ${
         packageJSON.devDependencies["@ghom/bot.ts-cli"]
-      } => ${chalk.blue(remoteJSON.devDependencies["@ghom/bot.ts-cli"])}`,
+      } => ${util.styleText("blue", remoteJSON.devDependencies["@ghom/bot.ts-cli"])}`,
     )
     logger.warn(
-      `you can update ${chalk.blue(
+      `you can update ${util.styleText(
+        "blue",
         "@ghom/bot.ts-cli",
-      )} by running ${chalk.bgWhite.black(`gulp update`)}`,
+      )} by running ${util.styleText(["bgWhite", "black"], `gulp update`)}`,
     )
-    logger.warn(chalk.bold(`this update may break your bot!`))
+    logger.warn(util.styleText("bold", `this update may break your bot!`))
   } else {
     logger.log(
-      `you are using the latest version of ${chalk.blue(
+      `you are using the latest version of ${util.styleText(
+        "blue",
         "@ghom/bot.ts",
-      )} and ${chalk.blue("@ghom/bot.ts-cli")}`,
+      )} and ${util.styleText("blue", "@ghom/bot.ts-cli")}`,
     )
   }
 }
 
 const locale = env.BOT_LOCALE
 
-import(`dayjs/locale/${locale ?? "en"}.js`)
-  .then(() => dayjs.locale(locale ?? "en"))
-  .catch(() =>
-    logger.warn(
-      `The ${chalk.bold(
-        locale,
-      )} locale is incorrect, please use an existing locale code.`,
-    ),
-  )
+if (locale)
+  import(`dayjs/locale/${locale ?? "en"}.js`)
+    .then(() => dayjs.locale(locale ?? "en"))
+    .catch(() =>
+      logger.warn(
+        `The ${util.styleText(
+          "bold",
+          locale,
+        )} locale is incorrect, please use an existing locale code.`,
+      ),
+    )
 
 dayjs.extend(utc)
 dayjs.extend(relative)
