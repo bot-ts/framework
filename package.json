@@ -19,6 +19,7 @@
   "scripts": {
     "bot": "npx @ghom/bot.ts-cli",
     "build": "gulp build",
+    "final": "gulp final",
     "watch": "gulp watch",
     "start": "npm run build && node dist/index",
     "start.test": "npm run build && node tests/index.test.js",

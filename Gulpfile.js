@@ -8,18 +8,9 @@ import "dotenv/config"
 import gulp from "gulp"
 import dayjs from "dayjs"
 
-const discord = await __importOrInstall("discord.js@14")
-const through2 = await __importOrInstall("through2", true, true)
-const PluginError = await __importOrInstall("plugin-error", true, true)
-const esbuild = await __importOrInstall("gulp-esbuild", true, true)
-const filter = await __importOrInstall("gulp-filter", true, true)
-const vinyl = await __importOrInstall("vinyl-paths", true, true)
-const rename = await __importOrInstall("gulp-rename", true, true)
-const del = await __importOrInstall("del@6.1.1", true, true)
-const log = await __importOrInstall("fancy-log", true, true)
-const git = await __importOrInstall("git-commit-info", true, true)
+let through2, PluginError
 
-const { Handler } = await __importOrInstall("@ghom/handler")
+const log = await __importOrInstall("fancy-log", true, true)
 const { dirname } = await __importOrInstall("dirname-filename-esm")
 
 const __dirname = dirname(import.meta)
@@ -35,15 +26,11 @@ async function __importOrInstall(
   try {
     namespace = await import(packageName.split(/\b@/)[0])
   } catch (e) {
-    // eslint-disable-next-line no-undef
-    console.log(
-      `[${dayjs().format("HH:mm:ss")}] Package  '${util.styleText("cyan", packageName)}' not found. Installing...`,
-    )
     try {
       await __install(packageName, optional, withTypes)
       // eslint-disable-next-line no-undef
       console.log(
-        `[${dayjs().format("HH:mm:ss")}] Package  '${util.styleText("cyan", packageName)}' installed successfully.`,
+        `[${dayjs().format("HH:mm:ss")}] Added    '${util.styleText("cyan", packageName)}'`,
       )
       namespace = await import(packageName.split(/\b@/)[0])
     } catch (installError) {
@@ -114,7 +101,9 @@ function _npmInstall(cb) {
   __install().then(cb).catch(cb)
 }
 
-function _gitLog(cb) {
+async function _gitLog(cb) {
+  const git = await __importOrInstall("git-commit-info", true, true)
+
   const newVersion = git({ cwd: path.join(__dirname, "temp") })
 
   log(
@@ -129,11 +118,15 @@ function _gitLog(cb) {
   cb()
 }
 
-function _cleanDist() {
+async function _cleanDist() {
+  const del = await __importOrInstall("del@6.1.1", true, true)
+
   return del(["dist/**/*"])
 }
 
-function _cleanTemp() {
+async function _cleanTemp() {
+  const del = await __importOrInstall("del@6.1.1", true, true)
+
   return del(["temp"], { force: true })
 }
 
@@ -215,7 +208,11 @@ function _downloadTemp(cb) {
   cp.exec("git clone https://github.com/bot-ts/framework.git temp", cb)
 }
 
-function _build() {
+async function _build() {
+  through2 = await __importOrInstall("through2", true, true)
+  PluginError = await __importOrInstall("plugin-error", true, true)
+  const esbuild = await __importOrInstall("gulp-esbuild", true, true)
+
   // eslint-disable-next-line no-undef
   // process.traceDeprecation = true
   return gulp
@@ -347,7 +344,9 @@ function _updatePackageJSON(cb) {
   _npmInstall(cb)
 }
 
-function _updateDatabaseFile() {
+async function _updateDatabaseFile() {
+  const rename = await __importOrInstall("gulp-rename", true, true)
+
   const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf8"))
   const database = ["mysql2", "sqlite3", "pg"].find(
     (name) => name in packageJSON.dependencies,
@@ -358,7 +357,11 @@ function _updateDatabaseFile() {
     .pipe(gulp.dest("src/app"))
 }
 
-function _removeDuplicates() {
+async function _removeDuplicates() {
+  const filter = await __importOrInstall("gulp-filter", true, true)
+  const vinyl = await __importOrInstall("vinyl-paths", true, true)
+  const del = await __importOrInstall("del@6.1.1", true, true)
+
   return gulp
     .src([
       "src/**/*.native.ts",
@@ -378,7 +381,34 @@ function _removeDuplicates() {
     .pipe(vinyl(del))
 }
 
+/**
+ * Remove optional dependencies from node_modules
+ */
+async function _optimize() {
+  const del = await __importOrInstall("del@6.1.1", true, true)
+  const vinyl = await __importOrInstall("vinyl-paths", true, true)
+
+  const packageJSON = JSON.parse(
+    await fs.promises.readFile("./package.json", "utf8"),
+  )
+
+  const optionalDependencies = Object.keys(packageJSON.optionalDependencies)
+  const devDependencies = Object.keys(packageJSON.devDependencies)
+
+  return gulp
+    .src(
+      [...optionalDependencies, ...devDependencies].map(
+        (name) => `node_modules/${name}`,
+      ),
+      { allowEmpty: true },
+    )
+    .pipe(vinyl(del))
+}
+
 async function _generateReadme(cb) {
+  const discord = await __importOrInstall("discord.js@14")
+  const { Handler } = await __importOrInstall("@ghom/handler")
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
 
   const client = new discord.Client({
@@ -473,6 +503,7 @@ async function _generateReadme(cb) {
 }
 
 export const build = gulp.series(_cleanDist, _build, _copyKeepers)
+export const final = gulp.series(build, _optimize)
 export const watch = gulp.series(build, _watch)
 export const readme = gulp.series(build, _generateReadme)
 export const update = gulp.series(
