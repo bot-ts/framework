@@ -68,6 +68,7 @@ const envSchema = z.object({
       "BOT_MODE",
     )} in the .env file, for example: BOT_MODE="development"`,
   }),
+  BOT_GUILD: z.string().optional(),
   BOT_LOCALE: z
     .enum(localeKeys, {
       message: `Your ${util.styleText(
