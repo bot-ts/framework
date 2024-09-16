@@ -17,6 +17,8 @@ const sendToTarget = async (
   if (target instanceof discord.Message) return target.edit(page)
   if (target instanceof discord.ChatInputCommandInteraction)
     return target.editReply(page)
+  if (target instanceof discord.PartialGroupDMChannel)
+    throw new Error("PartialGroupDMChannel is not supported for pagination")
   return target.send(page)
 }
 

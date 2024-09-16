@@ -92,6 +92,7 @@ export type MessageArguments<
   argument.OutputPositionalValues<Positional>
 
 export type NormalMessage = discord.Message & {
+  channel: discord.TextChannel
   triggerCoolDown: () => void
   usedAsDefault: boolean
   isFromBotOwner: boolean
@@ -150,9 +151,9 @@ export type Middleware<Type extends keyof CommandMessageType> = (
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
 export interface CommandMessageType {
-  guild: discord.Message & GuildMessage
-  dm: discord.Message & DirectMessage
-  all: discord.Message & NormalMessage
+  guild: Omit<discord.Message, "channel"> & GuildMessage
+  dm: Omit<discord.Message, "channel"> & DirectMessage
+  all: Omit<discord.Message, "channel"> & NormalMessage
 }
 
 export interface ICommandOptions {
