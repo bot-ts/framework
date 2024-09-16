@@ -301,11 +301,8 @@ export async function validate(
     if (subject.validationErrorMessage) {
       if (typeof subject.validationErrorMessage === "string") {
         return util.getSystemMessage("error", {
-          description: subject.validationErrorMessage,
-          author: {
-            name: `Bad ${subjectType} tested "${subject.name}".`,
-            iconURL: message.client.user?.displayAvatarURL(),
-          },
+          header: `Bad ${subjectType} tested "${subject.name}".`,
+          body: subject.validationErrorMessage,
         })
       }
 
@@ -313,11 +310,8 @@ export async function validate(
     }
 
     return util.getSystemMessage("error", {
-      description: errorMessage,
-      author: {
-        name: `Bad ${subjectType} tested "${subject.name}".`,
-        iconURL: message.client.user?.displayAvatarURL(),
-      },
+      header: `Bad ${subjectType} tested "${subject.name}".`,
+      body: errorMessage,
     })
   }
 
@@ -572,11 +566,8 @@ export async function resolveType(
     if (subject.typeErrorMessage) {
       if (typeof subject.typeErrorMessage === "string") {
         return util.getSystemMessage("error", {
-          description: subject.typeErrorMessage.replace(/@error/g, errorCode),
-          author: {
-            name: `Bad ${subjectType} type "${subject.name}".`,
-            iconURL: message.client.user?.displayAvatarURL(),
-          },
+          header: `Bad ${subjectType} type "${subject.name}".`,
+          body: subject.typeErrorMessage.replace(/@error/g, errorCode),
         })
       }
 
@@ -589,13 +580,10 @@ export async function resolveType(
       )
 
     return util.getSystemMessage("error", {
-      description: `Cannot convert the given "${subject.name}" ${subjectType}${
+      header: `Bad ${subjectType} type "${subject.name}".`,
+      body: `Cannot convert the given "${subject.name}" ${subjectType}${
         typeof subject.type === "function" ? "" : " into `" + subject.type + "`"
       }\n${errorCode}`,
-      author: {
-        name: `Bad ${subjectType} type "${subject.name}".`,
-        iconURL: message.client.user?.displayAvatarURL(),
-      },
     })
   }
 }

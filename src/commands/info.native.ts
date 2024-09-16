@@ -20,14 +20,14 @@ export default new app.Command({
 
     const databaseClient = app.getDatabaseDriverName()
 
-    const systemMessageOptions: Partial<app.SystemMessageOptions> = {
-      description: conf.description ?? "No description",
-      author: {
+    const embed = new app.EmbedBuilder()
+      .setAuthor({
         name: `Information about ${message.client.user.tag}`,
         iconURL: message.client.user?.displayAvatarURL(),
-      },
-      timestamp: new Date(),
-      fields: [
+      })
+      .setDescription(conf.description ?? "No description")
+      .setTimestamp()
+      .addFields(
         {
           name: conf.name,
           value: await app.code.stringify({
@@ -79,11 +79,10 @@ export default new app.Command({
           }),
           inline: true,
         },
-      ],
-    }
+      )
 
     if (message.args.dependencies)
-      systemMessageOptions.fields?.push(
+      embed.addFields(
         {
           name: app.blankChar,
           value: app.blankChar,
@@ -121,8 +120,6 @@ export default new app.Command({
         },
       )
 
-    return message.channel.send(
-      await app.getSystemMessage("default", systemMessageOptions),
-    )
+    return message.channel.send({ embeds: [embed] })
   },
 })

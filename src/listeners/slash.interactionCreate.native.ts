@@ -10,21 +10,20 @@ const listener: app.Listener<"interactionCreate"> = {
 
     if (!cmd)
       return interaction.reply(
-        await app.getSystemMessage("error", {
-          description: "Command not found",
-        }),
+        await app.getSystemMessage("error", "Command not found"),
       )
 
     try {
       await app.prepareSlashCommand(interaction, cmd)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return interaction.reply(await app.getSystemMessage("error", { error }))
+        return interaction.reply(await app.getSystemMessage("error", error))
       } else {
         return interaction.reply(
-          await app.getSystemMessage("error", {
-            description: "An unknown error while preparing the command",
-          }),
+          await app.getSystemMessage(
+            "error",
+            "An unknown error while preparing the command",
+          ),
         )
       }
     }
@@ -37,11 +36,12 @@ const listener: app.Listener<"interactionCreate"> = {
       if (error instanceof Error) {
         app.error(error, cmd.filepath!, true)
 
-        errorMessage = await app.getSystemMessage("error", { error })
+        errorMessage = await app.getSystemMessage("error", error)
       } else {
-        errorMessage = await app.getSystemMessage("error", {
-          description: "An unknown error while executing the command",
-        })
+        errorMessage = await app.getSystemMessage(
+          "error",
+          "An unknown error while executing the command",
+        )
       }
 
       if (interaction.replied || interaction.deferred) {

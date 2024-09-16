@@ -23,12 +23,10 @@ export default new app.Command({
         return app.sendCommandDetails(message, cmd)
       } else {
         await message.channel.send(
-          await app.getSystemMessage("error", {
-            author: {
-              name: `Unknown command "${message.args.command}"`,
-              iconURL: message.client.user?.displayAvatarURL(),
-            },
-          }),
+          await app.getSystemMessage(
+            "error",
+            `Unknown command "${message.args.command}"`,
+          ),
         )
       }
     } else {
@@ -46,12 +44,9 @@ export default new app.Command({
           10,
           (page) => {
             return app.getSystemMessage("default", {
-              description: page.join("\n"),
-              author: {
-                name: "Command list",
-                iconURL: message.client.user?.displayAvatarURL(),
-              },
-              footer: { text: `${message.usedPrefix}help <command>` },
+              header: "Command list",
+              body: page.join("\n"),
+              footer: `${message.usedPrefix}help <command>`,
             })
           },
         ),

@@ -28,8 +28,8 @@ export default new app.Command({
 
     const systemMessage = Array.isArray(result)
       ? await app.getSystemMessage("success", {
-          title: `Result of SQL query (${result.length} items)`,
-          description: await app.limitDataToShow(
+          header: `Result of SQL query (${result.length} items)`,
+          body: await app.limitDataToShow(
             result,
             app.MaxLength.EmbedDescription,
             (data) =>
@@ -39,11 +39,11 @@ export default new app.Command({
                 content: "const result = " + JSON.stringify(data),
               }),
           ),
-          footer: { text: `Result of : ${query}` },
+          footer: `Result of : ${query}`,
         })
       : await app.getSystemMessage("success", {
-          title: `SQL query done`,
-          footer: { text: `Query : ${query}` },
+          body: `SQL query done`,
+          footer: `Query : ${query}`,
         })
 
     return message.channel.send(systemMessage)
@@ -89,20 +89,25 @@ export default new app.Command({
           ),
         )
 
-        return message.channel.send(
-          await app.getSystemMessage("default", {
-            title: "Database plan",
-            description: `**${fields.length}** tables, **${fields.reduce(
-              (acc, current) => {
-                return acc + current.value.split("\n").length
-              },
-              0,
-            )}** columns`,
-            fields: fields.sort((a, b) => {
-              return a.value.split("\n").length - b.value.split("\n").length
-            }),
-          }),
-        )
+        return message.channel.send({
+          embeds: [
+            new app.EmbedBuilder()
+              .setTitle("Database plan")
+              .setDescription(
+                `**${fields.length}** tables, **${fields.reduce(
+                  (acc, current) => {
+                    return acc + current.value.split("\n").length
+                  },
+                  0,
+                )}** columns`,
+              )
+              .setFields(
+                fields.sort((a, b) => {
+                  return a.value.split("\n").length - b.value.split("\n").length
+                }),
+              ),
+          ],
+        })
       },
     }),
   ],

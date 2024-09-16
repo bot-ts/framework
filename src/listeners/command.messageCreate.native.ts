@@ -21,9 +21,7 @@ const listener: app.Listener<"messageCreate"> = {
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel
         .send(
-          await app.getSystemMessage("default", {
-            description: `My prefix is \`${prefix}\``,
-          }),
+          await app.getSystemMessage("default", `My prefix is \`${prefix}\``),
         )
         .catch()
 
@@ -143,7 +141,9 @@ const listener: app.Listener<"messageCreate"> = {
     })
 
     if (typeof prepared !== "boolean")
-      return message.channel.send(prepared).catch()
+      return message.channel
+        .send({ ...prepared, allowedMentions: { parse: [] } })
+        .catch()
 
     if (!prepared) return
 
@@ -153,7 +153,7 @@ const listener: app.Listener<"messageCreate"> = {
       app.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(await app.getSystemMessage("error", { error }))
+        .send(await app.getSystemMessage("error", error))
         .catch((error) => {
           app.error(error, cmd!.filepath!, true)
         })

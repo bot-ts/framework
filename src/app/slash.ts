@@ -235,30 +235,39 @@ export async function sendSlashCommandDetails(
   await interaction.reply(
     detailSlashCommand
       ? await detailSlashCommand(interaction, computed)
-      : await util.getSystemMessage("default", {
-          author: {
-            name: computed.name,
-            iconURL: computed.client.user?.displayAvatarURL(),
-            url: config.openSource
-              ? await util.getFileGitURL(command.filepath!)
-              : undefined,
-          },
-          description: `</${computed.name}:${
-            computed.id
-          }> - ${computed.description || "no description"}`,
-          footer: config.openSource
-            ? {
-                text: util.convertDistPathToSrc(
-                  util.rootPath(command.filepath!),
-                ),
-              }
-            : undefined,
-          fields: computed.options.map((option) => ({
-            name: option.name,
-            value: option.description || "no description",
-            inline: true,
-          })),
-        }),
+      : {
+          embeds: [
+            new discord.EmbedBuilder()
+              .setAuthor({
+                name: computed.name,
+                iconURL: computed.client.user?.displayAvatarURL(),
+                url: config.openSource
+                  ? await util.getFileGitURL(command.filepath!)
+                  : undefined,
+              })
+              .setDescription(
+                `</${computed.name}:${computed.id}> - ${
+                  computed.description || "no description"
+                }`,
+              )
+              .setFooter(
+                config.openSource
+                  ? {
+                      text: util.convertDistPathToSrc(
+                        util.rootPath(command.filepath!),
+                      ),
+                    }
+                  : null,
+              )
+              .setFields(
+                computed.options.map((option) => ({
+                  name: option.name,
+                  value: option.description || "no description",
+                  inline: true,
+                })),
+              ),
+          ],
+        },
   )
 }
 

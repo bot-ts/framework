@@ -447,14 +447,12 @@ export async function prepareCommand(
           trigger: false,
         })
       } else {
-        return util.getSystemMessage("error", {
-          author: {
-            name: `Please wait ${Math.ceil(
-              (coolDown.time + coolDownTime - Date.now()) / 1000,
-            )} seconds...`,
-            iconURL: message.client.user.displayAvatarURL(),
-          },
-        })
+        return util.getSystemMessage(
+          "error",
+          `Please wait ${Math.ceil(
+            (coolDown.time + coolDownTime - Date.now()) / 1000,
+          )} seconds before another try...`,
+        )
       }
     }
   } else {
@@ -469,24 +467,14 @@ export async function prepareCommand(
 
   if (isGuildMessage(message)) {
     if (channelType === "dm")
-      return util.getSystemMessage("error", {
-        author: {
-          name: "This command must be used in DM.",
-          iconURL: message.client.user.displayAvatarURL(),
-        },
-      })
+      return util.getSystemMessage("error", "This command must be used in DM.")
 
     if (util.scrap(cmd.options.guildOwnerOnly, message))
       if (
         message.guild.ownerId !== message.member.id &&
         env.BOT_OWNER !== message.member.id
       )
-        return util.getSystemMessage("error", {
-          author: {
-            name: "You must be the guild owner.",
-            iconURL: message.client.user.displayAvatarURL(),
-          },
-        })
+        return util.getSystemMessage("error", "You must be the guild owner.")
 
     if (cmd.options.botPermissions) {
       const member = await message.guild.members.fetch(message.client.user)
@@ -498,13 +486,10 @@ export async function prepareCommand(
 
       for (const permission of botPermissions)
         if (!member.permissions.has(permission, true))
-          return util.getSystemMessage("error", {
-            description: `I need the \`${permission}\` permission to call this command.`,
-            author: {
-              name: "Oops!",
-              iconURL: message.client.user.displayAvatarURL(),
-            },
-          })
+          return util.getSystemMessage(
+            "error",
+            `I need the \`${permission}\` permission to call this command.`,
+          )
     }
 
     if (cmd.options.userPermissions) {
@@ -515,13 +500,10 @@ export async function prepareCommand(
 
       for (const permission of userPermissions)
         if (!message.member.permissions.has(permission, true))
-          return util.getSystemMessage("error", {
-            description: `You need the \`${permission}\` permission to call this command.`,
-            author: {
-              name: "Oops!",
-              iconURL: message.client.user.displayAvatarURL(),
-            },
-          })
+          return util.getSystemMessage(
+            "error",
+            `You need the \`${permission}\` permission to call this command.`,
+          )
     }
 
     if (cmd.options.allowRoles) {
@@ -532,16 +514,12 @@ export async function prepareCommand(
           (role) => !allowRoles.includes(role.id),
         )
       )
-        return util.getSystemMessage("error", {
-          description: `You need one of the following roles to call this command: ${allowRoles
+        return util.getSystemMessage(
+          "error",
+          `You need one of the following roles to call this command: ${allowRoles
             .map((id) => `<@&${id}>`)
             .join(", ")}`,
-          author: {
-            name: "Oops!",
-            iconURL: message.client.user.displayAvatarURL(),
-          },
-          allowedMentions: { parse: [] },
-        })
+        )
     }
 
     if (cmd.options.denyRoles) {
@@ -550,35 +528,25 @@ export async function prepareCommand(
       if (
         message.member.roles.cache.some((role) => denyRoles.includes(role.id))
       )
-        return util.getSystemMessage("error", {
-          description: `You can't call this command because you have one of the following roles: ${denyRoles
+        return util.getSystemMessage(
+          "error",
+          `You can't call this command because you have one of the following roles: ${denyRoles
             .map((id) => `<@&${id}>`)
             .join(", ")}`,
-          author: {
-            name: "Oops!",
-            iconURL: message.client.user.displayAvatarURL(),
-          },
-        })
+        )
     }
   }
 
   if (channelType === "guild")
     if (isDirectMessage(message))
-      return util.getSystemMessage("error", {
-        author: {
-          name: "This command must be used in a guild.",
-          iconURL: message.client.user.displayAvatarURL(),
-        },
-      })
+      return util.getSystemMessage(
+        "error",
+        "This command must be used in a guild.",
+      )
 
   if (await util.scrap(cmd.options.botOwnerOnly, message))
     if (env.BOT_OWNER !== message.author.id)
-      return util.getSystemMessage("error", {
-        author: {
-          name: "You must be my owner.",
-          iconURL: message.client.user.displayAvatarURL(),
-        },
-      })
+      return util.getSystemMessage("error", "You must be my owner.")
 
   if (context) {
     if (cmd.options.positional) {
@@ -604,28 +572,22 @@ export async function prepareCommand(
             if (positional.missingErrorMessage) {
               if (typeof positional.missingErrorMessage === "string")
                 return util.getSystemMessage("error", {
-                  description: positional.missingErrorMessage,
-                  author: {
-                    name: `Missing positional "${positional.name}"`,
-                    iconURL: message.client.user.displayAvatarURL(),
-                  },
+                  header: `Missing positional "${positional.name}"`,
+                  body: positional.missingErrorMessage,
                 })
 
               return { embeds: [positional.missingErrorMessage] }
             }
 
             return util.getSystemMessage("error", {
-              description: positional.description
+              header: `Missing positional "${positional.name}"`,
+              body: positional.description
                 ? "Description: " + positional.description
                 : `Run the following command to learn more: ${util.code.stringify(
                     {
                       content: `${message.usedPrefix}${context.key} --help`,
                     },
                   )}`,
-              author: {
-                name: `Missing positional "${positional.name}"`,
-                iconURL: message.client.user.displayAvatarURL(),
-              },
             })
           } else {
             set(null)
@@ -685,24 +647,18 @@ export async function prepareCommand(
           if (option.missingErrorMessage) {
             if (typeof option.missingErrorMessage === "string")
               return util.getSystemMessage("error", {
-                description: option.missingErrorMessage,
-                author: {
-                  name: `Missing option "${option.name}"`,
-                  iconURL: message.client.user.displayAvatarURL(),
-                },
+                header: `Missing option "${option.name}"`,
+                body: option.missingErrorMessage,
               })
 
             return { embeds: [option.missingErrorMessage] }
           }
 
           return util.getSystemMessage("error", {
-            description: option.description
+            header: `Missing option "${option.name}"`,
+            body: option.description
               ? "Description: " + option.description
               : `Example: \`--${option.name}=someValue\``,
-            author: {
-              name: `Missing option "${option.name}"`,
-              iconURL: message.client.user.displayAvatarURL(),
-            },
           })
         }
 
@@ -778,24 +734,18 @@ export async function prepareCommand(
           if (rest.missingErrorMessage) {
             if (typeof rest.missingErrorMessage === "string")
               return util.getSystemMessage("error", {
-                description: rest.missingErrorMessage,
-                author: {
-                  name: `Missing rest "${rest.name}"`,
-                  iconURL: message.client.user.displayAvatarURL(),
-                },
+                header: `Missing rest "${rest.name}"`,
+                body: rest.missingErrorMessage,
               })
 
             return { embeds: [rest.missingErrorMessage] }
           }
 
           return util.getSystemMessage("error", {
-            description:
+            header: `Missing rest "${rest.name}"`,
+            body:
               rest.description ??
               "Please use `--help` flag for more information.",
-            author: {
-              name: `Missing rest "${rest.name}"`,
-              iconURL: message.client.user.displayAvatarURL(),
-            },
           })
         } else if (rest.default) {
           message.args[rest.name] = await util.scrap(rest.default, message)
@@ -821,13 +771,10 @@ export async function prepareCommand(
 
       if (typeof result === "string")
         return util.getSystemMessage("error", {
-          description: result,
-          author: {
-            name: `${
-              middleware.name ? `"${middleware.name}" m` : "M"
-            }iddleware error`,
-            iconURL: message.client.user.displayAvatarURL(),
-          },
+          header: `${
+            middleware.name ? `"${middleware.name}" m` : "M"
+          }iddleware error`,
+          body: result,
         })
 
       if (!result) return false

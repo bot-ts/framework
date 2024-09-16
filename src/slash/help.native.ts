@@ -43,12 +43,9 @@ export default new app.SlashCommand({
           10,
           (page) => {
             return app.getSystemMessage("default", {
-              description: page.join("\n"),
-              author: {
-                name: "Command list",
-                iconURL: interaction.client.user?.displayAvatarURL(),
-              },
-              footer: { text: `/help <command>` },
+              header: "Command list",
+              body: page.join("\n"),
+              footer: "/help <command>",
             })
           },
         ),

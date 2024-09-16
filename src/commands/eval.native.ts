@@ -4,6 +4,7 @@ import cp from "child_process"
 import util from "util"
 import * as ge from "ghom-eval"
 import * as app from "#app"
+import discord from "discord.js"
 
 const exec = util.promisify(cp.exec)
 
@@ -108,35 +109,36 @@ export default new app.Command({
 
     if (message.args.muted) {
       await message.channel.send(
-        `\\✔ successfully evaluated in ${evaluated.duration}ms`,
-      )
-    } else {
-      const systemMessageOptions: Partial<app.SystemMessageOptions> = {
-        title: `Result of JS evaluation ${evaluated.failed ? "(failed)" : ""}`,
-        description: await app.code.stringify({
-          content: evaluated.output.slice(0, 2000).replace(/```/g, "\\`\\`\\`"),
-          lang: "js",
-        }),
-      }
-
-      if (message.args.information)
-        systemMessageOptions.fields = [
-          {
-            name: "Information",
-            value: await app.code.stringify({
-              content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
-              lang: "yaml",
-            }),
-            inline: true,
-          },
-        ]
-
-      await message.channel.send(
         await app.getSystemMessage(
-          evaluated.failed ? "error" : "success",
-          systemMessageOptions,
+          "success",
+          `Successfully evaluated in ${evaluated.duration}ms`,
         ),
       )
+    } else {
+      const embed = new discord.EmbedBuilder()
+        .setTitle(`Result ${evaluated.failed ? "(failed)" : ""}`)
+        .setDescription(
+          await app.code.stringify({
+            content: evaluated.output
+              .slice(0, 2000)
+              .replace(/```/g, "\\`\\`\\`"),
+            lang: "js",
+          }),
+        )
+
+      if (message.args.information)
+        embed.addFields({
+          name: "Information",
+          value: await app.code.stringify({
+            content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
+            lang: "yaml",
+          }),
+          inline: true,
+        })
+
+      await message.channel.send({
+        embeds: [embed],
+      })
     }
 
     let somePackagesRemoved = false

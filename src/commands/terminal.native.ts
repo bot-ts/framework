@@ -24,9 +24,7 @@ export default new app.Command({
     message.triggerCoolDown()
 
     const toEdit = await message.channel.send(
-      await app.getSystemMessage("default", {
-        title: "The process is running...",
-      }),
+      await app.getSystemMessage("loading", "The process is running..."),
     )
 
     let systemMessage: app.SystemMessage
@@ -37,16 +35,18 @@ export default new app.Command({
         encoding: "utf-8",
       })
 
-      systemMessage = await app.getSystemMessage("success", {
-        title: "The process is done",
-        description: await app.code.stringify({
-          content: output.split("").reverse().slice(0, 2000).reverse().join(""),
-        }),
-      })
+      systemMessage = await app.getSystemMessage(
+        "success",
+        {
+          header: "The process is done",
+          body: output.split("").reverse().slice(0, 2000).reverse().join(""),
+        },
+        { code: true },
+      )
     } catch (error: any) {
       systemMessage = await app.getSystemMessage("error", {
-        title: "The process is errored",
-        error,
+        header: "The process is errored",
+        body: error,
       })
     }
 

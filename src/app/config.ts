@@ -82,7 +82,7 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
 
   /**
    * Custom messages for the system
-   * @default util.defaultSystemMessages
+   * @default `${systemEmoji} ${content}`
    */
   systemMessages?: Partial<util.SystemMessages>
 
