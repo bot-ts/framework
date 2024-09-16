@@ -59,7 +59,7 @@ export async function checkUpdates() {
       `you can update ${util.styleText(
         "blue",
         "@ghom/bot.ts",
-      )} by running ${util.styleText(["bgWhite", "black"], `gulp update`)}`,
+      )} by running ${util.styleText("bold", `gulp update`)}`,
     )
     logger.warn(util.styleText("bold", "this update may break your bot!"))
   } else if (
@@ -74,9 +74,10 @@ export async function checkUpdates() {
       `a new version of ${util.styleText(
         "blue",
         "@ghom/bot.ts-cli",
-      )} is available: ${
-        packageJSON.devDependencies["@ghom/bot.ts-cli"]
-      } => ${util.styleText(
+      )} is available: ${util.styleText(
+        "blue",
+        packageJSON.devDependencies["@ghom/bot.ts-cli"],
+      )} => ${util.styleText(
         "blue",
         remoteJSON.devDependencies["@ghom/bot.ts-cli"],
       )}`,
@@ -85,7 +86,7 @@ export async function checkUpdates() {
       `you can update ${util.styleText(
         "blue",
         "@ghom/bot.ts-cli",
-      )} by running ${util.styleText(["bgWhite", "black"], `gulp update`)}`,
+      )} by running ${util.styleText("bold", `gulp update`)}`,
     )
     logger.warn(util.styleText("bold", `this update may break your bot!`))
   } else {
