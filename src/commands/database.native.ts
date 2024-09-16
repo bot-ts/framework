@@ -28,7 +28,7 @@ export default new app.Command({
 
     const systemMessage = Array.isArray(result)
       ? await app.getSystemMessage("success", {
-          header: `Result of SQL query (${result.length} items)`,
+          header: `SQL query done (${result.length} items)`,
           body: await app.limitDataToShow(
             result,
             app.MaxLength.EmbedDescription,

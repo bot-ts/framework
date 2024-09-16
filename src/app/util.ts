@@ -511,28 +511,7 @@ export type SystemMessage = Pick<
   "embeds" | "content" | "files" | "allowedMentions" | "components"
 >
 
-export interface SystemMessages {
-  default: (
-    message: string | SystemMessageOptions | Error,
-    client: discord.Client,
-  ) => SystemMessage
-  success: (
-    message: string | SystemMessageOptions | Error,
-    client: discord.Client,
-  ) => SystemMessage
-  error: (
-    message: string | SystemMessageOptions | Error,
-    client: discord.Client,
-  ) => SystemMessage
-  loading: (
-    message: string | SystemMessageOptions | Error,
-    client: discord.Client,
-  ) => SystemMessage
-  warning: (
-    message: string | SystemMessageOptions | Error,
-    client: discord.Client,
-  ) => SystemMessage
-}
+export type SystemMessageType = "default" | keyof SystemEmojis
 
 export interface GetSystemMessageOptions {
   /**
@@ -544,12 +523,11 @@ export interface GetSystemMessageOptions {
 }
 
 export async function getSystemMessage(
-  type: keyof SystemMessages,
+  type: SystemMessageType,
   message: string | SystemMessageOptions | Error,
   options?: GetSystemMessageOptions,
 ): Promise<SystemMessage> {
-  if (config.systemMessages?.[type])
-    return config.systemMessages[type]!(message, client)
+  if (config.systemMessages) return config.systemMessages(type, message, client)
 
   const output: SystemMessage = {}
 

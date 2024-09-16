@@ -116,6 +116,9 @@ export default new app.Command({
       )
     } else {
       const embed = new discord.EmbedBuilder()
+        .setColor(
+          evaluated.failed ? app.systemColors.error : app.systemColors.success,
+        )
         .setTitle(`Result ${evaluated.failed ? "(failed)" : ""}`)
         .setDescription(
           await app.code.stringify({

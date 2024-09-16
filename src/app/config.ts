@@ -84,7 +84,11 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
    * Custom messages for the system
    * @default `${systemEmoji} ${content}`
    */
-  systemMessages?: Partial<util.SystemMessages>
+  systemMessages?: (
+    type: util.SystemMessageType,
+    data: string | util.SystemMessageOptions | Error,
+    client: discord.Client,
+  ) => Promise<util.SystemMessage>
 
   /**
    * Custom options for the system logger
