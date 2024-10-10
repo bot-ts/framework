@@ -235,7 +235,9 @@ function _copyKeepers() {
   return gulp.src(["src/**/.keep"], { base: "src" }).pipe(gulp.dest("dist"))
 }
 
-function _watch(cb) {
+async function _watch(cb) {
+  await __install("nodemon", true)
+  
   const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
 
   spawn.stdout.on("data", (data) => {
