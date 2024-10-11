@@ -6,7 +6,7 @@ export interface {{ Name }} {
 
 export default new Table<{{ Name }}>({
   name: "{{ name }}",
-  description: "Table de {{ name }}",
+  description: "Table of {{ name }}",
   setup: (table) => {
     // setup table columns => http://knexjs.org/#Schema-Building
   },
