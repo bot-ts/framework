@@ -5,8 +5,7 @@ import path from "path"
 import util from "util"
 import dayjs from "dayjs"
 import discord from "discord.js"
-import prettify from "ghom-prettify"
-import * as prettier from "prettier"
+import * as discordEval from "discord-eval.ts"
 import EventEmitter from "events"
 import simpleGit from "simple-git"
 
@@ -24,6 +23,7 @@ import config from "#config"
 import logger from "#logger"
 
 export { styleText, promisify } from "util"
+export * from "discord-eval.ts"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -394,51 +394,6 @@ export class ResponseCache<Params extends any[], Value> {
   }
 }
 
-export interface Code {
-  lang?: string
-  content: string
-}
-
-export const code = {
-  pattern: /^```(\S+)?\s(.+[^\\])```$/is,
-  /**
-   * extract the code from code block and return code
-   */
-  parse(raw: string): Code | undefined {
-    const match = this.pattern.exec(raw)
-    if (!match) return
-    return {
-      lang: match[1],
-      content: match[2],
-    }
-  },
-  /**
-   * inject the code in the code block and return code block
-   */
-  async stringify({
-    lang,
-    content,
-    format,
-  }: Code & { format?: true | prettier.Options }): Promise<string> {
-    return (
-      "```" +
-      (lang ?? "") +
-      "\n" +
-      (format
-        ? await prettify.format(
-            content,
-            format === true ? { lang: lang as any } : format,
-          )
-        : content) +
-      "\n```"
-    )
-  },
-  /**
-   * format the code using prettier and return it
-   */
-  format: prettify.format,
-}
-
 export function convertDistPathToSrc(path: string) {
   return path.replace(/dist([/\\])/, "src$1").replace(".js", ".ts")
 }
@@ -535,7 +490,7 @@ export async function getSystemMessage(
   if (typeof message !== "string" && "body" in message) {
     output.content =
       message.body instanceof Error
-        ? message.body.stack ?? message.body.message
+        ? (message.body.stack ?? message.body.message)
         : message.body
   } else if (message instanceof Error) {
     output.content = message.stack ?? message.message
@@ -550,7 +505,7 @@ export async function getSystemMessage(
         ? options.code
         : options.code && undefined
 
-    output.content = await code.stringify({
+    output.content = await discordEval.code.stringify({
       lang,
       content: output.content!,
     })

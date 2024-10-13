@@ -226,7 +226,10 @@ async function _build() {
       }),
     )
     .pipe(
-      __replace(/((?:import|export) .*? from\s+['"].*?)\.ts(['"])/g, "$1.js$2"),
+      __replace(
+        /((?:import|export) .*? from\s+['"][#./].*?)\.ts(['"])/g,
+        "$1.js$2",
+      ),
     )
     .pipe(gulp.dest("dist"))
 }
@@ -237,7 +240,7 @@ function _copyKeepers() {
 
 async function _watch(cb) {
   await __install("nodemon", true)
-  
+
   const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
 
   spawn.stdout.on("data", (data) => {

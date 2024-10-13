@@ -2,7 +2,7 @@
 
 import cp from "child_process"
 import util from "util"
-import * as ge from "ghom-eval"
+import * as discordEval from "discord-eval.ts"
 import * as app from "#app"
 import discord from "discord.js"
 
@@ -42,15 +42,16 @@ export default new app.Command({
       aliases: ["mute"],
     },
     {
-      name: "information",
-      flag: "i",
+      name: "verbose",
+      flag: "v",
+      aliases: ["info", "information"],
       description: "Information about output",
     },
   ],
   async run(message) {
     const installed = new Set<string>()
 
-    let code = message.args.code
+    const code = message.args.code
     const use = message.args.use
 
     if (use.length > 0) {
@@ -89,60 +90,28 @@ export default new app.Command({
       }
     }
 
-    if (app.code.pattern.test(code)) code = code.replace(app.code.pattern, "$2")
-
-    if (code.split("\n").length === 1 && !/const|let|return/.test(code)) {
-      code = "return " + code
-    }
-
     const req = Object.fromEntries(
       await Promise.all(
         [...installed].map(async (pack) => [pack, await import(pack)]),
       ),
     )
 
-    const evaluated = await ge.evaluate(
+    const embed = await discordEval.evaluate(
       code,
-      { message, app, req },
-      "{ message, app, req }",
+      {
+        ctx: { message, app, req },
+        muted: message.args.muted,
+        verbose: message.args.verbose,
+      },
+      {
+        success: new discord.EmbedBuilder().setColor(app.systemColors.success),
+        error: new discord.EmbedBuilder().setColor(app.systemColors.error),
+      },
     )
 
-    if (message.args.muted) {
-      await message.channel.send(
-        await app.getSystemMessage(
-          "success",
-          `Successfully evaluated in ${evaluated.duration}ms`,
-        ),
-      )
-    } else {
-      const embed = new discord.EmbedBuilder()
-        .setColor(
-          evaluated.failed ? app.systemColors.error : app.systemColors.success,
-        )
-        .setTitle(`Result ${evaluated.failed ? "(failed)" : ""}`)
-        .setDescription(
-          await app.code.stringify({
-            content: evaluated.output
-              .slice(0, 2000)
-              .replace(/```/g, "\\`\\`\\`"),
-            lang: "js",
-          }),
-        )
-
-      if (message.args.information)
-        embed.addFields({
-          name: "Information",
-          value: await app.code.stringify({
-            content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
-            lang: "yaml",
-          }),
-          inline: true,
-        })
-
-      await message.channel.send({
-        embeds: [embed],
-      })
-    }
+    await message.channel.send({
+      embeds: [embed],
+    })
 
     let somePackagesRemoved = false
 
