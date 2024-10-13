@@ -459,6 +459,7 @@ export interface SystemMessageOptions {
   header?: string
   body: string | Error
   footer?: string
+  date?: Date
 }
 
 export type SystemMessage = Pick<
@@ -523,6 +524,7 @@ export async function getSystemMessage(
         .setTitle(message.header ?? null)
         .setDescription(output.content!)
         .setFooter(message.footer ? { text: message.footer } : null)
+        .setTimestamp(message.date ?? null)
         .toJSON(),
     ]
     delete output.content

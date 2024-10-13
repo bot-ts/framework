@@ -11,6 +11,7 @@ import logger from "#logger"
 import config from "#config"
 
 import * as util from "./util.ts"
+import * as command from "./command.ts"
 
 import { filename } from "dirname-filename-esm"
 
@@ -67,11 +68,14 @@ export interface ISlashCommandOptions {
   build?: (builder: discord.SlashCommandBuilder) => unknown | Promise<unknown>
 }
 
-export interface SlashCommandOptions {
+export interface SlashCommandOptions<
+  ChannelType extends SlashCommandChannelType,
+  GuildOnly extends boolean,
+> {
   name: string
   description: string
-  channelType?: SlashCommandChannelType
-  guildOnly?: boolean
+  channelType?: ChannelType
+  guildOnly?: GuildOnly
   guildOwnerOnly?: boolean
   botOwnerOnly?: boolean
   userPermissions?: discord.PermissionsString[]
@@ -82,17 +86,32 @@ export interface SlashCommandOptions {
     builder: discord.SlashCommandBuilder,
   ) => unknown
   run: (
-    this: discord.ChatInputCommandInteraction,
-    interaction: discord.ChatInputCommandInteraction,
+    this: SlashCommandInteraction<ChannelType, GuildOnly>,
+    interaction: SlashCommandInteraction<ChannelType, GuildOnly>,
   ) => unknown
 }
 
-export class SlashCommand {
+export interface SlashCommandInteraction<
+  ChannelType extends SlashCommandChannelType,
+  GuildOnly extends boolean,
+> extends discord.ChatInputCommandInteraction {
+  channel: ChannelType extends "guild"
+    ? command.GuildMessage["channel"]
+    : ChannelType extends "dm"
+      ? command.DirectMessage["channel"]
+      : command.NormalMessage["channel"]
+  guild: GuildOnly extends true ? command.GuildMessage["guild"] : null
+}
+
+export class SlashCommand<
+  ChannelType extends SlashCommandChannelType,
+  GuildOnly extends boolean,
+> {
   filepath?: string
   native = false
   builder = new discord.SlashCommandBuilder()
 
-  constructor(public options: SlashCommandOptions) {}
+  constructor(public options: SlashCommandOptions<ChannelType, GuildOnly>) {}
 }
 
 export interface ISlashCommand {

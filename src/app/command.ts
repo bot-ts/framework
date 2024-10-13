@@ -92,7 +92,7 @@ export type MessageArguments<
   argument.OutputPositionalValues<Positional>
 
 export type NormalMessage = discord.Message & {
-  channel: discord.TextChannel
+  channel: discord.SendableChannels
   triggerCoolDown: () => void
   usedAsDefault: boolean
   isFromBotOwner: boolean
@@ -104,7 +104,7 @@ export type NormalMessage = discord.Message & {
 }
 
 export type GuildMessage = NormalMessage & {
-  channel: discord.TextChannel & discord.GuildChannel
+  channel: discord.SendableChannels & discord.GuildChannel
   guild: discord.Guild
   member: discord.GuildMember
 }

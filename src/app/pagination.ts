@@ -17,8 +17,6 @@ const sendToTarget = async (
   if (target instanceof discord.Message) return target.edit(page)
   if (target instanceof discord.ChatInputCommandInteraction)
     return target.editReply(page)
-  if (target instanceof discord.PartialGroupDMChannel)
-    throw new Error("PartialGroupDMChannel is not supported for pagination")
   return target.send(page)
 }
 
@@ -45,10 +43,7 @@ const getTargetMessage = async (
 }
 
 export type PaginatorTarget =
-  | discord.TextBasedChannel
-  | discord.DMChannel
-  | discord.ThreadChannel
-  | discord.GuildTextBasedChannel
+  | discord.SendableChannels
   | discord.Message
   | discord.ChatInputCommandInteraction
 
@@ -64,13 +59,7 @@ export interface PaginatorOptions {
   useReactions?: boolean
   useButtonLabels?: boolean
   buttonStyle?: discord.ButtonStyle
-  target:
-    | discord.TextBasedChannel
-    | discord.DMChannel
-    | discord.ThreadChannel
-    | discord.GuildTextBasedChannel
-    | discord.Message
-    | discord.ChatInputCommandInteraction
+  target: PaginatorTarget
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser,

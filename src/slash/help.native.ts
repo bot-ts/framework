@@ -19,9 +19,7 @@ export default new app.SlashCommand({
       (await interaction.client.application.commands.fetch()).values(),
     )
 
-    if (interaction.guild) {
-      commands.push(...(await interaction.guild.commands.fetch()).values())
-    }
+    commands.push(...(await interaction.guild.commands.fetch()).values())
 
     const command = commands.find((cmd) => cmd.name === commandName)
 
