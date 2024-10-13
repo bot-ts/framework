@@ -99,7 +99,7 @@ export interface SlashCommandInteraction<
     ? command.GuildMessage["channel"]
     : ChannelType extends "dm"
       ? command.DirectMessage["channel"]
-      : command.NormalMessage["channel"]
+      : discord.AnyThreadChannel
   guild: GuildOnly extends true ? command.GuildMessage["guild"] : null
 }
 
