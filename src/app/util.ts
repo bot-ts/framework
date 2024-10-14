@@ -382,6 +382,9 @@ export interface ResponseCacheData<Value> {
   expires: number
 }
 
+/**
+ * Advanced cache for async queries
+ */
 export class ResponseCache<Params extends any[], Value> {
   private _cache = new Map<string, ResponseCacheData<Value>>()
 
@@ -404,15 +407,15 @@ export class ResponseCache<Params extends any[], Value> {
     return this._cache.get(key)!.value
   }
 
-  set(params: Params, value: Value): Value {
+  async fetch(...params: Params): Promise<Value> {
     const key = JSON.stringify(params)
 
     this._cache.set(key, {
-      value,
+      value: await this._request(...params),
       expires: Date.now() + this._timeout,
     })
 
-    return value
+    return this._cache.get(key)!.value
   }
 }
 
