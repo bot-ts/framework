@@ -6,6 +6,8 @@ const listener: app.Listener<"interactionCreate"> = {
   async run(interaction) {
     if (!interaction.isChatInputCommand()) return
 
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     const cmd = app.slashCommands.get(interaction.commandName)
 
     if (!cmd)

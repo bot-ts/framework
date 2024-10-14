@@ -6,6 +6,8 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle interactions for pagination",
   async run(interaction) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (
       interaction.isButton() &&
       interaction.customId.startsWith("pagination-")
