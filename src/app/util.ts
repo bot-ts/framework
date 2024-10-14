@@ -327,6 +327,28 @@ export function slug(...words: string[]): string {
   return words.join("-")
 }
 
+export function omit<T extends object, K extends keyof T>(
+  item: T,
+  ...keys: K[]
+): Omit<T, K> {
+  const clone = { ...item }
+  for (const key of keys) {
+    delete clone[key]
+  }
+  return clone
+}
+
+export function pick<T extends object, K extends keyof T>(
+  item: T,
+  ...keys: K[]
+): Pick<T, K> {
+  const clone = {} as Pick<T, K>
+  for (const key of keys) {
+    clone[key] = item[key]
+  }
+  return clone
+}
+
 /**
  * Simple cache for manage temporary values
  */
