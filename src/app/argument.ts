@@ -245,14 +245,14 @@ export class TypeResolverError extends Error {
   }
 
   override toString() {
-    return `${this.message}\nProvided: \`${
+    return `${this.message}\nProvided: ${
       typeof this.options.provided === "number"
         ? this.options.provided
         : `"${this.options.provided}"`
-    }\`\nExpected:\n${this.options.expected
+    }\nExpected:\n${this.options.expected
       .map(
         (expect) =>
-          `- \`${typeof expect === "number" || typeof expect === "boolean" ? expect : `"${expect}"`}\``,
+          `- ${typeof expect === "number" || typeof expect === "boolean" ? expect : `"${expect}"`}`,
       )
       .join(" / ")}`
   }
@@ -468,9 +468,12 @@ export async function resolveType(
   try {
     await cast()
     return true
-  } catch (error: any) {
+  } catch (error) {
     const errorCode = await util.code.stringify({
-      content: `${error.name}: ${error.message}`,
+      content:
+        error instanceof Error
+          ? `${error.name}: ${error instanceof TypeResolverError ? `${error.toString()}` : error.message}`
+          : `Unknown Error:\n${util.inspect(error)}`,
       lang: "js",
     })
 

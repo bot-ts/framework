@@ -22,8 +22,8 @@ import client from "#client"
 import config from "#config"
 import logger from "#logger"
 
-export { styleText, promisify } from "util"
 export * from "discord-eval.ts"
+export { styleText, promisify, inspect } from "util"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
