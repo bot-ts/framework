@@ -106,7 +106,7 @@ export type TypeName = keyof ArgumentTypes
 export interface TypedArgument<
   Name extends string,
   Type extends TypeName,
-  Message extends command.NormalMessage,
+  Message extends command.AnyMessage,
 > {
   readonly name: Name
   readonly type: Type
@@ -127,7 +127,7 @@ export interface NamedArgument<Name extends string> {
 export interface OptionalArgument<
   Required extends boolean,
   Type extends TypeName,
-  Message extends command.NormalMessage,
+  Message extends command.AnyMessage,
 > {
   readonly required?: Required
   readonly default?: Required extends true
@@ -164,7 +164,7 @@ export interface IRest
 export interface Rest<
   Name extends string,
   Required extends boolean,
-  Message extends command.NormalMessage,
+  Message extends command.AnyMessage,
 > extends NamedArgument<Name>,
     OptionalArgument<Required, "string", Message> {
   description: string
@@ -172,8 +172,8 @@ export interface Rest<
 }
 
 export function rest<const Name extends string, const Required extends boolean>(
-  options: Rest<Name, Required, command.IMessage>,
-): Rest<Name, Required, command.IMessage> {
+  options: Rest<Name, Required, command.AnyMessage>,
+): Rest<Name, Required, command.AnyMessage> {
   return options
 }
 
@@ -188,7 +188,7 @@ export interface Option<
   Name extends string,
   Type extends TypeName,
   Required extends boolean,
-  Message extends command.NormalMessage,
+  Message extends command.AnyMessage,
 > extends TypedArgument<Name, Type, Message>,
     OptionalArgument<Required, Type, Message> {
   description: string
@@ -200,8 +200,8 @@ export function option<
   const Type extends TypeName,
   const Required extends boolean,
 >(
-  options: Readonly<Option<Name, Type, Required, command.IMessage>>,
-): Option<Name, Type, Required, command.IMessage> {
+  options: Readonly<Option<Name, Type, Required, command.AnyMessage>>,
+): Option<Name, Type, Required, command.AnyMessage> {
   return options
 }
 
@@ -215,7 +215,7 @@ export interface Positional<
   Name extends string,
   Type extends TypeName,
   Required extends boolean,
-  Message extends command.NormalMessage,
+  Message extends command.AnyMessage,
 > extends TypedArgument<Name, Type, Message>,
     OptionalArgument<Required, Type, Message> {
   description: string
@@ -226,8 +226,8 @@ export function positional<
   const Type extends TypeName,
   const Required extends boolean,
 >(
-  options: Positional<Name, Type, Required, command.IMessage>,
-): Positional<Name, Type, Required, command.IMessage> {
+  options: Positional<Name, Type, Required, command.AnyMessage>,
+): Positional<Name, Type, Required, command.AnyMessage> {
   return options
 }
 
@@ -289,7 +289,7 @@ export async function validate(
   subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   castedValue: any,
-  message: command.IMessage,
+  message: command.UnknownMessage,
 ): Promise<util.SystemMessage | true> {
   if (!subject.validate) return true
 
@@ -335,7 +335,7 @@ export async function resolveType(
   subject: IPositional | IOption,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
-  message: command.IMessage,
+  message: command.UnknownMessage,
   setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown,
   cmd: command.ICommand,
 ): Promise<util.SystemMessage | true> {

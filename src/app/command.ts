@@ -56,18 +56,6 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
-export interface IMessage extends discord.Message {
-  triggerCoolDown: () => void
-  usedAsDefault: boolean
-  isFromBotOwner: boolean
-  isFromGuildOwner: boolean
-  usedPrefix: string
-  client: discord.Client<true>
-  rest: string
-  args: any
-  channel: any
-}
-
 export type MessageArguments<
   RestName extends string = string,
   RestRequired extends boolean = false,
@@ -91,8 +79,7 @@ export type MessageArguments<
   argument.OutputFlags<Flags> &
   argument.OutputPositionalValues<Positional>
 
-export type NormalMessage = discord.Message & {
-  channel: discord.SendableChannels & discord.TextChannel
+export type BaseMessage<InGuild extends boolean> = discord.Message<InGuild> & {
   triggerCoolDown: () => void
   usedAsDefault: boolean
   isFromBotOwner: boolean
@@ -100,16 +87,19 @@ export type NormalMessage = discord.Message & {
   usedPrefix: string
   client: discord.Client<true>
   rest: string
-  args: unknown
+  args: any
 }
 
-export type GuildMessage = NormalMessage & {
+export type UnknownMessage = Omit<AnyMessage, "args"> & { args: any }
+
+export type AnyMessage = GuildMessage | DirectMessage
+
+export type GuildMessage = BaseMessage<true> & {
   channel: discord.SendableChannels & discord.GuildChannel & discord.TextChannel
-  guild: discord.Guild
   member: discord.GuildMember
 }
 
-export type DirectMessage = NormalMessage & {
+export type DirectMessage = BaseMessage<false> & {
   channel: discord.DMChannel
 }
 
@@ -143,7 +133,7 @@ export interface MiddlewareResult {
 export interface IMiddleware {
   readonly name: string
   readonly run: (
-    message: IMessage,
+    message: any,
     data: any,
   ) => Promise<MiddlewareResult> | MiddlewareResult
 }
@@ -159,9 +149,9 @@ export class Middleware<Type extends keyof CommandMessageType> {
 }
 
 export interface CommandMessageType {
-  guild: Omit<discord.Message, "channel"> & GuildMessage
-  dm: Omit<discord.Message, "channel"> & DirectMessage
-  all: Omit<discord.Message, "channel"> & NormalMessage
+  guild: GuildMessage
+  dm: DirectMessage
+  all: AnyMessage
 }
 
 export interface ICommandOptions {
@@ -275,14 +265,8 @@ export interface CommandOptions<
 
   run: (
     this: Command<Type, RestName, RestRequired, Positional, Options, Flags>,
-    message: CommandMessageType[Type] & {
-      readonly args: MessageArguments<
-        RestName,
-        RestRequired,
-        Positional,
-        Options,
-        Flags
-      >
+    message: Omit<CommandMessageType[Type], "args"> & {
+      args: MessageArguments<RestName, RestRequired, Positional, Options, Flags>
     },
   ) => unknown
 
@@ -410,7 +394,7 @@ export function commandParents(command: ICommand): ICommand[] {
 }
 
 export async function prepareCommand(
-  message: IMessage,
+  message: UnknownMessage,
   cmd: ICommand,
   context?: {
     restPositional: string[]
@@ -421,17 +405,34 @@ export async function prepareCommand(
 ): Promise<util.SystemMessage | boolean> {
   // coolDown
   if (cmd.options.cooldown) {
-    const slug = util.slug(
-      "coolDown",
-      cmd.options.name,
-      cmd.options.cooldown.type === CooldownType.Global
-        ? "global"
-        : cmd.options.cooldown.type === CooldownType.ByUser
-          ? message.author.id
-          : cmd.options.cooldown.type === CooldownType.ByGuild
-            ? message.guildId
-            : message.channel.id,
-    )
+    let slug: string
+
+    switch (cmd.options.cooldown.type) {
+      case CooldownType.ByUser:
+        slug = util.slug("coolDown", cmd.options.name, message.author.id)
+        break
+      case CooldownType.ByGuild:
+        if (message.inGuild())
+          slug = util.slug("coolDown", cmd.options.name, message.guildId)
+        else
+          return util.getSystemMessage(
+            "error",
+            "This command must be used in a guild.",
+          )
+        break
+      case CooldownType.ByChannel:
+        slug = util.slug("coolDown", cmd.options.name, message.channel.id)
+        break
+      case CooldownType.Global:
+        slug = util.slug("coolDown", cmd.options.name, "global")
+        break
+      default:
+        return util.getSystemMessage(
+          "error",
+          "Invalid coolDown type in command options.",
+        )
+    }
+
     const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,
       trigger: false,
@@ -796,7 +797,7 @@ export async function prepareCommand(
 const commandGitURLs = new Map<string, string>()
 
 export async function sendCommandDetails(
-  message: IMessage,
+  message: Omit<AnyMessage, "args"> & { args: any },
   cmd: ICommand,
 ): Promise<void> {
   const { detailCommand, openSource } = config
@@ -1015,15 +1016,18 @@ export async function sendCommandDetails(
   await message.channel.send({ embeds: [embed] })
 }
 
-export function commandToListItem(message: IMessage, cmd: ICommand): string {
+export function commandToListItem(
+  message: UnknownMessage,
+  cmd: ICommand,
+): string {
   return `**${message.usedPrefix}${commandBreadcrumb(cmd, " ")}** - ${
     cmd.options.description ?? "no description"
   }`
 }
 
-export function isNormalMessage<
+export function isAnyMessage<
   Base extends discord.Message | discord.PartialMessage,
->(message: Base): message is Base & NormalMessage {
+>(message: Base): message is Base & AnyMessage {
   return (
     !message.system &&
     !!message.channel &&
@@ -1033,18 +1037,13 @@ export function isNormalMessage<
 }
 
 export function isGuildMessage<
-  Base extends discord.Message | discord.PartialMessage,
+  Base extends discord.Message | discord.PartialMessage | UnknownMessage,
 >(message: Base): message is Base & GuildMessage {
   return !!message.member && !!message.guild
 }
 
 export function isDirectMessage<
-  Base extends discord.Message | discord.PartialMessage,
+  Base extends discord.Message | discord.PartialMessage | UnknownMessage,
 >(message: Base): message is Base & DirectMessage {
   return !!message.channel && message.channel.type === discord.ChannelType.DM
 }
-
-export type MessageCreateOptionsResolvable =
-  | string
-  | discord.MessagePayload
-  | discord.MessageCreateOptions

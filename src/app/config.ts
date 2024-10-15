@@ -48,14 +48,14 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
    * (using a database or cache for example)
    * @default () => env.BOT_PREFIX
    */
-  getPrefix?: (message: command.NormalMessage) => Promise<string> | string
+  getPrefix?: (message: command.UnknownMessage) => Promise<string> | string
 
   /**
    * Custom help command for textual commands
    * @default command.sendCommandDetails
    */
   detailCommand?: (
-    message: command.IMessage,
+    message: command.UnknownMessage,
     command: command.ICommand,
   ) => Promise<util.SystemMessage> | util.SystemMessage
 

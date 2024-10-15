@@ -12,7 +12,7 @@ const listener: app.Listener<"messageCreate"> = {
   async run(message) {
     if (config.ignoreBots && message.author.bot) return
 
-    if (!app.isNormalMessage(message)) return
+    if (!app.isAnyMessage(message)) return
 
     const prefix = config.getPrefix
       ? await config.getPrefix(message)
