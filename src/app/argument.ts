@@ -251,10 +251,10 @@ export class TypeResolverError extends Error {
         : `"${this.options.provided}"`
     }\nExpected:\n${this.options.expected
       .map(
-        (expect) =>
-          `- ${typeof expect === "number" || typeof expect === "boolean" ? expect : `"${expect}"`}`,
+        (expect, index, all) =>
+          `  ${index < all.length - 1 ? "├" : "└"} ${typeof expect === "number" || typeof expect === "boolean" ? expect : `"${expect}"`}`,
       )
-      .join(" / ")}`
+      .join("\n")}`
   }
 }
 
