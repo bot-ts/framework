@@ -186,15 +186,15 @@ export const types = [
 
       if (match) {
         const id = match[1] ?? match[2]
-        const user = await message.client.users.fetch(id)
 
-        if (!user)
+        try {
+          return await message.client.users.fetch(id)
+        } catch {
           throw new app.TypeResolverError("Invalid user ID", {
             expected: ["123456789012345678", "<@123456789012345678>"],
             provided: id,
           })
-
-        return user
+        }
       }
 
       const user = message.client.users.cache.find((user) => {
@@ -217,15 +217,15 @@ export const types = [
 
       if (match) {
         const id = match[1] ?? match[2]
-        const member = await message.guild.members.fetch(id)
 
-        if (!member)
+        try {
+          return await message.guild.members.fetch(id)
+        } catch {
           throw new app.TypeResolverError("Invalid member ID", {
             expected: ["123456789012345678", "<@123456789012345678>"],
             provided: id,
           })
-
-        return member
+        }
       }
 
       const members = await message.guild.members.fetch()
@@ -280,15 +280,15 @@ export const types = [
 
       if (match) {
         const id = match[1] ?? match[2]
-        const role = message.guild?.roles.cache.get(id)
 
-        if (!role)
+        try {
+          return message.guild.roles.fetch(id)
+        } catch {
           throw new app.TypeResolverError("Invalid role ID", {
             expected: ["123456789012345678", "<@&123456789012345678>"],
             provided: id,
           })
-
-        return role
+        }
       }
 
       const roles = await message.guild.roles.fetch()
