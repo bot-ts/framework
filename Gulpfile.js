@@ -285,7 +285,7 @@ function _overrideNativeFiles() {
 
 function _copyConfig() {
   return gulp
-    .src(["temp/src/config.ts"], { base: "temp" })
+    .src(["temp/src/config.ts", "temp/src/types.ts"], { base: "temp" })
     .pipe(gulp.dest(__dirname, { overwrite: false }))
 }
 
