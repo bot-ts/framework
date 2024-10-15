@@ -44,10 +44,14 @@ export default new app.Command({
         { code: true },
       )
     } catch (error: any) {
-      systemMessage = await app.getSystemMessage("error", {
-        header: "The process is errored",
-        body: error,
-      })
+      systemMessage = await app.getSystemMessage(
+        "error",
+        {
+          header: "The process is errored",
+          body: error,
+        },
+        { stack: true },
+      )
     }
 
     toEdit.edit(systemMessage).catch(() => {

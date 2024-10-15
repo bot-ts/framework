@@ -153,7 +153,7 @@ const listener: app.Listener<"messageCreate"> = {
       app.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(await app.getSystemMessage("error", error))
+        .send(await app.getSystemMessage("error", error, { stack: true }))
         .catch((error) => {
           app.error(error, cmd!.filepath!, true)
         })

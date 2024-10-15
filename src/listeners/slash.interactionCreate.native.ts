@@ -19,7 +19,9 @@ const listener: app.Listener<"interactionCreate"> = {
       await app.prepareSlashCommand(interaction, cmd)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return interaction.reply(await app.getSystemMessage("error", error))
+        return interaction.reply(
+          await app.getSystemMessage("error", error, { stack: true }),
+        )
       } else {
         return interaction.reply(
           await app.getSystemMessage(
@@ -38,7 +40,9 @@ const listener: app.Listener<"interactionCreate"> = {
       if (error instanceof Error) {
         app.error(error, cmd.filepath!, true)
 
-        errorMessage = await app.getSystemMessage("error", error)
+        errorMessage = await app.getSystemMessage("error", error, {
+          stack: true,
+        })
       } else {
         errorMessage = await app.getSystemMessage(
           "error",

@@ -501,6 +501,11 @@ export interface GetSystemMessageOptions {
    * if true, the code block will be displayed without lang
    */
   code?: boolean | string
+
+  /**
+   * If true, the error stack will be displayed
+   */
+  stack?: boolean
 }
 
 export async function getSystemMessage(
@@ -516,10 +521,14 @@ export async function getSystemMessage(
   if (typeof message !== "string" && "body" in message) {
     output.content =
       message.body instanceof Error
-        ? (message.body.stack ?? message.body.message)
+        ? options?.stack
+          ? (message.body.stack ?? message.body.message)
+          : message.body.message
         : message.body
   } else if (message instanceof Error) {
-    output.content = message.stack ?? message.message
+    output.content = options?.stack
+      ? (message.stack ?? message.message)
+      : message.message
   } else {
     output.content = message
   }

@@ -140,15 +140,23 @@ export interface MiddlewareResult {
   data: any
 }
 
-export type IMiddleware = (
-  message: any,
-  data: any,
-) => Promise<MiddlewareResult> | MiddlewareResult
+export interface IMiddleware {
+  readonly name: string
+  readonly run: (
+    message: IMessage,
+    data: any,
+  ) => Promise<MiddlewareResult> | MiddlewareResult
+}
 
-export type Middleware<Type extends keyof CommandMessageType> = (
-  message: CommandMessageType[Type],
-  data: any,
-) => Promise<MiddlewareResult> | MiddlewareResult
+export class Middleware<Type extends keyof CommandMessageType> {
+  constructor(
+    public readonly name: string,
+    public readonly run: (
+      message: CommandMessageType[Type],
+      data: any,
+    ) => Promise<MiddlewareResult> | MiddlewareResult,
+  ) {}
+}
 
 export interface CommandMessageType {
   guild: Omit<discord.Message, "channel"> & GuildMessage
@@ -763,7 +771,7 @@ export async function prepareCommand(
     let currentData: any = {}
 
     for (const middleware of middlewares) {
-      const { result, data } = await middleware(message, currentData)
+      const { result, data } = await middleware.run(message, currentData)
 
       currentData = {
         ...currentData,
