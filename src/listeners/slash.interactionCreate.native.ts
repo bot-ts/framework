@@ -17,10 +17,12 @@ const listener: app.Listener<"interactionCreate"> = {
 
     try {
       await app.prepareSlashCommand(interaction, cmd)
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Error) {
         return interaction.reply(
-          await app.getSystemMessage("error", error, { stack: true }),
+          await app.getSystemMessage("error", error, {
+            stack: !(error instanceof app.SlashCommandError),
+          }),
         )
       } else {
         return interaction.reply(

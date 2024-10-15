@@ -17,7 +17,7 @@ import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
 
-class SlashCommandError extends Error {
+export class SlashCommandError extends Error {
   constructor(message: string) {
     super(message)
     this.name = "SlashCommandError"
