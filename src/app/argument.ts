@@ -1,12 +1,14 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
+import typeParser from "zod"
 import yargsParser from "yargs-parser"
-import regexParser from "regex-parser"
 
 import * as util from "./util.ts"
 import * as logger from "./logger.ts"
 import * as command from "./command.ts"
+
+import type { types } from "#src/types.ts"
 
 type _item<Items extends readonly any[], K extends string> = Extract<
   Items[number],
@@ -136,7 +138,7 @@ export interface OptionalArgument<
   missingErrorMessage?: string | discord.EmbedBuilder
 }
 
-export interface ArgumentTypes {
+export type ArgumentTypes = {
   string: string
   number: number
   date: Date
@@ -152,6 +154,108 @@ export interface ArgumentTypes {
   emote: discord.GuildEmoji | string
   invite: discord.Invite
   command: command.ICommand
+} & TypeResolversToRecord<typeof types>
+
+export type TypeResolversToRecord<
+  TypeResolvers extends readonly TypeResolver<any, any>[],
+> = {
+  readonly [K in TypeResolvers[number]["name"]]: Extract<
+    TypeResolvers[number],
+    { name: K }
+  > extends TypeResolver<any, infer T>
+    ? T
+    : never
+}
+
+export class TypeResolver<Name extends string, Type> {
+  constructor(
+    readonly name: Name,
+    public options: {
+      readonly resolver: (
+        value: string | number,
+        message: command.UnknownMessage,
+      ) => Promise<Type>
+    },
+  ) {}
+
+  static fromZod<Name extends string, Type>(
+    name: Name,
+    options: {
+      zod: typeParser.ZodType<Type, any, any>
+    },
+  ) {
+    return new TypeResolver(name, {
+      resolver: async (value) => {
+        try {
+          return await options.zod.parseAsync(value)
+        } catch (error: any) {
+          throw new TypeResolverError(
+            error instanceof typeParser.ZodError
+              ? error.message
+              : `Invalid ${name}`,
+            {
+              expected: options.zod._def.type,
+              provided: value,
+            },
+          )
+        }
+      },
+    })
+  }
+
+  static fromRegex<Name extends string, Type>(
+    name: Name,
+    options: {
+      regex: RegExp
+      transformer: (full: string, ...groups: string[]) => Type
+    },
+  ) {
+    return new TypeResolver(name, {
+      resolver: async (value) => {
+        if (typeof value !== "string")
+          throw new TypeResolverError("Invalid input type", {
+            expected: ["string"],
+            provided: typeof value,
+          })
+
+        const match = options.regex.exec(value)
+
+        if (!match)
+          throw new TypeResolverError("Invalid string pattern", {
+            expected: [options.regex.source],
+            provided: value,
+          })
+
+        return options.transformer(match[0], ...match.slice(1))
+      },
+    })
+  }
+}
+
+export class TypeResolverError extends Error {
+  constructor(
+    message: string,
+    private options: {
+      expected: (string | number | boolean)[]
+      provided: string | number
+    },
+  ) {
+    super(message)
+    this.name = "TypeResolverError"
+  }
+
+  override toString() {
+    return `${this.message}\nProvided: \`${
+      typeof this.options.provided === "number"
+        ? this.options.provided
+        : `"${this.options.provided}"`
+    }\`\nExpected:\n${this.options.expected
+      .map(
+        (expect) =>
+          `- \`${typeof expect === "number" || typeof expect === "boolean" ? expect : `"${expect}"`}\``,
+      )
+      .join(" / ")}`
+  }
 }
 
 export interface IRest
@@ -334,224 +438,31 @@ export async function validate(
 export async function resolveType(
   subject: IPositional | IOption,
   subjectType: "positional" | "argument",
-  baseValue: string | undefined,
+  baseValue: string | number | undefined,
   message: command.UnknownMessage,
   setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown,
   cmd: command.ICommand,
 ): Promise<util.SystemMessage | true> {
+  const types = await import("#app").then((m) => m.types)
+
   const empty = new Error("The value is empty!")
 
   const cast = async () => {
     if (!subject.type) return
 
-    switch (subject.type) {
-      case "boolean":
-        if (baseValue === undefined) throw empty
-        else setValue<"boolean">(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue))
-        break
-      case "date":
-        if (!baseValue) {
-          throw empty
-        } else if (baseValue === "now") {
-          setValue<"date">(new Date())
-        } else if (/^[1-9]\d*$/.test(baseValue)) {
-          const date = new Date()
-          date.setTime(Number(baseValue))
-          setValue<"date">(date)
-        } else {
-          setValue<"date">(new Date(baseValue))
-        }
-        break
-      case "json":
-        if (baseValue) setValue<"json">(JSON.parse(baseValue))
-        else throw empty
-        break
-      case "number": {
-        if (baseValue === undefined) throw empty
-        const formatted = Number(baseValue.replace(",", ".").replace(/_/g, ""))
-        setValue<"number">(formatted)
-        if (isNaN(formatted)) throw new Error("The value is not a Number!")
-        break
+    if (baseValue === undefined) {
+      if (subject.required) throw empty
+      else {
+        setValue(undefined)
+        return
       }
-      case "regex":
-        if (baseValue) setValue<"regex">(regexParser(baseValue))
-        else throw empty
-        break
-      case "array":
-        if (baseValue === undefined) setValue<"array">([])
-        else setValue<"array">(baseValue.split(/[,;|]/))
-        break
-      case "channel":
-        if (baseValue) {
-          const match = /^(?:<#(\d+)>|(\d+))$/.exec(baseValue)
-          if (match) {
-            const id = match[1] ?? match[2]
-            const channel = message.client.channels.cache.get(id)
-            if (channel) setValue<"channel">(channel)
-            else throw new Error("Unknown channel!")
-          } else {
-            const search = (channel: discord.Channel) => {
-              return (
-                "name" in channel &&
-                channel.name?.toLowerCase().includes(baseValue.toLowerCase())
-              )
-            }
-            let channel: discord.Channel | undefined
-            if (command.isGuildMessage(message))
-              channel = message.guild.channels.cache.find(search)
-            channel ??= message.client.channels.cache.find(search)
-            if (channel) setValue<"channel">(channel)
-            else throw new Error("Channel not found!")
-          }
-        } else throw empty
-        break
-      case "member":
-        if (baseValue) {
-          if (command.isGuildMessage(message)) {
-            const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
-            if (match) {
-              const id = match[1] ?? match[2]
-              const member = await message.guild.members.fetch({
-                user: id,
-                force: false,
-                cache: false,
-              })
-              if (member) setValue<"member">(member)
-              else throw new Error("Unknown member!")
-            } else {
-              const members = await message.guild.members.fetch()
-              message.guild.members.cache.clear()
-              const member = members.find((member) => {
-                return (
-                  member.displayName
-                    .toLowerCase()
-                    .includes(baseValue.toLowerCase()) ||
-                  member.user.username
-                    .toLowerCase()
-                    .includes(baseValue.toLowerCase())
-                )
-              })
-              if (member) setValue<"member">(member)
-              else throw new Error("Member not found!")
-            }
-          } else
-            throw new Error(
-              'The "GuildMember" casting is only available in a guild!',
-            )
-        } else throw empty
-        break
-      case "message":
-        if (baseValue) {
-          const match =
-            /^https?:\/\/(?:www\.)?(?:ptb\.|canary\.)?(?:discord|discordapp)\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
-              baseValue,
-            )
-          if (match) {
-            const [, channelID, messageID] = match
-            const channel = message.client.channels.cache.get(channelID)
-            if (channel) {
-              if (channel.isTextBased()) {
-                setValue<"message">(
-                  await channel.messages.fetch({
-                    force: false,
-                    cache: false,
-                    message: messageID,
-                  }),
-                )
-              } else throw new Error("Invalid channel type!")
-            } else throw new Error("Unknown channel!")
-          } else throw new Error("Invalid message link!")
-        } else throw empty
-        break
-      case "user":
-        if (baseValue) {
-          const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
-          if (match) {
-            const id = match[1] ?? match[2]
-            const user = await message.client.users.fetch(id, {
-              force: false,
-              cache: false,
-            })
-            if (user) setValue<"user">(user)
-            else throw new Error("Unknown user!")
-          } else {
-            const user = message.client.users.cache.find((user) => {
-              return user.username
-                .toLowerCase()
-                .includes(baseValue.toLowerCase())
-            })
-            if (user) setValue<"user">(user)
-            else throw new Error("User not found!")
-          }
-        } else throw empty
-        break
-      case "role":
-        if (baseValue) {
-          if (command.isGuildMessage(message)) {
-            const match = /^(?:<@&?(\d+)>|(\d+))$/.exec(baseValue)
-            if (match) {
-              const id = match[1] ?? match[2]
-              const role = await message.guild.roles.fetch(id)
-              if (role) setValue<"role">(role)
-              else throw new Error("Unknown role!")
-            } else {
-              const roles = await message.guild.roles.fetch(undefined, {
-                cache: false,
-                force: false,
-              })
-              const role = roles.find((role) => {
-                return role.name.toLowerCase().includes(baseValue.toLowerCase())
-              })
-              if (role) setValue<"role">(role)
-              else throw new Error("Role not found!")
-            }
-          } else
-            throw new Error(
-              'The "GuildRole" casting is only available in a guild!',
-            )
-        } else throw empty
-        break
-      case "emote":
-        if (baseValue) {
-          const match = /^(?:<a?:.+:(\d+)>|(\d+))$/.exec(baseValue)
-          if (match) {
-            const id = match[1] ?? match[2]
-            const emote = message.client.emojis.cache.get(id)
-            if (emote) setValue<"emote">(emote)
-            else throw new Error("Unknown emote!")
-          } else {
-            const emojiMatch = util.emojiRegex.exec(baseValue)
-            if (emojiMatch) setValue<"emote">(emojiMatch[0])
-            else throw new Error("Invalid emote value!")
-          }
-        } else throw empty
-        break
-      case "invite":
-        if (baseValue) {
-          if (command.isGuildMessage(message)) {
-            const invites = await message.guild.invites.fetch()
-            const invite = invites.find(
-              (invite) => invite.code === baseValue || invite.url === baseValue,
-            )
-            if (invite) setValue<"invite">(invite)
-            else throw new Error("Unknown invite!")
-          } else
-            throw new Error(
-              'The "Invite" casting is only available in a guild!',
-            )
-        } else throw empty
-        break
-      case "command":
-        if (baseValue) {
-          const cmd = command.commands.resolve(baseValue)
-          if (cmd) setValue<"command">(cmd)
-          else throw new Error("Unknown command!")
-        } else throw empty
-        break
-      default:
-        if (baseValue === undefined) throw empty
-        setValue<"string">(baseValue)
     }
+
+    const output = await types
+      .find((resolver) => resolver.name === subject.type)
+      ?.options.resolver(baseValue, message)
+
+    setValue(output)
   }
 
   try {
@@ -599,8 +510,9 @@ export function isFlag(arg: any): arg is Flag<any> {
   return arg.hasOwnProperty("flag")
 }
 
-export function trimArgumentValue(value: string): string {
-  const match = /^(?:"(.+)"|'(.+)'|(.+))$/s.exec(value)
+export function trimArgumentValue(value: string | number): string | number {
+  if (typeof value === "number") return value
+  const match = /^(?:"(.+)"|'(.+)'|(.+))$/s.exec(String(value))
   if (match) return match[1] ?? match[2] ?? match[3]
   return value
 }

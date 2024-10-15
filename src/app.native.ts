@@ -8,6 +8,7 @@ export * from "./app/logger.ts"
 export * from "./app/slash.ts"
 export * from "./app/util.ts"
 export * from "./config.ts"
+export * from "./types.ts"
 
 export * as pagination from "./app/pagination.ts"
 export * as argument from "./app/argument.ts"

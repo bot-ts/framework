@@ -564,7 +564,7 @@ export async function prepareCommand(
 
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
-        let value: any = context.parsedArgs._[index]
+        let value = context.parsedArgs._[index]
         const given = value !== undefined && value !== null
 
         const set = (v: any) => {
@@ -593,7 +593,7 @@ export async function prepareCommand(
               header: `Missing positional "${positional.name}"`,
               body: positional.description
                 ? "Description: " + positional.description
-                : `Run the following command to learn more: ${util.code.stringify(
+                : `Run the following command to learn more: ${await util.code.stringify(
                     {
                       content: `${message.usedPrefix}${context.key} --help`,
                     },
