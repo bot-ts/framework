@@ -22,20 +22,21 @@
 
 **bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
 
-- **File Handling**: [@ghom/handler](https://www.npmjs.com/package/@ghom/handler) provides robust file handling capabilities.
-- **CLI File Generation**: Generate files effortlessly with [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli).
-- **Argument Typing System**: Utilize [GhomKrosmonaute/prop-transfer-typings.ts](https://gist.github.com/GhomKrosmonaute/00da4eb3e8ac48a751602288fcf71835) for advanced argument typing.
-- **App Importation**: Import your entire app using NodeJS aliases with [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts) (`import * as app from "#app"`).
-- **Shell-Based Arguments**: Seamlessly handle shell-based arguments with [Yargs](http://yargs.js.org/).
-- **Predefined Commands and Listeners**: Access a collection of essential [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners), including an advanced "eval" command.
-- **Package Scripts**: Manage tasks with scripts in [package.json](https://github.com/bot-ts/framework/blob/master/package.json). Full documentation available [here](https://ghom.gitbook.io/bot-ts/command-line/overview).
-- **Default ORM Configuration**: Preconfigured [Knex](http://knexjs.org/) ORM with [sqlite3](https://www.npmjs.com/package/sqlite3) using [@ghom/orm](https://www.npmjs.com/package/@ghom/orm).
-- **Efficient Pagination**: Implement efficient pagination systems as shown in the [help command](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34).
-- **Rapid Build Process**: Experience build speeds faster than 100ms with [ESBuild](https://esbuild.github.io).
-- **TypeScript Typing Checks**: Automated GitHub Actions for TypeScript checks can be found [here](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
-- **Beautiful Logging**: Enhanced console logging with [@ghom/logger](https://www.npmjs.com/package/@ghom/logger).
-- **Framework Updater**: Update your framework seamlessly with [Gulp](https://gulpjs.com/).
-- **Docker Support**: Launch your bot using [Docker](https://www.docker.com) with the provided [Dockerfile](https://github.com/bot-ts/framework/blob/master/Dockerfile) or [compose.yml](https://github.com/bot-ts/framework/blob/master/compose.yml).
+- **File Handling**: Robust file handling with [@ghom/handler](https://www.npmjs.com/package/@ghom/handler).
+- **CLI File Generation**: Easy file generation via [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli).
+- **Argument Typing**: Advanced argument typing using [prop-transfer-typings.ts](https://gist.github.com/GhomKrosmonaute/00da4eb3e8ac48a751602288fcf71835).
+- **App Importation**: Import your app with NodeJS aliases from [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts).
+- **Shell Arguments**: Handle shell arguments using [Yargs](http://yargs.js.org/).
+- **Predefined Commands & Listeners**: Ready-to-use [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners).
+- **Scripts Management**: Task automation with [package.json](https://ghom.gitbook.io/bot-ts/command-line/overview) scripts.
+- **ORM Setup**: Preconfigured [Knex](http://knexjs.org/) ORM with [sqlite3](https://www.npmjs.com/package/sqlite3).
+- **Pagination**: Efficient pagination in the [help command](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34).
+- **Fast Build**: Builds under 100ms with [ESBuild](https://esbuild.github.io).
+- **TypeScript Checks**: Automated TypeScript checks via [GitHub Actions](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
+- **Logging**: Beautiful console logging with [@ghom/logger](https://www.npmjs.com/package/@ghom/logger).
+- **Framework Updates**: Update seamlessly using [Gulp](https://gulpjs.com/).
+- **Docker**: Run with [Docker](https://www.docker.com) via [Dockerfile](https://github.com/bot-ts/framework/blob/master/Dockerfile) or [compose.yml](https://github.com/bot-ts/framework/blob/master/compose.yml).
+- **Data Caching**: Reduce database and API requests with built-in caching.
 
 ## Why using bot.ts ?
 
@@ -48,8 +49,14 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 
 ## Annexes
 
+* [GitHub](https://github.com/bot-ts) - Come contribute 🩵
 * [Documentation](https://ghom.gitbook.io/bot-ts/)
-* [Package](https://www.npmjs.com/package/@ghom/bot.ts-cli)
-* [Discord](https://discord.gg/kYxDWWQJ8q)
-* [Github](https://github.com/bot-ts)
-* [Community](https://discord.gg/3vC2XWK)
+* [Package](https://www.npmjs.com/package/@ghom/bot.ts-cli) of CLI on NPM
+* [Discord](https://discord.gg/kYxDWWQJ8q) to track the progress of the project.
+* [Community](https://discord.gg/3vC2XWK) - Les Laboratoires JS
+
+## Funding
+
+<a href="https://www.buymeacoffee.com/ghom" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
+</a>
