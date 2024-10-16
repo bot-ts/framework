@@ -122,6 +122,7 @@ dayjs.utc(1)
 if (env.BOT_TIMEZONE) dayjs.tz.setDefault(env.BOT_TIMEZONE)
 
 export { dayjs }
+export * from "tims"
 
 export interface EventEmitters {
   messageCreate:
