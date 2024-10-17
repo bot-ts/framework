@@ -213,7 +213,6 @@ async function _build() {
   PluginError = await __importOrInstall("plugin-error", true, true)
   const esbuild = await __importOrInstall("gulp-esbuild", true, true)
 
-  // eslint-disable-next-line no-undef
   // process.traceDeprecation = true
   return gulp
     .src("src/**/*.ts")
@@ -267,7 +266,7 @@ function _overrideNativeFiles() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
-        "temp/.eslintrc.json",
+        "temp/eslint.config.mjs",
         "temp/Dockerfile",
         "temp/compose.yml",
         "temp/.github/workflows/**/*.native.*",

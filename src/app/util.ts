@@ -97,6 +97,19 @@ export async function checkUpdates() {
       )} and ${util.styleText("blue", "@ghom/bot.ts-cli")}`,
     )
   }
+
+  // check if the eslintrc.json file is present
+  if (fs.existsSync(fullPath(".eslintrc.json"))) {
+    logger.warn(
+      `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run the following command to update it.\n${util.styleText(
+        "bold",
+        "npx @eslint/migrate-config .eslintrc.json",
+      )}\nESLint migration guide => ${util.styleText(
+        ["bold", "underline"],
+        "https://eslint.org/docs/latest/use/configure/migration-guide",
+      )}`,
+    )
+  }
 }
 
 const locale = env.BOT_LOCALE
