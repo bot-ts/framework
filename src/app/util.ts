@@ -100,15 +100,24 @@ export async function checkUpdates() {
 
   // check if the eslintrc.json file is present
   if (fs.existsSync(fullPath(".eslintrc.json"))) {
-    logger.warn(
-      `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run the following command to update it.\n${util.styleText(
-        "bold",
-        "npx @eslint/migrate-config .eslintrc.json",
-      )}\nESLint migration guide => ${util.styleText(
-        ["bold", "underline"],
-        "https://eslint.org/docs/latest/use/configure/migration-guide",
-      )}`,
-    )
+    if (!fs.existsSync(fullPath("eslint.config.mjs"))) {
+      logger.warn(
+        `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run ${util.styleText(
+          "bold",
+          "npx @eslint/migrate-config .eslintrc.json",
+        )} to update it.`,
+      )
+
+      logger.warn(
+        `ESLint migration guide => https://eslint.org/docs/latest/use/configure/migration-guide`,
+      )
+    } else {
+      fs.unlinkSync(fullPath(".eslintrc.json"))
+
+      logger.log(
+        `Removed the outdated ${util.styleText("bold", ".eslintrc.json")} file`,
+      )
+    }
   }
 }
 
@@ -394,12 +403,16 @@ export const cache = new (class Cache {
 export interface ResponseCacheData<Value> {
   value: Value
   expires: number
+  outdated?: boolean
 }
 
 /**
  * Advanced cache for async queries
  */
-export class ResponseCache<Params extends any[], Value> {
+export class ResponseCache<
+  Params extends (string | number | boolean)[],
+  Value,
+> {
   private _cache = new Map<string, ResponseCacheData<Value>>()
 
   constructor(
@@ -407,11 +420,15 @@ export class ResponseCache<Params extends any[], Value> {
     private _timeout: number,
   ) {}
 
+  private key(params: Params) {
+    return JSON.stringify(params)
+  }
+
   async get(...params: Params): Promise<Value> {
-    const key = JSON.stringify(params)
+    const key = this.key(params)
     const cached = this._cache.get(key)
 
-    if (!cached || cached.expires < Date.now()) {
+    if (!cached || cached.expires < Date.now() || cached.outdated) {
       this._cache.set(key, {
         value: await this._request(...params),
         expires: Date.now() + this._timeout,
@@ -422,7 +439,7 @@ export class ResponseCache<Params extends any[], Value> {
   }
 
   async fetch(...params: Params): Promise<Value> {
-    const key = JSON.stringify(params)
+    const key = this.key(params)
 
     this._cache.set(key, {
       value: await this._request(...params),
@@ -430,6 +447,15 @@ export class ResponseCache<Params extends any[], Value> {
     })
 
     return this._cache.get(key)!.value
+  }
+
+  outdated(...params: Params): void {
+    const key = this.key(params)
+    const cached = this._cache.get(key)
+
+    if (cached) {
+      cached.outdated = true
+    }
   }
 }
 

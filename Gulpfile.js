@@ -369,17 +369,7 @@ async function _removeDuplicates() {
   const del = await __importOrInstall("del@6.1.1", true, true)
 
   if (fs.existsSync(".eslintrc.json")) {
-    fs.unlinkSync("eslint.config.mjs")
-
-    warnings.push(
-      `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run the following command to update it.\n${util.styleText(
-        "bold",
-        "npx @eslint/migrate-config .eslintrc.json",
-      )}\nESLint migration guide => ${util.styleText(
-        ["bold", "underline"],
-        "https://eslint.org/docs/latest/use/configure/migration-guide",
-      )}`,
-    )
+    fs.unlinkSync(".eslintrc.json")
   }
 
   return gulp
