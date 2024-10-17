@@ -15,6 +15,8 @@ const { dirname } = await __importOrInstall("dirname-filename-esm")
 
 const __dirname = dirname(import.meta)
 
+const warnings = []
+
 async function __importOrInstall(
   packageName,
   importDefault = false,
@@ -369,8 +371,8 @@ async function _removeDuplicates() {
   if (fs.existsSync(".eslintrc.json")) {
     fs.unlinkSync("eslint.config.mjs")
 
-    log(
-      `Warning  The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run the following command to update it.\n${util.styleText(
+    warnings.push(
+      `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run the following command to update it.\n${util.styleText(
         "bold",
         "npx @eslint/migrate-config .eslintrc.json",
       )}\nESLint migration guide => ${util.styleText(
@@ -421,6 +423,14 @@ async function _optimize() {
       { allowEmpty: true },
     )
     .pipe(vinyl(del))
+}
+
+function _showWarnings(cb) {
+  for (const warning of warnings) {
+    log(`Warning  ${util.styleText("red", `'${warning}'`)}`)
+  }
+
+  cb()
 }
 
 async function _generateReadme(cb) {
@@ -535,4 +545,5 @@ export const update = gulp.series(
   _updateDatabaseFile,
   _gitLog,
   _cleanTemp,
+  _showWarnings,
 )
