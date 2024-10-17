@@ -448,7 +448,7 @@ export async function getFileGitURL(
       /\\/g,
       "/",
     )}`
-  } catch (error) {
+  } catch {
     return
   }
 }

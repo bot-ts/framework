@@ -76,7 +76,7 @@ export default new app.Command({
               `${app.getSystemEmoji("success")} **${pack}** - installed`,
             )
             installed.add(pack)
-          } catch (error) {
+          } catch {
             if (log)
               await log.edit(
                 `${app.getSystemEmoji("error")} **${pack}** - error`,
@@ -130,7 +130,7 @@ export default new app.Command({
         await log.edit(
           `${app.getSystemEmoji("success")} **${pack}** - uninstalled`,
         )
-      } catch (error) {
+      } catch {
         if (log)
           await log.edit(`${app.getSystemEmoji("error")} **${pack}** - error`)
         else
