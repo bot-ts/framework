@@ -266,9 +266,9 @@ function _overrideNativeFiles() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
-        "temp/eslint.config.mjs",
         "temp/Dockerfile",
         "temp/compose.yml",
+        "temp/eslint.config.mjs",
         "temp/.github/workflows/**/*.native.*",
         "temp/template.env",
         "temp/template.md",
@@ -365,6 +365,20 @@ async function _removeDuplicates() {
   const filter = await __importOrInstall("gulp-filter", true, true)
   const vinyl = await __importOrInstall("vinyl-paths", true, true)
   const del = await __importOrInstall("del@6.1.1", true, true)
+
+  if (fs.existsSync(".eslintrc.json")) {
+    fs.unlinkSync("eslint.config.mjs")
+
+    log(
+      `Warning  The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run the following command to update it.\n${util.styleText(
+        "bold",
+        "npx @eslint/migrate-config .eslintrc.json",
+      )}\nESLint migration guide => ${util.styleText(
+        ["bold", "underline"],
+        "https://eslint.org/docs/latest/use/configure/migration-guide",
+      )}`,
+    )
+  }
 
   return gulp
     .src([
