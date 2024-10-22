@@ -4,7 +4,7 @@ import * as app from "#app"
 
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
-  description: "Handle reactions for pagination",
+  description: "Handle the reactions for pagination",
   async run(reaction, user) {
     if (user.bot) return
 

@@ -80,7 +80,7 @@ export type MessageArguments<
   argument.OutputPositionalValues<Positional>
 
 export type BaseMessage<InGuild extends boolean> = discord.Message<InGuild> & {
-  triggerCoolDown: () => void
+  triggerCooldown: () => void
   usedAsDefault: boolean
   isFromBotOwner: boolean
   isFromGuildOwner: boolean
@@ -101,28 +101,6 @@ export type GuildMessage = BaseMessage<true> & {
 
 export type DirectMessage = BaseMessage<false> & {
   channel: discord.DMChannel
-}
-
-export enum CooldownType {
-  ByUser = "byUser",
-  ByGuild = "byGuild",
-  ByChannel = "byChannel",
-  Global = "global",
-}
-
-export interface ICooldown {
-  duration: util.Scrap<number, [message: any]>
-  type: CooldownType
-}
-
-export interface Cooldown<Type extends keyof CommandMessageType> {
-  duration: util.Scrap<number, [message: CommandMessageType[Type]]>
-  type: CooldownType
-}
-
-export interface CoolDownData {
-  time: number
-  trigger: boolean
 }
 
 export interface MiddlewareResult {
@@ -161,7 +139,7 @@ export interface ICommandOptions {
   longDescription?: util.Scrap<string, [message: any]>
   isDefault?: boolean
   aliases?: string[]
-  cooldown?: ICooldown
+  cooldown?: util.Cooldown
   examples?: util.Scrap<string[], [message: any]>
   guildOwnerOnly?: util.Scrap<boolean, [message: any]>
   botOwnerOnly?: util.Scrap<boolean, [message: any]>
@@ -216,7 +194,7 @@ export interface CommandOptions<
   /**
    * Cool down of command (in ms)
    */
-  cooldown?: Cooldown<Type>
+  cooldown?: util.Cooldown
   examples?: util.Scrap<string[], [message: CommandMessageType[Type]]>
 
   // Restriction flags and permissions
@@ -361,14 +339,11 @@ export function validateCommand(
           }" command must be equal to 1`,
         )
 
-  if (command.options.cooldown)
-    if (!command.options.run.toString().includes("triggerCoolDown"))
-      logger.warn(
-        `you forgot using ${util.styleText(
-          "greenBright",
-          "message.triggerCoolDown()",
-        )} in the ${util.styleText("blueBright", command.options.name)} command.`,
-      )
+  util.validateCooldown(
+    command.options.cooldown,
+    command.options.run,
+    command.options.name,
+  )
 
   logger.log(
     `loaded command ${util.styleText("blueBright", commandBreadcrumb(command))}${
@@ -403,75 +378,14 @@ export async function prepareCommand(
     key: string
   },
 ): Promise<util.SystemMessage | boolean> {
-  // coolDown
-  if (cmd.options.cooldown) {
-    let slug: string
+  const error = await util.checkCooldown(
+    cmd.options.cooldown,
+    `${cmd.options.name} command`,
+    message,
+    message,
+  )
 
-    switch (cmd.options.cooldown.type) {
-      case CooldownType.ByUser:
-        slug = util.slug("coolDown", cmd.options.name, message.author.id)
-        break
-      case CooldownType.ByGuild:
-        if (message.inGuild())
-          slug = util.slug("coolDown", cmd.options.name, message.guildId)
-        else
-          return util.getSystemMessage(
-            "error",
-            "This command must be used in a guild.",
-          )
-        break
-      case CooldownType.ByChannel:
-        slug = util.slug("coolDown", cmd.options.name, message.channel.id)
-        break
-      case CooldownType.Global:
-        slug = util.slug("coolDown", cmd.options.name, "global")
-        break
-      default:
-        return util.getSystemMessage(
-          "error",
-          "Invalid coolDown type in command options.",
-        )
-    }
-
-    const coolDown = util.cache.ensure<CoolDownData>(slug, {
-      time: 0,
-      trigger: false,
-    })
-
-    message.triggerCoolDown = () => {
-      util.cache.set(slug, {
-        time: Date.now(),
-        trigger: true,
-      })
-    }
-
-    if (coolDown.trigger) {
-      const coolDownTime = await util.scrap(
-        cmd.options.cooldown.duration,
-        message,
-      )
-
-      if (Date.now() > coolDown.time + coolDownTime) {
-        util.cache.set(slug, {
-          time: 0,
-          trigger: false,
-        })
-      } else {
-        return util.getSystemMessage(
-          "error",
-          `Please wait ${Math.ceil(
-            (coolDown.time + coolDownTime - Date.now()) / 1000,
-          )} seconds before another try...`,
-        )
-      }
-    }
-  } else {
-    message.triggerCoolDown = () => {
-      logger.warn(
-        `You must setup the coolDown of the "${cmd.options.name}" command before using the "triggerCoolDown" method`,
-      )
-    }
-  }
+  if (error) return error
 
   const channelType = await util.scrap(cmd.options.channelType, message)
 

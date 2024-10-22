@@ -1,5 +1,8 @@
 import * as app from "#app"
 
+/**
+ * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-command guide} for more information.
+ */
 export default new app.Command({
   name: "{{ name }}",
   description: "The {{ name }} command",

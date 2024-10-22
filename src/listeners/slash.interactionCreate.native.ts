@@ -2,7 +2,7 @@ import * as app from "#app"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
-  description: "Handle interactions of slash commands",
+  description: "Handle the interactions for slash commands",
   async run(interaction) {
     if (!interaction.isChatInputCommand()) return
 
@@ -19,11 +19,10 @@ const listener: app.Listener<"interactionCreate"> = {
       await app.prepareSlashCommand(interaction, cmd)
     } catch (error) {
       if (error instanceof Error) {
-        return interaction.reply(
-          await app.getSystemMessage("error", error, {
-            stack: !(error instanceof app.SlashCommandError),
-          }),
-        )
+        if (!(error instanceof app.SlashCommandError))
+          app.error(error, cmd.filepath!, true)
+
+        return interaction.reply(await app.getSystemMessage("error", error))
       } else {
         return interaction.reply(
           await app.getSystemMessage(

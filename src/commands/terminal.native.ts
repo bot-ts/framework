@@ -21,7 +21,7 @@ export default new app.Command({
     required: true,
   },
   async run(message) {
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
     const toEdit = await message.channel.send(
       await app.getSystemMessage("loading", "The process is running..."),

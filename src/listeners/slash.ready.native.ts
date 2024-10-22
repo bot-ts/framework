@@ -2,7 +2,7 @@ import * as app from "#app"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
-  description: "Deploy slash commands",
+  description: "Deploy the slash commands",
   once: true,
   async run(client) {
     if (app.env.BOT_GUILD)

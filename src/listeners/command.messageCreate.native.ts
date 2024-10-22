@@ -8,7 +8,7 @@ import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
-  description: "Handle messages for commands",
+  description: "Handle the messages for commands",
   async run(message) {
     if (config.ignoreBots && message.author.bot) return
 
@@ -153,7 +153,7 @@ const listener: app.Listener<"messageCreate"> = {
       app.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(await app.getSystemMessage("error", error, { stack: true }))
+        .send(await app.getSystemMessage("error", error))
         .catch((error) => {
           app.error(error, cmd!.filepath!, true)
         })

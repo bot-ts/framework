@@ -622,3 +622,119 @@ export async function getSystemMessage(
 
   return output
 }
+
+export enum CooldownType {
+  ByUser = "byUser",
+  ByGuild = "byGuild",
+  ByChannel = "byChannel",
+  Global = "global",
+}
+
+export interface Cooldown {
+  duration: number
+  type: CooldownType
+}
+
+export interface CoolDownData {
+  time: number
+  trigger: boolean
+}
+
+export function validateCooldown(
+  cooldown: Cooldown | undefined,
+  method: any,
+  key: string,
+) {
+  if (cooldown)
+    if (!method.toString().includes("triggerCooldown"))
+      logger.warn(
+        `you forgot using ${util.styleText(
+          "greenBright",
+          "message.triggerCooldown()",
+        )} in the ${util.styleText("blueBright", key)} command.`,
+      )
+}
+
+export async function checkCooldown(
+  cooldown: Cooldown | undefined,
+  key: string,
+  context: {
+    author: discord.User
+    guild: discord.Guild | null
+    channel: discord.Channel | null
+  },
+  parentOfTrigger: {
+    triggerCooldown: () => void
+  },
+) {
+  // coolDown
+  if (cooldown) {
+    let _slug: string
+
+    switch (cooldown.type) {
+      case CooldownType.ByUser:
+        _slug = slug("coolDown", key, context.author.id)
+        break
+      case CooldownType.ByGuild:
+        if (context.guild) _slug = slug("coolDown", key, context.guild.id)
+        else
+          return getSystemMessage(
+            "error",
+            "You can't perform this action outside of a guild.",
+          )
+        break
+      case CooldownType.ByChannel:
+        if (context.channel) _slug = slug("coolDown", key, context.channel.id)
+        else
+          return getSystemMessage(
+            "error",
+            "You can't perform this action outside of a channel.",
+          )
+        break
+      case CooldownType.Global:
+        _slug = slug("coolDown", key, "global")
+        break
+      default:
+        return getSystemMessage(
+          "error",
+          "Invalid coolDown type in command options.",
+        )
+    }
+
+    const coolDown = cache.ensure<CoolDownData>(_slug, {
+      time: 0,
+      trigger: false,
+    })
+
+    parentOfTrigger.triggerCooldown = () => {
+      cache.set(_slug, {
+        time: Date.now(),
+        trigger: true,
+      })
+    }
+
+    if (coolDown.trigger) {
+      const coolDownTime = cooldown.duration
+
+      if (Date.now() > coolDown.time + coolDownTime) {
+        cache.set(_slug, {
+          time: 0,
+          trigger: false,
+        })
+      } else {
+        return getSystemMessage(
+          "error",
+          `Please wait ${Math.ceil(
+            (coolDown.time + coolDownTime - Date.now()) / 1000,
+          )} seconds before another try...`,
+        )
+      }
+    }
+  } else {
+    parentOfTrigger.triggerCooldown = () => {
+      logger.warn(
+        `You must setup the coolDown of the "${key}" instance before using the "triggerCoolDown" method`,
+      )
+    }
+  }
+}

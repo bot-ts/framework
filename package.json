@@ -14,7 +14,8 @@
     "#logger": "./dist/app/logger.js",
     "#database": "./dist/app/database.js",
     "#src/*": "./dist/*",
-    "#tables/*": "./dist/tables/*"
+    "#tables/*": "./dist/tables/*",
+    "#buttons/*": "./dist/buttons/*"
   },
   "scripts": {
     "bot": "npx @ghom/bot.ts-cli",

@@ -22,6 +22,7 @@ async function __importOrInstall(
   importDefault = false,
   optional = false,
   withTypes = false,
+  dev = false,
 ) {
   let namespace = null
 
@@ -29,7 +30,7 @@ async function __importOrInstall(
     namespace = await import(packageName.split(/\b@/)[0])
   } catch (e) {
     try {
-      await __install(packageName, optional, withTypes)
+      await __install(packageName, optional, withTypes, dev)
       // eslint-disable-next-line no-undef
       console.log(
         `[${dayjs().format("HH:mm:ss")}] Added    '${util.styleText("cyan", packageName)}'`,
@@ -54,6 +55,7 @@ async function __install(
   packageName = "",
   optional = false,
   withTypes = false,
+  dev = false,
 ) {
   let isLinux = false
 
@@ -66,7 +68,7 @@ async function __install(
 
   await new Promise((resolve, reject) => {
     cp.exec(
-      `npm i ${packageName} ${optional ? "--save-optional" : ""} ${isLinux ? "" : "--force"}`,
+      `npm i ${packageName} ${optional ? "--save-optional" : dev ? "-D" : ""} ${isLinux ? "" : "--force"}`,
       (err) => (err ? reject(err) : resolve()),
     )
   })

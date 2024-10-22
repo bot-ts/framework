@@ -4,7 +4,7 @@ import * as app from "#app"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
-  description: "Handle interactions for pagination",
+  description: "Handle the interactions for pagination",
   async run(interaction) {
     if (!app.cache.ensure<boolean>("turn", true)) return
 

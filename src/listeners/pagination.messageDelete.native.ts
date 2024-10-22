@@ -4,7 +4,7 @@ import * as app from "#app"
 
 const listener: app.Listener<"messageDelete"> = {
   event: "messageDelete",
-  description: "Remove existing paginator",
+  description: "Remove existing deleted paginator",
   async run(message) {
     const paginator = app.Paginator.getByMessage(message)
 

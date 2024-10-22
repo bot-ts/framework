@@ -7,6 +7,7 @@ const app = await import("#app")
 
 try {
   await app.database.init()
+  await app.buttonHandler.init()
   await app.commandHandler.init()
   await app.slashCommandHandler.init()
   await app.listenerHandler.init()

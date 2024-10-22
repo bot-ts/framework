@@ -30,7 +30,11 @@ export default [
         settings: {
             "import/resolver": {
                 alias: {
-                    map: [["#tables", "./src/tables"], ["#src", "./src"]],
+                    map: [
+                        ["#tables", "./src/tables"],
+                        ["#buttons", "./src/buttons"],
+                        ["#src", "./src"]
+                    ],
                     extensions: [".ts", ".js", ".jsx", ".tsx"],
                 },
 

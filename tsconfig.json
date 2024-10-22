@@ -22,7 +22,8 @@
       "#logger": ["./src/app/logger.ts"],
       "#database": ["./src/app/database.ts"],
       "#src/*": ["./src/*"],
-      "#tables/*": ["./src/tables/*"]
+      "#tables/*": ["./src/tables/*"],
+      "#buttons/*": ["./src/buttons/*"],
     }
   },
 }
