@@ -81,6 +81,10 @@ export type ButtonParams = (string | number | boolean)[]
 export interface ButtonOptions<Params extends ButtonParams> {
   key: string
   description: string
+  guildOnly?: boolean
+  adminOnly?: boolean
+  botOwnerOnly?: boolean
+  cooldown?: util.Cooldown
   builder?: (button: discord.ButtonBuilder, ...params: Params) => unknown
   run: (
     this: ButtonOptions<Params>,
