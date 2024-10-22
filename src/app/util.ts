@@ -659,9 +659,9 @@ export async function checkCooldown(
   cooldown: Cooldown | undefined,
   key: string,
   context: {
-    author: discord.User
-    guild: discord.Guild | null
-    channel: discord.Channel | null
+    authorId: discord.Snowflake
+    guildId: discord.Snowflake | null
+    channelId: discord.Snowflake | null
   },
   parentOfTrigger: {
     triggerCooldown: () => void
@@ -673,10 +673,10 @@ export async function checkCooldown(
 
     switch (cooldown.type) {
       case CooldownType.ByUser:
-        _slug = slug("coolDown", key, context.author.id)
+        _slug = slug("coolDown", key, context.authorId)
         break
       case CooldownType.ByGuild:
-        if (context.guild) _slug = slug("coolDown", key, context.guild.id)
+        if (context.guildId) _slug = slug("coolDown", key, context.guildId)
         else
           return getSystemMessage(
             "error",
@@ -684,7 +684,7 @@ export async function checkCooldown(
           )
         break
       case CooldownType.ByChannel:
-        if (context.channel) _slug = slug("coolDown", key, context.channel.id)
+        if (context.channelId) _slug = slug("coolDown", key, context.channelId)
         else
           return getSystemMessage(
             "error",

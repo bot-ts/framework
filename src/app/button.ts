@@ -146,20 +146,22 @@ export async function prepareButton(
     button.options.cooldown,
     `${button.options.key} button`,
     {
-      author: interaction.user,
-      channel: interaction.channel,
-      guild: interaction.guild,
+      authorId: interaction.user.id,
+      channelId: interaction.channelId,
+      guildId: interaction.guildId,
     },
     interaction,
   )
 
   if (error) return error
 
-  if (interaction.guild) {
+  if (interaction.inGuild()) {
     if (
       button.options.adminOnly &&
       !(
-        await interaction.guild.members.fetch(interaction.user)
+        await (
+          await interaction.client.guilds.fetch(interaction.guildId)
+        ).members.fetch(interaction.user)
       )?.permissions.has("Administrator")
     ) {
       return util.getSystemMessage(
