@@ -23,10 +23,7 @@ const listener: app.Listener<"interactionCreate"> = {
         ephemeral: true,
       })
 
-    const error = await app.prepareButton(
-      { ...(interaction as any), triggerCooldown: () => {} },
-      button,
-    )
+    const error = await app.prepareButton(interaction as any, button)
 
     if (error)
       return interaction.reply({
