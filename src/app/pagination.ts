@@ -7,6 +7,8 @@ import config from "#config"
 import * as logger from "./logger.ts"
 import * as util from "./util.ts"
 
+import paginationButton from "#buttons/pagination.native.ts"
+
 import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
@@ -139,8 +141,8 @@ export abstract class Paginator {
       : [
           new discord.ActionRowBuilder<discord.MessageActionRowComponentBuilder>().addComponents(
             Paginator.keys.map((key) => {
-              const button = new discord.ButtonBuilder()
-                .setCustomId("pagination-" + key)
+              const button = paginationButton
+                .create(key)
                 .setStyle(
                   this.options.buttonStyle ??
                     Paginator.defaults.buttonStyle ??
@@ -187,9 +189,10 @@ export abstract class Paginator {
   protected abstract getCurrentPage(): Promise<Page> | Page
   protected abstract getPageCount(): Promise<number> | number
 
-  public async handleInteraction(interaction: discord.ButtonInteraction) {
-    const key = interaction.customId.replace("pagination-", "") as PaginatorKey
-
+  public async handleInteraction(
+    interaction: discord.ButtonInteraction,
+    key: PaginatorKey,
+  ) {
     await this.updatePageIndex(key)
 
     await interaction.message
