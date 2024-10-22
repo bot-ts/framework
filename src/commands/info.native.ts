@@ -2,7 +2,9 @@
 
 import * as app from "#app"
 
+import fs from "fs"
 import time from "tims"
+import discord from "discord.js"
 
 export default new app.Command({
   name: "info",
@@ -20,11 +22,28 @@ export default new app.Command({
 
     const databaseClient = app.getDatabaseDriverName()
 
+    const gitURL = app.config.options.openSource
+      ? await app.getGitURL()
+      : undefined
+
+    let fundingURL: string | null = null
+
+    try {
+      const fundingFile = await fs.promises.readFile(
+        app.fullPath(".github/funding.yml"),
+        "utf-8",
+      )
+
+      const match = /^buy_me_a_coffee: (.+)\n?$/.exec(fundingFile)
+
+      if (match) fundingURL = `https://buymeacoffee.com/${match[1]}`
+    } catch {}
+
     const embed = new app.EmbedBuilder()
       .setAuthor({
         name: `Information about ${message.client.user.tag}`,
         iconURL: message.client.user?.displayAvatarURL(),
-        url: app.config.options.openSource ? await app.getGitURL() : undefined,
+        url: gitURL,
       })
       .setDescription(conf.description ?? "No description")
       .setTimestamp()
@@ -121,6 +140,31 @@ export default new app.Command({
         },
       )
 
-    return message.channel.send({ embeds: [embed] })
+    const row =
+      new app.ActionRowBuilder<discord.MessageActionRowComponentBuilder>()
+
+    if (gitURL) {
+      row.addComponents(
+        new app.ButtonBuilder()
+          .setLabel("View source")
+          .setStyle(app.ButtonStyle.Link)
+          .setURL(gitURL),
+      )
+    }
+
+    if (fundingURL) {
+      row.addComponents(
+        new app.ButtonBuilder()
+          .setLabel("Fund me")
+          .setEmoji("💖")
+          .setStyle(app.ButtonStyle.Primary)
+          .setURL(fundingURL),
+      )
+    }
+
+    return message.channel.send({
+      embeds: [embed],
+      components: gitURL || fundingURL ? [row] : undefined,
+    })
   },
 })
