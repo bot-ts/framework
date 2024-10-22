@@ -2,7 +2,8 @@ import * as app from "#app"
 
 /**
  * The parameters that the button will receive.
- * Example: ```ts
+ * @example
+ * ```ts
  * export type BuyButtonParams = [article: string, quantity: number]
  * ```
  */

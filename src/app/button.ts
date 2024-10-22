@@ -69,6 +69,13 @@ export interface IButton {
   create(...params: any[]): discord.ButtonBuilder
 }
 
+/**
+ * The parameters that the button will receive.
+ * @example
+ * ```ts
+ * export type BuyButtonParams = [article: string, quantity: number]
+ * ```
+ */
 export type ButtonParams = (string | number | boolean)[]
 
 export interface ButtonOptions<Params extends ButtonParams> {
