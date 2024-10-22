@@ -157,7 +157,7 @@ export default new app.Command({
         new app.ButtonBuilder()
           .setLabel("Fund me")
           .setEmoji("💖")
-          .setStyle(app.ButtonStyle.Primary)
+          .setStyle(app.ButtonStyle.Link)
           .setURL(fundingURL),
       )
     }
