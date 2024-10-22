@@ -381,7 +381,11 @@ export async function prepareCommand(
   const error = await util.checkCooldown(
     cmd.options.cooldown,
     `${cmd.options.name} command`,
-    message,
+    {
+      authorId: message.author.id,
+      channelId: message.channelId,
+      guildId: message.guildId,
+    },
     message,
   )
 
