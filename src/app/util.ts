@@ -463,6 +463,21 @@ export function convertDistPathToSrc(path: string) {
   return path.replace(/dist([/\\])/, "src$1").replace(".js", ".ts")
 }
 
+export async function getGitURL(): Promise<string | undefined> {
+  const git = simpleGit(process.cwd())
+
+  try {
+    const remotes = await git.getRemotes(true)
+    const remote = remotes.find(
+      (remote) =>
+        remote.name === "origin" &&
+        remote.refs.fetch.startsWith("https://github.com/"),
+    )
+
+    return remote?.refs.fetch.replace(".git", "")
+  } catch {}
+}
+
 export async function getFileGitURL(
   filepath: string,
 ): Promise<string | undefined> {
@@ -487,9 +502,7 @@ export async function getFileGitURL(
       /\\/g,
       "/",
     )}`
-  } catch {
-    return
-  }
+  } catch {}
 }
 
 export interface SystemEmojis {

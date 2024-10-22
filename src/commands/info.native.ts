@@ -24,6 +24,7 @@ export default new app.Command({
       .setAuthor({
         name: `Information about ${message.client.user.tag}`,
         iconURL: message.client.user?.displayAvatarURL(),
+        url: app.config.options.openSource ? await app.getGitURL() : undefined,
       })
       .setDescription(conf.description ?? "No description")
       .setTimestamp()
