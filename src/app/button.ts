@@ -131,7 +131,6 @@ export function createButton<Params extends ButtonParams>(
   const button = new discord.ButtonBuilder()
     .setCustomId(encodeButtonCustomId(handler.options.key, ...params))
     .setStyle(discord.ButtonStyle.Primary)
-    .setLabel(handler.options.key)
 
   handler.options.builder?.(button, ...params)
 
