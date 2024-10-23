@@ -1,12 +1,12 @@
 // system file, please don't modify it
 
-import * as pg from "pg"
+import pg from "pg"
 import * as orm from "@ghom/orm"
 import * as logger from "./logger.ts"
 import env from "./env.ts"
 import path from "path"
 
-setTypeParsers(pg)
+setTypeParsers()
 
 const client = new orm.ORM({
   location: path.join(process.cwd(), "dist", "tables"),
@@ -29,13 +29,13 @@ export * from "@ghom/orm"
 
 export default client
 
-function setTypeParsers({ types }: typeof pg) {
+function setTypeParsers() {
   const int = (value: string) => parseInt(value)
   const float = (value: string) => parseFloat(value)
 
-  types.setTypeParser(types.builtins.INT2, int)
-  types.setTypeParser(types.builtins.INT4, int)
-  types.setTypeParser(types.builtins.INT8, int)
-  types.setTypeParser(types.builtins.FLOAT4, float)
-  types.setTypeParser(types.builtins.FLOAT8, float)
+  pg.types.setTypeParser(pg.types.builtins.INT2, int)
+  pg.types.setTypeParser(pg.types.builtins.INT4, int)
+  pg.types.setTypeParser(pg.types.builtins.INT8, int)
+  pg.types.setTypeParser(pg.types.builtins.FLOAT4, float)
+  pg.types.setTypeParser(pg.types.builtins.FLOAT8, float)
 }
