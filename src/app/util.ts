@@ -400,65 +400,6 @@ export const cache = new (class Cache {
   }
 })()
 
-export interface ResponseCacheData<Value> {
-  value: Value
-  expires: number
-  outdated?: boolean
-}
-
-/**
- * Advanced cache for async queries
- */
-export class ResponseCache<
-  Params extends (string | number | boolean)[],
-  Value,
-> {
-  private _cache = new Map<string, ResponseCacheData<Value>>()
-
-  constructor(
-    private _request: (...params: Params) => Promise<Value>,
-    private _timeout: number,
-  ) {}
-
-  private key(params: Params) {
-    return JSON.stringify(params)
-  }
-
-  async get(...params: Params): Promise<Value> {
-    const key = this.key(params)
-    const cached = this._cache.get(key)
-
-    if (!cached || cached.expires < Date.now() || cached.outdated) {
-      this._cache.set(key, {
-        value: await this._request(...params),
-        expires: Date.now() + this._timeout,
-      })
-    }
-
-    return this._cache.get(key)!.value
-  }
-
-  async fetch(...params: Params): Promise<Value> {
-    const key = this.key(params)
-
-    this._cache.set(key, {
-      value: await this._request(...params),
-      expires: Date.now() + this._timeout,
-    })
-
-    return this._cache.get(key)!.value
-  }
-
-  outdated(...params: Params): void {
-    const key = this.key(params)
-    const cached = this._cache.get(key)
-
-    if (cached) {
-      cached.outdated = true
-    }
-  }
-}
-
 export function convertDistPathToSrc(path: string) {
   return path.replace(/dist([/\\])/, "src$1").replace(".js", ".ts")
 }

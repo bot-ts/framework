@@ -55,7 +55,7 @@ export default [
             }],
 
             "import/no-unresolved": ["error", {
-                ignore: ["^#app$", "^#config$", "^#env$", "^#client$", "^#logger$", "^#database$"],
+                ignore: ["^#app$", "^#config$", "^#env$", "^#client$", "^#logger$", "^#database$", "^@ghom/orm$"],
             }],
 
             "@typescript-eslint/no-unused-vars": "warn",
