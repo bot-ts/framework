@@ -7,6 +7,9 @@ import path from "path"
 
 const client = new orm.ORM({
   tableLocation: path.join(process.cwd(), "dist", "tables"),
+  backups: {
+    location: path.join(process.cwd(), "data", "backups"),
+  },
   database: {
     client: "mysql2",
     useNullAsDefault: true,

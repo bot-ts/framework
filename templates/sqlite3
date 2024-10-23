@@ -12,6 +12,9 @@ if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
 const client = new orm.ORM({
   tableLocation: path.join(process.cwd(), "dist", "tables"),
+  backups: {
+    location: path.join(dataDirectory, "backups"),
+  },
   database: {
     client: "sqlite3",
     useNullAsDefault: true,
