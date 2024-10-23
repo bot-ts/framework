@@ -6,7 +6,6 @@ export type PaginationButtonParams = [key: pagination.PaginatorKey]
 export default new button.Button<PaginationButtonParams>({
   key: "pagination",
   description: "The pagination button",
-  builder: (builder) => builder.setLabel("Pagination"),
   async run(interaction, key) {
     const app = await import("#app")
 
