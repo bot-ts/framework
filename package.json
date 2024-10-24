@@ -46,7 +46,7 @@
   "dependencies": {
     "@ghom/handler": "^3.1.0",
     "@ghom/logger": "^2.0.2",
-    "@ghom/orm": "^1.8.3",
+    "@ghom/orm": "^1.8.4",
     "boxen": "^8.0.1",
     "dayjs": "^1.11.13",
     "dirname-filename-esm": "^1.1.2",
