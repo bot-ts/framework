@@ -10,7 +10,7 @@ const listener: app.Listener<"interactionCreate"> = {
 
     if (!interaction.isButton()) return
 
-    const [key, ...params] = app.decodeButtonCustomId(interaction.customId)
+    const [key, params] = app.decodeButtonCustomId(interaction.customId)
 
     const button = app.buttons.get(key)
 
@@ -32,7 +32,7 @@ const listener: app.Listener<"interactionCreate"> = {
       })
 
     try {
-      await button.options.run.bind(interaction)(interaction as any, ...params)
+      await button.options.run.bind(interaction)(interaction as any, params)
     } catch (error) {
       if (error instanceof Error) {
         app.error(error, button.filepath!, true)

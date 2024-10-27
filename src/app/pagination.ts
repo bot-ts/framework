@@ -142,7 +142,7 @@ export abstract class Paginator {
           new discord.ActionRowBuilder<discord.MessageActionRowComponentBuilder>().addComponents(
             Paginator.keys.map((key) => {
               const button = paginationButton
-                .create(key)
+                .create({ key })
                 .setStyle(
                   this.options.buttonStyle ??
                     Paginator.defaults.buttonStyle ??
