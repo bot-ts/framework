@@ -1,11 +1,9 @@
 import * as button from "#src/app/button.ts"
 import type * as pagination from "#src/app/pagination.ts"
 
-export type PaginationButtonParams = {
+export default new button.Button<{
   key: pagination.PaginatorKey
-}
-
-export default new button.Button<PaginationButtonParams>({
+}>({
   key: "pagination",
   description: "The pagination button",
   async run(interaction, { key }) {

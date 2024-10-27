@@ -76,7 +76,7 @@ export interface IButton {
  * export type BuyButtonParams = [article: string, quantity: number]
  * ```
  */
-export type ButtonParams = Record<string, string | boolean | number>
+export type ButtonParams = Record<string, string | boolean | number> | null
 
 export interface ButtonOptions<Params extends ButtonParams> {
   key: string
@@ -97,14 +97,16 @@ export interface ButtonOptions<Params extends ButtonParams> {
  * Represents a button handler. <br>
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button guide} for more information.
  */
-export class Button<Params extends ButtonParams> {
+export class Button<Params extends ButtonParams = null> {
   filepath?: string
   native = false
 
   constructor(public options: ButtonOptions<Params>) {}
 
-  public create(params: Params): discord.ButtonBuilder {
-    return createButton(this, params)
+  public create(): discord.ButtonBuilder
+  public create(params: Params): discord.ButtonBuilder
+  public create(params?: Params): discord.ButtonBuilder {
+    return createButton(this, params!)
   }
 }
 
