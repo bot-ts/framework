@@ -490,9 +490,9 @@ export type SystemMessageType = "default" | keyof SystemEmojis
 
 export interface GetSystemMessageOptions {
   /**
-   * js, json, ts, etc.
-   * if given, a formatted code clock will be displayed
-   * if true, the code block will be displayed without lang
+   * js, json, ts, etc. <br>
+   * If given, a formatted code clock will be displayed <br>
+   * If true, the code block will be displayed without lang
    */
   code?: boolean | string
 

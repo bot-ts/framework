@@ -31,7 +31,7 @@ export default new app.Command({
           body: message.rest,
         },
         {
-          code: true,
+          code: "bash",
         },
       ),
     )
@@ -48,9 +48,16 @@ export default new app.Command({
         "success",
         {
           header: "The process is done",
-          body: output.split("").reverse().slice(0, 2000).reverse().join(""),
+          body:
+            output
+              .split("")
+              .reverse()
+              .slice(0, 2000)
+              .reverse()
+              .join("")
+              .trim() || "void",
         },
-        { code: true },
+        { code: "js" },
       )
     } catch (error: any) {
       systemMessage = await app.getSystemMessage(
