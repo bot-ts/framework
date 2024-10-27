@@ -24,7 +24,16 @@ export default new app.Command({
     message.triggerCooldown()
 
     const toEdit = await message.channel.send(
-      await app.getSystemMessage("loading", "The process is running..."),
+      await app.getSystemMessage(
+        "loading",
+        {
+          header: "The process is running...",
+          body: message.rest,
+        },
+        {
+          code: true,
+        },
+      ),
     )
 
     let systemMessage: app.SystemMessage

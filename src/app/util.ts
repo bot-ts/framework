@@ -549,8 +549,13 @@ export async function getSystemMessage(
     output.embeds = [
       new discord.EmbedBuilder()
         .setColor(systemColors[type])
-        .setTitle(message.header ?? null)
-        .setDescription(output.content!)
+        .setDescription(
+          message.header
+            ? `### ${
+                type === "default" ? "" : getSystemEmoji(type)
+              } ${message.header}\n${output.content}`.trim()
+            : output.content!,
+        )
         .setFooter(message.footer ? { text: message.footer } : null)
         .setTimestamp(message.date ?? null)
         .toJSON(),
