@@ -73,7 +73,7 @@ export interface IButton {
  * The parameters that the button will receive.
  * @example
  * ```ts
- * export type BuyButtonParams = [article: string, quantity: number]
+ * export type BuyButtonParams = { article: string, quantity: number }
  * ```
  */
 export type ButtonParams = Record<string, string | boolean | number> | null

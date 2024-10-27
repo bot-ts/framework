@@ -4,10 +4,10 @@ import * as app from "#app"
  * The parameters that the button will receive.
  * @example
  * ```ts
- * export type BuyButtonParams = [article: string, quantity: number]
+ * export type BuyButtonParams = { article: string, quantity: number }
  * ```
  */
-export type {{ Name }}ButtonParams = []
+export type {{ Name }}ButtonParams = {}
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button guide} for more information.
