@@ -114,7 +114,11 @@ export const BUTTON_CODE_SEPARATOR = ";://i//?;"
 
 export function decodeButtonCustomId(customId: string): [string, ButtonParams] {
   const [key, params] = customId.split(BUTTON_CODE_SEPARATOR)
-  return [key, JSON.parse(params)]
+  try {
+    return [key, JSON.parse(params)]
+  } catch {
+    return [key, null]
+  }
 }
 
 export function encodeButtonCustomId(
