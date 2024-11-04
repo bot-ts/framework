@@ -4,6 +4,7 @@ process.env.BOT_MODE = "test"
 const app = await import("#app")
 
 try {
+  await app.cronHandler.init()
   await app.database.handler.init()
   await app.buttonHandler.init()
   await app.commandHandler.init()

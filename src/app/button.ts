@@ -15,7 +15,8 @@ export const buttonHandler = new handler.Handler<IButton>(
     pattern: /\.js$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
-      return file.default as IButton
+      if (file.default instanceof Button) return file.default
+      throw new Error(`${filepath}: default export must be a Button instance`)
     },
     onLoad: async (filepath, button) => {
       button.native = filepath.endsWith(".native.js")
@@ -31,22 +32,22 @@ export const buttons = new (class ButtonCollection extends discord.Collection<
 > {
   add(button: IButton): this {
     this.validate(button)
-    return super.set(button.options.key, button)
+    return this.set(button.options.name, button)
   }
 
   validate(button: IButton): void | never {
-    if (this.has(button.options.key)) {
-      throw new Error(`Button key "${button.options.key}" is not unique.`)
+    if (this.has(button.options.name)) {
+      throw new Error(`Button key "${button.options.name}" is not unique.`)
     }
 
     util.validateCooldown(
       button.options.cooldown,
       button.options.run,
-      button.options.key,
+      button.options.name,
     )
 
     logger.log(
-      `loaded button ${util.styleText("blueBright", button.options.key)}${
+      `loaded button ${util.styleText("blueBright", button.options.name)}${
         button.native ? ` ${util.styleText("green", "native")}` : ""
       } ${util.styleText("grey", button.options.description)}`,
     )
@@ -55,7 +56,7 @@ export const buttons = new (class ButtonCollection extends discord.Collection<
 
 export interface IButton {
   options: {
-    key: string
+    name: string
     description: string
     guildOnly?: boolean
     adminOnly?: boolean
@@ -79,7 +80,7 @@ export interface IButton {
 export type ButtonParams = Record<string, string | boolean | number> | null
 
 export interface ButtonOptions<Params extends ButtonParams> {
-  key: string
+  name: string
   description: string
   guildOnly?: boolean
   adminOnly?: boolean
@@ -133,7 +134,7 @@ export function createButton<Params extends ButtonParams>(
   params: Params,
 ): discord.ButtonBuilder {
   const button = new discord.ButtonBuilder()
-    .setCustomId(encodeButtonCustomId(handler.options.key, params))
+    .setCustomId(encodeButtonCustomId(handler.options.name, params))
     .setStyle(discord.ButtonStyle.Primary)
 
   handler.options.builder?.(button, params)
@@ -147,7 +148,7 @@ export async function prepareButton(
 ): Promise<util.SystemMessage | void> {
   const error = await util.checkCooldown(
     button.options.cooldown,
-    `${button.options.key} button`,
+    `${button.options.name} button`,
     {
       authorId: interaction.user.id,
       channelId: interaction.channelId,

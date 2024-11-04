@@ -2,7 +2,7 @@
 
 import * as app from "#app"
 
-const listener: app.Listener<"messageDelete"> = {
+export default new app.Listener({
   event: "messageDelete",
   description: "Remove existing deleted paginator",
   async run(message) {
@@ -10,6 +10,4 @@ const listener: app.Listener<"messageDelete"> = {
 
     if (paginator) return paginator.deactivate()
   },
-}
-
-export default listener
+})

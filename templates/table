@@ -5,7 +5,7 @@ export interface {{ Name }} {
 }
 
 /**
- * See the {@link https://ghom.gitbook.io/bot.ts/usage/use-database guide} for more information.
+ * See the {@link https://ghom.gitbook.io/bot.ts/usage/use-database database guide} for more information.
  */
 export default new Table<{{ Name }}>({
   name: "{{ name }}",

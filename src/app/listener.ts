@@ -13,40 +13,45 @@ import client from "#client"
 
 const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
 
-export const listenerHandler = new handler.Handler(
+export const listenerHandler = new handler.Handler<Listener<any>>(
   path.join(process.cwd(), "dist", "listeners"),
   {
     pattern: /\.js$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
-      return file.default as Listener<any>
+      if (file.default instanceof Listener) return file.default
+      throw new Error(`${filepath}: default export must be a Listener instance`)
     },
     onLoad: async (filepath, listener) => {
-      if (listener.event === "ready") readyListeners.set(listener, false)
+      if (listener.options.event === "ready")
+        readyListeners.set(listener, false)
 
-      client[listener.once ? "once" : "on"](listener.event, async (...args) => {
-        try {
-          await listener.run(...args)
+      client[listener.options.once ? "once" : "on"](
+        listener.options.event,
+        async (...args) => {
+          try {
+            await listener.options.run(...args)
 
-          if (listener.event === "ready") {
-            readyListeners.set(listener, true)
+            if (listener.options.event === "ready") {
+              readyListeners.set(listener, true)
 
-            if (readyListeners.every((launched) => launched)) {
-              client.emit("afterReady", ...args)
+              if (readyListeners.every((launched) => launched)) {
+                client.emit("afterReady", ...args)
+              }
             }
+          } catch (error: any) {
+            logger.error(error, filepath, true)
           }
-        } catch (error: any) {
-          logger.error(error, filepath, true)
-        }
-      })
+        },
+      )
 
       const isNative = filepath.includes(".native.")
 
       const category = path
         .basename(filepath, ".js")
-        .replace(`${listener.event}.`, "")
+        .replace(`${listener.options.event}.`, "")
         .split(".")
-        .filter((x) => x !== "native" && x !== listener.event)
+        .filter((x) => x !== "native" && x !== listener.options.event)
         .join(" ")
 
       logger.log(
@@ -55,10 +60,10 @@ export const listenerHandler = new handler.Handler(
           category,
         )} ${util.styleText(
           "yellow",
-          listener.once ? "once" : "on",
-        )} ${util.styleText("blueBright", listener.event)}${
+          listener.options.once ? "once" : "on",
+        )} ${util.styleText("blueBright", listener.options.event)}${
           isNative ? ` ${util.styleText("green", "native")}` : ""
-        } ${util.styleText("grey", listener.description)}`,
+        } ${util.styleText("grey", listener.options.description)}`,
       )
     },
   },
@@ -71,9 +76,13 @@ export interface MoreClientEvents {
 
 export type AllClientEvents = discord.ClientEvents & MoreClientEvents
 
-export type Listener<EventName extends keyof AllClientEvents> = {
+export type ListenerOptions<EventName extends keyof AllClientEvents> = {
   event: EventName
   description: string
   run: (...args: AllClientEvents[EventName]) => unknown
   once?: boolean
+}
+
+export class Listener<EventName extends keyof AllClientEvents> {
+  constructor(public options: ListenerOptions<EventName>) {}
 }

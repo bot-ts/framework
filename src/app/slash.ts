@@ -24,13 +24,16 @@ export class SlashCommandError extends Error {
   }
 }
 
-export const slashCommandHandler = new handler.Handler(
+export const slashCommandHandler = new handler.Handler<ISlashCommand>(
   path.join(process.cwd(), "dist", "slash"),
   {
     pattern: /\.js$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
-      return file.default as ISlashCommand
+      if (file.default instanceof SlashCommand) return file.default
+      throw new Error(
+        `${filepath}: default export must be a SlashCommand instance`,
+      )
     },
     onLoad: async (filepath, command) => {
       command.native = filepath.endsWith("native.js")

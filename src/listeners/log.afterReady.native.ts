@@ -12,7 +12,7 @@ import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
 
-const listener: app.Listener<"afterReady"> = {
+export default new app.Listener({
   event: "afterReady",
   description: "Just log that bot is ready",
   once: true,
@@ -47,6 +47,4 @@ const listener: app.Listener<"afterReady"> = {
         )
       })
   },
-}
-
-export default listener
+})

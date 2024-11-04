@@ -4,7 +4,7 @@ import type * as pagination from "#src/app/pagination.ts"
 export default new button.Button<{
   key: pagination.PaginatorKey
 }>({
-  key: "pagination",
+  name: "pagination",
   description: "The pagination button",
   async run(interaction, { key }) {
     const app = await import("#app")

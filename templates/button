@@ -13,7 +13,7 @@ export type {{ Name }}ButtonParams = {}
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button guide} for more information.
  */
 export default new app.Button<{{ Name }}ButtonParams>({
-  key: "{{ name }}",
+  name: "{{ name }}",
   description: "The {{ name }} button",
   builder: (builder) => builder.setLabel("{{ Name }}"),
   async run(interaction /*, ...params */) {

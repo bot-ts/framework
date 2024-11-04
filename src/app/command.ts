@@ -18,13 +18,14 @@ import config from "#config"
 import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
-export const commandHandler = new handler.Handler(
+export const commandHandler = new handler.Handler<ICommand>(
   path.join(process.cwd(), "dist", "commands"),
   {
     pattern: /\.js$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
-      return file.default as ICommand
+      if (file.default instanceof Command) return file.default
+      throw new Error(`${filepath}: default export must be a Command instance`)
     },
     onLoad: async (filepath, command) => {
       command.native = filepath.endsWith(".native.js")

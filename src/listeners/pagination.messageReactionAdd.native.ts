@@ -2,7 +2,7 @@
 
 import * as app from "#app"
 
-const listener: app.Listener<"messageReactionAdd"> = {
+export default new app.Listener({
   event: "messageReactionAdd",
   description: "Handle the reactions for pagination",
   async run(reaction, user) {
@@ -12,6 +12,4 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
     if (paginator) return paginator.handleReaction(reaction, user)
   },
-}
-
-export default listener
+})

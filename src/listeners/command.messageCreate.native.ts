@@ -6,7 +6,7 @@ import env from "#env"
 
 import yargsParser from "yargs-parser"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new app.Listener({
   event: "messageCreate",
   description: "Handle the messages for commands",
   async run(message) {
@@ -159,6 +159,4 @@ const listener: app.Listener<"messageCreate"> = {
         })
     }
   },
-}
-
-export default listener
+})

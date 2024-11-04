@@ -1,6 +1,8 @@
+// system file, please don't modify it
+
 import * as app from "#app"
 
-const listener: app.Listener<"interactionCreate"> = {
+export default new app.Listener({
   event: "interactionCreate",
   description: "Handle the interactions for slash commands",
   async run(interaction) {
@@ -68,6 +70,4 @@ const listener: app.Listener<"interactionCreate"> = {
       }
     }
   },
-}
-
-export default listener
+})
