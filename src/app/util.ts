@@ -479,6 +479,7 @@ export interface SystemMessageOptions {
   body: string | Error
   footer?: string
   date?: Date
+  url?: string
 }
 
 export type SystemMessage = Pick<
@@ -491,15 +492,21 @@ export type SystemMessageType = "default" | keyof SystemEmojis
 export interface GetSystemMessageOptions {
   /**
    * js, json, ts, etc. <br>
-   * If given, a formatted code clock will be displayed <br>
-   * If true, the code block will be displayed without lang
+   * If given, a formatted code clock will be displayed. <br>
+   * If true, the code block will be displayed without lang.
    */
   code?: boolean | string
 
   /**
-   * If true, the error stack will be displayed
+   * If true, the error stack will be displayed.
    */
   stack?: boolean
+
+  /**
+   * If the output is an embed, you can edit it in this callback. <br>
+   * The result of this callback will be returned as the final embed.
+   */
+  editEmbed?: (embed: discord.EmbedBuilder) => discord.EmbedBuilder
 }
 
 export async function getSystemMessage(
@@ -541,25 +548,23 @@ export async function getSystemMessage(
   }
 
   // if the input has a header or a footer, use an embed
-  if (
-    typeof message !== "string" &&
-    !(message instanceof Error) &&
-    (message.header || message.footer)
-  ) {
-    output.embeds = [
-      new discord.EmbedBuilder()
-        .setColor(systemColors[type])
-        .setDescription(
-          message.header
-            ? `### ${
-                type === "default" ? "" : getSystemEmoji(type)
-              } ${message.header}\n${output.content}`.trim()
-            : output.content!,
-        )
-        .setFooter(message.footer ? { text: message.footer } : null)
-        .setTimestamp(message.date ?? null)
-        .toJSON(),
-    ]
+  if (typeof message !== "string" && !(message instanceof Error)) {
+    const embed = new discord.EmbedBuilder()
+      .setURL(message.url ?? null)
+      .setColor(systemColors[type])
+      .setDescription(
+        message.header
+          ? `### ${
+              type === "default" ? "" : getSystemEmoji(type)
+            } ${message.header}\n${output.content}`.trim()
+          : output.content!,
+      )
+      .setFooter(message.footer ? { text: message.footer } : null)
+      .setTimestamp(message.date ?? null)
+
+    if (options?.editEmbed) options.editEmbed(embed)
+
+    output.embeds = [embed.toJSON()]
     delete output.content
   } else if (type !== "default") {
     // else, add an emoji to the message
