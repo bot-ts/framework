@@ -1,9 +1,9 @@
 import * as handler from "@ghom/handler"
 
+import discord from "discord.js"
 import cron from "node-cron"
 import path from "path"
 import url from "url"
-import discord from "discord.js"
 
 import * as util from "./util.ts"
 
@@ -194,6 +194,9 @@ export function cronKeyToPattern(key: CronIntervalKey): string {
 }
 
 export function cronSimpleToPattern(simple: CronIntervalSimple): string {
+  if (!simple.duration || simple.duration < 0)
+    throw new CRON_Error("Invalid cron's schedule duration")
+
   switch (simple.type) {
     case "minute":
       return `*/${simple.duration} * * * *`
