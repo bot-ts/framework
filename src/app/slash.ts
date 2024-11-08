@@ -85,7 +85,7 @@ export interface SlashCommandOptions<
   userPermissions?: discord.PermissionsString[]
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
-  middleware?: command.Middleware<
+  middlewares?: command.Middleware<
     SlashCommandInteraction<ChannelType, GuildOnly>
   >[]
   build?: (
