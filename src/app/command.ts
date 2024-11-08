@@ -1,19 +1,19 @@
 // system file, please don't modify it
 
-import url from "url"
 import discord from "discord.js"
-import tims from "tims"
 import path from "path"
+import tims from "tims"
+import url from "url"
 import yargsParser from "yargs-parser"
 
 import * as handler from "@ghom/handler"
 
-import * as util from "./util.ts"
-import * as logger from "./logger.ts"
 import * as argument from "./argument.ts"
+import * as logger from "./logger.ts"
+import * as util from "./util.ts"
 
-import env from "#env"
 import config from "#config"
+import env from "#env"
 
 import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
@@ -105,6 +105,11 @@ export type DirectMessage = BaseMessage<false> & {
 }
 
 export interface MiddlewareResult {
+  /**
+   * If `false` is returned, the command will be stopped. <br>
+   * If a string is returned, the command will be stopped and the string will be displayed as an error message. <br>
+   * If `true` is returned, the command will continue.
+   */
   result: boolean | string
   data: any
 }
@@ -112,16 +117,20 @@ export interface MiddlewareResult {
 export interface IMiddleware {
   readonly name: string
   readonly run: (
-    message: any,
+    context: any,
     data: any,
   ) => Promise<MiddlewareResult> | MiddlewareResult
 }
 
-export class Middleware<Type extends keyof CommandMessageType> {
+export type MiddlewareContext =
+  | UnknownMessage
+  | discord.ChatInputCommandInteraction
+
+export class Middleware<Context extends MiddlewareContext> {
   constructor(
     public readonly name: string,
     public readonly run: (
-      message: CommandMessageType[Type],
+      context: Context,
       data: any,
     ) => Promise<MiddlewareResult> | MiddlewareResult,
   ) {}
@@ -216,7 +225,7 @@ export interface CommandOptions<
   /**
    * Middlewares can stop the command if returning a string (string is displayed as error message in discord)
    */
-  middlewares?: Middleware<Type>[]
+  middlewares?: Middleware<CommandMessageType[Type]>[]
 
   /**
    * The rest of message after excludes all other arguments.
@@ -686,28 +695,36 @@ export async function prepareCommand(
   }
 
   if (cmd.options.middlewares) {
-    const middlewares = await util.scrap(cmd.options.middlewares, message)
+    const result = await prepareMiddlewares(message, cmd.options.middlewares)
+    if (result !== true) return result
+  }
 
-    let currentData: any = {}
+  return true
+}
 
-    for (const middleware of middlewares) {
-      const { result, data } = await middleware.run(message, currentData)
+export async function prepareMiddlewares(
+  context: MiddlewareContext,
+  middlewares: IMiddleware[],
+): Promise<util.SystemMessage | boolean> {
+  let currentData: any = {}
 
-      currentData = {
-        ...currentData,
-        ...(data ?? {}),
-      }
+  for (const middleware of middlewares) {
+    const { result: result, data } = await middleware.run(context, currentData)
 
-      if (typeof result === "string")
-        return util.getSystemMessage("error", {
-          header: `${
-            middleware.name ? `"${middleware.name}" m` : "M"
-          }iddleware error`,
-          body: result,
-        })
-
-      if (!result) return false
+    currentData = {
+      ...currentData,
+      ...(data ?? {}),
     }
+
+    if (typeof result === "string")
+      return util.getSystemMessage("error", {
+        header: `${
+          middleware.name ? `"${middleware.name}" m` : "M"
+        }iddleware error`,
+        body: result,
+      })
+
+    if (!result) return false
   }
 
   return true

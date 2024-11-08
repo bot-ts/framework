@@ -27,6 +27,13 @@ export default new app.Listener({
       }
     }
 
-    logger.success(`launched ${launched} cron jobs`)
+    if (launched > 0) {
+      logger.log(`launched ${launched} cron jobs`)
+      if (app.cronList.size > launched)
+        logger.error(
+          `failed to launch ${app.cronList.size - launched} cron jobs`,
+        )
+    } else if (app.cronList.size > 0)
+      logger.log("failed to launch any cron jobs")
   },
 })

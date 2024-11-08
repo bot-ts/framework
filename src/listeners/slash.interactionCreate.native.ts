@@ -25,6 +25,8 @@ export default new app.Listener({
           app.error(error, cmd.filepath!, true)
 
         return interaction.reply(await app.getSystemMessage("error", error))
+      } else if (app.isSystemMessage(error)) {
+        return interaction.reply(error)
       } else {
         return interaction.reply(
           await app.getSystemMessage(

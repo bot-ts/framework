@@ -1,29 +1,29 @@
 // system file, please don't modify it
 
+import dayjs from "dayjs"
+import * as discordEval from "discord-eval.ts"
+import discord from "discord.js"
+import EventEmitter from "events"
 import fs from "fs"
 import path from "path"
-import util from "util"
-import dayjs from "dayjs"
-import discord from "discord.js"
-import * as discordEval from "discord-eval.ts"
-import EventEmitter from "events"
 import simpleGit from "simple-git"
+import util from "util"
 
 import type { PackageJson } from "types-package-json"
 
-import v10 from "discord-api-types/v10"
-import utc from "dayjs/plugin/utc.js"
 import relative from "dayjs/plugin/relativeTime.js"
 import timezone from "dayjs/plugin/timezone.js"
 import toObject from "dayjs/plugin/toObject.js"
+import utc from "dayjs/plugin/utc.js"
+import v10 from "discord-api-types/v10"
 
-import env from "#env"
 import client from "#client"
 import config from "#config"
+import env from "#env"
 import logger from "#logger"
 
 export * from "discord-eval.ts"
-export { styleText, promisify, inspect } from "util"
+export { inspect, promisify, styleText } from "util"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -143,8 +143,8 @@ dayjs.utc(1)
 
 if (env.BOT_TIMEZONE) dayjs.tz.setDefault(env.BOT_TIMEZONE)
 
-export { dayjs }
 export * from "tims"
+export { dayjs }
 
 export interface EventEmitters {
   messageCreate:
@@ -507,6 +507,13 @@ export interface GetSystemMessageOptions {
    * The result of this callback will be returned as the final embed.
    */
   editEmbed?: (embed: discord.EmbedBuilder) => discord.EmbedBuilder
+}
+
+export function isSystemMessage(message: any): message is SystemMessage {
+  return (
+    typeof message === "object" &&
+    (Array.isArray(message.embeds) || typeof message.content === "string")
+  )
 }
 
 export async function getSystemMessage(

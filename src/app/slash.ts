@@ -1,17 +1,17 @@
 // system file, please don't modify it
 
-import url from "url"
 import discord from "discord.js"
 import path from "path"
+import url from "url"
 
 import * as handler from "@ghom/handler"
 
+import config from "#config"
 import env from "#env"
 import logger from "#logger"
-import config from "#config"
 
-import * as util from "./util.ts"
 import * as command from "./command.ts"
+import * as util from "./util.ts"
 
 import { filename } from "dirname-filename-esm"
 
@@ -65,6 +65,7 @@ export interface ISlashCommandOptions {
   userPermissions?: util.PermissionsNames[]
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
+  middlewares?: command.IMiddleware[]
   run: (
     interaction: discord.ChatInputCommandInteraction,
   ) => unknown | Promise<unknown>
@@ -84,6 +85,9 @@ export interface SlashCommandOptions<
   userPermissions?: discord.PermissionsString[]
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
+  middleware?: command.Middleware<
+    SlashCommandInteraction<ChannelType, GuildOnly>
+  >[]
   build?: (
     this: discord.SlashCommandBuilder,
     builder: discord.SlashCommandBuilder,
@@ -176,36 +180,35 @@ export async function registerSlashCommands(
 
 export async function prepareSlashCommand(
   interaction: discord.ChatInputCommandInteraction,
-  command: ISlashCommand,
+  cmd: ISlashCommand,
 ): Promise<void | never> {
-  if (command.options.botOwnerOnly && interaction.user.id !== env.BOT_OWNER)
+  if (cmd.options.botOwnerOnly && interaction.user.id !== env.BOT_OWNER)
     throw new SlashCommandError(
       "This command can only be used by the bot owner",
     )
 
   if (
-    command.options.guildOnly ||
-    (command.options.guildOnly !== false &&
-      command.options.channelType !== "dm")
+    cmd.options.guildOnly ||
+    (cmd.options.guildOnly !== false && cmd.options.channelType !== "dm")
   ) {
     if (!interaction.inGuild() || !interaction.guild)
       throw new SlashCommandError("This command can only be used in a guild")
 
     if (
-      command.options.guildOwnerOnly &&
+      cmd.options.guildOwnerOnly &&
       interaction.user.id !== interaction.guild.ownerId
     )
       throw new SlashCommandError(
         "This command can only be used by the guild owner",
       )
 
-    if (command.options.allowRoles || command.options.denyRoles) {
+    if (cmd.options.allowRoles || cmd.options.denyRoles) {
       const member = await interaction.guild.members.fetch(interaction.user.id)
 
-      if (command.options.allowRoles) {
+      if (cmd.options.allowRoles) {
         if (
           !member.roles.cache.some((role) =>
-            command.options.allowRoles?.includes(role.id),
+            cmd.options.allowRoles?.includes(role.id),
           )
         )
           throw new SlashCommandError(
@@ -213,10 +216,10 @@ export async function prepareSlashCommand(
           )
       }
 
-      if (command.options.denyRoles) {
+      if (cmd.options.denyRoles) {
         if (
           member.roles.cache.some((role) =>
-            command.options.denyRoles?.includes(role.id),
+            cmd.options.denyRoles?.includes(role.id),
           )
         )
           throw new SlashCommandError(
@@ -226,12 +229,25 @@ export async function prepareSlashCommand(
     }
   }
 
-  if (command.options.channelType === "thread") {
+  if (cmd.options.channelType === "thread") {
     if (!interaction.channel || !interaction.channel.isThread())
       throw new SlashCommandError("This command can only be used in a thread")
-  } else if (command.options.channelType === "dm") {
+  } else if (cmd.options.channelType === "dm") {
     if (!interaction.channel || !interaction.channel.isDMBased())
       throw new SlashCommandError("This command can only be used in a DM")
+  }
+
+  if (cmd.options.middlewares) {
+    const result = await command.prepareMiddlewares(
+      interaction,
+      cmd.options.middlewares,
+    )
+
+    if (result !== true) {
+      if (result === false)
+        throw new SlashCommandError(`This command is stopped by a middleware`)
+      else throw result
+    }
   }
 }
 
