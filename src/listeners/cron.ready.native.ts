@@ -10,10 +10,23 @@ export default new app.Listener({
   event: "ready",
   description: "Launch all cron jobs",
   async run() {
+    let launched = 0
+
     for (const cron of app.cronList.values()) {
-      cron.start()
+      try {
+        cron.start()
+        launched++
+      } catch (error) {
+        if (typeof error === "string" || error instanceof Error)
+          logger.error(error, cron.filepath, true)
+        else
+          logger.error(
+            "an error occurred while starting the cron job",
+            cron.filepath,
+          )
+      }
     }
 
-    logger.success("All cron jobs launched")
+    logger.success(`launched ${launched} cron jobs`)
   },
 })
