@@ -36,7 +36,7 @@ export default [
           map: [
             ["#tables", "./src/tables"],
             ["#buttons", "./src/buttons"],
-            ["#src", "./src"],
+            ["#core", "./src/core"],
           ],
           extensions: [".ts", ".js", ".jsx", ".tsx"],
         },
@@ -64,15 +64,7 @@ export default [
       "import/no-unresolved": [
         "error",
         {
-          ignore: [
-            "^#app$",
-            "^#config$",
-            "^#env$",
-            "^#client$",
-            "^#logger$",
-            "^#database$",
-            "^@ghom/orm$",
-          ],
+          ignore: ["^#config$", "^#types$", "^@ghom/orm$", "^#all$"],
         },
       ],
 

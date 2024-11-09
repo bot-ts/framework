@@ -18,10 +18,10 @@ import toObject from "dayjs/plugin/toObject.js"
 import utc from "dayjs/plugin/utc.js"
 import v10 from "discord-api-types/v10"
 
-import client from "#client"
 import config from "#config"
-import env from "#env"
-import logger from "#logger"
+import client from "./client.ts"
+import env from "./env.ts"
+import logger from "./logger.ts"
 
 export * from "discord-eval.ts"
 export { inspect, promisify, styleText } from "util"

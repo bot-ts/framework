@@ -1,18 +1,21 @@
 // system file, please don't modify it
 
-import * as app from "#app"
 import config from "#config"
-import env from "#env"
+import * as command from "#core/command.ts"
+import env from "#core/env.ts"
+import { Listener } from "#core/listener.ts"
+import logger from "#core/logger.ts"
+import * as util from "#core/util.ts"
 
 import yargsParser from "yargs-parser"
 
-export default new app.Listener({
+export default new Listener({
   event: "messageCreate",
   description: "Handle the messages for commands",
   async run(message) {
     if (config.ignoreBots && message.author.bot) return
 
-    if (!app.isAnyMessage(message)) return
+    if (!command.isAnyMessage(message)) return
 
     const prefix = config.getPrefix
       ? await config.getPrefix(message)
@@ -21,22 +24,22 @@ export default new app.Listener({
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel
         .send(
-          await app.getSystemMessage("default", `My prefix is \`${prefix}\``),
+          await util.getSystemMessage("default", `My prefix is \`${prefix}\``),
         )
         .catch()
 
     message.usedAsDefault = false
-    message.isFromBotOwner = message.author.id === app.env.BOT_OWNER
+    message.isFromBotOwner = message.author.id === env.BOT_OWNER
 
-    app.emitMessage(message.channel, message)
-    app.emitMessage(message.author, message)
+    util.emitMessage(message.channel, message)
+    util.emitMessage(message.author, message)
 
-    if (app.isGuildMessage(message)) {
+    if (command.isGuildMessage(message)) {
       message.isFromGuildOwner =
         message.isFromBotOwner || message.guild.ownerId === message.author.id
 
-      app.emitMessage(message.guild, message)
-      app.emitMessage(message.member, message)
+      util.emitMessage(message.guild, message)
+      util.emitMessage(message.member, message)
     }
 
     let dynamicContent = message.content
@@ -54,7 +57,7 @@ export default new app.Listener({
       const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
       message.usedPrefix = `${used} `
       cut(match)
-    } else if (app.isDirectMessage(message)) {
+    } else if (command.isDirectMessage(message)) {
       message.usedPrefix = ""
     } else return
 
@@ -63,17 +66,17 @@ export default new app.Listener({
     // turn ON/OFF
     if (
       key !== "turn" &&
-      !app.cache.ensure<boolean>("turn", true) &&
-      message.author.id !== app.env.BOT_OWNER
+      !util.cache.ensure<boolean>("turn", true) &&
+      message.author.id !== env.BOT_OWNER
     )
       return
 
-    let cmd = app.commands.resolve(key)
+    let cmd = command.commands.resolve(key)
 
     if (!cmd) {
-      if (app.defaultCommand) {
+      if (command.defaultCommand) {
         key = ""
-        cmd = app.defaultCommand
+        cmd = command.defaultCommand
         message.usedAsDefault = true
       } else return null
     }
@@ -130,10 +133,10 @@ export default new app.Listener({
 
     // handle help argument
     if (parsedArgs.help || parsedArgs.h)
-      return app.sendCommandDetails(message, cmd)
+      return command.sendCommandDetails(message, cmd)
 
     // prepare command
-    const prepared = await app.prepareCommand(message, cmd, {
+    const prepared = await command.prepareCommand(message, cmd, {
       restPositional,
       baseContent,
       parsedArgs,
@@ -150,12 +153,12 @@ export default new app.Listener({
     try {
       await cmd.options.run.bind(cmd)(message)
     } catch (error: any) {
-      app.error(error, cmd.filepath!, true)
+      logger.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(await app.getSystemMessage("error", error))
+        .send(await util.getSystemMessage("error", error))
         .catch((error) => {
-          app.error(error, cmd!.filepath!, true)
+          logger.error(error, cmd!.filepath!, true)
         })
     }
   },

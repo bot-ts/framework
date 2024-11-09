@@ -7,8 +7,8 @@ import url from "url"
 import * as handler from "@ghom/handler"
 
 import config from "#config"
-import env from "#env"
-import logger from "#logger"
+import env from "./env.ts"
+import logger from "./logger.ts"
 
 import * as command from "./command.ts"
 import * as util from "./util.ts"

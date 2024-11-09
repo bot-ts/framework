@@ -101,23 +101,23 @@ async function __install(
   }
 }
 
-function __replace(regex, replacement) {
-  return through2.obj(function (file, enc, cb) {
-    if (file.isStream()) {
-      this.emit("error", new PluginError("replace", "Streams not supported!"))
-      return cb()
-    }
+// function __replace(regex, replacement) {
+//   return through2.obj(function (file, enc, cb) {
+//     if (file.isStream()) {
+//       this.emit("error", new PluginError("replace", "Streams not supported!"))
+//       return cb()
+//     }
 
-    if (file.isBuffer()) {
-      const content = file.contents.toString(enc)
-      const updatedContent = content.replace(regex, replacement)
+//     if (file.isBuffer()) {
+//       const content = file.contents.toString(enc)
+//       const updatedContent = content.replace(regex, replacement)
 
-      file.contents = Buffer.from(updatedContent, enc)
-    }
+//       file.contents = Buffer.from(updatedContent, enc)
+//     }
 
-    cb(null, file)
-  })
-}
+//     cb(null, file)
+//   })
+// }
 
 function _updateDependencies(cb) {
   cp.exec(pm["install-all"], (err) => (err ? cb(err) : cb()))
@@ -228,9 +228,7 @@ function _downloadTemp(cb) {
 }
 
 function _build(cb) {
-  const cmd = `npx rollup src/**/*.ts --format esm --sourcemap inline --plugin @rollup/plugin-typescript --output.dir dist --output.entryFileNames "[name].js" --preserveModules`
-
-  cp.exec(cmd, (err) => (err ? cb(err) : cb()))
+  cp.exec(`npx rollup -c`, (err) => (err ? cb(err) : cb()))
 
   // __replace(
   //   /((?:import|export) .*? from\s+['"][#./].*?)\.ts(['"])/g,

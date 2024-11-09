@@ -1,12 +1,14 @@
 // system file, please don't modify it
 
-import * as app from "#app"
+import env from "#core/env.ts"
+import { Listener } from "#core/listener.ts"
+import * as slash from "#core/slash.ts"
 
-export default new app.Listener({
+export default new Listener({
   event: "guildCreate",
   description: "Deploy the slash commands to the new guild",
   async run(guild) {
-    if (app.env.BOT_GUILD !== guild.id) return
-    return app.registerSlashCommands(guild.client, guild.id)
+    if (env.BOT_GUILD !== guild.id) return
+    return slash.registerSlashCommands(guild.client, guild.id)
   },
 })

@@ -1,13 +1,13 @@
 import * as handler from "@ghom/handler"
 
+import discord from "discord.js"
 import path from "path"
 import url from "url"
-import discord from "discord.js"
 
 import * as util from "./util.ts"
 
-import env from "#env"
-import * as logger from "#logger"
+import env from "./env.ts"
+import * as logger from "./logger.ts"
 
 export const buttonHandler = new handler.Handler<IButton>(
   path.join(process.cwd(), "dist", "buttons"),

@@ -1,18 +1,19 @@
 // system file, please don't modify it
 
-import * as app from "#app"
-import logger from "#logger"
+import { cronList } from "#core/cron.ts"
+import { Listener } from "#core/listener.ts"
+import logger from "#core/logger.ts"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-listener listener guide} for more information.
  */
-export default new app.Listener({
+export default new Listener({
   event: "ready",
   description: "Launch all cron jobs",
   async run() {
     let launched = 0
 
-    for (const cron of app.cronList.values()) {
+    for (const cron of cronList.values()) {
       try {
         cron.start()
         launched++
@@ -29,11 +30,8 @@ export default new app.Listener({
 
     if (launched > 0) {
       logger.log(`launched ${launched} cron jobs`)
-      if (app.cronList.size > launched)
-        logger.error(
-          `failed to launch ${app.cronList.size - launched} cron jobs`,
-        )
-    } else if (app.cronList.size > 0)
-      logger.log("failed to launch any cron jobs")
+      if (cronList.size > launched)
+        logger.error(`failed to launch ${cronList.size - launched} cron jobs`)
+    } else if (cronList.size > 0) logger.log("failed to launch any cron jobs")
   },
 })

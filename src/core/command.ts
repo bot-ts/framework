@@ -13,7 +13,7 @@ import * as logger from "./logger.ts"
 import * as util from "./util.ts"
 
 import config from "#config"
-import env from "#env"
+import env from "./env.ts"
 
 const __filename = util.getCurrentFilename(import.meta)
 

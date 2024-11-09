@@ -1,6 +1,6 @@
-import * as app from "#app"
+import { SlashCommand } from "#core/slash.ts"
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "{{ name }}",
   description: "The {{ name }} command",
   run(interaction) {

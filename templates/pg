@@ -28,8 +28,6 @@ const client = new orm.ORM({
   logger,
 })
 
-export * from "@ghom/orm"
-
 export default client
 
 function setTypeParsers() {

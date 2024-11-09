@@ -1,6 +1,9 @@
-import * as app from "#app"
+import { StaticPaginator } from "#core/pagination.ts"
+import * as slash from "#core/slash.ts"
+import { SlashCommand } from "#core/slash.ts"
+import * as util from "#core/util.ts"
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "help",
   description: "Show slash command details or list all slash commands",
   guildOnly: true,
@@ -23,24 +26,24 @@ export default new app.SlashCommand({
 
     const command = commands.find((cmd) => cmd.name === commandName)
 
-    if (command) return app.sendSlashCommandDetails(interaction, command)
+    if (command) return slash.sendSlashCommandDetails(interaction, command)
     else {
       await interaction.deferReply()
 
-      new app.StaticPaginator({
-        pages: await app.divider(
-          app.slashCommands
+      new StaticPaginator({
+        pages: await util.divider(
+          slash.slashCommands
             .map((cmd) => {
               const command = commands.find((c) => c.name === cmd.options.name)
 
               if (!command) return `unknown command ${cmd.options.name}`
 
-              return app.slashCommandToListItem(command)
+              return slash.slashCommandToListItem(command)
             })
             .filter((line) => line.length > 0),
           10,
           (page) => {
-            return app.getSystemMessage("default", {
+            return util.getSystemMessage("default", {
               header: "Command list",
               body: page.join("\n"),
               footer: "/help <command>",

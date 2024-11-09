@@ -4,29 +4,32 @@ import boxen from "boxen"
 import figlet from "figlet"
 import util from "util"
 
-import * as app from "#app"
+import env from "#core/env.ts"
+import { Listener } from "#core/listener.ts"
+import logger from "#core/logger.ts"
+import { getCurrentFilename, packageJSON } from "#core/util.ts"
 
 import config from "#config"
 
-const __filename = app.getCurrentFilename(import.meta)
+const __filename = getCurrentFilename(import.meta)
 
-export default new app.Listener({
+export default new Listener({
   event: "afterReady",
   description: "Just log that bot is ready",
   once: true,
   async run() {
-    app.success(
+    logger.success(
       `ok i'm ready! ${util.styleText(
         "blue",
         "My default prefix is",
-      )} ${util.styleText(["bold", "blueBright"], app.env.BOT_PREFIX)}`,
+      )} ${util.styleText(["bold", "blueBright"], env.BOT_PREFIX)}`,
     )
 
     if (config.printNameOnReady)
-      figlet(app.packageJSON.name, (err, value) => {
-        if (err) return app.error(err, __filename, true)
+      figlet(packageJSON.name, (err, value) => {
+        if (err) return logger.error(err, __filename, true)
         if (!value)
-          return app.error("No value returned from figlet", __filename, true)
+          return logger.error("No value returned from figlet", __filename, true)
 
         console.log(
           boxen(util.styleText("blueBright", value), {

@@ -1,35 +1,38 @@
 // system file, please don't modify it
 
-import * as app from "#app"
+import { Listener } from "#core/listener.ts"
+import * as logger from "#core/logger.ts"
+import * as slash from "#core/slash.ts"
+import * as util from "#core/util.ts"
 
-export default new app.Listener({
+export default new Listener({
   event: "interactionCreate",
   description: "Handle the interactions for slash commands",
   async run(interaction) {
     if (!interaction.isChatInputCommand()) return
 
-    if (!app.cache.ensure<boolean>("turn", true)) return
+    if (!util.cache.ensure<boolean>("turn", true)) return
 
-    const cmd = app.slashCommands.get(interaction.commandName)
+    const cmd = slash.slashCommands.get(interaction.commandName)
 
     if (!cmd)
       return interaction.reply(
-        await app.getSystemMessage("error", "Command not found"),
+        await util.getSystemMessage("error", "Command not found"),
       )
 
     try {
-      await app.prepareSlashCommand(interaction, cmd)
+      await slash.prepareSlashCommand(interaction, cmd)
     } catch (error) {
       if (error instanceof Error) {
-        if (!(error instanceof app.SlashCommandError))
-          app.error(error, cmd.filepath!, true)
+        if (!(error instanceof slash.SlashCommandError))
+          logger.error(error, cmd.filepath!, true)
 
-        return interaction.reply(await app.getSystemMessage("error", error))
-      } else if (app.isSystemMessage(error)) {
+        return interaction.reply(await util.getSystemMessage("error", error))
+      } else if (util.isSystemMessage(error)) {
         return interaction.reply(error)
       } else {
         return interaction.reply(
-          await app.getSystemMessage(
+          await util.getSystemMessage(
             "error",
             "An unknown error while preparing the command",
           ),
@@ -40,16 +43,16 @@ export default new app.Listener({
     try {
       await cmd.options.run.bind(interaction)(interaction)
     } catch (error: unknown) {
-      let errorMessage: app.SystemMessage
+      let errorMessage: util.SystemMessage
 
       if (error instanceof Error) {
-        app.error(error, cmd.filepath!, true)
+        logger.error(error, cmd.filepath!, true)
 
-        errorMessage = await app.getSystemMessage("error", error, {
+        errorMessage = await util.getSystemMessage("error", error, {
           stack: true,
         })
       } else {
-        errorMessage = await app.getSystemMessage(
+        errorMessage = await util.getSystemMessage(
           "error",
           "An unknown error while executing the command",
         )
@@ -67,7 +70,7 @@ export default new app.Listener({
             ephemeral: true,
           })
           .catch((error) => {
-            app.error(error, cmd!.filepath!, true)
+            logger.error(error, cmd!.filepath!, true)
           })
       }
     }

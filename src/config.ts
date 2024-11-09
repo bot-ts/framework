@@ -1,4 +1,4 @@
-import { Config } from "#src/app/config.ts"
+import { Config } from "#core/config.ts"
 import { Options, Partials } from "discord.js"
 import { z } from "zod"
 

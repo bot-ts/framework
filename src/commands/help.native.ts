@@ -1,8 +1,10 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as app from "#app"
+import * as command from "#core/command.ts"
+import { StaticPaginator } from "#core/pagination.ts"
+import * as util from "#core/util.ts"
 
-export default new app.Command({
+export default new command.Command({
   name: "help",
   description: "Help menu",
   longDescription: "Show command details or list all commands",
@@ -20,30 +22,30 @@ export default new app.Command({
       const cmd = message.args.command
 
       if (cmd) {
-        return app.sendCommandDetails(message, cmd)
+        return command.sendCommandDetails(message, cmd)
       } else {
         await message.channel.send(
-          await app.getSystemMessage(
+          await util.getSystemMessage(
             "error",
             `Unknown command "${message.args.command}"`,
           ),
         )
       }
     } else {
-      new app.StaticPaginator({
-        pages: await app.divider(
+      new StaticPaginator({
+        pages: await util.divider(
           (
             await Promise.all(
-              app.commands.map(async (cmd) => {
-                const prepared = await app.prepareCommand(message, cmd)
+              command.commands.map(async (cmd) => {
+                const prepared = await command.prepareCommand(message, cmd)
                 if (prepared !== true) return ""
-                return app.commandToListItem(message, cmd)
+                return command.commandToListItem(message, cmd)
               }),
             )
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return app.getSystemMessage("default", {
+            return util.getSystemMessage("default", {
               header: "Command list",
               body: page.join("\n"),
               footer: `${message.usedPrefix}help <command>`,

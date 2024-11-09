@@ -1,9 +1,9 @@
-import * as app from "#app"
+import { Listener } from "#core/listener.ts"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-listener listener guide} for more information.
  */
-export default new app.Listener({
+export default new Listener({
   event: "{{ event }}",
   description: "A {{ event }} listener for {{ category }}",
   async run({{ args }}) {

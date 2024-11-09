@@ -1,8 +1,11 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as app from "#app"
+import { Command } from "#core/command.ts"
+import database from "#core/database.ts"
+import * as util from "#core/util.ts"
+import discord from "discord.js"
 
-export default new app.Command({
+export default new Command({
   name: "database",
   description: "Run SQL query on database",
   aliases: ["query", "db", "sql", "?"],
@@ -22,18 +25,18 @@ export default new app.Command({
       .replace(/<(?:[#@][&!]?|a?:\w+:)(\d+)>/g, "'$1'")
       .replace(/from ([a-z]+)/gi, 'from "$1"')
 
-    let result = await app.database.raw(query)
+    let result = await database.raw(query)
 
     result = result.rows ?? result
 
     const systemMessage = Array.isArray(result)
-      ? await app.getSystemMessage("success", {
+      ? await util.getSystemMessage("success", {
           header: `SQL query done (${result.length} items)`,
-          body: await app.limitDataToShow(
+          body: await util.limitDataToShow(
             result,
-            app.MaxLength.EmbedDescription,
+            util.MaxLength.EmbedDescription,
             (data) =>
-              app.code.stringify({
+              util.code.stringify({
                 lang: "json",
                 format: { printWidth: 50 },
                 content: "const result = " + JSON.stringify(data),
@@ -41,7 +44,7 @@ export default new app.Command({
           ),
           footer: `Result of : ${query}`,
         })
-      : await app.getSystemMessage("success", {
+      : await util.getSystemMessage("success", {
           body: `SQL query done`,
           footer: `Query : ${query}`,
         })
@@ -49,7 +52,7 @@ export default new app.Command({
     return message.channel.send(systemMessage)
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "plan",
       description: "Show database plan",
       botOwnerOnly: true,
@@ -57,8 +60,8 @@ export default new app.Command({
       aliases: ["tables", "schema", "list", "view"],
       async run(message) {
         const fields = await Promise.all(
-          app.database.cachedTables.map(
-            async (table): Promise<app.EmbedField> => {
+          database.cachedTables.map(
+            async (table): Promise<discord.EmbedField> => {
               const columns: {
                 defaultValue: unknown
                 type: string
@@ -91,7 +94,7 @@ export default new app.Command({
 
         return message.channel.send({
           embeds: [
-            new app.EmbedBuilder()
+            new discord.EmbedBuilder()
               .setTitle("Database plan")
               .setDescription(
                 `**${fields.length}** tables, **${fields.reduce(

@@ -1,12 +1,13 @@
 // system file, please don't modify it
 
-import * as app from "#app"
+import { Listener } from "#core/listener.ts"
+import { Paginator } from "#core/pagination.ts"
 
-export default new app.Listener({
+export default new Listener({
   event: "messageDelete",
   description: "Remove existing deleted paginator",
   async run(message) {
-    const paginator = app.Paginator.getByMessage(message)
+    const paginator = Paginator.getByMessage(message)
 
     if (paginator) return paginator.deactivate()
   },

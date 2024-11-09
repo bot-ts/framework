@@ -1,13 +1,13 @@
-import * as app from "#app"
+import { Cron } from "#core/cron.ts"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-cron cron guide} for more information.
  */
-export default new app.Cron({
+export default new Cron({
   name: "{{ name }}",
   description: "A {{ name }} cron",
   schedule: "hourly",
   async run() {
     // todo: code here
-  }
+  },
 })

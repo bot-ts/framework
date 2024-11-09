@@ -1,4 +1,7 @@
-import * as app from "#app"
+import * as argument from "#core/argument.ts"
+import { commands } from "#core/command.ts"
+import { slashCommands } from "#core/slash.ts"
+import * as util from "#core/util.ts"
 import regexParser from "regex-parser"
 
 /**
@@ -10,21 +13,21 @@ export const types = [
   /**
    * String resolver
    */
-  new app.TypeResolver("string", {
+  new argument.TypeResolver("string", {
     resolver: async (value) => String(value),
   }),
 
   /**
    * Number resolver
    */
-  new app.TypeResolver("number", {
+  new argument.TypeResolver("number", {
     resolver: async (value) => {
       if (typeof value === "number") return value
 
       const number = Number(value.replace(/_/g, ""))
 
       if (isNaN(number))
-        throw new app.TypeResolverError("Invalid number", {
+        throw new argument.TypeResolverError("Invalid number", {
           expected: [123, 0.5, 1_000],
           provided: value,
         })
@@ -36,10 +39,10 @@ export const types = [
   /**
    * Boolean resolver
    */
-  new app.TypeResolver("boolean", {
+  new argument.TypeResolver("boolean", {
     resolver: async (value) => {
       if (value === undefined)
-        throw new app.TypeResolverError("Invalid boolean", {
+        throw new argument.TypeResolverError("Invalid boolean", {
           expected: [true, false, "yes", "no", "on", "off", 1, 0],
           provided: value,
         })
@@ -51,12 +54,12 @@ export const types = [
   /**
    * RegExp resolver
    */
-  new app.TypeResolver("regex", {
+  new argument.TypeResolver("regex", {
     resolver: async (value) => {
       try {
         return regexParser(String(value))
       } catch (error) {
-        throw new app.TypeResolverError(
+        throw new argument.TypeResolverError(
           error instanceof Error ? error.message : "Invalid regular expression",
           {
             expected: ["/^foo$/", "foo", "foo|bar"],
@@ -70,12 +73,12 @@ export const types = [
   /**
    * Date resolver
    */
-  new app.TypeResolver("date", {
+  new argument.TypeResolver("date", {
     resolver: async (value) => {
-      const date = app.dayjs(value)
+      const date = util.dayjs(value)
 
       if (!date.isValid())
-        throw new app.TypeResolverError("Invalid date", {
+        throw new argument.TypeResolverError("Invalid date", {
           expected: ["2021-12-31", "2021-12-31T23:59:59"],
           provided: value,
         })
@@ -87,30 +90,30 @@ export const types = [
   /**
    * Duration resolved from regex to milliseconds
    */
-  app.TypeResolver.fromRegex("duration", {
+  argument.TypeResolver.fromRegex("duration", {
     regex: /^(\d+)\s*(second|minute|hour|day|week|month|year)s?$/,
     transformer: (match, value, type) => {
-      const date = app.dayjs().add(+value, type as any)
+      const date = util.dayjs().add(+value, type as any)
 
       if (!date.isValid())
-        throw new app.TypeResolverError("Invalid duration", {
+        throw new argument.TypeResolverError("Invalid duration", {
           expected: ["1 minute", "3 days", "1 month"],
           provided: match,
         })
 
-      return date.valueOf() - app.dayjs().valueOf()
+      return date.valueOf() - util.dayjs().valueOf()
     },
   }),
 
   /**
    * JSON resolver
    */
-  new app.TypeResolver("json", {
+  new argument.TypeResolver("json", {
     resolver: async (value) => {
       try {
         return JSON.parse(String(value))
       } catch (error) {
-        throw new app.TypeResolverError(
+        throw new argument.TypeResolverError(
           error instanceof Error ? error.message : "Invalid JSON",
           {
             expected: ['{ "key": 42 }', "foo bar", 42],
@@ -125,7 +128,7 @@ export const types = [
    * Array resolvers
    */
 
-  new app.TypeResolver("array", {
+  new argument.TypeResolver("array", {
     resolver: async (value) => {
       return String(value)
         .split(",")
@@ -135,13 +138,13 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("string[]", {
+  new argument.TypeResolver("string[]", {
     resolver: async (value) => {
       return String(value).split(",")
     },
   }),
 
-  new app.TypeResolver("number[]", {
+  new argument.TypeResolver("number[]", {
     resolver: async (value) => {
       return String(value)
         .split(",")
@@ -149,7 +152,7 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("boolean[]", {
+  new argument.TypeResolver("boolean[]", {
     resolver: async (value) => {
       return String(value)
         .split(",")
@@ -157,15 +160,15 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("date[]", {
+  new argument.TypeResolver("date[]", {
     resolver: async (value) => {
       return String(value)
         .split(",")
         .map((v) => {
-          const date = app.dayjs(v)
+          const date = util.dayjs(v)
 
           if (!date.isValid())
-            throw new app.TypeResolverError("Invalid date", {
+            throw new argument.TypeResolverError("Invalid date", {
               expected: ["2021-12-31", "2021-12-31T23:59:59"],
               provided: v,
             })
@@ -179,7 +182,7 @@ export const types = [
    * Discord type resolvers
    */
 
-  new app.TypeResolver("user", {
+  new argument.TypeResolver("user", {
     resolver: async (value, message) => {
       const regex = /^(?:<@!?(\d+)>|(\d+))$/
       const match = String(value).match(regex)
@@ -190,7 +193,7 @@ export const types = [
         try {
           return await message.client.users.fetch(id)
         } catch {
-          throw new app.TypeResolverError("Invalid user ID", {
+          throw new argument.TypeResolverError("Invalid user ID", {
             expected: ["123456789012345678", "<@123456789012345678>"],
             provided: id,
           })
@@ -207,7 +210,7 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("member", {
+  new argument.TypeResolver("member", {
     resolver: async (value, message) => {
       const regex = /^(?:<@!?(\d+)>|(\d+))$/
       const match = String(value).match(regex)
@@ -221,7 +224,7 @@ export const types = [
         try {
           return await message.guild.members.fetch(id)
         } catch {
-          throw new app.TypeResolverError("Invalid member ID", {
+          throw new argument.TypeResolverError("Invalid member ID", {
             expected: ["123456789012345678", "<@123456789012345678>"],
             provided: id,
           })
@@ -242,7 +245,7 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("channel", {
+  new argument.TypeResolver("channel", {
     resolver: async (value, message) => {
       const regex = /^(?:<#(\d+)>|(\d+))$/
       const match = String(value).match(regex)
@@ -252,7 +255,7 @@ export const types = [
         const channel = message.client.channels.cache.get(id)
 
         if (!channel)
-          throw new app.TypeResolverError("Invalid channel ID", {
+          throw new argument.TypeResolverError("Invalid channel ID", {
             expected: ["123456789012345678", "<#123456789012345678>"],
             provided: id,
           })
@@ -270,7 +273,7 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("role", {
+  new argument.TypeResolver("role", {
     resolver: async (value, message) => {
       if (!message.guild)
         throw new Error("You must be in a guild to chose a role")
@@ -284,7 +287,7 @@ export const types = [
         try {
           return message.guild.roles.fetch(id)
         } catch {
-          throw new app.TypeResolverError("Invalid role ID", {
+          throw new argument.TypeResolverError("Invalid role ID", {
             expected: ["123456789012345678", "<@&123456789012345678>"],
             provided: id,
           })
@@ -303,7 +306,7 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("emote", {
+  new argument.TypeResolver("emote", {
     resolver: async (value, message) => {
       const regex = /^(?:<a?:\w+:(\d+)>|(\d+))$/
       const match = String(value).match(regex)
@@ -313,7 +316,7 @@ export const types = [
         const emoji = message.client.emojis.cache.get(id)
 
         if (!emoji)
-          throw new app.TypeResolverError("Invalid emoji ID", {
+          throw new argument.TypeResolverError("Invalid emoji ID", {
             expected: [
               "123456789012345678",
               "<:name:123456789012345678>",
@@ -325,7 +328,7 @@ export const types = [
         return emoji
       }
 
-      const matchUnicode = app.emojiRegex.exec(String(value))
+      const matchUnicode = util.emojiRegex.exec(String(value))
 
       if (matchUnicode) return matchUnicode[0]
 
@@ -339,7 +342,7 @@ export const types = [
     },
   }),
 
-  new app.TypeResolver("invite", {
+  new argument.TypeResolver("invite", {
     resolver: async (value, message) => {
       if (!message.guild)
         throw new Error("You must be in a guild to chose an invite")
@@ -349,7 +352,7 @@ export const types = [
       const match = String(value).match(regex)
 
       if (!match)
-        throw new app.TypeResolverError("Invalid invite", {
+        throw new argument.TypeResolverError("Invalid invite", {
           expected: ["https://discord.gg/abc123", "abc123"],
           provided: value,
         })
@@ -369,12 +372,12 @@ export const types = [
   /**
    * Command resolver
    */
-  new app.TypeResolver("command", {
+  new argument.TypeResolver("command", {
     resolver: async (value) => {
-      const command = app.commands.resolve(String(value))
+      const command = commands.resolve(String(value))
 
       if (!command)
-        throw new app.TypeResolverError("Invalid command", {
+        throw new argument.TypeResolverError("Invalid command", {
           expected: ["info", "help"],
           provided: value,
         })
@@ -386,12 +389,12 @@ export const types = [
   /**
    * Slash command resolver
    */
-  new app.TypeResolver("slash", {
+  new argument.TypeResolver("slash", {
     resolver: async (value) => {
-      const command = app.slashCommands.get(String(value))
+      const command = slashCommands.get(String(value))
 
       if (!command)
-        throw new app.TypeResolverError("Invalid slash command", {
+        throw new argument.TypeResolverError("Invalid slash command", {
           expected: ["ping", "help"],
           provided: value,
         })
@@ -399,4 +402,4 @@ export const types = [
       return command
     },
   }),
-] as const satisfies readonly app.TypeResolver<any, any>[]
+] as const satisfies readonly argument.TypeResolver<any, any>[]

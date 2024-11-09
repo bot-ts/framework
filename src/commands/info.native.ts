@@ -1,12 +1,14 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as app from "#app"
-
+import config from "#config"
+import { Command } from "#core/command.ts"
+import env from "#core/env.ts"
+import * as util from "#core/util.ts"
+import discord from "discord.js"
 import fs from "fs"
 import time from "tims"
-import discord from "discord.js"
 
-export default new app.Command({
+export default new Command({
   name: "info",
   description: "Get information about bot",
   flags: [
@@ -18,19 +20,15 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const conf = app.packageJSON
+    const databaseClient = util.getDatabaseDriverName()
 
-    const databaseClient = app.getDatabaseDriverName()
-
-    const gitURL = app.config.options.openSource
-      ? await app.getGitURL()
-      : undefined
+    const gitURL = config.openSource ? await util.getGitURL() : undefined
 
     let fundingURL: string | null = null
 
     try {
       const fundingFile = await fs.promises.readFile(
-        app.fullPath(".github", "funding.yml"),
+        util.fullPath(".github", "funding.yml"),
         "utf-8",
       )
 
@@ -39,24 +37,24 @@ export default new app.Command({
       if (match) fundingURL = `https://buymeacoffee.com/${match[1]}`
     } catch {}
 
-    const embed = new app.EmbedBuilder()
+    const embed = new discord.EmbedBuilder()
       .setAuthor({
         name: `Information about ${message.client.user.tag}`,
         iconURL: message.client.user?.displayAvatarURL(),
         url: gitURL,
       })
-      .setDescription(conf.description ?? "No description")
+      .setDescription(util.packageJSON.description ?? "No description")
       .setTimestamp()
       .addFields(
         {
-          name: conf.name,
-          value: await app.code.stringify({
+          name: util.packageJSON.name,
+          value: await util.code.stringify({
             lang: "yml",
             content: [
               `author: ${
-                message.client.users.resolve(app.env.BOT_OWNER)!.username
+                message.client.users.resolve(env.BOT_OWNER)!.username
               }`,
-              `uptime: ${time.duration(app.uptime(), {
+              `uptime: ${time.duration(util.uptime(), {
                 format: "second",
                 maxPartCount: 2,
               })}`,
@@ -65,7 +63,7 @@ export default new app.Command({
               )}mb`,
               `ping: ${message.client.ws.ping}ms`,
               `database: ${databaseClient}@${
-                app.packageJSON.dependencies?.[databaseClient] ?? "unknown"
+                util.packageJSON.dependencies?.[databaseClient] ?? "unknown"
               }`,
               `node: ${process.version}`,
             ].join("\n"),
@@ -74,7 +72,7 @@ export default new app.Command({
         },
         {
           name: "Cache",
-          value: await app.code.stringify({
+          value: await util.code.stringify({
             lang: "yml",
             content: [
               `guilds: ${message.client.guilds.cache.size}`,
@@ -104,17 +102,18 @@ export default new app.Command({
     if (message.args.dependencies)
       embed.addFields(
         {
-          name: app.blankChar,
-          value: app.blankChar,
+          name: util.blankChar,
+          value: util.blankChar,
           inline: false,
         },
         {
           name: "Dependencies",
           value:
-            conf.dependencies && Object.keys(conf.dependencies).length > 0
-              ? await app.code.stringify({
+            util.packageJSON.dependencies &&
+            Object.keys(util.packageJSON.dependencies).length > 0
+              ? await util.code.stringify({
                   lang: "yml",
-                  content: Object.entries(conf.dependencies)
+                  content: Object.entries(util.packageJSON.dependencies)
                     .map(([name, version]) => {
                       return `${name.replace(/@/g, "")}: ${version}`
                     })
@@ -126,10 +125,11 @@ export default new app.Command({
         {
           name: "Dev dependencies",
           value:
-            conf.devDependencies && Object.keys(conf.devDependencies).length > 0
-              ? await app.code.stringify({
+            util.packageJSON.devDependencies &&
+            Object.keys(util.packageJSON.devDependencies).length > 0
+              ? await util.code.stringify({
                   lang: "yml",
-                  content: Object.entries(conf.devDependencies)
+                  content: Object.entries(util.packageJSON.devDependencies)
                     .map(([name, version]) => {
                       return `${name.replace(/@/g, "")}: ${version}`
                     })
@@ -141,23 +141,23 @@ export default new app.Command({
       )
 
     const row =
-      new app.ActionRowBuilder<discord.MessageActionRowComponentBuilder>()
+      new discord.ActionRowBuilder<discord.MessageActionRowComponentBuilder>()
 
     if (gitURL) {
       row.addComponents(
-        new app.ButtonBuilder()
+        new discord.ButtonBuilder()
           .setLabel("View source")
-          .setStyle(app.ButtonStyle.Link)
+          .setStyle(discord.ButtonStyle.Link)
           .setURL(gitURL),
       )
     }
 
     if (fundingURL) {
       row.addComponents(
-        new app.ButtonBuilder()
+        new discord.ButtonBuilder()
           .setLabel("Fund me")
           .setEmoji("💖")
-          .setStyle(app.ButtonStyle.Link)
+          .setStyle(discord.ButtonStyle.Link)
           .setURL(fundingURL),
       )
     }

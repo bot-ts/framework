@@ -1,13 +1,13 @@
-import * as button from "#src/app/button.ts"
-import type * as pagination from "#src/app/pagination.ts"
+import { Button } from "#core/button.ts"
+import type * as pagination from "#core/pagination.ts"
 
-export default new button.Button<{
+export default new Button<{
   key: pagination.PaginatorKey
 }>({
   name: "pagination",
   description: "The pagination button",
   async run(interaction, { key }) {
-    const app = await import("#app")
+    const app = await import("#core/pagination.ts")
 
     const paginator = app.Paginator.getByMessage(interaction.message)
 

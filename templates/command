@@ -1,14 +1,13 @@
-import * as app from "#app"
+import { Command } from "#core/command.ts"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-command guide} for more information.
  */
-export default new app.Command({
+export default new Command({
   name: "{{ name }}",
   description: "The {{ name }} command",
   channelType: "all",
   async run(message) {
     // todo: code here
-    return message.channel.send("{{ name }} command is not yet implemented.")
   }
 })

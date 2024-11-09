@@ -1,15 +1,15 @@
 // system file, please don't modify it
 
-import url from "url"
+import apiTypes from "discord-api-types/v8"
 import discord from "discord.js"
 import path from "path"
+import url from "url"
 import util from "util"
-import apiTypes from "discord-api-types/v8"
 
 import * as handler from "@ghom/handler"
 
-import logger from "#logger"
-import client from "#client"
+import client from "./client.ts"
+import logger from "./logger.ts"
 
 const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
 

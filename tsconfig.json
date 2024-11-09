@@ -16,15 +16,19 @@
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "#app": ["./src/app.ts"],
+      // Your configuration
       "#config": ["./src/config.ts"],
-      "#env": ["./src/app/env.ts"],
-      "#client": ["./src/app/client.ts"],
-      "#logger": ["./src/app/logger.ts"],
-      "#database": ["./src/app/database.ts"],
-      "#src/*": ["./src/*"],
+      "#types": ["./src/types.ts"],
+
+      // Shortcut to core folder
+      "#core/*": ["./src/core/*"],
+
+      // Importable objects
       "#tables/*": ["./src/tables/*"],
-      "#buttons/*": ["./src/buttons/*"]
+      "#buttons/*": ["./src/buttons/*"],
+
+      // Grouped import
+      "#all": ["./src/core/index.ts"]
     }
   }
 }

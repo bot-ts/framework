@@ -7,15 +7,12 @@
   "type": "module",
   "style": "options",
   "imports": {
-    "#app": "./dist/app.js",
-    "#env": "./dist/app/env.js",
     "#config": "./dist/config.js",
-    "#client": "./dist/app/client.js",
-    "#logger": "./dist/app/logger.js",
-    "#database": "./dist/app/database.js",
-    "#src/*": "./dist/*",
+    "#types": "./dist/types.js",
+    "#core/*": "./dist/core/*",
     "#tables/*": "./dist/tables/*",
-    "#buttons/*": "./dist/buttons/*"
+    "#buttons/*": "./dist/buttons/*",
+    "#all": "./dist/core/index.js"
   },
   "scripts": {
     "bot": "npx @ghom/bot.ts-cli",
@@ -72,6 +69,8 @@
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.12.0",
     "@ghom/bot.ts-cli": "^8.3.1",
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/figlet": "^1.7.0",
     "@types/node": "^22.7.6",
@@ -108,3 +107,4 @@
     "git": ">=2.x.x"
   }
 }
+

@@ -1,4 +1,4 @@
-import * as app from "#app"
+import { Button } from "#core/button.ts"
 
 /**
  * The parameters that the button will receive.
@@ -12,7 +12,7 @@ export type {{ Name }}ButtonParams = {}
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button guide} for more information.
  */
-export default new app.Button<{{ Name }}ButtonParams>({
+export default new Button<{{ Name }}ButtonParams>({
   name: "{{ name }}",
   description: "The {{ name }} button",
   builder: (builder) => builder.setLabel("{{ Name }}"),

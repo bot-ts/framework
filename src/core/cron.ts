@@ -7,8 +7,8 @@ import url from "url"
 
 import * as util from "./util.ts"
 
-import env from "#env"
-import logger from "#logger"
+import env from "./env.ts"
+import logger from "./logger.ts"
 
 export class CRON_Error extends Error {
   constructor(message: string) {

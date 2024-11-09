@@ -2,9 +2,10 @@
 
 import cp from "child_process"
 
-import * as app from "#app"
+import { Command } from "#core/command.ts"
+import * as util from "#core/util.ts"
 
-export default new app.Command({
+export default new Command({
   name: "terminal",
   description: "Run shell command from Discord",
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
@@ -12,7 +13,7 @@ export default new app.Command({
   botOwnerOnly: true,
   cooldown: {
     duration: 5000,
-    type: app.CooldownType.Global,
+    type: util.CooldownType.Global,
   },
   rest: {
     all: true,
@@ -24,7 +25,7 @@ export default new app.Command({
     message.triggerCooldown()
 
     const toEdit = await message.channel.send(
-      await app.getSystemMessage(
+      await util.getSystemMessage(
         "loading",
         {
           header: "The process is running...",
@@ -36,7 +37,7 @@ export default new app.Command({
       ),
     )
 
-    let systemMessage: app.SystemMessage
+    let systemMessage: util.SystemMessage
 
     try {
       const output = cp.execSync(message.rest, {
@@ -44,7 +45,7 @@ export default new app.Command({
         encoding: "utf-8",
       })
 
-      systemMessage = await app.getSystemMessage(
+      systemMessage = await util.getSystemMessage(
         "success",
         {
           header: "The process is done",
@@ -60,7 +61,7 @@ export default new app.Command({
         { code: "js" },
       )
     } catch (error: any) {
-      systemMessage = await app.getSystemMessage(
+      systemMessage = await util.getSystemMessage(
         "error",
         {
           header: "The process is errored",

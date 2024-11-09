@@ -1,14 +1,14 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
-import typeParser from "zod"
 import yargsParser from "yargs-parser"
+import typeParser from "zod"
 
-import * as util from "./util.ts"
-import * as logger from "./logger.ts"
 import * as command from "./command.ts"
+import * as logger from "./logger.ts"
+import * as util from "./util.ts"
 
-import type { types } from "#src/types.ts"
+import type { types } from "#types"
 
 type _item<Items extends readonly any[], K extends string> = Extract<
   Items[number],
@@ -443,7 +443,7 @@ export async function resolveType(
   setValue: <K extends keyof ArgumentTypes>(value: ArgumentTypes[K]) => unknown,
   cmd: command.ICommand,
 ): Promise<util.SystemMessage | true> {
-  const types = await import("#app").then((m) => m.types)
+  const types = await import("#types").then((m) => m.types)
 
   const empty = new Error("The value is empty!")
 
