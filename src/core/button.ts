@@ -1,7 +1,6 @@
 import * as handler from "@ghom/handler"
 
 import discord from "discord.js"
-import path from "path"
 import url from "url"
 
 import env from "#core/env"
@@ -11,9 +10,9 @@ import * as util from "#core/util"
 import { styleText } from "util"
 
 export const buttonHandler = new handler.Handler<IButton>(
-  path.join(process.cwd(), "dist", "buttons"),
+  util.srcPath("buttons"),
   {
-    pattern: /\.js$/,
+    pattern: /\.[jt]s$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
       if (file.default instanceof Button) return file.default

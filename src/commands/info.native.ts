@@ -29,7 +29,7 @@ export default new Command({
 
     try {
       const fundingFile = await fs.promises.readFile(
-        util.fullPath(".github", "funding.yml"),
+        util.rootPath(".github", "funding.yml"),
         "utf-8",
       )
 

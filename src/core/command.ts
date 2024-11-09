@@ -20,9 +20,9 @@ import { styleText } from "util"
 const __filename = util.getCurrentFilename(import.meta)
 
 export const commandHandler = new handler.Handler<ICommand>(
-  path.join(process.cwd(), "dist", "commands"),
+  util.srcPath("commands"),
   {
-    pattern: /\.js$/,
+    pattern: /\.[tj]s$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
       if (file.default instanceof Command) return file.default

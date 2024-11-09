@@ -2,16 +2,17 @@
 
 import env from "#core/env"
 import * as logger from "#core/logger"
+import * as util from "#core/util"
 import * as orm from "@ghom/orm"
 import fs from "fs"
 import path from "path"
 
-const dataDirectory = path.join(process.cwd(), "data")
+const dataDirectory = util.rootPath("data")
 
 if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
 const client = new orm.ORM({
-  tableLocation: path.join(process.cwd(), "dist", "tables"),
+  tableLocation: util.srcPath("tables"),
   backups: {
     location: path.join(dataDirectory, "backups"),
   },

@@ -2,13 +2,13 @@
 
 import env from "#core/env"
 import * as logger from "#core/logger"
+import * as util from "#core/util"
 import * as orm from "@ghom/orm"
-import path from "path"
 
 const client = new orm.ORM({
-  tableLocation: path.join(process.cwd(), "dist", "tables"),
+  tableLocation: util.srcPath("tables"),
   backups: {
-    location: path.join(process.cwd(), "data", "backups"),
+    location: util.rootPath("data", "backups"),
   },
   database: {
     client: "mysql2",

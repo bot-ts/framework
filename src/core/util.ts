@@ -33,6 +33,28 @@ export function getCurrentDirname(importMeta: ImportMeta) {
   return path.dirname(getCurrentFilename(importMeta))
 }
 
+/**
+ * Make a path from root of project and return it
+ */
+export function relativeRootPath(..._path: string[]): string {
+  return path.relative(process.cwd(), path.join(..._path))
+}
+
+/**
+ * Make a path from the "src" folder (or dist if compiled) and return it
+ */
+export function srcPath(..._path: string[]): string {
+  return path.join(getCurrentDirname(import.meta), "..", ..._path)
+}
+
+export function rootPath(..._path: string[]): string {
+  return path.join(process.cwd(), ..._path)
+}
+
+export const packageJSON = JSON.parse(
+  fs.readFileSync(rootPath("package.json"), "utf-8"),
+) as PackageJson
+
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
   const remoteJSON: PackageJson = await fetch(
@@ -105,8 +127,8 @@ export async function checkUpdates() {
   }
 
   // check if the eslintrc.json file is present
-  if (fs.existsSync(fullPath(".eslintrc.json"))) {
-    if (!fs.existsSync(fullPath("eslint.config.mjs"))) {
+  if (fs.existsSync(rootPath(".eslintrc.json"))) {
+    if (!fs.existsSync(rootPath("eslint.config.mjs"))) {
       logger.warn(
         `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run ${util.styleText(
           "bold",
@@ -118,7 +140,7 @@ export async function checkUpdates() {
         `ESLint migration guide => https://eslint.org/docs/latest/use/configure/migration-guide`,
       )
     } else {
-      fs.unlinkSync(fullPath(".eslintrc.json"))
+      fs.unlinkSync(rootPath(".eslintrc.json"))
 
       logger.log(
         `Removed the outdated ${util.styleText("bold", ".eslintrc.json")} file`,
@@ -161,21 +183,6 @@ export interface EventEmitters {
 }
 
 export const messageEmitter = new EventEmitter()
-
-/**
- * Make a path from root of project and return it
- */
-export function rootPath(..._path: string[]): string {
-  return path.relative(process.cwd(), path.join(..._path))
-}
-
-export function fullPath(..._path: string[]): string {
-  return path.join(process.cwd(), ..._path)
-}
-
-export const packageJSON = JSON.parse(
-  fs.readFileSync(fullPath("package.json"), "utf-8"),
-) as PackageJson
 
 export const startedAt = Date.now()
 
@@ -445,10 +452,9 @@ export async function getFileGitURL(
     return `${remote.refs.fetch.replace(
       ".git",
       "",
-    )}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(
-      /\\/g,
-      "/",
-    )}`
+    )}/blob/${branchName}/${convertDistPathToSrc(
+      relativeRootPath(filepath),
+    ).replace(/\\/g, "/")}`
   } catch {}
 }
 

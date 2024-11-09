@@ -1,7 +1,6 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
-import path from "path"
 import url from "url"
 
 import * as handler from "@ghom/handler"
@@ -24,9 +23,9 @@ export class SlashCommandError extends Error {
 }
 
 export const slashCommandHandler = new handler.Handler<ISlashCommand>(
-  path.join(process.cwd(), "dist", "slash"),
+  util.srcPath("slash"),
   {
-    pattern: /\.js$/,
+    pattern: /\.[tj]s$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
       if (file.default instanceof SlashCommand) return file.default
@@ -288,7 +287,7 @@ export async function sendSlashCommandDetails(
                 config.openSource
                   ? {
                       text: util.convertDistPathToSrc(
-                        util.rootPath(command.filepath!),
+                        util.relativeRootPath(command.filepath!),
                       ),
                     }
                   : null,

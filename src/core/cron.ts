@@ -2,11 +2,11 @@ import * as handler from "@ghom/handler"
 
 import discord from "discord.js"
 import cron from "node-cron"
-import path from "path"
 import url from "url"
 
 import env from "#core/env"
 import logger from "#core/logger"
+import * as util from "#core/util"
 
 import { styleText } from "util"
 
@@ -17,24 +17,19 @@ export class CRON_Error extends Error {
   }
 }
 
-export const cronHandler = new handler.Handler<Cron>(
-  path.join(process.cwd(), "dist", "cron"),
-  {
-    pattern: /\.js$/,
-    loader: async (filepath) => {
-      const file = await import(url.pathToFileURL(filepath).href)
-      if (file.default instanceof Cron) return file.default
-      throw new CRON_Error(
-        `${filepath}: default export must be a Cron instance`,
-      )
-    },
-    onLoad: async (filepath, button) => {
-      button.native = filepath.endsWith(".native.js")
-      button.filepath = filepath
-      cronList.add(button)
-    },
+export const cronHandler = new handler.Handler<Cron>(util.srcPath("cron"), {
+  pattern: /\.[tj]s$/,
+  loader: async (filepath) => {
+    const file = await import(url.pathToFileURL(filepath).href)
+    if (file.default instanceof Cron) return file.default
+    throw new CRON_Error(`${filepath}: default export must be a Cron instance`)
   },
-)
+  onLoad: async (filepath, button) => {
+    button.native = filepath.endsWith(".native.js")
+    button.filepath = filepath
+    cronList.add(button)
+  },
+})
 
 export const cronList = new (class CronCollection extends discord.Collection<
   string,

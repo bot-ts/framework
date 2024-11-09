@@ -4,19 +4,21 @@ import apiTypes from "discord-api-types/v8"
 import discord from "discord.js"
 import path from "path"
 import url from "url"
-import util from "util"
 
 import * as handler from "@ghom/handler"
 
 import client from "#core/client"
 import logger from "#core/logger"
+import * as util from "#core/util"
+
+import { styleText } from "util"
 
 const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
 
 export const listenerHandler = new handler.Handler<Listener<any>>(
-  path.join(process.cwd(), "dist", "listeners"),
+  util.srcPath("listeners"),
   {
-    pattern: /\.js$/,
+    pattern: /\.[jt]s$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
       if (file.default instanceof Listener) return file.default
@@ -55,15 +57,12 @@ export const listenerHandler = new handler.Handler<Listener<any>>(
         .join(" ")
 
       logger.log(
-        `loaded listener ${util.styleText(
-          "magenta",
-          category,
-        )} ${util.styleText(
+        `loaded listener ${styleText("magenta", category)} ${styleText(
           "yellow",
           listener.options.once ? "once" : "on",
-        )} ${util.styleText("blueBright", listener.options.event)}${
-          isNative ? ` ${util.styleText("green", "native")}` : ""
-        } ${util.styleText("grey", listener.options.description)}`,
+        )} ${styleText("blueBright", listener.options.event)}${
+          isNative ? ` ${styleText("green", "native")}` : ""
+        } ${styleText("grey", listener.options.description)}`,
       )
     },
   },
