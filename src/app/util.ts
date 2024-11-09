@@ -7,6 +7,7 @@ import EventEmitter from "events"
 import fs from "fs"
 import path from "path"
 import simpleGit from "simple-git"
+import url from "url"
 import util from "util"
 
 import type { PackageJson } from "types-package-json"
@@ -26,6 +27,14 @@ export * from "discord-eval.ts"
 export { inspect, promisify, styleText } from "util"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
+
+export function getCurrentFilename(importMeta: ImportMeta) {
+  return url.fileURLToPath(importMeta.url)
+}
+
+export function getCurrentDirname(importMeta: ImportMeta) {
+  return path.dirname(getCurrentFilename(importMeta))
+}
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase

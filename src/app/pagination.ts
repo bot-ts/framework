@@ -9,8 +9,7 @@ import * as util from "./util.ts"
 
 import paginationButton from "#buttons/pagination.native.ts"
 
-import { filename } from "dirname-filename-esm"
-const __filename = filename(import.meta)
+const __filename = util.getCurrentFilename(import.meta)
 
 const sendToTarget = async (
   target: PaginatorTarget,

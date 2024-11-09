@@ -15,8 +15,7 @@ import * as util from "./util.ts"
 import config from "#config"
 import env from "#env"
 
-import { filename } from "dirname-filename-esm"
-const __filename = filename(import.meta)
+const __filename = util.getCurrentFilename(import.meta)
 
 export const commandHandler = new handler.Handler<ICommand>(
   path.join(process.cwd(), "dist", "commands"),

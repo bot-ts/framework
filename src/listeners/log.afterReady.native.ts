@@ -1,16 +1,14 @@
 // system file, please don't modify it
 
-import figlet from "figlet"
 import boxen from "boxen"
+import figlet from "figlet"
 import util from "util"
 
 import * as app from "#app"
 
 import config from "#config"
 
-import { filename } from "dirname-filename-esm"
-
-const __filename = filename(import.meta)
+const __filename = app.getCurrentFilename(import.meta)
 
 export default new app.Listener({
   event: "afterReady",

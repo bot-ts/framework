@@ -7,6 +7,7 @@
     "outDir": "dist",
     "lib": ["ES2023"],
     "strict": true,
+    "noEmit": true,
     "sourceMap": true,
     "declaration": false,
     "skipLibCheck": true,
@@ -23,7 +24,7 @@
       "#database": ["./src/app/database.ts"],
       "#src/*": ["./src/*"],
       "#tables/*": ["./src/tables/*"],
-      "#buttons/*": ["./src/buttons/*"],
+      "#buttons/*": ["./src/buttons/*"]
     }
-  },
+  }
 }

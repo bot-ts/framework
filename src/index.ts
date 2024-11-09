@@ -1,6 +1,3 @@
-import { filename } from "dirname-filename-esm"
-const __filename = filename(import.meta)
-
 import env from "./app/env.ts"
 
 const app = await import("#app")
@@ -16,6 +13,6 @@ try {
   await app.checkUpdates()
   await app.client.login(env.BOT_TOKEN)
 } catch (error: any) {
-  app.error(error, __filename, true)
+  app.error(error, "src/index.js", true)
   process.exit(1)
 }

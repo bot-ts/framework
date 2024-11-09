@@ -1,12 +1,32 @@
+"use strict"
+
+/*global console, Buffer, fetch, process*/
+
 import cp from "child_process"
+import fs from "fs"
 import path from "path"
 import util from "util"
-import fs from "fs"
 
 import "dotenv/config"
 
-import gulp from "gulp"
 import dayjs from "dayjs"
+import gulp from "gulp"
+import yaml from "yaml"
+
+const pmc = yaml.parse(fs.readFileSync("pmc.yml", "utf8"))
+/**
+ * @type {{
+ *  lockfile: string
+ *  "install-all": string
+ *  "install-package": string
+ *  "install-dev-package": string
+ *  "install-optional-package": string
+ *  "install-global-package": string
+ *  "install-global-dev-package": string
+ *  "remove-package": string
+ * }}
+ */
+const pm = pmc[process.env.PACKAGE_MANAGER ?? "npm"]
 
 let through2, PluginError
 
@@ -28,10 +48,10 @@ async function __importOrInstall(
 
   try {
     namespace = await import(packageName.split(/\b@/)[0])
-  } catch (e) {
+  } catch {
     try {
       await __install(packageName, optional, withTypes, dev)
-      // eslint-disable-next-line no-undef
+
       console.log(
         `[${dayjs().format("HH:mm:ss")}] Added    '${util.styleText("cyan", packageName)}'`,
       )
@@ -43,7 +63,6 @@ async function __importOrInstall(
     }
   }
 
-  // eslint-disable-next-line no-undef
   console.log(
     `[${dayjs().format("HH:mm:ss")}] Imported '${util.styleText("cyan", packageName)}'`,
   )
@@ -57,18 +76,15 @@ async function __install(
   withTypes = false,
   dev = false,
 ) {
-  let isLinux = false
-
-  try {
-    // eslint-disable-next-line import/no-unresolved
-    await import("@esbuild/linux-x64")
-
-    isLinux = true
-  } catch (err) {}
-
   await new Promise((resolve, reject) => {
     cp.exec(
-      `npm i ${packageName} ${optional ? "--save-optional" : dev ? "-D" : ""} ${isLinux ? "" : "--force"}`,
+      `${
+        optional
+          ? pm["install-optional-package"]
+          : dev
+            ? pm["install-dev-package"]
+            : pm["install-package"]
+      } ${packageName}`,
       (err) => (err ? reject(err) : resolve()),
     )
   })
@@ -76,7 +92,9 @@ async function __install(
   if (withTypes) {
     await new Promise((resolve, reject) => {
       cp.exec(
-        `npm i @types/${packageName.split(/\b@/)[0]} ${optional ? "--save-optional" : ""} ${isLinux ? "" : "--force"}`,
+        `${
+          optional ? pm["install-optional-package"] : pm["install-dev-package"]
+        } @types/${packageName.split(/\b@/)[0]}`,
         (err) => (err ? reject(err) : resolve()),
       )
     })
@@ -93,7 +111,7 @@ function __replace(regex, replacement) {
     if (file.isBuffer()) {
       const content = file.contents.toString(enc)
       const updatedContent = content.replace(regex, replacement)
-      // eslint-disable-next-line no-undef
+
       file.contents = Buffer.from(updatedContent, enc)
     }
 
@@ -101,8 +119,8 @@ function __replace(regex, replacement) {
   })
 }
 
-function _npmInstall(cb) {
-  __install().then(cb).catch(cb)
+function _updateDependencies(cb) {
+  cp.exec(pm["install-all"], (err) => (err ? cb(err) : cb()))
 }
 
 async function _gitLog(cb) {
@@ -135,7 +153,6 @@ async function _cleanTemp() {
 }
 
 function _checkGulpfile(cb) {
-  // eslint-disable-next-line no-undef
   fetch("https://raw.githubusercontent.com/bot-ts/framework/master/Gulpfile.js")
     .then((res) => res.text())
     .then(async (remote) => {
@@ -154,7 +171,6 @@ function _checkGulpfile(cb) {
         {
           // check for new dependencies in gulpfile
 
-          // eslint-disable-next-line no-undef
           const remotePackageJSON = await fetch(
             "https://raw.githubusercontent.com/bot-ts/framework/master/package.json",
           ).then((res) => res.json())
@@ -190,7 +206,7 @@ function _checkGulpfile(cb) {
               "utf8",
             )
 
-            await new Promise((resolve) => _npmInstall(resolve))
+            await new Promise((resolve) => _updateDependencies(resolve))
           }
         }
 
@@ -201,7 +217,6 @@ function _checkGulpfile(cb) {
           )} command.`,
         )
 
-        // eslint-disable-next-line no-undef
         process.exit(0)
       } else cb()
     })
@@ -212,29 +227,15 @@ function _downloadTemp(cb) {
   cp.exec("git clone https://github.com/bot-ts/framework.git temp", cb)
 }
 
-async function _build() {
-  through2 = await __importOrInstall("through2", true, true)
-  PluginError = await __importOrInstall("plugin-error", true, true)
-  const esbuild = await __importOrInstall("gulp-esbuild", true, true)
+function _build(cb) {
+  const cmd = `npx rollup src/**/*.ts --format esm --sourcemap inline --plugin @rollup/plugin-typescript --output.dir dist --output.entryFileNames "[name].js" --preserveModules`
 
-  // process.traceDeprecation = true
-  return gulp
-    .src("src/**/*.ts")
-    .pipe(
-      esbuild({
-        sourcemap: "inline",
-        format: "esm",
-        target: "node20",
-        loader: { ".ts": "ts" },
-      }),
-    )
-    .pipe(
-      __replace(
-        /((?:import|export) .*? from\s+['"][#./].*?)\.ts(['"])/g,
-        "$1.js$2",
-      ),
-    )
-    .pipe(gulp.dest("dist"))
+  cp.exec(cmd, (err) => (err ? cb(err) : cb()))
+
+  // __replace(
+  //   /((?:import|export) .*? from\s+['"][#./].*?)\.ts(['"])/g,
+  //   "$1.js$2",
+  // ),
 }
 
 function _copyKeepers() {
@@ -247,12 +248,10 @@ async function _watch(cb) {
   const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
 
   spawn.stdout.on("data", (data) => {
-    // eslint-disable-next-line no-undef
     console.log(`${data}`.trim())
   })
 
   spawn.stderr.on("data", (data) => {
-    // eslint-disable-next-line no-undef
     console.error(`${data}`.trim())
   })
 
@@ -341,7 +340,9 @@ function _updatePackageJSON(cb) {
     }
   }
 
-  if (fs.existsSync("./package-lock.json")) fs.unlinkSync("./package-lock.json")
+  // if (fs.existsSync(`./${pm.lockfile}`)) {
+  //   fs.unlinkSync(`./${pm.lockfile}`)
+  // }
 
   fs.writeFileSync(
     "./package.json",
@@ -349,7 +350,7 @@ function _updatePackageJSON(cb) {
     "utf8",
   )
 
-  _npmInstall(cb)
+  cb()
 }
 
 async function _updateDatabaseFile() {
@@ -435,7 +436,6 @@ async function _generateReadme(cb) {
     intents: [],
   })
 
-  // eslint-disable-next-line no-undef
   await client.login(process.env.BOT_TOKEN)
 
   const avatar =
@@ -511,7 +511,6 @@ async function _generateReadme(cb) {
   })
 
   await fs.promises.writeFile(
-    // eslint-disable-next-line no-undef
     `${process.env.BOT_MODE === "factory" ? "." : ""}readme.md`,
     readme,
     "utf8",
@@ -534,6 +533,7 @@ export const update = gulp.series(
   _copyConfig,
   _removeDuplicates,
   _updatePackageJSON,
+  _updateDependencies,
   _updateDatabaseFile,
   _gitLog,
   _cleanTemp,
