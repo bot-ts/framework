@@ -1,5 +1,6 @@
 // system file, please don't modify it
 
+import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
 import path from "path"
 import tims from "tims"
@@ -8,12 +9,13 @@ import yargsParser from "yargs-parser"
 
 import * as handler from "@ghom/handler"
 
-import * as argument from "./argument.ts"
-import * as logger from "./logger.ts"
-import * as util from "./util.ts"
-
 import config from "#config"
-import env from "./env.ts"
+import * as argument from "#core/argument"
+import env from "#core/env"
+import * as logger from "#core/logger"
+import * as util from "#core/util"
+
+import { styleText } from "util"
 
 const __filename = util.getCurrentFilename(import.meta)
 
@@ -318,10 +320,10 @@ export function validateCommand(
   if (command.options.isDefault) {
     if (defaultCommand)
       logger.error(
-        `the ${util.styleText(
+        `the ${styleText(
           "blueBright",
           command.options.name,
-        )} command wants to be a default command but the ${util.styleText(
+        )} command wants to be a default command but the ${styleText(
           "blueBright",
           defaultCommand.options.name,
         )} command is already the default command`,
@@ -355,9 +357,9 @@ export function validateCommand(
   )
 
   logger.log(
-    `loaded command ${util.styleText("blueBright", commandBreadcrumb(command))}${
-      command.native ? ` ${util.styleText("green", "native")}` : ""
-    } ${util.styleText("grey", command.options.description)}`,
+    `loaded command ${styleText("blueBright", commandBreadcrumb(command))}${
+      command.native ? ` ${styleText("green", "native")}` : ""
+    } ${styleText("grey", command.options.description)}`,
   )
 
   if (command.options.subs)
@@ -520,7 +522,7 @@ export async function prepareCommand(
               header: `Missing positional "${positional.name}"`,
               body: positional.description
                 ? "Description: " + positional.description
-                : `Run the following command to learn more: ${await util.code.stringify(
+                : `Run the following command to learn more: ${await discordEval.code.stringify(
                     {
                       content: `${message.usedPrefix}${context.key} --help`,
                     },
@@ -875,7 +877,7 @@ export async function sendCommandDetails(
 
     embed.addFields({
       name: "examples:",
-      value: await util.code.stringify({
+      value: await discordEval.code.stringify({
         content: examples
           .map((example) => message.usedPrefix + example)
           .join("\n"),

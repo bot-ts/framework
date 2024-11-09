@@ -2,8 +2,8 @@
 
 import cp from "child_process"
 
-import { Command } from "#core/command.ts"
-import * as util from "#core/util.ts"
+import { Command } from "#core/command"
+import * as util from "#core/util"
 
 export default new Command({
   name: "terminal",

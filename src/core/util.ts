@@ -19,12 +19,9 @@ import utc from "dayjs/plugin/utc.js"
 import v10 from "discord-api-types/v10"
 
 import config from "#config"
-import client from "./client.ts"
-import env from "./env.ts"
-import logger from "./logger.ts"
-
-export * from "discord-eval.ts"
-export { inspect, promisify, styleText } from "util"
+import client from "#core/client"
+import env from "#core/env"
+import logger from "#core/logger"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 

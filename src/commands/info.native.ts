@@ -1,9 +1,10 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
 import config from "#config"
-import { Command } from "#core/command.ts"
-import env from "#core/env.ts"
-import * as util from "#core/util.ts"
+import { Command } from "#core/command"
+import env from "#core/env"
+import * as util from "#core/util"
+import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
 import fs from "fs"
 import time from "tims"
@@ -48,7 +49,7 @@ export default new Command({
       .addFields(
         {
           name: util.packageJSON.name,
-          value: await util.code.stringify({
+          value: await discordEval.code.stringify({
             lang: "yml",
             content: [
               `author: ${
@@ -72,7 +73,7 @@ export default new Command({
         },
         {
           name: "Cache",
-          value: await util.code.stringify({
+          value: await discordEval.code.stringify({
             lang: "yml",
             content: [
               `guilds: ${message.client.guilds.cache.size}`,
@@ -111,7 +112,7 @@ export default new Command({
           value:
             util.packageJSON.dependencies &&
             Object.keys(util.packageJSON.dependencies).length > 0
-              ? await util.code.stringify({
+              ? await discordEval.code.stringify({
                   lang: "yml",
                   content: Object.entries(util.packageJSON.dependencies)
                     .map(([name, version]) => {
@@ -127,7 +128,7 @@ export default new Command({
           value:
             util.packageJSON.devDependencies &&
             Object.keys(util.packageJSON.devDependencies).length > 0
-              ? await util.code.stringify({
+              ? await discordEval.code.stringify({
                   lang: "yml",
                   content: Object.entries(util.packageJSON.devDependencies)
                     .map(([name, version]) => {

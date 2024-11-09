@@ -1,7 +1,7 @@
-import { StaticPaginator } from "#core/pagination.ts"
-import * as slash from "#core/slash.ts"
-import { SlashCommand } from "#core/slash.ts"
-import * as util from "#core/util.ts"
+import { StaticPaginator } from "#core/pagination"
+import * as slash from "#core/slash"
+import { SlashCommand } from "#core/slash"
+import * as util from "#core/util"
 
 export default new SlashCommand({
   name: "help",

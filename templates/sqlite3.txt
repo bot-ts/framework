@@ -1,10 +1,10 @@
 // system file, please don't modify it
 
+import env from "#core/env"
+import * as logger from "#core/logger"
 import * as orm from "@ghom/orm"
 import fs from "fs"
 import path from "path"
-import env from "./env.ts"
-import * as logger from "./logger.ts"
 
 const dataDirectory = path.join(process.cwd(), "data")
 

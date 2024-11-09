@@ -5,10 +5,10 @@ import cron from "node-cron"
 import path from "path"
 import url from "url"
 
-import * as util from "./util.ts"
+import env from "#core/env"
+import logger from "#core/logger"
 
-import env from "./env.ts"
-import logger from "./logger.ts"
+import { styleText } from "util"
 
 export class CRON_Error extends Error {
   constructor(message: string) {
@@ -50,9 +50,9 @@ export const cronList = new (class CronCollection extends discord.Collection<
     cronConfigToPattern(cron.options.schedule)
 
     logger.log(
-      `loaded cron ${util.styleText("blueBright", cron.options.name)}${
-        cron.native ? ` ${util.styleText("green", "native")}` : ""
-      } ${util.styleText("grey", cron.options.description)}`,
+      `loaded cron ${styleText("blueBright", cron.options.name)}${
+        cron.native ? ` ${styleText("green", "native")}` : ""
+      } ${styleText("grey", cron.options.description)}`,
     )
   }
 })()

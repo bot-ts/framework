@@ -1,4 +1,4 @@
-import { Listener } from "#core/listener.ts"
+import { Listener } from "#core/listener"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-listener listener guide} for more information.

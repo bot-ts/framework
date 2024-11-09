@@ -3,10 +3,10 @@
 import type * as discord from "discord.js"
 import type * as zod from "zod"
 
-import type * as pagination from "./pagination.ts"
-import type * as command from "./command.ts"
-import type * as logger from "./logger.ts"
-import type * as util from "./util.ts"
+import type * as command from "#core/command"
+import type * as logger from "#core/logger"
+import type * as pagination from "#core/pagination"
+import type * as util from "#core/util"
 
 export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
   /**

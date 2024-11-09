@@ -4,10 +4,10 @@ import boxen from "boxen"
 import figlet from "figlet"
 import util from "util"
 
-import env from "#core/env.ts"
-import { Listener } from "#core/listener.ts"
-import logger from "#core/logger.ts"
-import { getCurrentFilename, packageJSON } from "#core/util.ts"
+import env from "#core/env"
+import { Listener } from "#core/listener"
+import logger from "#core/logger"
+import { getCurrentFilename, packageJSON } from "#core/util"
 
 import config from "#config"
 

@@ -8,8 +8,8 @@ import util from "util"
 
 import * as handler from "@ghom/handler"
 
-import client from "./client.ts"
-import logger from "./logger.ts"
+import client from "#core/client"
+import logger from "#core/logger"
 
 const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
 

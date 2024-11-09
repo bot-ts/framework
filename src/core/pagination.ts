@@ -4,10 +4,10 @@ import discord from "discord.js"
 
 import config from "#config"
 
-import * as logger from "./logger.ts"
-import * as util from "./util.ts"
+import * as logger from "#core/logger"
+import * as util from "#core/util"
 
-import paginationButton from "#buttons/pagination.native.ts"
+import paginationButton from "#buttons/pagination.native"
 
 const __filename = util.getCurrentFilename(import.meta)
 

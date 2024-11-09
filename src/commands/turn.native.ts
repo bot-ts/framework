@@ -1,7 +1,7 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import { Command } from "#core/command.ts"
-import * as util from "#core/util.ts"
+import { Command } from "#core/command"
+import * as util from "#core/util"
 
 export default new Command({
   name: "turn",

@@ -13,8 +13,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitOverride": true,
-    "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       // Your configuration
       "#config": ["./src/config.ts"],

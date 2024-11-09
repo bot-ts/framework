@@ -4,10 +4,11 @@ import discord from "discord.js"
 import path from "path"
 import url from "url"
 
-import * as util from "./util.ts"
+import env from "#core/env"
+import * as logger from "#core/logger"
+import * as util from "#core/util"
 
-import env from "./env.ts"
-import * as logger from "./logger.ts"
+import { styleText } from "util"
 
 export const buttonHandler = new handler.Handler<IButton>(
   path.join(process.cwd(), "dist", "buttons"),
@@ -47,9 +48,9 @@ export const buttons = new (class ButtonCollection extends discord.Collection<
     )
 
     logger.log(
-      `loaded button ${util.styleText("blueBright", button.options.name)}${
-        button.native ? ` ${util.styleText("green", "native")}` : ""
-      } ${util.styleText("grey", button.options.description)}`,
+      `loaded button ${styleText("blueBright", button.options.name)}${
+        button.native ? ` ${styleText("green", "native")}` : ""
+      } ${styleText("grey", button.options.description)}`,
     )
   }
 })()

@@ -1,11 +1,11 @@
 // system file, please don't modify it
 
 import config from "#config"
-import * as command from "#core/command.ts"
-import env from "#core/env.ts"
-import { Listener } from "#core/listener.ts"
-import logger from "#core/logger.ts"
-import * as util from "#core/util.ts"
+import * as command from "#core/command"
+import env from "#core/env"
+import { Listener } from "#core/listener"
+import logger from "#core/logger"
+import * as util from "#core/util"
 
 import yargsParser from "yargs-parser"
 

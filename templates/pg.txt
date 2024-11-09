@@ -1,10 +1,10 @@
 // system file, please don't modify it
 
-import pg from "pg"
+import env from "#core/env"
+import * as logger from "#core/logger"
 import * as orm from "@ghom/orm"
-import * as logger from "./logger.ts"
-import env from "./env.ts"
 import path from "path"
+import pg from "pg"
 
 setTypeParsers()
 

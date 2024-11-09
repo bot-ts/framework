@@ -7,7 +7,7 @@ import util from "util"
 import { z } from "zod"
 
 import { config } from "#config"
-import * as logger from "./logger.ts"
+import * as logger from "#core/logger"
 
 const localeList: { key: string; name: string }[] = JSON.parse(
   fs.readFileSync(

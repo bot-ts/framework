@@ -1,4 +1,4 @@
-import { SlashCommand } from "#core/slash.ts"
+import { SlashCommand } from "#core/slash"
 
 export default new SlashCommand({
   name: "{{ name }}",

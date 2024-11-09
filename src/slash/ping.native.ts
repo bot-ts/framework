@@ -1,5 +1,5 @@
-import client from "#core/client.ts"
-import { SlashCommand } from "#core/slash.ts"
+import client from "#core/client"
+import { SlashCommand } from "#core/slash"
 
 export default new SlashCommand({
   name: "ping",

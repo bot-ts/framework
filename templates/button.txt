@@ -1,4 +1,4 @@
-import { Button } from "#core/button.ts"
+import { Button } from "#core/button"
 
 /**
  * The parameters that the button will receive.

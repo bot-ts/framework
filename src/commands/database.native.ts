@@ -1,9 +1,11 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import { Command } from "#core/command.ts"
-import database from "#core/database.ts"
-import * as util from "#core/util.ts"
+import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
+
+import { Command } from "#core/command"
+import database from "#core/database"
+import * as util from "#core/util"
 
 export default new Command({
   name: "database",
@@ -36,7 +38,7 @@ export default new Command({
             result,
             util.MaxLength.EmbedDescription,
             (data) =>
-              util.code.stringify({
+              discordEval.code.stringify({
                 lang: "json",
                 format: { printWidth: 50 },
                 content: "const result = " + JSON.stringify(data),

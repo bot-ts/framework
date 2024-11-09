@@ -1,14 +1,17 @@
 // system file, please don't modify it
 
+import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import typeParser from "zod"
 
-import * as command from "./command.ts"
-import * as logger from "./logger.ts"
-import * as util from "./util.ts"
+import * as command from "#core/command"
+import * as logger from "#core/logger"
+import * as util from "#core/util"
 
 import type { types } from "#types"
+
+import { inspect } from "util"
 
 type _item<Items extends readonly any[], K extends string> = Extract<
   Items[number],
@@ -424,7 +427,7 @@ export async function validate(
   if (!checkResult)
     return errorEmbed(
       typeof subject.validate === "function"
-        ? await util.code.stringify({
+        ? await discordEval.code.stringify({
             content: subject.validate.toString(),
             format: true,
             lang: "js",
@@ -469,11 +472,11 @@ export async function resolveType(
     await cast()
     return true
   } catch (error) {
-    const errorCode = await util.code.stringify({
+    const errorCode = await discordEval.code.stringify({
       content:
         error instanceof Error
           ? `${error.name}: ${error instanceof TypeResolverError ? `${error.toString()}` : error.message}`
-          : `Unknown Error:\n${util.inspect(error)}`,
+          : `Unknown Error:\n${inspect(error)}`,
       lang: "js",
     })
 

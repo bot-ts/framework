@@ -1,8 +1,8 @@
 // system file, please don't modify it
 
-import env from "#core/env.ts"
-import { Listener } from "#core/listener.ts"
-import * as slash from "#core/slash.ts"
+import env from "#core/env"
+import { Listener } from "#core/listener"
+import * as slash from "#core/slash"
 
 export default new Listener({
   event: "guildCreate",

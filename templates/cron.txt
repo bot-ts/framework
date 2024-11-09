@@ -1,4 +1,4 @@
-import { Cron } from "#core/cron.ts"
+import { Cron } from "#core/cron"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-cron cron guide} for more information.

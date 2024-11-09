@@ -1,9 +1,9 @@
 // system file, please don't modify it
 
-import { Listener } from "#core/listener.ts"
-import * as logger from "#core/logger.ts"
-import * as slash from "#core/slash.ts"
-import * as util from "#core/util.ts"
+import { Listener } from "#core/listener"
+import * as logger from "#core/logger"
+import * as slash from "#core/slash"
+import * as util from "#core/util"
 
 export default new Listener({
   event: "interactionCreate",

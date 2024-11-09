@@ -1,8 +1,8 @@
 // system file, please don't modify it
 
-import { cronList } from "#core/cron.ts"
-import { Listener } from "#core/listener.ts"
-import logger from "#core/logger.ts"
+import { cronList } from "#core/cron"
+import { Listener } from "#core/listener"
+import logger from "#core/logger"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-listener listener guide} for more information.

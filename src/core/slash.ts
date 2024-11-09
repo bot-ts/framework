@@ -7,11 +7,12 @@ import url from "url"
 import * as handler from "@ghom/handler"
 
 import config from "#config"
-import env from "./env.ts"
-import logger from "./logger.ts"
+import * as command from "#core/command"
+import env from "#core/env"
+import logger from "#core/logger"
+import * as util from "#core/util"
 
-import * as command from "./command.ts"
-import * as util from "./util.ts"
+import { styleText } from "util"
 
 const __filename = util.getCurrentFilename(import.meta)
 
@@ -143,12 +144,9 @@ export function validateSlashCommand(command: ISlashCommand) {
   debugSlashCommandBuilder(command.builder)
 
   logger.log(
-    `loaded command ${util.styleText(
-      "blueBright",
-      "/" + command.options.name,
-    )}${
-      command.native ? util.styleText("green", " native") : ""
-    } ${util.styleText("grey", command.options.description)}`,
+    `loaded command ${styleText("blueBright", "/" + command.options.name)}${
+      command.native ? styleText("green", " native") : ""
+    } ${styleText("grey", command.options.description)}`,
   )
 }
 
@@ -167,8 +165,8 @@ export async function registerSlashCommands(
     }
 
     logger.log(
-      `deployed ${util.styleText("blue", String(data.length))} slash commands${
-        guildId ? ` to new guild ${util.styleText("blue", guildId)}` : ""
+      `deployed ${styleText("blue", String(data.length))} slash commands${
+        guildId ? ` to new guild ${styleText("blue", guildId)}` : ""
       }`,
     )
   } catch (error: any) {

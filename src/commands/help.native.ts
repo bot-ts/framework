@@ -1,8 +1,8 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as command from "#core/command.ts"
-import { StaticPaginator } from "#core/pagination.ts"
-import * as util from "#core/util.ts"
+import * as command from "#core/command"
+import { StaticPaginator } from "#core/pagination"
+import * as util from "#core/util"
 
 export default new command.Command({
   name: "help",

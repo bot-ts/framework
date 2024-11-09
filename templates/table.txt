@@ -1,4 +1,4 @@
-import { Table } from "#database"
+import { Table } from "@ghom/orm"
 
 export interface {{ Name }} {
   // type of table

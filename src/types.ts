@@ -1,7 +1,7 @@
-import * as argument from "#core/argument.ts"
-import { commands } from "#core/command.ts"
-import { slashCommands } from "#core/slash.ts"
-import * as util from "#core/util.ts"
+import * as argument from "#core/argument"
+import { commands } from "#core/command"
+import { slashCommands } from "#core/slash"
+import * as util from "#core/util"
 import regexParser from "regex-parser"
 
 /**

@@ -1,7 +1,7 @@
 // system file, please don't modify it
 
-import { Listener } from "#core/listener.ts"
-import { Paginator } from "#core/pagination.ts"
+import { Listener } from "#core/listener"
+import { Paginator } from "#core/pagination"
 
 export default new Listener({
   event: "messageDelete",
