@@ -1,6 +1,6 @@
 "use strict"
 
-/*global console, Buffer, fetch, process*/
+/*global console, fetch, process*/
 
 import cp from "child_process"
 import fs from "fs"
@@ -27,8 +27,6 @@ const pmc = yaml.parse(fs.readFileSync("pmc.yml", "utf8"))
  * }}
  */
 const pm = pmc[process.env.PACKAGE_MANAGER ?? "npm"]
-
-let through2, PluginError
 
 const log = await __importOrInstall("fancy-log", true, true)
 const { dirname } = await __importOrInstall("dirname-filename-esm")
