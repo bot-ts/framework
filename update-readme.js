@@ -2,7 +2,8 @@ import fs from "fs"
 
 const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"))
 
-// eslint-disable-next-line no-undef
+/*global console, fetch*/
+
 fetch(
   "https://raw.githubusercontent.com/bot-ts/.github/main/profile/readme.md",
   {
@@ -21,16 +22,13 @@ fetch(
         .replace(/\[(.+?)]\((.+?)\)/, "<a href='$2'>$1</a>"),
       (err) => {
         if (err) {
-          // eslint-disable-next-line no-undef
           console.error("Error writing readme.md:", err)
         } else {
-          // eslint-disable-next-line no-undef
           console.log("readme.md updated successfully.")
         }
       },
     )
   })
   .catch((error) => {
-    // eslint-disable-next-line no-undef
     console.error("Error downloading readme.md:", error)
   })

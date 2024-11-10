@@ -22,7 +22,10 @@ export default new Listener({
       `ok i'm ready! ${util.styleText(
         "blue",
         "My default prefix is",
-      )} ${util.styleText(["bold", "blueBright"], env.BOT_PREFIX)}`,
+      )} ${util.styleText(
+        "bold",
+        util.styleText("blueBright", env.BOT_PREFIX),
+      )}`,
     )
 
     if (config.printNameOnReady)

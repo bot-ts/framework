@@ -108,11 +108,11 @@ const envSchema = z.object({
   DB_USER: z.string().optional(),
   DB_PASSWORD: z.string().optional(),
   DB_DATABASE: z.string().optional(),
-  PACKAGE_MANAGER: z.enum(["npm", "yarn", "pnpm"], {
+  PACKAGE_MANAGER: z.enum(["npm", "yarn", "pnpm", "bun"], {
     message: `You need to add a ${util.styleText(
       "bold",
       "PACKAGE_MANAGER",
-    )} in the .env file, for example: PACKAGE_MANAGER="yarn"`,
+    )} in the .env file, for example: PACKAGE_MANAGER="yarn". You can choose between this list:\n=> npm, yarn, pnpm, bun`,
   }),
 })
 

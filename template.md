@@ -10,20 +10,28 @@
 ## Description
 
 {{packageJSON.description}}  
-{{invitation 
-    ? `You can invite the bot via [this link](${invitation}) in your Discord server!` 
+{{invitation
+    ? `You can invite the bot via [this link](${invitation}) in your Discord server!`
     : "This bot is private and cannot be invited in other servers."}}
 
 ## Specifications
 
 You can find the documentation of bot.ts [here](https://ghom.gitbook.io/bot-ts/).  
-Below you will find the specifications for **{{packageJSON.name}}**.  
+Below you will find the specifications for **{{packageJSON.name}}**.
 
 ## Configuration file
 
 ```ts
-{{configFile}}
+{
+  {
+    configFile
+  }
+}
 ```
+
+## Cron jobs
+
+{{Array.from(cronJobs).map(([path, cron]) => `- [${cron.options.name}](${path}) - ${cron.options.description}`).join("  \n") || "> No cron jobs have been created yet."}}
 
 ## Commands
 
@@ -35,6 +43,10 @@ Below you will find the specifications for **{{packageJSON.name}}**.
 
 {{Array.from(commands).map(([path, command]) => `- [${command.options.name}](${path}) - ${command.options.description}`).join("  \n")}}
 
+## Buttons
+
+{{Array.from(buttons).map(([key, button]) => `- [${button.options.name}](${key.replace("dist", "src").replace(/\\/g, "/").replace(/\.js$/, ".ts")}) - ${button.options.description}`).join("  \n")}}
+
 ## Listeners
 
 {{Object.entries(Array.from(listeners).reduce((all, [path, listener]) => {
@@ -43,7 +55,7 @@ Below you will find the specifications for **{{packageJSON.name}}**.
     else all[category] = [[path, listener]]
     return all
 }, {})).map(([category, values]) => `### ${category[0].toUpperCase() + category.slice(1)}  \n\n${
-    values.map(([path, listener]) => `- [${listener.event}](${path}) - ${listener.description}`).join("  \n")
+    values.map(([path, listener]) => `- [${listener.options.event}](${path}) - ${listener.options.description}`).join("  \n")
 }` ).join("  \n\n")}}
 
 ## Database
@@ -51,7 +63,7 @@ Below you will find the specifications for **{{packageJSON.name}}**.
 Using **{{database}}@{{packageJSON.dependencies[database]}}** as database.  
 Below you will find a list of all the tables used by **{{packageJSON.name}}**.
 
-{{tables.size > 0 ? Array.from(tables).map(([path, table]) => 
+{{tables.size > 0 ? Array.from(tables).map(([path, table]) =>
     `- [${table.options.name}](${path}) - ${table.options.description}`
 ).join("  \n") : "> No tables have been created yet."}}
 

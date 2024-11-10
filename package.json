@@ -15,17 +15,17 @@
     "#all": "./dist/core/index.js"
   },
   "scripts": {
-    "bot": "npx @ghom/bot.ts-cli",
-    "build": "gulp build",
-    "final": "gulp final",
-    "watch": "gulp watch",
-    "start": "npm run build && node dist/index",
-    "start.test": "npm run build && node tests/index.test.js",
-    "format": "prettier --write src tests",
-    "lint": "eslint src/**/*.ts --fix",
-    "update": "gulp update",
-    "readme": "gulp readme",
-    "test": "npm run lint && tsc --noEmit && npm run start.test"
+    "bot": "bunx @ghom/bot.ts-cli",
+    "build": "rimraf dist && bunx rollup -c && bun run scripts/copy-keepers.js",
+    "final": "rimraf node_modules && bun install --production && bun run build",
+    "watch": "bun run build -w",
+    "start": "bun run src/index.ts",
+    "start.test": "bun run tests/index.test.js",
+    "format": "bunx prettier --write src tests scripts",
+    "lint": "bunx eslint src/**/*.ts --fix",
+    "update": "bun run scripts/update-framework.js",
+    "readme": "bun run build && bun run scripts/generate-readme.js",
+    "test": "bun run lint && tsc --noEmit && bun run start.test"
   },
   "prettier": {
     "semi": false,
@@ -44,9 +44,8 @@
     "@ghom/handler": "^3.1.0",
     "@ghom/logger": "^2.0.2",
     "@ghom/orm": "^1.8.6",
-    "boxen": "^8.0.1",
+    "boxen": "=5.1.2",
     "dayjs": "^1.11.13",
-    "dirname-filename-esm": "^1.1.2",
     "discord-eval.ts": "^1.1.2",
     "discord.js": "^14.16.2",
     "dotenv": "^16.0.1",
@@ -60,7 +59,6 @@
     "sqlite3": "latest",
     "tims": "^2.1.0",
     "types-package-json": "^2.0.39",
-    "yaml": "^2.6.0",
     "yargs-parser": "^21.0.1",
     "zod": "^3.23.8"
   },
@@ -84,22 +82,13 @@
     "eslint": "^9.12.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.31.0",
-    "glob": "^11.0.0",
-    "gulp": "^5.0.0",
+    "git-commit-info": "2.0.2",
+    "fast-glob": "3.3.2",
     "rollup": "^4.24.4",
     "typescript": "^5.4.0-beta"
   },
   "optionalDependencies": {
-    "@types/pg": "^8.11.10",
-    "del": "^6.1.1",
-    "fancy-log": "^2.0.0",
-    "git-commit-info": "^2.0.2",
-    "gulp-filter": "^9.0.1",
-    "gulp-rename": "^2.0.0",
-    "nodemon": "^3.1.7",
-    "plugin-error": "^2.0.1",
-    "through2": "^4.0.2",
-    "vinyl-paths": "^5.0.0"
+    "@types/pg": "^8.11.10"
   },
   "engines": {
     "node": ">=22.x.x",
@@ -107,4 +96,3 @@
     "yarn": ">=1.22.x"
   }
 }
-

@@ -1,5 +1,3 @@
-"use strict"
-
 /*global console, fetch, process*/
 
 import cp from "child_process"
@@ -99,24 +97,6 @@ async function __install(
   }
 }
 
-// function __replace(regex, replacement) {
-//   return through2.obj(function (file, enc, cb) {
-//     if (file.isStream()) {
-//       this.emit("error", new PluginError("replace", "Streams not supported!"))
-//       return cb()
-//     }
-
-//     if (file.isBuffer()) {
-//       const content = file.contents.toString(enc)
-//       const updatedContent = content.replace(regex, replacement)
-
-//       file.contents = Buffer.from(updatedContent, enc)
-//     }
-
-//     cb(null, file)
-//   })
-// }
-
 function _updateDependencies(cb) {
   cp.exec(pm["install-all"], (err) => (err ? cb(err) : cb()))
 }
@@ -136,12 +116,6 @@ async function _gitLog(cb) {
   )
 
   cb()
-}
-
-async function _cleanDist() {
-  const del = await __importOrInstall("del@6.1.1", true, true)
-
-  return del(["dist/**/*"])
 }
 
 async function _cleanTemp() {
@@ -225,37 +199,6 @@ function _downloadTemp(cb) {
   cp.exec("git clone https://github.com/bot-ts/framework.git temp", cb)
 }
 
-function _build(cb) {
-  cp.exec(`npx rollup -c`, (err) => (err ? cb(err) : cb()))
-
-  // __replace(
-  //   /((?:import|export) .*? from\s+['"][#./].*?)\.ts(['"])/g,
-  //   "$1.js$2",
-  // ),
-}
-
-function _copyKeepers() {
-  return gulp.src(["src/**/.keep"], { base: "src" }).pipe(gulp.dest("dist"))
-}
-
-async function _watch(cb) {
-  await __install("nodemon", true)
-
-  const spawn = cp.spawn("nodemon dist/index --delay 1", { shell: true })
-
-  spawn.stdout.on("data", (data) => {
-    console.log(`${data}`.trim())
-  })
-
-  spawn.stderr.on("data", (data) => {
-    console.error(`${data}`.trim())
-  })
-
-  spawn.on("close", () => cb())
-
-  gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(_cleanDist, _build))
-}
-
 function _overrideNativeFiles() {
   return gulp
     .src(
@@ -268,7 +211,7 @@ function _overrideNativeFiles() {
         "temp/Dockerfile",
         "temp/compose.yml",
         "temp/eslint.config.mjs",
-        "temp/.github/workflows/**/*.native.*",
+        "temp/.github/workflows/tests.yml",
         "temp/template.env",
         "temp/template.md",
         "temp/tsconfig.json",
@@ -390,30 +333,6 @@ async function _removeDuplicates() {
     .pipe(vinyl(del))
 }
 
-/**
- * Remove optional dependencies from node_modules
- */
-async function _optimize() {
-  const del = await __importOrInstall("del@6.1.1", true, true)
-  const vinyl = await __importOrInstall("vinyl-paths", true, true)
-
-  const packageJSON = JSON.parse(
-    await fs.promises.readFile("./package.json", "utf8"),
-  )
-
-  const optionalDependencies = Object.keys(packageJSON.optionalDependencies)
-  const devDependencies = Object.keys(packageJSON.devDependencies)
-
-  return gulp
-    .src(
-      [...optionalDependencies, ...devDependencies].map(
-        (name) => `node_modules/${name}`,
-      ),
-      { allowEmpty: true },
-    )
-    .pipe(vinyl(del))
-}
-
 function _showWarnings(cb) {
   for (const warning of warnings) {
     log(`Warning  ${util.styleText("red", `'${warning}'`)}`)
@@ -422,105 +341,6 @@ function _showWarnings(cb) {
   cb()
 }
 
-async function _generateReadme(cb) {
-  const discord = await __importOrInstall("discord.js@14")
-  const { Handler } = await __importOrInstall("@ghom/handler")
-
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-
-  const client = new discord.Client({
-    intents: [],
-  })
-
-  await client.login(process.env.BOT_TOKEN)
-
-  const avatar =
-    client.user.displayAvatarURL({ format: "png", size: 128 }) +
-    "&fit=cover&mask=circle"
-
-  const config = await import("./dist/config.js").then(
-    (config) => config.default,
-  )
-
-  const invitation = client.application.botPublic
-    ? await client.generateInvite({
-        scopes: [
-          discord.OAuth2Scopes.Bot,
-          discord.OAuth2Scopes.ApplicationsCommands,
-        ],
-        permissions: config.permissions,
-      })
-    : null
-
-  await client.destroy()
-
-  const packageJSON = JSON.parse(
-    await fs.promises.readFile("./package.json", "utf8"),
-  )
-  const database = ["mysql2", "sqlite3", "pg"].find(
-    (name) => name in packageJSON.dependencies,
-  )
-  const configFile = await fs.promises.readFile("./src/config.ts", "utf8")
-  const template = await fs.promises.readFile("./template.md", "utf8")
-
-  /**
-   * @param dirname {string}
-   * @return {Promise<Map<any>>}
-   */
-  const handle = async (dirname) => {
-    const handler = new Handler(path.join(__dirname, "dist", dirname), {
-      pattern: /\.js$/i,
-      loader: async (filepath) => {
-        return (await import(`file://${filepath}`)).default
-      },
-    })
-
-    await handler.init()
-
-    // crop all the paths from the root directory
-
-    const output = new Map()
-
-    for (const [_path, value] of handler.elements) {
-      output.set(
-        path
-          .relative(__dirname, _path)
-          .replace("dist", "./src")
-          .replace(/\\/g, "/")
-          .replace(/\.js$/, ".ts"),
-        value,
-      )
-    }
-
-    return output
-  }
-
-  const slash = await handle("slash")
-  const commands = await handle("commands")
-  const listeners = await handle("listeners")
-  const namespaces = await handle("namespaces")
-  const tables = await handle("tables")
-
-  const readme = template.replace(/\{\{(.+?)}}/gs, (match, key) => {
-    log(`Evaluated '${util.styleText("cyan", key)}'`)
-    return eval(key)
-  })
-
-  await fs.promises.writeFile(
-    `${process.env.BOT_MODE === "factory" ? "." : ""}readme.md`,
-    readme,
-    "utf8",
-  )
-
-  cb()
-
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-}
-
-export const build = gulp.series(_cleanDist, _build, _copyKeepers)
-export const final = gulp.series(build, _optimize)
-export const watch = gulp.series(build, _watch)
-export const readme = gulp.series(build, _generateReadme)
 export const update = gulp.series(
   _checkGulpfile,
   _cleanTemp,

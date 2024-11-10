@@ -1,0 +1,99 @@
+{
+  "templates": {
+    "bot": "{npx} @ghom/bot.ts-cli",
+    "build": "rimraf dist && {npx} rollup -c && {run-file} scripts/copy-keepers.js",
+    "final": "rimraf node_modules && {install-production} && {run-script} build",
+    "watch": "{run-script} build -w",
+    "start": {
+      "default": "{run-script} build && node dist/index.js",
+      "bun": "bun run src/index.ts"
+    },
+    "start.test": {
+      "default": "{run-script} build && node tests/index.test.js",
+      "bun": "bun run tests/index.test.js"
+    },
+    "format": "{npx} prettier --write src tests scripts",
+    "lint": "{npx} eslint src/**/*.ts --fix",
+    "update": "{run-file} scripts/update-framework.js",
+    "readme": "{run-script} build && {run-file} scripts/generate-readme.js",
+    "test": "{run-script} lint && tsc --noEmit && {run-script} start.test"
+  },
+  "components": {
+    "cache-clean": {
+      "yarn": "yarn cache clean",
+      "npm": "npm cache clean --force",
+      "pnpm": "pnpm store clean",
+      "bun": "bun cache clean"
+    },
+    "lockfile": {
+      "yarn": "yarn.lock",
+      "npm": "package-lock.json",
+      "pnpm": "pnpm-lock.yaml",
+      "bun": "bun.lockb"
+    },
+    "install-all": {
+      "yarn": "yarn install",
+      "npm": "npm install",
+      "pnpm": "pnpm install",
+      "bun": "bun install"
+    },
+    "install-ci": {
+      "yarn": "yarn install --frozen-lockfile",
+      "npm": "npm ci",
+      "pnpm": "pnpm install --frozen-lockfile",
+      "bun": "bun install --frozen-lockfile"
+    },
+    "install-production": {
+      "yarn": "yarn install --production",
+      "npm": "npm install --production",
+      "pnpm": "pnpm install --production",
+      "bun": "bun install --production"
+    },
+    "install-package": {
+      "yarn": "yarn add",
+      "npm": "npm install --save",
+      "pnpm": "pnpm add",
+      "bun": "bun add"
+    },
+    "install-dev-package": {
+      "yarn": "yarn add --dev",
+      "npm": "npm install --save-dev",
+      "pnpm": "pnpm add --save-dev",
+      "bun": "bun add --dev"
+    },
+    "install-optional-package": {
+      "yarn": "yarn add --optional",
+      "npm": "npm install --save-optional",
+      "pnpm": "pnpm add --save-optional",
+      "bun": "bun add --optional"
+    },
+    "install-global-package": {
+      "yarn": "yarn global add",
+      "npm": "npm install -g",
+      "pnpm": "pnpm add -g",
+      "bun": "bun add -g"
+    },
+    "remove-package": {
+      "yarn": "yarn remove",
+      "npm": "npm remove --purge",
+      "pnpm": "pnpm remove",
+      "bun": "bun remove"
+    },
+    "run-script": {
+      "yarn": "yarn run",
+      "npm": "npm run",
+      "pnpm": "pnpm run",
+      "bun": "bun run"
+    },
+    "npx": {
+      "yarn": "yarn dlx",
+      "npm": "npx",
+      "pnpm": "pnpx",
+      "bun": "bunx"
+    },
+    "run-file": {
+      "node": "node",
+      "bun": "bun run"
+    }
+  }
+}

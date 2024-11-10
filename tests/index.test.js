@@ -1,4 +1,5 @@
-// eslint-disable-next-line no-undef
+/*global process*/
+
 process.env.BOT_MODE = "test"
 
 import * as core from "#all"
@@ -14,10 +15,8 @@ try {
   await core.checkUpdates()
 
   core.success("no bugs found")
-  // eslint-disable-next-line no-undef
   process.exit(0)
 } catch (error) {
   core.error(error, "index", true)
-  // eslint-disable-next-line no-undef
   process.exit(1)
 }
