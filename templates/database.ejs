@@ -1,0 +1,60 @@
+<% if (client === "sqlite3") { %>
+import fs from "fs"
+import path from "path"
+<% } else if (client === "pg") { %>
+import pg from "pg"
+<% } %>
+
+import env from "#core/env"
+import * as logger from "#core/logger"
+import * as util from "#core/util"
+import * as orm from "@ghom/orm"
+
+<% if (client === "pg") { %>
+setTypeParsers()
+<% } %>
+
+const dataDirectory = util.rootPath("data")
+
+<% if (client === "sqlite3") { %>
+if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+<% } %>
+
+const client = new orm.ORM({
+  tableLocation: util.srcPath("tables"),
+  backups: {
+    location: <% if (client === "sqlite3") { %>path.join(dataDirectory, "backups")<% } else { %>util.rootPath("data", "backups")<% } %>,
+  },
+  database: {
+    client: "<%= client %>",
+    useNullAsDefault: true,
+    connection: {
+      <% if (client === "sqlite3") { %>
+      filename: path.join(dataDirectory, "sqlite3.db"),
+      <% } else { %>
+      port: env.DB_PORT ?? <% if (client === "pg") { %>5432<% } else { %>3306<% } %>,
+      host: env.DB_HOST ?? "127.0.0.1",
+      user: env.DB_USER ?? <% if (client === "pg") { %>"postgres"<% } else { %>"root"<% } %>,
+      password: env.DB_PASSWORD,
+      database: env.DB_DATABASE ?? <% if (client === "pg") { %>"postgres"<% } else { %>"database"<% } %>,
+      <% } %>
+      timezone: env.BOT_TIMEZONE || "UTC",
+    },
+  },
+  logger,
+})
+
+export default client
+
+<% if (client === "pg") { %>
+function setTypeParsers() {
+  const int = (value: string) => parseInt(value)
+  const float = (value: string) => parseFloat(value)
+
+  pg.types.setTypeParser(pg.types.builtins.INT2, int)
+  pg.types.setTypeParser(pg.types.builtins.INT4, int)
+  pg.types.setTypeParser(pg.types.builtins.INT8, int)
+  pg.types.setTypeParser(pg.types.builtins.FLOAT4, float)
+  pg.types.setTypeParser(pg.types.builtins.FLOAT8, float)
+}
+<% } %>

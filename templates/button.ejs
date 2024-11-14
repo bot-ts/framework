@@ -1,0 +1,24 @@
+import { Button } from "#core/button"
+<% if (Object.keys(params).length > 0) { %> 
+  export type <%= Name %>ButtonParams = {
+    <% for (const [key, value] of Object.entries(params)) { %>
+      <%= key %>: <%= value %>,
+    <% } %>
+  }
+<% } %>
+/**
+ * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button button guide} for more information.
+ */
+export default new Button<<%= Name %>ButtonParams>({
+  name: "<%= name %>",
+  description: "<%= description %>",
+  builder: (builder) => builder.setLabel("<%= label %>"),
+  async run(interaction<% if (Object.keys(params).length > 0) {
+    %>, { <%= Object.keys(params).map(k => k.replace("?", "")).join(", ") %> }) {
+    await interaction.deferUpdate()
+    await interaction.followUp({
+      content: "You clicked the <%= name %> button!",
+      ephemeral: true
+    })
+  }
+})

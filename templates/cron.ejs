@@ -4,9 +4,9 @@ import { Cron } from "#core/cron"
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-cron cron guide} for more information.
  */
 export default new Cron({
-  name: "{{ name }}",
-  description: "A {{ name }} cron",
-  schedule: "hourly",
+  name: "<%= name %>",
+  description: "<%= description %>",
+  schedule: <%= scheduleType %>,
   async run() {
     // todo: code here
   },

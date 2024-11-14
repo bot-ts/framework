@@ -1,0 +1,14 @@
+import { Command } from "#core/command"
+
+/**
+ * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-command command guide} for more information.
+ */
+export default new Command({
+  name: "<%= name %>",
+  description: "<%= description %>",
+  channelType: "<%= channelType %>",<% if(botOwnerOnly) { %>
+  botOwnerOnly: true,<% } %>
+  async run(message) {
+    // todo: code here
+  }
+})
