@@ -71,7 +71,7 @@ async function _overrideNativeFiles() {
   process.stdout.write("Installing new files...")
 
   const files = [
-    "temp/src/app/*.ts",
+    "temp/src/core/*.ts",
     "temp/**/*.native.ts",
     "temp/src/index.ts",
     "temp/.gitattributes",
@@ -85,7 +85,7 @@ async function _overrideNativeFiles() {
     "temp/tsconfig.json",
     "temp/tests/**/*.js",
     "temp/templates/*",
-    "!temp/src/app/database.ts",
+    "!temp/src/core/database.ts",
   ]
 
   for (const pattern of files) {
