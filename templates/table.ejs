@@ -1,8 +1,8 @@
 import { Table } from "@ghom/orm"
 
 export interface <%= Name %> {
-<%= Object.entries(columns).map(([name, type]) => {
-  return `  ${name}: ${type},`
+<%- Object.entries(columns).map(([name, column]) => {
+  return `  ${name}${!column.required ? "?" : ""}: ${column.type},`
 }).join("\n") %>
 }
 
@@ -11,12 +11,25 @@ export interface <%= Name %> {
  */
 export default new Table<<%= Name %>>({
   name: "<%= name %>",
-  description: "<%= description %>",<% if(priority !== undefined) {
+  description: "<%- description %>",<% if(priority) {
   %> priority: <%= priority %>,<% } %>
   setup: (table) => {
     // setup table columns => https://knexjs.org/guide/schema-builder.html
-<%= Object.entries(columns).map(([name, type]) => {
-  return `    table.${type}("${name}").notNullable()`
+<%- Object.entries(columns).map(([name, column]) => {
+  switch(column.category) {
+    case "primary":
+      return `    table.${column.auto ? "increments" : column.typeFn}("${name}").primary()`
+    case "relation":
+      return `    table.${column.typeFn}("${name}")
+        .references("${column.tableColumn}")
+        .inTable("${column.tableName}")${
+          column.deleteCascade ? ".onDelete(\"cascade\")" : ""
+        }.notNullable()`
+    case "data":
+      return `    table.${column.typeFn}("${name}")${
+        column.required ? ".notNullable()" : ""}${
+        column.unique ? ".unique()" : ""}`
+  }
 }).join("\n") %>
   },
 })
