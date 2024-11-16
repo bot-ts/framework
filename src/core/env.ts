@@ -108,7 +108,13 @@ const envSchema = z.object({
   DB_USER: z.string().optional(),
   DB_PASSWORD: z.string().optional(),
   DB_DATABASE: z.string().optional(),
-  PACKAGE_MANAGER: z.enum(["npm", "yarn", "pnpm", "bun"], {
+  RUNTIME: z.enum(["node", "deno", "bun"], {
+    message: `You need to add a ${util.styleText(
+      "bold",
+      "RUNTIME",
+    )} in the .env file, for example: RUNTIME="node". You can choose between this list:\n=> node, deno, bun`,
+  }),
+  PACKAGE_MANAGER: z.enum(["npm", "yarn", "pnpm", "bun", "deno"], {
     message: `You need to add a ${util.styleText(
       "bold",
       "PACKAGE_MANAGER",
