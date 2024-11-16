@@ -5,8 +5,8 @@ import { Cron } from "#core/cron"
  */
 export default new Cron({
   name: "<%= name %>",
-  description: "<%= description %>",
-  schedule: <%= scheduleType %>,
+  description: "<%- description %>",
+  schedule: <%- scheduleType %>,
   async run() {
     // todo: code here
   },

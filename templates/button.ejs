@@ -9,7 +9,7 @@ import { Button } from "#core/button"
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button button guide} for more information.
  */
-export default new Button<<%= Name %>ButtonParams>({
+export default new Button<%- Object.keys(params).length > 0 ? `<${Name}ButtonParams>` : "" %>({
   name: "<%= name %>",
   description: "<%- description %>",
   builder: (builder) => builder.setLabel("<%- label %>"),
