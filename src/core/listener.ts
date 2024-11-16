@@ -1,6 +1,6 @@
 // system file, please don't modify it
 
-import apiTypes from "discord-api-types/v8"
+import apiTypes from "discord-api-types/v10"
 import discord from "discord.js"
 import path from "node:path"
 import url from "node:url"
