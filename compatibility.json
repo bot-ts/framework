@@ -38,42 +38,42 @@
       "npm": "npm install",
       "pnpm": "pnpm install",
       "bun": "bun install",
-      "deno": "npm install"
+      "deno": "deno cache src/index.ts"
     },
     "install-ci": {
       "yarn": "yarn install --frozen-lockfile",
       "npm": "npm ci",
       "pnpm": "pnpm install --frozen-lockfile",
       "bun": "bun install --frozen-lockfile",
-      "deno": "npm ci"
+      "deno": "echo 'deno don't have an install command'"
     },
     "install-production": {
       "yarn": "yarn install --production",
       "npm": "npm install --production",
       "pnpm": "pnpm install --production",
       "bun": "bun install --production",
-      "deno": "npm install --production"
+      "deno": "echo 'deno don't have an install command'"
     },
     "install-package": {
       "yarn": "yarn add",
       "npm": "npm install --save",
       "pnpm": "pnpm add",
       "bun": "bun add",
-      "deno": "npm install --save"
+      "deno": "echo 'deno don't have an install command'"
     },
     "install-dev-package": {
       "yarn": "yarn add --dev",
       "npm": "npm install --save-dev",
       "pnpm": "pnpm add --save-dev",
       "bun": "bun add --dev",
-      "deno": "npm install --save-dev"
+      "deno": "echo 'deno don't have an install command'"
     },
     "install-optional-package": {
       "yarn": "yarn add --optional",
       "npm": "npm install --save-optional",
       "pnpm": "pnpm add --save-optional",
       "bun": "bun add --optional",
-      "deno": "npm install --save-optional"
+      "deno": "echo 'deno don't have an install command'"
     },
     "install-global-package": {
       "yarn": "yarn global add",
@@ -87,7 +87,7 @@
       "npm": "npm remove --purge",
       "pnpm": "pnpm remove",
       "bun": "bun remove",
-      "deno": "npm remove --purge"
+      "deno": "echo 'deno don't have an uninstall command'"
     },
     "run-script": {
       "yarn": "yarn run",
