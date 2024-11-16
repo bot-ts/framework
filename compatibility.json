@@ -38,14 +38,14 @@
       "npm": "npm install",
       "pnpm": "pnpm install",
       "bun": "bun install",
-      "deno": "deno cache src/index.ts"
+      "deno": "deno install"
     },
     "install-ci": {
       "yarn": "yarn install --frozen-lockfile",
       "npm": "npm ci",
       "pnpm": "pnpm install --frozen-lockfile",
       "bun": "bun install --frozen-lockfile",
-      "deno": "echo 'deno don't have an install command'"
+      "deno": "deno install --frozen"
     },
     "install-production": {
       "yarn": "yarn install --production",
