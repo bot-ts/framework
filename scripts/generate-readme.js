@@ -2,9 +2,9 @@ import { Handler } from "@ghom/handler"
 import discord from "discord.js"
 import dotenv from "dotenv"
 import ejs from "ejs"
-import fs from "fs"
-import path from "path"
-import url from "url"
+import fs from "node:fs"
+import path from "node:path"
+import url from "node:url"
 
 /*global process, console */
 

@@ -1,10 +1,10 @@
-import { execSync } from "child_process"
 import dotenv from "dotenv"
 import glob from "fast-glob"
-import fs from "fs"
 import gitCommitInfo from "git-commit-info"
-import path from "path"
-import url from "url"
+import { execSync } from "node:child_process"
+import fs from "node:fs"
+import path from "node:path"
+import url from "node:url"
 
 /*global process, fetch, console*/
 
