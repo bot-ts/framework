@@ -72,6 +72,7 @@
     "node-cron": "^3.0.3",
     "prettier": "^3.2.5",
     "regex-parser": "^2.2.11",
+    "rimraf": "^6.0.1",
     "simple-git": "^3.27.0",
     "sqlite3": "latest",
     "tims": "^2.1.0",
@@ -112,4 +113,3 @@
     "yarn": ">=1.22.x"
   }
 }
-
