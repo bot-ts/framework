@@ -1,19 +1,19 @@
 import { Handler } from "@ghom/handler"
 import discord from "discord.js"
 import dotenv from "dotenv"
+import ejs from "ejs"
 import fs from "fs"
 import path from "path"
 import url from "url"
-import util from "util"
 
 /*global process, console */
 
 const filename = url.fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const rootDir = path.join(dirname, "..")
+const rootDir = (...segments) => path.join(dirname, "..", ...segments)
 
 dotenv.config({
-  path: path.join(rootDir, ".env"),
+  path: rootDir(".env"),
 })
 
 const client = new discord.Client({
@@ -43,20 +43,26 @@ const invitation = client.application.botPublic
 await client.destroy()
 
 const packageJSON = JSON.parse(
-  await fs.promises.readFile("./package.json", "utf8"),
+  await fs.promises.readFile(rootDir("package.json"), "utf8"),
 )
 const database = ["mysql2", "sqlite3", "pg"].find(
   (name) => name in packageJSON.dependencies,
 )
-const configFile = await fs.promises.readFile("./src/config.ts", "utf8")
-const template = await fs.promises.readFile("./template.md", "utf8")
+const configFile = await fs.promises.readFile(
+  rootDir("src", "config.ts"),
+  "utf8",
+)
+const template = await fs.promises.readFile(
+  rootDir("templates", "readme.ejs"),
+  "utf8",
+)
 
 /**
  * @param dirname {string}
  * @return {Promise<Map<any>>}
  */
 const handle = async (dirname) => {
-  const handler = new Handler(path.join(rootDir, "dist", dirname), {
+  const handler = new Handler(rootDir("dist", dirname), {
     pattern: /\.js$/i,
     loader: async (filepath) => {
       return (await import(`file://${filepath}`)).default
@@ -72,7 +78,7 @@ const handle = async (dirname) => {
   for (const [_path, value] of handler.elements) {
     output.set(
       path
-        .relative(rootDir, _path)
+        .relative(rootDir(), _path)
         .replace("dist", "src")
         .replace(/\\/g, "/")
         .replace(/\.js$/, ".ts"),
@@ -91,9 +97,20 @@ const tables = await handle("tables")
 const cronJobs = await handle("cron")
 const buttons = await handle("buttons")
 
-const readme = template.replace(/\{\{(.+?)}}/gs, (match, key) => {
-  console.log(`✅ Evaluated '${util.styleText("cyan", key)}'`)
-  return eval(key)
+const readme = ejs.compile(template)({
+  avatar,
+  invitation,
+  database,
+  configFile,
+  slash,
+  commands,
+  listeners,
+  namespaces,
+  tables,
+  cronJobs,
+  buttons,
+  packageJSON,
+  client,
 })
 
 await fs.promises.writeFile(
@@ -103,3 +120,4 @@ await fs.promises.writeFile(
 )
 
 console.log(`✅ Successfully generated readme.md`)
+process.exit(0)

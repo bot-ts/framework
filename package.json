@@ -49,6 +49,7 @@
     "discord-eval.ts": "^1.1.2",
     "discord.js": "^14.16.2",
     "dotenv": "^16.0.1",
+    "ejs": "^3.1.10",
     "figlet": "^1.8.0",
     "ghom-prettify": "^3.0.0",
     "knex": "^3.0.1",
@@ -82,8 +83,8 @@
     "eslint": "^9.12.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.31.0",
-    "git-commit-info": "2.0.2",
     "fast-glob": "3.3.2",
+    "git-commit-info": "2.0.2",
     "rollup": "^4.24.4",
     "typescript": "^5.4.0-beta"
   },
