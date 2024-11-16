@@ -3,7 +3,6 @@
     "bot": "{npx} @ghom/bot.ts-cli",
     "build": "rimraf dist && {npx} rollup -c && {run-file} scripts/copy-keepers.js",
     "final": "rimraf node_modules && {install-production} && {run-script} build",
-    "watch": "{run-script} build -w",
     "start": {
       "default": "{run-script} build && node dist/index.js",
       "bun": "bun run src/index.ts"

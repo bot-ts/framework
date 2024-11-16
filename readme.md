@@ -47,7 +47,7 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 * It's not a lib! You can edit all files easily.
 * All is already configured.
 * I recommend it for learning TypeScript.
-* It uses ESBuild for boosted productivity
+* It uses Rollup for boosted productivity.
 
 ## Annexes
 
