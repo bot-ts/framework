@@ -86,3 +86,20 @@ jobs:
 
       - name: Start the bot
         run: bun run tests/index.test.js
+
+  deno:
+    name: Test on Deno v1.17.2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: 1.17.2
+
+      - name: Install dependencies
+        run: deno cache tests/index.test.ts
+
+      - name: Start the bot
+        run: deno tests/index.test.ts
