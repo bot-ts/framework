@@ -1,14 +1,14 @@
-FROM node:lts
+FROM oven/bun:latest
 
 WORKDIR /app
 
 COPY package.json .
 
-RUN npm install
+RUN bun install
 
 COPY . .
 
 # Rebuild les dépendances natives
-RUN npm rebuild sqlite3 || true
+RUN bun run rebuild sqlite3 || true
 
-CMD ["npm", "run", "start"]
+CMD ["bun", "run", "start"]
