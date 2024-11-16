@@ -4,8 +4,8 @@ import env from "#core/env"
 import * as logger from "#core/logger"
 import * as util from "#core/util"
 import * as orm from "@ghom/orm"
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
 const dataDirectory = util.rootPath("data")
 

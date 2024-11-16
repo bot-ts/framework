@@ -23,77 +23,90 @@
       "yarn": "yarn cache clean",
       "npm": "npm cache clean --force",
       "pnpm": "pnpm store clean",
-      "bun": "bun cache clean"
+      "bun": "bun cache clean",
+      "deno": "deno cache --reload"
     },
     "lockfile": {
       "yarn": "yarn.lock",
       "npm": "package-lock.json",
       "pnpm": "pnpm-lock.yaml",
-      "bun": "bun.lockb"
+      "bun": "bun.lockb",
+      "deno": "deno.lock"
     },
     "install-all": {
       "yarn": "yarn install",
       "npm": "npm install",
       "pnpm": "pnpm install",
-      "bun": "bun install"
+      "bun": "bun install",
+      "deno": "npm install"
     },
     "install-ci": {
       "yarn": "yarn install --frozen-lockfile",
       "npm": "npm ci",
       "pnpm": "pnpm install --frozen-lockfile",
-      "bun": "bun install --frozen-lockfile"
+      "bun": "bun install --frozen-lockfile",
+      "deno": "npm ci"
     },
     "install-production": {
       "yarn": "yarn install --production",
       "npm": "npm install --production",
       "pnpm": "pnpm install --production",
-      "bun": "bun install --production"
+      "bun": "bun install --production",
+      "deno": "npm install --production"
     },
     "install-package": {
       "yarn": "yarn add",
       "npm": "npm install --save",
       "pnpm": "pnpm add",
-      "bun": "bun add"
+      "bun": "bun add",
+      "deno": "npm install --save"
     },
     "install-dev-package": {
       "yarn": "yarn add --dev",
       "npm": "npm install --save-dev",
       "pnpm": "pnpm add --save-dev",
-      "bun": "bun add --dev"
+      "bun": "bun add --dev",
+      "deno": "npm install --save-dev"
     },
     "install-optional-package": {
       "yarn": "yarn add --optional",
       "npm": "npm install --save-optional",
       "pnpm": "pnpm add --save-optional",
-      "bun": "bun add --optional"
+      "bun": "bun add --optional",
+      "deno": "npm install --save-optional"
     },
     "install-global-package": {
       "yarn": "yarn global add",
       "npm": "npm install -g",
       "pnpm": "pnpm add -g",
-      "bun": "bun add -g"
+      "bun": "bun add -g",
+      "deno": "npm install -g"
     },
     "remove-package": {
       "yarn": "yarn remove",
       "npm": "npm remove --purge",
       "pnpm": "pnpm remove",
-      "bun": "bun remove"
+      "bun": "bun remove",
+      "deno": "npm remove --purge"
     },
     "run-script": {
       "yarn": "yarn run",
       "npm": "npm run",
       "pnpm": "pnpm run",
-      "bun": "bun run"
+      "bun": "bun run",
+      "deno": "npm run"
     },
     "npx": {
       "yarn": "yarn dlx",
       "npm": "npx",
       "pnpm": "pnpx",
-      "bun": "bunx"
+      "bun": "bunx",
+      "deno": "npx"
     },
     "run-file": {
       "node": "node",
-      "bun": "bun run"
+      "bun": "bun run",
+      "deno": "deno"
     }
   }
 }

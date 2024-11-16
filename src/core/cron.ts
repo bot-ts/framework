@@ -2,13 +2,13 @@ import * as handler from "@ghom/handler"
 
 import discord from "discord.js"
 import cron from "node-cron"
-import url from "url"
+import url from "node:url"
 
 import env from "#core/env"
 import logger from "#core/logger"
 import * as util from "#core/util"
 
-import { styleText } from "util"
+import { styleText } from "node:util"
 
 export class CRON_Error extends Error {
   constructor(message: string) {

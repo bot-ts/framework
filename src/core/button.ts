@@ -1,13 +1,13 @@
 import * as handler from "@ghom/handler"
 
 import discord from "discord.js"
-import url from "url"
+import url from "node:url"
 
 import env from "#core/env"
 import * as logger from "#core/logger"
 import * as util from "#core/util"
 
-import { styleText } from "util"
+import { styleText } from "node:util"
 
 export const buttonHandler = new handler.Handler<IButton>(
   util.srcPath("buttons"),

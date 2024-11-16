@@ -1,6 +1,6 @@
 <% if (client === "sqlite3") { %>
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 <% } else if (client === "pg") { %>
 import pg from "pg"
 <% } %>

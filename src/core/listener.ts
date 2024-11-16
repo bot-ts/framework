@@ -2,8 +2,8 @@
 
 import apiTypes from "discord-api-types/v8"
 import discord from "discord.js"
-import path from "path"
-import url from "url"
+import path from "node:path"
+import url from "node:url"
 
 import * as handler from "@ghom/handler"
 
@@ -11,7 +11,7 @@ import client from "#core/client"
 import logger from "#core/logger"
 import * as util from "#core/util"
 
-import { styleText } from "util"
+import { styleText } from "node:util"
 
 const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
 

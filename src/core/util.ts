@@ -3,12 +3,12 @@
 import dayjs from "dayjs"
 import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
-import EventEmitter from "events"
-import fs from "fs"
-import path from "path"
+import EventEmitter from "node:events"
+import fs from "node:fs"
+import path from "node:path"
+import url from "node:url"
+import util from "node:util"
 import simpleGit from "simple-git"
-import url from "url"
-import util from "util"
 
 import type { PackageJson } from "types-package-json"
 

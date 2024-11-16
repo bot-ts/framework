@@ -11,7 +11,7 @@ import * as util from "#core/util"
 
 import type { types } from "#types"
 
-import { inspect } from "util"
+import { inspect } from "node:util"
 
 type _item<Items extends readonly any[], K extends string> = Extract<
   Items[number],

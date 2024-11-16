@@ -6,7 +6,7 @@ import env from "#core/env"
 import * as util from "#core/util"
 import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
-import fs from "fs"
+import fs from "node:fs"
 import time from "tims"
 
 export default new Command({

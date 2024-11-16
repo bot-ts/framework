@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import "dotenv/config"
 
-import fs from "fs"
-import path from "path"
-import util from "util"
+import fs from "node:fs"
+import path from "node:path"
+import util from "node:util"
 import { z } from "zod"
 
 import { config } from "#config"

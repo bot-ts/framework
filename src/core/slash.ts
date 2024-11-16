@@ -1,7 +1,7 @@
 // system file, please don't modify it
 
 import discord from "discord.js"
-import url from "url"
+import url from "node:url"
 
 import * as handler from "@ghom/handler"
 
@@ -11,7 +11,7 @@ import env from "#core/env"
 import logger from "#core/logger"
 import * as util from "#core/util"
 
-import { styleText } from "util"
+import { styleText } from "node:util"
 
 const __filename = util.getCurrentFilename(import.meta)
 

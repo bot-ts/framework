@@ -5,7 +5,6 @@ import { z } from "zod"
 export const config = new Config({
   ignoreBots: true,
   openSource: true,
-  printNameOnReady: true,
   envSchema: z.object({}),
   permissions: ["Administrator"],
   client: {

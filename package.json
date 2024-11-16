@@ -7,12 +7,30 @@
   "type": "module",
   "style": "options",
   "imports": {
-    "#config": "./dist/config.js",
-    "#types": "./dist/types.js",
-    "#core/*": "./dist/core/*",
-    "#tables/*": "./dist/tables/*",
-    "#buttons/*": "./dist/buttons/*",
-    "#all": "./dist/core/index.js"
+    "#config": [
+      "./src/config.ts",
+      "./dist/config.js"
+    ],
+    "#types": [
+      "./src/types.ts",
+      "./dist/types.js"
+    ],
+    "#core/*": [
+      "./src/core/*.ts",
+      "./dist/core/*.js"
+    ],
+    "#tables/*": [
+      "./src/tables/*.ts",
+      "./dist/tables/*.js"
+    ],
+    "#buttons/*": [
+      "./src/buttons/*.ts",
+      "./dist/buttons/*.js"
+    ],
+    "#all": [
+      "./src/core/index.ts",
+      "./dist/core/index.js"
+    ]
   },
   "scripts": {
     "bot": "bunx @ghom/bot.ts-cli",
@@ -44,13 +62,11 @@
     "@ghom/handler": "^3.1.0",
     "@ghom/logger": "^2.0.2",
     "@ghom/orm": "^1.8.6",
-    "boxen": "=5.1.2",
     "dayjs": "^1.11.13",
     "discord-eval.ts": "^1.1.2",
     "discord.js": "^14.16.2",
     "dotenv": "^16.0.1",
     "ejs": "^3.1.10",
-    "figlet": "^1.8.0",
     "ghom-prettify": "^3.0.0",
     "knex": "^3.0.1",
     "node-cron": "^3.0.3",
@@ -71,7 +87,6 @@
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
-    "@types/figlet": "^1.7.0",
     "@types/node": "^22.7.6",
     "@types/node-cron": "^3.0.11",
     "@types/prettier": "^2.6.3",
@@ -97,3 +112,4 @@
     "yarn": ">=1.22.x"
   }
 }
+

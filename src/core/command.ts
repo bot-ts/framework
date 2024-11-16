@@ -2,9 +2,9 @@
 
 import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
-import path from "path"
+import path from "node:path"
+import url from "node:url"
 import tims from "tims"
-import url from "url"
 import yargsParser from "yargs-parser"
 
 import * as handler from "@ghom/handler"
@@ -15,7 +15,7 @@ import env from "#core/env"
 import * as logger from "#core/logger"
 import * as util from "#core/util"
 
-import { styleText } from "util"
+import { styleText } from "node:util"
 
 const __filename = util.getCurrentFilename(import.meta)
 
