@@ -22,11 +22,13 @@
 
 **bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
 
+- **Package Manager Agnostic**: Compatible with [npm](https://www.npmjs.com), [yarn](https://yarnpkg.com), [pnpm](https://pnpm.io) and more.
+- **Multi-Runtime Support**: Fully compatible with [Node.js](https://nodejs.org), [Bun](https://bun.sh), and [Deno](https://deno.land).
 - **File Handling**: Robust file handling with [@ghom/handler](https://www.npmjs.com/package/@ghom/handler).
-- **CLI File Generation**: Easy file generation via [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli).
+- **CLI File Generation**: Easy and powerful file generation via [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli).
 - **Argument Typing**: Advanced argument typing using [prop-transfer-typings.ts](https://gist.github.com/GhomKrosmonaute/00da4eb3e8ac48a751602288fcf71835).
-- **App Importation**: Import your app with NodeJS aliases from [app.ts](https://github.com/bot-ts/framework/blob/master/src/app.ts).
-- **Shell Arguments**: Handle shell arguments using [Yargs](http://yargs.js.org/).
+- **Node Aliases**: Simplify module resolution with useful path aliases using [Node.js 'imports'](https://nodejs.org/api/packages.html#packages_imports).
+- **Shell Arguments**: Handle shell arguments on textual commands using [Yargs](http://yargs.js.org/).
 - **Predefined Commands & Listeners**: Ready-to-use [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners).
 - **Scripts Management**: Task automation with [package.json](https://ghom.gitbook.io/bot-ts/command-line/overview) scripts.
 - **ORM Setup**: Preconfigured [Knex](http://knexjs.org/) ORM with [sqlite3](https://www.npmjs.com/package/sqlite3).
