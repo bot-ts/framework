@@ -1,6 +1,6 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import cp from "child_process"
+import cp from "node:child_process"
 
 import { Command } from "#core/command"
 import * as util from "#core/util"
