@@ -18,7 +18,8 @@ export default new Table<<%= Name %>>({
 <%- Object.entries(columns).map(([name, column]) => {
   switch(column.category) {
     case "primary":
-      return `    table.${column.auto ? "increments" : column.typeFn}("${name}").primary()`
+      return `    table.${column.auto ? "increments" : column.typeFn}("${name}")
+        .primary()${column.auto ? ".unsigned()" : ""}`
     case "relation":
       return `    table.${column.typeFn}("${name}")
         .references("${column.tableColumn}")
