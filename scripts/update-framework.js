@@ -5,6 +5,7 @@ import gitCommitInfo from "git-commit-info"
 import { execSync } from "node:child_process"
 import fs from "node:fs"
 import path from "node:path"
+import readline from "node:readline"
 import url from "node:url"
 
 /*global process, fetch, console*/
@@ -23,6 +24,11 @@ const compatibility = JSON.parse(
 
 const warnings = []
 
+function clearLastLine() {
+  readline.clearLine(process.stdout, 0)
+  readline.cursorTo(process.stdout, 0)
+}
+
 async function _checkUpdater() {
   process.stdout.write("Checking for updater updates...")
 
@@ -32,17 +38,20 @@ async function _checkUpdater() {
   const local = await fs.promises.readFile(filename, "utf8")
 
   if (remote !== local) {
-    process.stdout.write("\r⚠️ Updater is outdated, updating...")
+    clearLastLine()
+    process.stdout.write("⚠️ Updater is outdated, updating...")
 
     await fs.promises.writeFile(filename, remote, "utf8")
 
-    console.log("\r✅ Updated updater")
+    clearLastLine()
+    console.log("✅ Updated updater")
 
     execSync(process.argv.join(" "), { cwd: rootDir, stdio: "inherit" })
 
     process.exit(0)
   } else {
-    console.log("\r✅ Updater is up to date")
+    clearLastLine()
+    console.log("✅ Updater is up to date")
   }
 }
 
@@ -64,7 +73,8 @@ function _downloadTemp() {
     stdio: "ignore",
   })
 
-  console.log("\r✅ Downloaded files")
+  clearLastLine()
+  console.log("✅ Downloaded files")
 }
 
 async function _overrideNativeFiles() {
@@ -97,7 +107,8 @@ async function _overrideNativeFiles() {
     }
   }
 
-  console.log("\r✅ Installed new files")
+  clearLastLine()
+  console.log("✅ Installed new files")
 }
 
 async function _copyConfig() {
@@ -194,6 +205,7 @@ async function _updateDependencies() {
     { cwd: rootDir, stdio: "ignore" },
   )
 
+  clearLastLine()
   console.log("\r✅ Updated dependencies")
 }
 
