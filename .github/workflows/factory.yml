@@ -104,7 +104,7 @@ jobs:
         run: bun run src/index.test.ts
 
   deno:
-    name: Test on Deno v1.17.2
+    name: Test on Deno v2.0.6
     needs: node
     runs-on: ubuntu-latest
     steps:
@@ -113,10 +113,10 @@ jobs:
       - name: Setup Deno
         uses: denolib/setup-deno@v2
         with:
-          deno-version: 1.17.2
+          deno-version: 2.0.6
 
       - name: Install dependencies
-        run: deno install --entrypoint src/index.test.ts
+        run: deno install --allow-scripts
 
       - name: Start the bot
         env:
