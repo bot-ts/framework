@@ -102,7 +102,7 @@
     "fast-glob": "3.3.2",
     "git-commit-info": "2.0.2",
     "rollup": "^4.24.4",
-    "typescript": "^5.4.0-beta"
+    "typescript": "^5.6.3"
   },
   "optionalDependencies": {
     "@types/pg": "^8.11.10"
@@ -113,3 +113,4 @@
     "yarn": ">=1.22.22"
   }
 }
+
