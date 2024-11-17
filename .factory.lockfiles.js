@@ -66,4 +66,4 @@ fs.copyFileSync(
   path.join(dirname, compatibility.components.lockfile[PACKAGE_MANAGER]),
 )
 
-console.log("✅ Successfully generated lockfiles")
+console.log("✅ Successfuly generated lockfiles")
