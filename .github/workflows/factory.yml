@@ -55,10 +55,13 @@ jobs:
         run: |
           if [ "${{ matrix.package-manager }}" == "npm" ]; then
             npm ci
+            npm install @rollup/rollup-linux-x64-gnu
           elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
             yarn install --frozen-lockfile
+            yarn add @rollup/rollup-linux-x64-gnu
           elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
             pnpm install --frozen-lockfile
+            pnpm add @rollup/rollup-linux-x64-gnu
           fi
 
       - name: Check typings
