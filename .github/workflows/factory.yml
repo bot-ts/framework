@@ -65,7 +65,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Build JS
-        run: ${{ matrix.package-manager }} run build
+        run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
 
       - name: Rebuild sqlite3
         run: ${{ matrix.package-manager }} rebuild sqlite3
