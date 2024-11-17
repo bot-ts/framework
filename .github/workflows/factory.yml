@@ -17,7 +17,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   node:
-    if: github.repository != 'bot-ts/framework'
+    if: github.repository == 'bot-ts/framework'
     name: Test on Node.js v22
     runs-on: ubuntu-latest
     strategy:

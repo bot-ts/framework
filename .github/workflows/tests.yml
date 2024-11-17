@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   bun:
-    if: github.repository == 'bot-ts/framework'
+    if: github.repository != 'bot-ts/framework'
     name: Test on Bun v1.1.34
     runs-on: ubuntu-latest
     steps:
