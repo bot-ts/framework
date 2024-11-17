@@ -38,7 +38,7 @@ jobs:
             echo "npm is already installed"
           fi
 
-      - name: Generate lockfile
+      - name: Copy lockfile
         run: |
           rm -f bun.lockb
           if [ "${{ matrix.package-manager }}" == "npm" ]; then
