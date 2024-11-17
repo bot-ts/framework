@@ -43,6 +43,7 @@ export default {
     entryFileNames: "[name].js",
     preserveModules: true,
     preserveModulesRoot: "src",
+    banner: 'process.env.BOT_MODE = "test";',
   },
   plugins: [
     nodeResolve(),
