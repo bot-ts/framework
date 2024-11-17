@@ -1,4 +1,5 @@
 import dotenv from "dotenv"
+import ejs from "ejs"
 import glob from "fast-glob"
 import gitCommitInfo from "git-commit-info"
 import { execSync } from "node:child_process"
@@ -130,10 +131,13 @@ async function _removeDuplicates() {
 
 async function _updatePackageJSON() {
   const localPackageJSON = JSON.parse(
-    await fs.promises.readFile("./package.json", "utf8"),
+    await fs.promises.readFile(path.join(rootDir, "package.json"), "utf8"),
   )
   const remotePackageJSON = JSON.parse(
-    await fs.promises.readFile("./temp/package.json", "utf8"),
+    await fs.promises.readFile(
+      path.join(rootDir, "temp", "package.json"),
+      "utf8",
+    ),
   )
 
   localPackageJSON.main = remotePackageJSON.main
@@ -173,7 +177,7 @@ async function _updatePackageJSON() {
   }
 
   fs.writeFileSync(
-    "./package.json",
+    path.join(rootDir, "package.json"),
     JSON.stringify(localPackageJSON, null, 2),
     "utf8",
   )
@@ -196,18 +200,27 @@ async function _updateDependencies() {
 
 async function _updateDatabaseFile() {
   const packageJSON = JSON.parse(
-    await fs.promises.readFile("./package.json", "utf8"),
+    await fs.promises.readFile(path.join(rootDir, "package.json"), "utf8"),
   )
 
   const database = ["mysql2", "sqlite3", "pg"].find(
     (name) => name in packageJSON.dependencies,
   )
 
-  const dest = path.join(rootDir, "src/app/database.ts")
+  const template = await fs.promises.readFile(
+    path.join("templates", `${database}.ejs`),
+    "utf8",
+  )
 
-  await fs.promises.copyFile(`templates/${database}`, dest)
+  await fs.promises.writeFile(
+    path.join(rootDir, "src", "core", "database.ts"),
+    ejs.compile(template)({
+      client: database,
+    }),
+    "utf8",
+  )
 
-  console.log(`✅ Updated 'database.ts' with 'templates/${database}'`)
+  console.log(`✅ Updated 'database.ts'`)
 }
 
 async function _gitLog() {
