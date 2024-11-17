@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "moduleResolution": "Node",
-    "rootDir": "src",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "module": "esnext",
     "target": "ES2020",
-    "outDir": "dist",
     "lib": ["ES2023"],
     "strict": true,
     "noEmit": true,
@@ -31,5 +31,6 @@
       // Grouped import
       "#all": ["./src/core/index.ts"]
     }
-  }
+  },
+  "include": ["src/**/*"]
 }

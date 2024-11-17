@@ -1,9 +1,9 @@
 import alias from "@rollup/plugin-alias"
 import { nodeResolve } from "@rollup/plugin-node-resolve"
 import typescript from "@rollup/plugin-typescript"
-import fs from "fs"
-import path from "path"
-import url from "url"
+import fs from "node:fs"
+import path from "node:path"
+import url from "node:url"
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
@@ -26,6 +26,7 @@ function getFiles(dir) {
 export default {
   input: [
     "src/index.ts",
+    "src/index.test.ts",
     getFiles("src/core"),
     getFiles("src/buttons"),
     getFiles("src/commands"),
