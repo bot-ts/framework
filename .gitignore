@@ -21,7 +21,6 @@ node_modules
 # package managers
 
 .npm
-pnpm-lock.yaml
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
