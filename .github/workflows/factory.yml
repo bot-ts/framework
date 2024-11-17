@@ -33,7 +33,11 @@ jobs:
       - name: Install package manager
         run: |
           if [ "${{ matrix.package-manager }}" != "npm" ]; then
-            npm install -g ${{ matrix.package-manager }}@latest
+            if [ "${{ matrix.package-manager }}" == "yarn" ]; then
+              npm install -g yarn@latest # or @berry for advanced features
+            else
+              npm install -g ${{ matrix.package-manager }}@latest
+            fi
           else
             echo "npm is already installed"
           fi
@@ -69,7 +73,12 @@ jobs:
         run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
 
       - name: Rebuild sqlite3
-        run: ${{ matrix.package-manager }} rebuild sqlite3
+        run: |
+          if [ "${{ matrix.package-manager }}" == "yarn" ]; then
+            npm rebuild sqlite3 # yarn doesn't have a rebuild command (but with @berry version)
+          else
+            ${{ matrix.package-manager }} rebuild sqlite3
+          fi
 
       - name: Start the bot
         run: node dist/index.test.js
