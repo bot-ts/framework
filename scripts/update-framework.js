@@ -84,6 +84,7 @@ async function _overrideNativeFiles() {
     "temp/template.md",
     "temp/tsconfig.json",
     "temp/tests/**/*.js",
+    "temp/scripts/*.js",
     "temp/templates/*",
     "!temp/src/core/database.ts",
   ]

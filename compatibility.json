@@ -51,35 +51,28 @@
       "npm": "npm install --production",
       "pnpm": "pnpm install --production",
       "bun": "bun install --production",
-      "deno": "echo 'deno don't have an install command'"
+      "deno": "deno install"
     },
     "install-package": {
       "yarn": "yarn add",
       "npm": "npm install --save",
       "pnpm": "pnpm add",
       "bun": "bun add",
-      "deno": "echo 'deno don't have an install command'"
+      "deno": "deno install"
     },
     "install-dev-package": {
       "yarn": "yarn add --dev",
       "npm": "npm install --save-dev",
       "pnpm": "pnpm add --save-dev",
       "bun": "bun add --dev",
-      "deno": "echo 'deno don't have an install command'"
-    },
-    "install-optional-package": {
-      "yarn": "yarn add --optional",
-      "npm": "npm install --save-optional",
-      "pnpm": "pnpm add --save-optional",
-      "bun": "bun add --optional",
-      "deno": "echo 'deno don't have an install command'"
+      "deno": "deno install --dev"
     },
     "install-global-package": {
       "yarn": "yarn global add",
       "npm": "npm install -g",
       "pnpm": "pnpm add -g",
       "bun": "bun add -g",
-      "deno": "npm install -g"
+      "deno": "deno install --global"
     },
     "remove-package": {
       "yarn": "yarn remove",
