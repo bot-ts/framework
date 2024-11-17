@@ -235,17 +235,24 @@ async function _showWarnings() {
   }
 }
 
-await _checkUpdater()
-await _cleanTemp()
-await _downloadTemp()
-await _overrideNativeFiles()
-await _copyConfig()
-await _removeDuplicates()
-await _updatePackageJSON()
-await _updateDependencies()
-await _updateDatabaseFile()
-await _gitLog()
-await _cleanTemp()
-await _showWarnings()
+try {
+  await _checkUpdater()
+  await _cleanTemp()
+  await _downloadTemp()
+  await _overrideNativeFiles()
+  await _copyConfig()
+  await _removeDuplicates()
+  await _updatePackageJSON()
+  await _updateDependencies()
+  await _updateDatabaseFile()
+  await _gitLog()
+  await _cleanTemp()
+  await _showWarnings()
+} catch (error) {
+  await fs.promises
+    .rm(path.join(rootDir, "temp"), { recursive: true, force: true })
+    .catch(console.error)
+  throw error
+}
 
 console.log("✅ Updated successfully")
