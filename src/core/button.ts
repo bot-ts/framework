@@ -19,7 +19,7 @@ export const buttonHandler = new handler.Handler<IButton>(
       throw new Error(`${filepath}: default export must be a Button instance`)
     },
     onLoad: async (filepath, button) => {
-      button.native = filepath.endsWith(".native.js")
+      button.native = /.native.[jt]s$/.test(filepath)
       button.filepath = filepath
       buttons.add(button)
     },

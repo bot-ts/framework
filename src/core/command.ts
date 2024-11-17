@@ -29,7 +29,7 @@ export const commandHandler = new handler.Handler<ICommand>(
       throw new Error(`${filepath}: default export must be a Command instance`)
     },
     onLoad: async (filepath, command) => {
-      command.native = filepath.endsWith(".native.js")
+      command.native = /.native.[jt]s$/.test(filepath)
       command.filepath = filepath
       return commands.add(command)
     },
@@ -316,6 +316,8 @@ export function validateCommand(
 ): void | never {
   command.parent = parent
   command.filepath ??= parent?.filepath
+
+  if (parent?.native) command.native = true
 
   if (command.options.isDefault) {
     if (defaultCommand)

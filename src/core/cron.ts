@@ -25,7 +25,7 @@ export const cronHandler = new handler.Handler<Cron>(util.srcPath("cron"), {
     throw new CRON_Error(`${filepath}: default export must be a Cron instance`)
   },
   onLoad: async (filepath, button) => {
-    button.native = filepath.endsWith(".native.js")
+    button.native = /.native.[jt]s$/.test(filepath)
     button.filepath = filepath
     cronList.add(button)
   },

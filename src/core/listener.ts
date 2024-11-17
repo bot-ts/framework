@@ -47,10 +47,10 @@ export const listenerHandler = new handler.Handler<Listener<any>>(
         },
       )
 
-      const isNative = filepath.includes(".native.")
+      const isNative = /.native.[jt]s$/.test(filepath)
 
       const category = path
-        .basename(filepath, ".js")
+        .basename(filepath.replace(/.[jt]s$/, ""))
         .replace(`${listener.options.event}.`, "")
         .split(".")
         .filter((x) => x !== "native" && x !== listener.options.event)

@@ -34,7 +34,7 @@ export const slashCommandHandler = new handler.Handler<ISlashCommand>(
       )
     },
     onLoad: async (filepath, command) => {
-      command.native = filepath.endsWith("native.js")
+      command.native = /.native.[jt]s$/.test(filepath)
       command.filepath = filepath
       return slashCommands.add(command)
     },
