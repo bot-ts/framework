@@ -62,7 +62,7 @@ jobs:
           fi
 
       - name: Check typings
-        run: tsc --noEmit
+        run: npx tsc --noEmit
 
       - name: Build JS
         run: ${{ matrix.package-manager }} build
@@ -72,6 +72,7 @@ jobs:
 
   bun:
     name: Test on Bun v1.1.34
+    needs: node
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -89,6 +90,7 @@ jobs:
 
   deno:
     name: Test on Deno v1.17.2
+    needs: node
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
