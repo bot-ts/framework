@@ -65,7 +65,10 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Build JS
-        run: ${{ matrix.package-manager }} build
+        run: ${{ matrix.package-manager }} run build
+
+      - name: Rebuild sqlite3
+        run: ${{ matrix.package-manager }} rebuild sqlite3
 
       - name: Start the bot
         run: node tests/index.test.js
