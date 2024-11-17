@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Dev Tests
 
 # Controls when the action will run.
@@ -17,7 +15,7 @@ on:
 jobs:
   bun:
     if: github.repository != 'bot-ts/framework'
-    name: Test on Bun v1.1.34
+    name: Development Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

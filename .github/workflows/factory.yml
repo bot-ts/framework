@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Factory Tests
 
 # Controls when the action will run.
@@ -74,7 +72,7 @@ jobs:
         run: ${{ matrix.package-manager }} rebuild sqlite3
 
       - name: Start the bot
-        run: node tests/index.test.js
+        run: node dist/index.test.js
 
   bun:
     name: Test on Bun v1.1.34
@@ -92,7 +90,7 @@ jobs:
         run: bun install
 
       - name: Start the bot
-        run: bun run tests/index.test.js
+        run: bun run src/index.test.ts
 
   deno:
     name: Test on Deno v1.17.2
@@ -107,7 +105,7 @@ jobs:
           deno-version: 1.17.2
 
       - name: Install dependencies
-        run: deno cache tests/index.test.ts
+        run: deno install
 
       - name: Start the bot
-        run: deno tests/index.test.ts
+        run: deno src/index.test.ts

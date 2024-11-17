@@ -16,7 +16,7 @@ try {
 
   core.success("no bugs found")
   process.exit(0)
-} catch (error) {
-  core.error(error, "index", true)
+} catch (error: any) {
+  core.error(error, "src/index.test.ts", true)
   process.exit(1)
 }
