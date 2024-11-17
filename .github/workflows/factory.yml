@@ -99,6 +99,8 @@ jobs:
         run: bun install
 
       - name: Start the bot
+        env:
+          BOT_MODE: test
         run: bun run src/index.test.ts
 
   deno:
@@ -114,7 +116,9 @@ jobs:
           deno-version: 1.17.2
 
       - name: Install dependencies
-        run: deno install
+        run: deno install --entrypoint src/index.test.ts
 
       - name: Start the bot
-        run: deno src/index.test.ts
+        env:
+          BOT_MODE: test
+        run: deno -A src/index.test.ts
