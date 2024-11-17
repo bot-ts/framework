@@ -32,14 +32,13 @@ async function _checkUpdater() {
   const local = await fs.promises.readFile(filename, "utf8")
 
   if (remote !== local) {
-    console.log("\r⚠️ Updater is outdated, updating...")
+    process.stdout.write("\r⚠️ Updater is outdated, updating...")
 
     await fs.promises.writeFile(filename, remote, "utf8")
 
-    execSync(
-      `${compatibility.components["run-script"][process.env.PACKAGE_MANAGER]} update`,
-      { cwd: rootDir, stdio: "pipe" },
-    )
+    console.log("\r✅ Updated updater")
+
+    execSync(process.argv.join(" "), { cwd: rootDir, stdio: "inherit" })
 
     process.exit(0)
   } else {
