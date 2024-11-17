@@ -203,20 +203,18 @@ async function _updateDatabaseFile() {
     await fs.promises.readFile(path.join(rootDir, "package.json"), "utf8"),
   )
 
-  const database = ["mysql2", "sqlite3", "pg"].find(
+  const client = ["mysql2", "sqlite3", "pg"].find(
     (name) => name in packageJSON.dependencies,
   )
 
   const template = await fs.promises.readFile(
-    path.join("templates", `${database}.ejs`),
+    path.join("templates", `database.ejs`),
     "utf8",
   )
 
   await fs.promises.writeFile(
     path.join(rootDir, "src", "core", "database.ts"),
-    ejs.compile(template)({
-      client: database,
-    }),
+    ejs.compile(template)({ client }),
     "utf8",
   )
 
