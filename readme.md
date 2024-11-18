@@ -33,7 +33,7 @@
 - **Scripts Management**: Task automation with [package.json](https://ghom.gitbook.io/bot-ts/command-line/overview) scripts.
 - **ORM Setup**: Preconfigured [Knex](http://knexjs.org/) ORM with [sqlite3](https://www.npmjs.com/package/sqlite3).
 - **Pagination**: Efficient pagination in the [help command](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34).
-- **Fast Build**: Builds under 100ms with [ESBuild](https://esbuild.github.io).
+- **Fast Build**: Builds under 2s with [Rollup](https://rollupjs.org).
 - **TypeScript Checks**: Automated TypeScript checks via [GitHub Actions](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
 - **Logging**: Beautiful console logging with [@ghom/logger](https://www.npmjs.com/package/@ghom/logger).
 - **Framework Updates**: Update seamlessly using [Gulp](https://gulpjs.com/).
@@ -48,6 +48,10 @@ Code faster and without the hassle. Choosing **bot.ts** is choosing control.
 * All is already configured.
 * I recommend it for learning TypeScript.
 * It uses Rollup for boosted productivity.
+
+## Hello World
+
+![bot.ts hello world](https://raw.githubusercontent.com/bot-ts/docs/master/.gitbook/assets/bot.ts-helloworld.webp)
 
 ## Annexes
 
