@@ -84,7 +84,7 @@
     "@eslint/compat": "^1.2.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.12.0",
-    "@ghom/bot.ts-cli": "v9.0.0",
+    "@ghom/bot.ts-cli": "9.0.2",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
@@ -113,4 +113,3 @@
     "yarn": ">=1.22.22"
   }
 }
-
