@@ -62,7 +62,7 @@ async function _cleanTemp() {
     fs.rmSync(tempPath, { recursive: true, force: true })
   }
 
-  console.log("✅ Cleaned files")
+  console.log("✅ Cleaned update files")
 }
 
 function _downloadTemp() {
@@ -74,7 +74,7 @@ function _downloadTemp() {
   })
 
   clearLastLine()
-  console.log("✅ Downloaded files")
+  console.log("✅ Downloaded update files")
 }
 
 async function _overrideNativeFiles() {
@@ -84,16 +84,16 @@ async function _overrideNativeFiles() {
     "temp/src/core/*.ts",
     "temp/**/*.native.ts",
     "temp/src/index.ts",
+    "temp/src/index.test.ts",
     "temp/.gitattributes",
     "temp/.gitignore",
     "temp/Dockerfile",
     "temp/compose.yml",
+    "temp/compatibility.json",
     "temp/eslint.config.mjs",
-    "temp/.github/workflows/tests.yml",
-    "temp/template.env",
-    "temp/template.md",
+    "temp/rollup.config.mjs",
+    "temp/.template.env",
     "temp/tsconfig.json",
-    "temp/tests/**/*.js",
     "temp/scripts/*.js",
     "temp/templates/*",
     "!temp/src/core/database.ts",
@@ -108,7 +108,7 @@ async function _overrideNativeFiles() {
   }
 
   clearLastLine()
-  console.log("✅ Installed new files")
+  console.log("✅ Updated native files")
 }
 
 async function _copyConfig() {
@@ -153,21 +153,9 @@ async function _updatePackageJSON() {
   localPackageJSON.main = remotePackageJSON.main
   localPackageJSON.type = remotePackageJSON.type
   localPackageJSON.version = remotePackageJSON.version
-
-  localPackageJSON.engines = {
-    ...localPackageJSON.engines,
-    ...remotePackageJSON.engines,
-  }
-
-  localPackageJSON.scripts = {
-    ...localPackageJSON.scripts,
-    ...remotePackageJSON.scripts,
-  }
-
-  localPackageJSON.imports = {
-    ...localPackageJSON.imports,
-    ...remotePackageJSON.imports,
-  }
+  localPackageJSON.engines = remotePackageJSON.engines
+  localPackageJSON.scripts = remotePackageJSON.scripts
+  localPackageJSON.imports = remotePackageJSON.imports
 
   for (const baseKey of ["dependencies", "devDependencies"]) {
     const dependencies = localPackageJSON[baseKey]
@@ -192,7 +180,7 @@ async function _updatePackageJSON() {
     "utf8",
   )
 
-  console.log("✅ Updated 'package.json'")
+  console.log("✅ Updated package.json")
 }
 
 async function _updateDependencies() {
@@ -229,14 +217,14 @@ async function _updateDatabaseFile() {
     "utf8",
   )
 
-  console.log(`✅ Updated 'database.ts'`)
+  console.log(`✅ Updated database`)
 }
 
 async function _gitLog() {
   const newVersion = gitCommitInfo({ cwd: path.join(rootDir, "temp") })
 
   console.log(
-    `✅ Updated 'bot.ts' [${newVersion.shortCommit}] ${newVersion.date} - ${newVersion.message}`,
+    `✅ Updated bot.ts [${newVersion.shortCommit}] ${newVersion.date} - ${newVersion.message}`,
   )
 }
 
