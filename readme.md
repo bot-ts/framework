@@ -18,40 +18,47 @@
 
 <br/>
 
-## What is bot.ts ?
+## What is bot.ts?
 
 **bot.ts** is a framework for [discord.js](https://discord.js.org/#/) designed in TypeScript for use in TypeScript. This framework includes all the features you need, here is a list:
 
 - **Package Manager Agnostic**: Compatible with [npm](https://www.npmjs.com), [yarn](https://yarnpkg.com), [pnpm](https://pnpm.io) and more.
 - **Multi-Runtime Support**: Fully compatible with [Node.js](https://nodejs.org), [Bun](https://bun.sh), and [Deno](https://deno.land).
-- **File Handling**: Robust file handling with [@ghom/handler](https://www.npmjs.com/package/@ghom/handler).
-- **CLI File Generation**: Easy and powerful file generation via [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli).
-- **Argument Typing**: Advanced argument typing using [prop-transfer-typings.ts](https://gist.github.com/GhomKrosmonaute/00da4eb3e8ac48a751602288fcf71835).
+- **File Handling**: Robust file handling using [@ghom/handler](https://www.npmjs.com/package/@ghom/handler).
+- **CLI File Generation**: Easy and powerful file generation using [@ghom/bot.ts-cli](https://www.npmjs.com/package/@ghom/bot.ts-cli).
 - **Node Aliases**: Simplify module resolution with useful path aliases using [Node.js 'imports'](https://nodejs.org/api/packages.html#packages_imports).
-- **Shell Arguments**: Handle shell arguments on textual commands using [Yargs](http://yargs.js.org/).
-- **Predefined Commands & Listeners**: Ready-to-use [commands](https://github.com/bot-ts/framework/blob/master/src/commands) and [listeners](https://github.com/bot-ts/framework/blob/master/src/listeners).
-- **Scripts Management**: Task automation with [package.json](https://ghom.gitbook.io/bot-ts/command-line/overview) scripts.
-- **ORM Setup**: Preconfigured [Knex](http://knexjs.org/) ORM with [sqlite3](https://www.npmjs.com/package/sqlite3).
-- **Pagination**: Efficient pagination in the [help command](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L34).
-- **Fast Build**: Builds under 2s with [Rollup](https://rollupjs.org).
-- **TypeScript Checks**: Automated TypeScript checks via [GitHub Actions](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
-- **Logging**: Beautiful console logging with [@ghom/logger](https://www.npmjs.com/package/@ghom/logger).
-- **Framework Updates**: Update seamlessly using [Gulp](https://gulpjs.com/).
+- **Shell Arguments**: Handle type-safe shell arguments on textual commands using [Yargs](http://yargs.js.org/).
+- **Predefined Commands & Listeners**: Ready-to-use dev-[commands](https://github.com/bot-ts/framework/blob/master/src/commands) and system-[listeners](https://github.com/bot-ts/framework/blob/master/src/listeners).
+- **Advanced Scripts**: Configured advanced dev tools in [package.json's scripts and CLI](https://ghom.gitbook.io/bot-ts/command-line/overview).
+- **ORM Setup**: Preconfigured [Knex](http://knexjs.org/)-based ORM with [sqlite3](https://www.npmjs.com/package/sqlite3) using [@ghom/orm](https://www.npmjs.com/package/@ghom/orm).
+- **Pagination**: Efficient pagination in the [help command](https://github.com/bot-ts/framework/blob/master/src/commands/help.native.ts#L35).
+- **Fast Build**: Builds fast with [Rollup](https://rollupjs.org).
+- **TypeScript Checks**: Generated CI/CD using [GitHub Actions](https://github.com/bot-ts/framework/blob/master/.github/workflows/test.yml).
+- **Logging**: Beautiful console logging using [@ghom/logger](https://www.npmjs.com/package/@ghom/logger).
+- **Framework Updates**: Stay up to date with the integrated [updater](https://github.com/bot-ts/framework/blob/master/scripts/update-framework.js).
 - **Docker**: Run with [Docker](https://www.docker.com) via [Dockerfile](https://github.com/bot-ts/framework/blob/master/Dockerfile) or [compose.yml](https://github.com/bot-ts/framework/blob/master/compose.yml).
 - **Data Caching**: Reduce database and API requests with built-in caching.
 
-## Why using bot.ts ?
+## What's next?
 
-Code faster and without the hassle. Choosing **bot.ts** is choosing control.
+- Localhost Admin Dashboard
+- Data Caching imporovement
+- Make optional the textual command system
+- Move all advanced scripts into CLI
+- Publish the CLI as JSR package
+
+## Why using bot.ts?
+
+Modern, intuitive, and easy to use. Choosing **Bot.ts** is choosing control.
 
 * It's not a lib! You can edit all files easily.
 * All is already configured.
 * I recommend it for learning TypeScript.
-* It uses Rollup for boosted productivity.
+* It is up to date with all technologies.
 
 ## Hello World
 
-![bot.ts hello world](https://raw.githubusercontent.com/bot-ts/docs/master/.gitbook/assets/bot.ts-helloworld.webp)
+![bot.ts hello world](https://media.githubusercontent.com/media/bot-ts/docs/refs/heads/master/.gitbook/assets/bot.ts-helloworld.webp)
 
 ## Annexes
 
