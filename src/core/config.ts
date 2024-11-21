@@ -93,6 +93,11 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
    * }</pre>
    */
   logger?: logger.LoggerOptions
+
+  /**
+   * `@ghom/orm`'s default cache expiration time in milliseconds
+   */
+  ormCaching?: number
 }
 
 export class Config<ZodSchema extends zod.ZodType<any, any, any>> {

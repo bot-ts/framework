@@ -1,5 +1,6 @@
 // system file, please don't modify it
 
+import config from "#config"
 import env from "#core/env"
 import * as logger from "#core/logger"
 import * as util from "#core/util"
@@ -25,6 +26,7 @@ const client = new orm.ORM({
     },
   },
   logger,
+  caching: config.ormCaching,
 })
 
 export default client
