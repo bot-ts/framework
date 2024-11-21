@@ -73,6 +73,10 @@ export default {
           find: "#buttons",
           replacement: path.resolve(__dirname, "src/buttons"),
         },
+        {
+          find: "#namespaces",
+          replacement: path.resolve(__dirname, "src/namespaces"),
+        },
       ],
     }),
     typescript(),

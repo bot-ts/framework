@@ -35,9 +35,10 @@ export default [
       "import/resolver": {
         alias: {
           map: [
+            ["#core", "./src/core"],
             ["#tables", "./src/tables"],
             ["#buttons", "./src/buttons"],
-            ["#core", "./src/core"],
+            ["#namespaces", "./src/namespaces"],
           ],
           extensions: [".ts", ".js", ".jsx", ".tsx"],
         },
@@ -114,4 +115,3 @@ export default [
     },
   },
 ]
-

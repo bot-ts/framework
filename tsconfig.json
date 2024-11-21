@@ -27,6 +27,7 @@
       // Importable objects
       "#tables/*": ["./src/tables/*"],
       "#buttons/*": ["./src/buttons/*"],
+      "#namespaces/*": ["./src/namespaces/*"],
 
       // Grouped import
       "#all": ["./src/core/index.ts"]

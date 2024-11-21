@@ -27,6 +27,10 @@
       "./src/buttons/*.ts",
       "./dist/buttons/*.js"
     ],
+    "#namespaces/*": [
+      "./src/namespaces/*.ts",
+      "./dist/namespaces/*.js"
+    ],
     "#all": [
       "./src/core/index.ts",
       "./dist/core/index.js"
@@ -113,3 +117,4 @@
     "yarn": ">=1.22.22"
   }
 }
+
