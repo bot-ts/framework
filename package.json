@@ -40,7 +40,7 @@
     "bot": "bunx @ghom/bot.ts-cli",
     "build": "rimraf dist && bunx rollup -c && bun run scripts/copy-keepers.js",
     "final": "rimraf node_modules && bun install --production && bun run build",
-    "watch": "bun run build -w",
+    "watch": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
     "start.test": "bun run src/index.test.ts",
     "format": "bunx prettier --write src scripts",
@@ -88,7 +88,7 @@
     "@eslint/compat": "^1.2.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.12.0",
-    "@ghom/bot.ts-cli": "9.0.2",
+    "@ghom/bot.ts-cli": "9.0.3",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
@@ -117,4 +117,3 @@
     "yarn": ">=1.22.22"
   }
 }
-

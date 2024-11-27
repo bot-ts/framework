@@ -1,0 +1,57 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${BOT_NAME}
+    restart: always
+    volumes:
+      <%- 
+      client === "sqlite3" ? "- ./data:/data" : 
+      client === "pg" ? "- ./data:/var/lib/postgresql/data" : 
+      client === "mysql" ? "- ./data:/var/lib/mysql" : "" 
+      %>
+  <%
+  if (client === "sqlite3") {
+  %>
+  sqlite:
+    image: sqlite
+    container_name: sqlite
+    volumes:
+      - ./data:/data
+  <%
+  } else if (client === "pg") {
+  %>
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    <% if (process.env.DB_PORT) { %>
+    ports:
+      - "${DB_PORT}:5432"
+    <% } %>
+  <%
+  } else if (client === "mysql") {
+  %>
+  mysql:
+    image: mysql
+    container_name: mysql
+    environment:
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./data:/var/lib/mysql
+    <% if (process.env.DB_PORT) { %>
+    ports:
+      - "${DB_PORT}:3306"
+    <% } %>
+  <%
+  }
+  %>

@@ -13,6 +13,11 @@
       "bun": "bun run src/index.test.ts",
       "deno": "deno -A src/index.test.ts"
     },
+    "watch": {
+      "default": "echo \"No watch support for this runtime\" && exit 1",
+      "bun": "bun run --watch src/index.ts",
+      "deno": "deno -A --watch src/index.ts"
+    },
     "format": "{npx} prettier --write src scripts",
     "lint": "{npx} eslint src/**/*.ts --fix",
     "update": "{run-file} scripts/update-framework.js",

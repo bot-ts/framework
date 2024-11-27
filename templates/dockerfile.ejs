@@ -1,0 +1,43 @@
+<% if (runtime === 'bun') {
+    %>FROM oven/bun:latest<%
+} else if (runtime === 'node') {
+    %>FROM node:latest<%
+} else if (runtime === 'deno') {
+    %>FROM denoland/deno:alpine<%
+} %>
+
+WORKDIR /app
+
+COPY package.json .
+
+<% if (packageManager === 'bun') { 
+    %>RUN bun install<%
+} else if (packageManager === 'npm') {
+    %>RUN npm install
+    <% if (client === 'sqlite3' && runtime === 'node') { %>
+    RUN npm rebuild sqlite3<%
+    } %><%
+} else if (packageManager === 'yarn') {
+    %>RUN yarn install
+    <% if (client === 'sqlite3' && runtime === 'node') { %>
+    RUN yarn rebuild sqlite3<%
+    } %><%
+} else if (packageManager === 'pnpm') {
+    %>RUN pnpm install
+    <% if (client === 'sqlite3' && runtime === 'node') { %>
+    RUN pnpm rebuild sqlite3<%
+    } %><%
+} else if (packageManager === 'deno') {
+    %>RUN deno install --global --allow-read --allow-write --allow-net --allow-env --allow-run<%
+} %>
+
+COPY . .
+
+<% if (runtime === 'bun') {
+    %>CMD ["bun", "run", "start"]<%
+} else if (runtime === 'node') {
+    %>RUN npm build
+CMD ["node", "dist/index.js"]<%
+} else if (runtime === 'deno') {
+    %>CMD ["deno", "run", "--allow-read", "--allow-write", "--allow-net", "--allow-env", "--allow-run", "src/index.ts"]<%
+} %>
