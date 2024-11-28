@@ -35,6 +35,9 @@ importers:
       ghom-prettify:
         specifier: ^3.0.0
         version: 3.0.0
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
       knex:
         specifier: ^3.0.1
         version: 3.1.0(mysql2@3.11.4)(pg@8.13.1)(sqlite3@5.1.7)
@@ -83,8 +86,8 @@ importers:
         specifier: ^9.12.0
         version: 9.15.0
       '@ghom/bot.ts-cli':
-        specifier: 9.0.3
-        version: 9.0.3(@types/node@22.9.0)
+        specifier: 9.0.4
+        version: 9.0.4(@types/node@22.9.0)
       '@rollup/plugin-alias':
         specifier: ^5.1.1
         version: 5.1.1(rollup@4.27.2)
@@ -216,8 +219,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@ghom/bot.ts-cli@9.0.3':
-    resolution: {integrity: sha512-BE+beXSoKLbSz/kzVPFOfkKhcYgnGrJL5MJAa2DdTxCrsGpsc8A5zs/vYdDQYTpDDOLWKGZBvjUdWTGsw+0FCg==}
+  '@ghom/bot.ts-cli@9.0.4':
+    resolution: {integrity: sha512-pFXRinMJXvwgEVOKbOekLs/B0Pt3JLtvCoF6s0R23fOYxgMTABvvFM0SwrxpcqsROu65ebRtpC1aVMcfxjr6bA==}
     engines: {node: '>=22.x.x'}
     hasBin: true
 
@@ -1386,6 +1389,10 @@ packages:
   ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
 
+  install@0.13.0:
+    resolution: {integrity: sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==}
+    engines: {node: '>= 0.10'}
+
   internal-slot@1.0.7:
     resolution: {integrity: sha512-NGnrKwXzSms2qUUih/ILZ5JBqNTSa1+ZmP6flaIp6KmSElgE9qdndzS3cqjrDovwFdmwsGsLdeFgB6suw+1e9g==}
     engines: {node: '>= 0.4'}
@@ -2511,7 +2518,7 @@ snapshots:
   '@gar/promisify@1.1.3':
     optional: true
 
-  '@ghom/bot.ts-cli@9.0.3(@types/node@22.9.0)':
+  '@ghom/bot.ts-cli@9.0.4(@types/node@22.9.0)':
     dependencies:
       '@inquirer/prompts': 7.1.0(@types/node@22.9.0)
       boxen: 5.1.2
@@ -3875,6 +3882,8 @@ snapshots:
   inherits@2.0.4: {}
 
   ini@1.3.8: {}
+
+  install@0.13.0: {}
 
   internal-slot@1.0.7:
     dependencies:

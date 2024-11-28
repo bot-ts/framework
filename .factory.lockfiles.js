@@ -51,7 +51,7 @@ function generateLockfile(command, filename = null) {
 
 Object.keys(compatibility.components.lockfile).forEach((key) => {
   generateLockfile(
-    compatibility.components["install-all"][key],
+    compatibility.components["install"][key],
     compatibility.components.lockfile[key],
   )
 })

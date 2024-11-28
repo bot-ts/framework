@@ -189,7 +189,7 @@ async function _updateDependencies() {
   )
 
   execSync(
-    compatibility.components["install-all"][process.env.PACKAGE_MANAGER],
+    compatibility.components["install"][process.env.PACKAGE_MANAGER],
     { cwd: rootDir, stdio: "ignore" },
   )
 

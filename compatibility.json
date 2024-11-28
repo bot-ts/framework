@@ -1,15 +1,15 @@
 {
   "templates": {
     "bot": "{npx} @ghom/bot.ts-cli",
-    "build": "rimraf dist && {npx} rollup -c && {run-file} scripts/copy-keepers.js",
-    "final": "rimraf node_modules && {install-production} && {run-script} build",
+    "build": "rimraf dist && {npx} rollup -c && {start} scripts/copy-keepers.js",
+    "final": "rimraf node_modules && {production} && {run} build",
     "start": {
-      "default": "{run-script} build && node dist/index.js",
+      "default": "{run} build && node dist/index.js",
       "bun": "bun run src/index.ts",
       "deno": "deno -A src/index.ts"
     },
     "start.test": {
-      "default": "{run-script} build && node dist/index.test.js",
+      "default": "{run} build && node dist/index.test.js",
       "bun": "bun run src/index.test.ts",
       "deno": "deno -A src/index.test.ts"
     },
@@ -20,12 +20,12 @@
     },
     "format": "{npx} prettier --write src scripts",
     "lint": "{npx} eslint src/**/*.ts --fix",
-    "update": "{run-file} scripts/update-framework.js",
-    "readme": "{run-script} build && {run-file} scripts/generate-readme.js",
-    "test": "{run-script} lint && tsc --noEmit && {run-script} start.test"
+    "update": "{start} scripts/update-framework.js",
+    "readme": "{run} build && {start} scripts/generate-readme.js",
+    "test": "{run} lint && tsc --noEmit && {run} start.test"
   },
   "components": {
-    "cache-clean": {
+    "clean": {
       "yarn": "yarn cache clean",
       "npm": "npm cache clean --force",
       "pnpm": "pnpm store clean",
@@ -39,70 +39,70 @@
       "bun": "bun.lockb",
       "deno": "deno.lock"
     },
-    "install-all": {
+    "install": {
       "yarn": "yarn install",
       "npm": "npm install",
       "pnpm": "pnpm install",
       "bun": "bun install",
       "deno": "deno install"
     },
-    "install-ci": {
+    "ci": {
       "yarn": "yarn install --frozen-lockfile",
       "npm": "npm ci",
       "pnpm": "pnpm install --frozen-lockfile",
       "bun": "bun install --frozen-lockfile",
       "deno": "deno install --frozen"
     },
-    "install-production": {
+    "production": {
       "yarn": "yarn install --production",
       "npm": "npm install --production",
       "pnpm": "pnpm install --production",
       "bun": "bun install --production",
       "deno": "deno install"
     },
-    "install-package": {
+    "add-dep": {
       "yarn": "yarn add",
       "npm": "npm install --save",
       "pnpm": "pnpm add",
       "bun": "bun add",
       "deno": "deno install"
     },
-    "install-dev-package": {
+    "add-dev": {
       "yarn": "yarn add --dev",
       "npm": "npm install --save-dev",
       "pnpm": "pnpm add --save-dev",
       "bun": "bun add --dev",
       "deno": "deno install --dev"
     },
-    "install-global-package": {
+    "add-global": {
       "yarn": "yarn global add",
       "npm": "npm install -g",
       "pnpm": "pnpm add -g",
       "bun": "bun add -g",
       "deno": "deno install --global"
     },
-    "remove-package": {
+    "remove": {
       "yarn": "yarn remove",
       "npm": "npm remove --purge",
       "pnpm": "pnpm remove",
       "bun": "bun remove",
       "deno": "deno uninstall"
     },
-    "run-script": {
+    "run": {
       "yarn": "yarn run",
       "npm": "npm run",
       "pnpm": "pnpm run",
       "bun": "bun run",
       "deno": "npm run"
     },
-    "npx": {
+    "exec": {
       "yarn": "yarn dlx",
       "npm": "npx",
       "pnpm": "pnpx",
       "bun": "bunx",
       "deno": "npx"
     },
-    "run-file": {
+    "start": {
       "node": "node",
       "bun": "bun run",
       "deno": "deno"
