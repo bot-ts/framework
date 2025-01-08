@@ -1,7 +1,7 @@
 {
   "templates": {
-    "bot": "{npx} @ghom/bot.ts-cli",
-    "build": "rimraf dist && {npx} rollup -c && {start} scripts/copy-keepers.js",
+    "bot": "{exec} @ghom/bot.ts-cli",
+    "build": "rimraf dist && {exec} rollup -c && {start} scripts/copy-keepers.js",
     "final": "rimraf node_modules && {production} && {run} build",
     "start": {
       "default": "{run} build && node dist/index.js",
@@ -18,8 +18,8 @@
       "bun": "bun run --watch src/index.ts",
       "deno": "deno -A --watch src/index.ts"
     },
-    "format": "{npx} prettier --write src scripts",
-    "lint": "{npx} eslint src/**/*.ts --fix",
+    "format": "{exec} prettier --write src scripts",
+    "lint": "{exec} eslint src/**/*.ts --fix",
     "update": "{start} scripts/update-framework.js",
     "readme": "{run} build && {start} scripts/generate-readme.js",
     "test": "{run} lint && tsc --noEmit && {run} start.test"
