@@ -106,10 +106,9 @@ async function _overrideNativeFiles() {
 
     for (const relativePath of matches) {
       const source = path.join(rootDir, relativePath)
-      const dest = path.join(
-        rootDir,
-        relativePath.replace("temp" + path.sep, ""),
-      )
+      const dest = source.replace(path.sep + "temp" + path.sep, path.sep)
+
+      console.log(dest)
 
       await fs.promises.mkdir(path.dirname(dest), { recursive: true })
 
@@ -124,11 +123,12 @@ async function _overrideNativeFiles() {
 async function _copyConfig() {
   const files = glob.sync("temp/src/{config.ts,types.ts}", { cwd: rootDir })
 
-  for (const file of files) {
-    const dest = path.join(rootDir, file.replace("temp" + path.sep, ""))
+  for (const relativePath of files) {
+    const source = path.join(rootDir, relativePath)
+    const dest = source.replace(path.sep + "temp" + path.sep, path.sep)
 
     if (!fs.existsSync(dest)) {
-      await fs.promises.copyFile(file, dest)
+      await fs.promises.copyFile(source, dest)
     }
   }
 
