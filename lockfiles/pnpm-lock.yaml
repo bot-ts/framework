@@ -86,8 +86,8 @@ importers:
         specifier: ^9.12.0
         version: 9.15.0
       '@ghom/bot.ts-cli':
-        specifier: 9.0.4
-        version: 9.0.4(@types/node@22.9.0)
+        specifier: 9.0.7
+        version: 9.0.7(@types/node@22.9.0)
       '@rollup/plugin-alias':
         specifier: ^5.1.1
         version: 5.1.1(rollup@4.27.2)
@@ -219,8 +219,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@ghom/bot.ts-cli@9.0.4':
-    resolution: {integrity: sha512-pFXRinMJXvwgEVOKbOekLs/B0Pt3JLtvCoF6s0R23fOYxgMTABvvFM0SwrxpcqsROu65ebRtpC1aVMcfxjr6bA==}
+  '@ghom/bot.ts-cli@9.0.7':
+    resolution: {integrity: sha512-tItPJAeoXAYeuZHteeQG1Y+F/PAprWhkVGus4Mird3560LUkvRwt8eK4gCffNnIXf47y8fQ2QONkmEiVlzQnyA==}
     engines: {node: '>=22.x.x'}
     hasBin: true
 
@@ -2518,7 +2518,7 @@ snapshots:
   '@gar/promisify@1.1.3':
     optional: true
 
-  '@ghom/bot.ts-cli@9.0.4(@types/node@22.9.0)':
+  '@ghom/bot.ts-cli@9.0.7(@types/node@22.9.0)':
     dependencies:
       '@inquirer/prompts': 7.1.0(@types/node@22.9.0)
       boxen: 5.1.2
