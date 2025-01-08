@@ -35,7 +35,7 @@ async function _checkUpdater() {
   process.stdout.write("Checking for updater updates...")
 
   const remote = await fetch(
-    "https://raw.githubusercontent.com/bot-ts/framework/master/scripts/update-framework.js",
+    "https://raw.githubusercontent.com/bot-ts/framework/refs/heads/master/scripts/update-framework.js",
   ).then((res) => res.text())
   const local = await fs.promises.readFile(filename, "utf8")
 
