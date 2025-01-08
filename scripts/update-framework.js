@@ -103,9 +103,17 @@ async function _overrideNativeFiles() {
 
   for (const pattern of files) {
     const matches = glob.sync(pattern, { cwd: rootDir })
-    for (const file of matches) {
-      const dest = path.join(rootDir, file.replace("temp" + path.sep, ""))
-      await fs.promises.copyFile(file, dest)
+
+    for (const relativePath of matches) {
+      const source = path.join(rootDir, relativePath)
+      const dest = path.join(
+        rootDir,
+        relativePath.replace("temp" + path.sep, ""),
+      )
+
+      await fs.promises.mkdir(path.dirname(dest), { recursive: true })
+
+      await fs.promises.copyFile(source, dest)
     }
   }
 
