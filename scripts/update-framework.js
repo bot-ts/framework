@@ -209,7 +209,7 @@ async function _updateDatabaseFile() {
   )
 
   const template = await fs.promises.readFile(
-    path.join("templates", `database.ejs`),
+    path.join(rootDir, "templates", `database.ejs`),
     "utf8",
   )
 
