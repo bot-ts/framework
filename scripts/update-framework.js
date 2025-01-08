@@ -108,8 +108,6 @@ async function _overrideNativeFiles() {
       const source = path.join(rootDir, relativePath)
       const dest = source.replace(path.sep + "temp" + path.sep, path.sep)
 
-      console.log(dest)
-
       await fs.promises.mkdir(path.dirname(dest), { recursive: true })
 
       await fs.promises.copyFile(source, dest)
