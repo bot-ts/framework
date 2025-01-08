@@ -18,6 +18,8 @@ dotenv.config({
   path: path.join(rootDir, ".env"),
 })
 
+if (!process.env.PACKAGE_MANAGER) process.env.PACKAGE_MANAGER = "npm"
+
 const compatibility = JSON.parse(
   fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
 )
@@ -102,7 +104,7 @@ async function _overrideNativeFiles() {
   for (const pattern of files) {
     const matches = glob.sync(pattern, { cwd: rootDir })
     for (const file of matches) {
-      const dest = path.join(rootDir, file.replace("temp/", ""))
+      const dest = path.join(rootDir, file.replace("temp" + path.sep, ""))
       await fs.promises.copyFile(file, dest)
     }
   }
@@ -115,7 +117,7 @@ async function _copyConfig() {
   const files = glob.sync("temp/src/{config.ts,types.ts}", { cwd: rootDir })
 
   for (const file of files) {
-    const dest = path.join(rootDir, file.replace("temp/", ""))
+    const dest = path.join(rootDir, file.replace("temp" + path.sep, ""))
 
     if (!fs.existsSync(dest)) {
       await fs.promises.copyFile(file, dest)
@@ -188,10 +190,10 @@ async function _updateDependencies() {
     `Updating dependencies with ${process.env.PACKAGE_MANAGER}...`,
   )
 
-  execSync(
-    compatibility.components["install"][process.env.PACKAGE_MANAGER],
-    { cwd: rootDir, stdio: "ignore" },
-  )
+  execSync(compatibility.components["install"][process.env.PACKAGE_MANAGER], {
+    cwd: rootDir,
+    stdio: "ignore",
+  })
 
   clearLastLine()
   console.log("\r✅ Updated dependencies")
