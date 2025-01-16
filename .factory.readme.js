@@ -1,8 +1,8 @@
-import fs from "fs"
-
-const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"))
+import fs from "node:fs"
 
 /*global console, fetch*/
+
+const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"))
 
 fetch(
   "https://raw.githubusercontent.com/bot-ts/.github/main/profile/readme.md",

@@ -8,19 +8,21 @@ import url from "node:url"
 const filename = url.fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const lockfilesDir = path.join(dirname, "lockfiles")
+const lockfileDir = path.join(dirname, "lockfiles")
 
 const compatibility = JSON.parse(
-  fs.readFileSync(path.join(dirname, "compatibility.json"), "utf-8"),
+  fs.readFileSync(path.join(dirname, "compatibility.json"), {
+    encoding: "utf-8",
+  }),
 )
 
-const dotenv = fs.readFileSync(path.join(dirname, ".env"), "utf8")
+const dotenv = fs.readFileSync(path.join(dirname, ".env"), { encoding: "utf8" })
 const result = /PACKAGE_MANAGER="?(\w+)"?/.exec(dotenv)
 const PACKAGE_MANAGER = result ? result[1] : "npm"
 
-// Create the lockfiles directory if it doesn't exist
-if (!fs.existsSync(lockfilesDir)) {
-  fs.mkdirSync(lockfilesDir)
+// Create the lockfile directory if it doesn't exist
+if (!fs.existsSync(lockfileDir)) {
+  fs.mkdirSync(lockfileDir)
 }
 
 // Function to generate a lockfile for a given package manager
@@ -37,15 +39,15 @@ function generateLockfile(command, filename = null) {
 
     const finishedAt = Date.now()
 
-    fs.renameSync(filename, path.join(lockfilesDir, filename))
+    fs.renameSync(filename, path.join(lockfileDir, filename))
 
     process.stdout.write(
-      `\r✅ Successfuly generated ${filename} in ${Math.floor(
+      `\r✅ Successfully generated ${filename} in ${Math.floor(
         (finishedAt - startedAt) / 1000,
       )} seconds\n`,
     )
   } catch (error) {
-    process.stdout.write(`\r❌ Error generating ${filename}:`, error, "\n")
+    process.stdout.write(`\r❌ Error generating ${filename}: ${error}\n`)
   }
 }
 
@@ -66,4 +68,4 @@ fs.copyFileSync(
   path.join(dirname, compatibility.components.lockfile[PACKAGE_MANAGER]),
 )
 
-console.log("✅ Successfuly generated lockfiles")
+console.log("✅ Successfully generated lockfiles")
