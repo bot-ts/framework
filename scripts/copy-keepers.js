@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const srcDir = path.join(__dirname, "..", "src")
-const distDir = path.join(__dirname, "..", "dist")
+const destDir = path.join(__dirname, "..", "dist")
 
 function copyKeepFiles(src, dest) {
   if (!fs.existsSync(dest)) {
@@ -27,4 +27,4 @@ function copyKeepFiles(src, dest) {
   })
 }
 
-copyKeepFiles(srcDir, distDir)
+copyKeepFiles(srcDir, destDir)

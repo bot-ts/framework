@@ -37,7 +37,7 @@ async function _checkUpdater() {
   const remote = await fetch(
     "https://raw.githubusercontent.com/bot-ts/framework/master/scripts/update-framework.js",
   ).then((res) => res.text())
-  const local = await fs.promises.readFile(filename, "utf8")
+  const local = await fs.promises.readFile(filename, { encoding: "utf8" })
 
   if (remote !== local) {
     clearLastLine()
@@ -90,7 +90,7 @@ async function _overrideNativeFiles() {
     "temp/.gitattributes",
     "temp/.gitignore",
     "temp/Dockerfile",
-    "temp/compose.yml",
+    "temp/docker-compose.yml",
     "temp/compatibility.json",
     "temp/eslint.config.mjs",
     "temp/rollup.config.mjs",
@@ -142,20 +142,21 @@ async function _removeDuplicates() {
     if (fs.existsSync(dest)) {
       await fs.promises.unlink(file)
 
-      console.log(`✅ Keeped custom '${path.relative(rootDir, file)}'`)
+      console.log(`✅ Kept custom '${path.relative(rootDir, file)}'`)
     }
   }
 }
 
 async function _updatePackageJSON() {
   const localPackageJSON = JSON.parse(
-    await fs.promises.readFile(path.join(rootDir, "package.json"), "utf8"),
+    await fs.promises.readFile(path.join(rootDir, "package.json"), {
+      encoding: "utf8",
+    }),
   )
   const remotePackageJSON = JSON.parse(
-    await fs.promises.readFile(
-      path.join(rootDir, "temp", "package.json"),
-      "utf8",
-    ),
+    await fs.promises.readFile(path.join(rootDir, "temp", "package.json"), {
+      encoding: "utf8",
+    }),
   )
 
   localPackageJSON.main = remotePackageJSON.main
@@ -185,7 +186,7 @@ async function _updatePackageJSON() {
   fs.writeFileSync(
     path.join(rootDir, "package.json"),
     JSON.stringify(localPackageJSON, null, 2),
-    "utf8",
+    { encoding: "utf8" },
   )
 
   console.log("✅ Updated package.json")
@@ -207,7 +208,9 @@ async function _updateDependencies() {
 
 async function _updateDatabaseFile() {
   const packageJSON = JSON.parse(
-    await fs.promises.readFile(path.join(rootDir, "package.json"), "utf8"),
+    await fs.promises.readFile(path.join(rootDir, "package.json"), {
+      encoding: "utf8",
+    }),
   )
 
   const client = ["mysql2", "sqlite3", "pg"].find(
@@ -216,13 +219,13 @@ async function _updateDatabaseFile() {
 
   const template = await fs.promises.readFile(
     path.join(rootDir, "templates", `database.ejs`),
-    "utf8",
+    { encoding: "utf8" },
   )
 
   await fs.promises.writeFile(
     path.join(rootDir, "src", "core", "database.ts"),
     ejs.compile(template)({ client }),
-    "utf8",
+    { encoding: "utf8" },
   )
 
   console.log(`✅ Updated database`)

@@ -23,7 +23,7 @@ const client = new discord.Client({
 await client.login(process.env.BOT_TOKEN)
 
 const avatar =
-  client.user.displayAvatarURL({ format: "png", size: 128 }) +
+  client.user.displayAvatarURL({ extension: "png", size: 128 }) +
   "&fit=cover&mask=circle"
 
 const config = await import("../dist/config.js").then(
@@ -31,7 +31,7 @@ const config = await import("../dist/config.js").then(
 )
 
 const invitation = client.application.botPublic
-  ? await client.generateInvite({
+  ? client.generateInvite({
       scopes: [
         discord.OAuth2Scopes.Bot,
         discord.OAuth2Scopes.ApplicationsCommands,
@@ -43,18 +43,17 @@ const invitation = client.application.botPublic
 await client.destroy()
 
 const packageJSON = JSON.parse(
-  await fs.promises.readFile(rootDir("package.json"), "utf8"),
+  await fs.promises.readFile(rootDir("package.json"), { encoding: "utf8" }),
 )
 const database = ["mysql2", "sqlite3", "pg"].find(
   (name) => name in packageJSON.dependencies,
 )
-const configFile = await fs.promises.readFile(
-  rootDir("src", "config.ts"),
-  "utf8",
-)
+const configFile = await fs.promises.readFile(rootDir("src", "config.ts"), {
+  encoding: "utf8",
+})
 const template = await fs.promises.readFile(
   rootDir("templates", "readme.ejs"),
-  "utf8",
+  { encoding: "utf8" },
 )
 
 /**
@@ -116,7 +115,7 @@ const readme = ejs.compile(template)({
 await fs.promises.writeFile(
   `${process.env.BOT_MODE === "factory" ? "." : ""}readme.md`,
   readme,
-  "utf8",
+  { encoding: "utf8" },
 )
 
 console.log(`✅ Successfully generated readme.md`)
