@@ -245,6 +245,15 @@ async function _showWarnings() {
   }
 }
 
+async function _formatGeneratedFiles() {
+  process.stdout.write("Formatting files...")
+
+  execSync("npm run format", { cwd: rootDir, stdio: "ignore" })
+
+  clearLastLine()
+  console.log("✅ Formatted files")
+}
+
 try {
   await _checkUpdater()
   await _cleanTemp()
@@ -258,6 +267,7 @@ try {
   await _gitLog()
   await _cleanTemp()
   await _showWarnings()
+  await _formatGeneratedFiles()
 } catch (error) {
   await fs.promises
     .rm(path.join(rootDir, "temp"), { recursive: true, force: true })
