@@ -1,3 +1,6 @@
+// system file, please don't modify it
+
+import discord from "discord.js"
 import { Button } from "#core/button"
 import type * as pagination from "#core/pagination"
 

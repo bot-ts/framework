@@ -1,3 +1,6 @@
+// system file, please don't modify it
+
+import discord from "discord.js"
 import client from "#core/client"
 import { SlashCommand } from "#core/slash"
 

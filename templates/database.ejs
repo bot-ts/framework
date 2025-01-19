@@ -13,11 +13,9 @@ import * as orm from "@ghom/orm"
 
 <% if (client === "pg") { %>
 setTypeParsers()
-<% } %>
-
+<% } else if (client === "sqlite3") { %>
 const dataDirectory = util.rootPath("data")
 
-<% if (client === "sqlite3") { %>
 if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 <% } %>
 
