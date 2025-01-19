@@ -1,5 +1,6 @@
 // system file, please don't modify it
 
+import discord from "discord.js"
 import * as button from "#core/button"
 import { Listener } from "#core/listener"
 import logger from "#core/logger"
@@ -23,7 +24,7 @@ export default new Listener({
           "error",
           "This button is no longer available",
         )),
-        ephemeral: true,
+        flags: discord.MessageFlags.Ephemeral,
       })
 
     const error = await button.prepareButton(interaction as any, btn)
@@ -31,7 +32,7 @@ export default new Listener({
     if (error)
       return interaction.reply({
         ...error,
-        ephemeral: true,
+        flags: discord.MessageFlags.Ephemeral,
       })
 
     try {
@@ -42,7 +43,7 @@ export default new Listener({
 
         return interaction.reply({
           ...(await util.getSystemMessage("error", error)),
-          ephemeral: true,
+          flags: discord.MessageFlags.Ephemeral,
         })
       } else {
         return interaction.reply({
@@ -50,7 +51,7 @@ export default new Listener({
             "error",
             "An unknown error while executing the button",
           )),
-          ephemeral: true,
+          flags: discord.MessageFlags.Ephemeral,
         })
       }
     }

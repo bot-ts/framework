@@ -7,7 +7,7 @@ export default new SlashCommand({
   run(interaction) {
     return interaction.reply({
       content: `Pong! \`${client.ws.ping}ms\``,
-      ephemeral: true,
+      flags: discord.MessageFlags.Ephemeral,
     })
   },
 })

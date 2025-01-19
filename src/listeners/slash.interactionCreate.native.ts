@@ -61,13 +61,13 @@ export default new Listener({
       if (interaction.replied || interaction.deferred) {
         interaction[interaction.replied ? "followUp" : "editReply"]({
           ...errorMessage,
-          ephemeral: true,
+          flags: discord.MessageFlags.Ephemeral,
         })
       } else {
         interaction
           .reply({
             ...errorMessage,
-            ephemeral: true,
+            flags: discord.MessageFlags.Ephemeral,
           })
           .catch((error) => {
             logger.error(error, cmd!.filepath!, true)

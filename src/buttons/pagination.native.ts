@@ -15,7 +15,7 @@ export default new Button<{
 
     return interaction.reply({
       content: "This paginator is no longer available",
-      ephemeral: true,
+      flags: discord.MessageFlags.Ephemeral,
     })
   },
 })
