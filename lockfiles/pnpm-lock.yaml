@@ -15,8 +15,8 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       '@ghom/orm':
-        specifier: ^1.8.6
-        version: 1.8.6
+        specifier: 1.8.7
+        version: 1.8.7
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -71,10 +71,6 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
-    optionalDependencies:
-      '@types/pg':
-        specifier: ^8.11.10
-        version: 8.11.10
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.0
@@ -142,6 +138,10 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
+    optionalDependencies:
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.11.10
 
 packages:
 
@@ -233,8 +233,8 @@ packages:
   '@ghom/logger@2.0.2':
     resolution: {integrity: sha512-Aq00KlZdQns2R24eJgsX3jqsJJYcdWoI0vEC0W70F7rnacRVUXjvX19MJtk6TdPUk/QEzerUGgh5yoVXPC5yYA==}
 
-  '@ghom/orm@1.8.6':
-    resolution: {integrity: sha512-Rossnhkh1BBx69z/q9Widcc4u0zyuli4Pwi1PY+3zWhuSMhHRrM4nE+cTUh8if2sZh8NSlPMUtDxK9QQu/NvPA==}
+  '@ghom/orm@1.8.7':
+    resolution: {integrity: sha512-HlF5FpPO9EAE4IXlEDnXuSYBfuU972lw5clj5etbWK3FyJKO/+hkOanMIDfwmh9uWZRtxEw+/UItf4fpAr5D0g==}
     engines: {node: '>=22.0.0'}
 
   '@humanfs/core@0.19.1':
@@ -2540,7 +2540,7 @@ snapshots:
       chalk: 4.1.2
       dayjs: 1.11.13
 
-  '@ghom/orm@1.8.6':
+  '@ghom/orm@1.8.7':
     dependencies:
       '@ghom/handler': 2.0.0
       csv-parser: 3.0.0
