@@ -58,15 +58,12 @@ jobs:
           if [ "${{ matrix.package-manager }}" == "npm" ]; then
             npm ci
             npm install @rollup/rollup-linux-x64-gnu
-            npm install sqlite3
           elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
             yarn install --frozen-lockfile
             yarn add @rollup/rollup-linux-x64-gnu
-            yarn add sqlite3
           elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
             pnpm install --frozen-lockfile
             pnpm add @rollup/rollup-linux-x64-gnu
-            pnpm add sqlite3
           fi
 
       - name: Check typings
