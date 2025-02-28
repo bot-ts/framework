@@ -2,21 +2,29 @@
 
 process.env.BOT_MODE = "test"
 
-import * as core from "#all"
+import database from "#core/database"
+import { cronHandler } from "#core/cron"
+import { buttonHandler } from "#core/button"
+import { commandHandler } from "#core/command"
+import { slashCommandHandler } from "#core/slash"
+import { listenerHandler } from "#core/listener"
+import { initPagination } from "#core/pagination"
+import { checkUpdates } from "#core/util"
+import logger from "#core/logger"
 
 try {
-  await core.cronHandler.init()
-  await core.database.handler.init()
-  await core.buttonHandler.init()
-  await core.commandHandler.init()
-  await core.slashCommandHandler.init()
-  await core.listenerHandler.init()
-  await core.initPagination()
-  await core.checkUpdates()
+  await cronHandler.init()
+  await database.handler.init()
+  await buttonHandler.init()
+  await commandHandler.init()
+  await slashCommandHandler.init()
+  await listenerHandler.init()
+  await initPagination()
+  await checkUpdates()
 
-  core.success("no bugs found")
+  logger.success("no bugs found")
   process.exit(0)
 } catch (error: any) {
-  core.error(error, "src/index.test.ts", true)
+  logger.error(error, "src/index.test.ts", true)
   process.exit(1)
 }

@@ -60,10 +60,20 @@ export default new Listener({
       }
 
       if (interaction.replied || interaction.deferred) {
-        interaction[interaction.replied ? "followUp" : "editReply"]({
-          ...errorMessage,
-          flags: discord.MessageFlags.Ephemeral,
-        })
+        if (interaction.replied) {
+          interaction
+            .followUp({
+              ...errorMessage,
+              flags: discord.MessageFlags.Ephemeral,
+            })
+            .catch((error) => {
+              logger.error(error, cmd!.filepath!, true)
+            })
+        } else {
+          interaction.editReply(errorMessage).catch((error) => {
+            logger.error(error, cmd!.filepath!, true)
+          })
+        }
       } else {
         interaction
           .reply({
