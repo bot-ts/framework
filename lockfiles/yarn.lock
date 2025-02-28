@@ -155,11 +155,6 @@
     prettier "^2.6.2"
     rimraf "^6.0.1"
 
-"@ghom/handler@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@ghom/handler/-/handler-2.0.0.tgz#031a8c1dbf70d00c50b6624468481348e4163891"
-  integrity sha512-AF6rcZ4dfzahYqVJeK+6YfskBLu9ZFU4MbsIMSkWNXvX8d953fODB+QQ5DFMFgD7MdIy2xKtySwF9xh+Vz2n6A==
-
 "@ghom/handler@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@ghom/handler/-/handler-3.1.0.tgz#053a53c27650e8a634999859a7828e53190f8137"
@@ -176,12 +171,12 @@
     chalk "=4.1.2"
     dayjs "^1.11.7"
 
-"@ghom/orm@1.8.7":
-  version "1.8.7"
-  resolved "https://registry.yarnpkg.com/@ghom/orm/-/orm-1.8.7.tgz#1451f8c202d0c487ff1a29d8b5df59aa2938cd1c"
-  integrity sha512-HlF5FpPO9EAE4IXlEDnXuSYBfuU972lw5clj5etbWK3FyJKO/+hkOanMIDfwmh9uWZRtxEw+/UItf4fpAr5D0g==
+"@ghom/orm@1.8.8":
+  version "1.8.8"
+  resolved "https://registry.yarnpkg.com/@ghom/orm/-/orm-1.8.8.tgz#9ad1837d2b67ee66cfdd85a2aa24f3b032d0accd"
+  integrity sha512-vzJJ1mZRGyTNS3twfpYMjel9oAhFj0xSDuCKuXemM0R9QN25nsCKNuKxDB93ZJoiR7fjlAigNTXspyDKVmnlhg==
   dependencies:
-    "@ghom/handler" "^2.0.0"
+    "@ghom/handler" "^3.1.0"
     csv-parser "^3.0.0"
     json-2-csv "^5.5.6"
     knex "^3.0.1"

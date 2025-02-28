@@ -7,7 +7,7 @@
     "npm:@ghom/bot.ts-cli@9.0.7": "9.0.7_@types+node@22.13.5",
     "npm:@ghom/handler@^3.1.0": "3.1.0",
     "npm:@ghom/logger@^2.0.2": "2.0.2",
-    "npm:@ghom/orm@1.8.7": "1.8.7",
+    "npm:@ghom/orm@1.8.8": "1.8.8",
     "npm:@rollup/plugin-alias@^5.1.1": "5.1.1_rollup@4.34.8",
     "npm:@rollup/plugin-node-resolve@^15.3.0": "15.3.1_rollup@4.34.8",
     "npm:@rollup/plugin-typescript@^12.1.1": "12.1.2_rollup@4.34.8_typescript@5.7.3",
@@ -174,9 +174,6 @@
         "rimraf"
       ]
     },
-    "@ghom/handler@2.0.0": {
-      "integrity": "sha512-AF6rcZ4dfzahYqVJeK+6YfskBLu9ZFU4MbsIMSkWNXvX8d953fODB+QQ5DFMFgD7MdIy2xKtySwF9xh+Vz2n6A=="
-    },
     "@ghom/handler@3.1.0": {
       "integrity": "sha512-Hh91Jyi19UeERHxHIE4R6Wv9AGSY2OrBDUhtZvVksTu4R7Kr7aPcpW8evrTDhPgp3/gIzMER/aEq1yzYsclwRQ==",
       "dependencies": [
@@ -191,10 +188,10 @@
         "dayjs"
       ]
     },
-    "@ghom/orm@1.8.7": {
-      "integrity": "sha512-HlF5FpPO9EAE4IXlEDnXuSYBfuU972lw5clj5etbWK3FyJKO/+hkOanMIDfwmh9uWZRtxEw+/UItf4fpAr5D0g==",
+    "@ghom/orm@1.8.8": {
+      "integrity": "sha512-vzJJ1mZRGyTNS3twfpYMjel9oAhFj0xSDuCKuXemM0R9QN25nsCKNuKxDB93ZJoiR7fjlAigNTXspyDKVmnlhg==",
       "dependencies": [
-        "@ghom/handler@2.0.0",
+        "@ghom/handler",
         "csv-parser",
         "json-2-csv",
         "knex",
@@ -3057,7 +3054,7 @@
         "npm:@ghom/bot.ts-cli@9.0.7",
         "npm:@ghom/handler@^3.1.0",
         "npm:@ghom/logger@^2.0.2",
-        "npm:@ghom/orm@1.8.7",
+        "npm:@ghom/orm@1.8.8",
         "npm:@rollup/plugin-alias@^5.1.1",
         "npm:@rollup/plugin-node-resolve@^15.3.0",
         "npm:@rollup/plugin-typescript@^12.1.1",

@@ -15,8 +15,8 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       '@ghom/orm':
-        specifier: 1.8.7
-        version: 1.8.7
+        specifier: 1.8.8
+        version: 1.8.8
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -224,17 +224,14 @@ packages:
     engines: {node: '>=22.x.x'}
     hasBin: true
 
-  '@ghom/handler@2.0.0':
-    resolution: {integrity: sha512-AF6rcZ4dfzahYqVJeK+6YfskBLu9ZFU4MbsIMSkWNXvX8d953fODB+QQ5DFMFgD7MdIy2xKtySwF9xh+Vz2n6A==}
-
   '@ghom/handler@3.1.0':
     resolution: {integrity: sha512-Hh91Jyi19UeERHxHIE4R6Wv9AGSY2OrBDUhtZvVksTu4R7Kr7aPcpW8evrTDhPgp3/gIzMER/aEq1yzYsclwRQ==}
 
   '@ghom/logger@2.0.2':
     resolution: {integrity: sha512-Aq00KlZdQns2R24eJgsX3jqsJJYcdWoI0vEC0W70F7rnacRVUXjvX19MJtk6TdPUk/QEzerUGgh5yoVXPC5yYA==}
 
-  '@ghom/orm@1.8.7':
-    resolution: {integrity: sha512-HlF5FpPO9EAE4IXlEDnXuSYBfuU972lw5clj5etbWK3FyJKO/+hkOanMIDfwmh9uWZRtxEw+/UItf4fpAr5D0g==}
+  '@ghom/orm@1.8.8':
+    resolution: {integrity: sha512-vzJJ1mZRGyTNS3twfpYMjel9oAhFj0xSDuCKuXemM0R9QN25nsCKNuKxDB93ZJoiR7fjlAigNTXspyDKVmnlhg==}
     engines: {node: '>=22.0.0'}
 
   '@humanfs/core@0.19.1':
@@ -2528,8 +2525,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@ghom/handler@2.0.0': {}
-
   '@ghom/handler@3.1.0':
     dependencies:
       chokidar: 3.6.0
@@ -2540,9 +2535,9 @@ snapshots:
       chalk: 4.1.2
       dayjs: 1.11.13
 
-  '@ghom/orm@1.8.7':
+  '@ghom/orm@1.8.8':
     dependencies:
-      '@ghom/handler': 2.0.0
+      '@ghom/handler': 3.1.0
       csv-parser: 3.0.0
       json-2-csv: 5.5.6
       knex: 3.1.0(mysql2@3.11.4)(pg@8.13.1)(sqlite3@5.1.7)
