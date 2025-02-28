@@ -25,6 +25,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ matrix.package-manager }}-node_modules-${{ hashFiles('**/lockfiles/*-lock*') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.package-manager }}-node_modules-
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
