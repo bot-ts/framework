@@ -20,15 +20,15 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     env:
-      LOCKFILE_NPM: lockfiles/package-lock.json
-      LOCKFILE_YARN: lockfiles/yarn.lock
-      LOCKFILE_PNPM: lockfiles/pnpm-lock.yaml
-      CI_NPM: npm ci
-      CI_YARN: yarn install --frozen-lockfile
-      CI_PNPM: pnpm install --frozen-lockfile
-      ADD_NPM: npm install
-      ADD_YARN: yarn add
-      ADD_PNPM: pnpm add
+      LOCKFILE_npm: lockfiles/package-lock.json
+      LOCKFILE_yarn: lockfiles/yarn.lock
+      LOCKFILE_pnpm: lockfiles/pnpm-lock.yaml
+      CI_npm: npm ci
+      CI_yarn: yarn install --frozen-lockfile
+      CI_pnpm: pnpm install --frozen-lockfile
+      ADD_npm: npm install
+      ADD_yarn: yarn add
+      ADD_pnpm: pnpm add
     strategy:
       matrix:
         package-manager: [npm, yarn, pnpm]
@@ -63,13 +63,13 @@ jobs:
       - name: Copy lockfile
         run: |
           rm -f bun.lockb
-          LOCKFILE_VAR="LOCKFILE_${{ upper(matrix['package-manager']) }}"
+          LOCKFILE_VAR="LOCKFILE_${{ matrix.package-manager }}"
           cp "${!LOCKFILE_VAR}" ./
 
       - name: Install dependencies
         run: |
-          CI_VAR="CI_${{ upper(matrix['package-manager']) }}"
-          ADD_VAR="ADD_${{ upper(matrix['package-manager']) }}"
+          CI_VAR="CI_${{ matrix.package-manager }}"
+          ADD_VAR="ADD_${{ matrix.package-manager }}"
           
           ${!CI_VAR}
           ${!ADD_VAR} @rollup/rollup-linux-x64-gnu
