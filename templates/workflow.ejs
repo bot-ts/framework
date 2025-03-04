@@ -56,9 +56,8 @@ jobs:
             yarn add @rollup/rollup-linux-x64-gnu
           elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
             pnpm install --frozen-lockfile
-            pnpm add @rollup/rollup-linux-x64-gnu
-            npm cache clean --force
-            npm install sqlite3 --force
+            pnpm add @rollup/rollup-linux-x64-gnu --install-strategy=hoisted
+            pnpm add sqlite3 --install-strategy=hoisted
           fi
 
       - name: Check typings

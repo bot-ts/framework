@@ -83,9 +83,7 @@ jobs:
 
       - name: Install locally sqlite3
         if: matrix.package-manager == 'pnpm'
-        run: |
-          npm cache clean --force
-          npm install sqlite3 --force
+        run: pnpm add sqlite3 --install-strategy=hoisted
 
       - name: Rebuild sqlite3
         run: |
