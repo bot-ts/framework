@@ -83,7 +83,7 @@ jobs:
 
       - name: Install locally sqlite3
         if: matrix.package-manager == 'pnpm'
-        run: npm add sqlite3 --shamefully-hoist --force
+        run: npm install sqlite3 --force
 
       - name: Rebuild sqlite3
         run: |

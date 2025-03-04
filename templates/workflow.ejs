@@ -57,7 +57,7 @@ jobs:
           elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
             pnpm install --frozen-lockfile
             pnpm add @rollup/rollup-linux-x64-gnu
-            npm add sqlite3 --shamefully-hoist --force
+            npm install sqlite3 --force
           fi
 
       - name: Check typings
