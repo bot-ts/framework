@@ -35,17 +35,6 @@ jobs:
             echo "npm is already installed"
           fi
 
-      - name: Copy lockfile
-        run: |
-          rm -f bun.lockb
-          if [ "${{ matrix.package-manager }}" == "npm" ]; then
-            cp lockfiles/package-lock.json ./
-          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            cp lockfiles/yarn.lock ./
-          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
-            cp lockfiles/pnpm-lock.yaml ./
-          fi
-
       - name: Install dependencies
         run: |
           if [ "${{ matrix.package-manager }}" == "npm" ]; then
