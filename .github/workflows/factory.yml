@@ -81,6 +81,10 @@ jobs:
       - name: Build JS
         run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
 
+      - name: Install locally sqlite3
+        if: matrix.package-manager == 'pnpm'
+        run: pnpm add sqlite3 --shamefully-hoist
+
       - name: Rebuild sqlite3
         run: |
           if [ "${{ matrix.package-manager }}" == "yarn" ]; then
