@@ -9,6 +9,7 @@ on:
 
 jobs:
   node:
+    if: github.repository != 'bot-ts/framework'
     name: Test on Node.js v22
     runs-on: ubuntu-latest
     strategy:
@@ -56,7 +57,7 @@ jobs:
           elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
             pnpm install --frozen-lockfile
             pnpm add @rollup/rollup-linux-x64-gnu
-            pnpm add sqlite3 --shamefully-hoist
+            pnpm add sqlite3 --shamefully-hoist --force
           fi
 
       - name: Check typings
@@ -85,6 +86,7 @@ on:
 
 jobs:
   bun:
+    if: github.repository != 'bot-ts/framework'
     name: Test on Bun v1.2.4
     runs-on: ubuntu-latest
     steps:
@@ -112,6 +114,7 @@ on:
 
 jobs:
   deno:
+    if: github.repository != 'bot-ts/framework'
     name: Test on Deno v2.2.2
     runs-on: ubuntu-latest
     steps:

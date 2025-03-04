@@ -83,7 +83,7 @@ jobs:
 
       - name: Install locally sqlite3
         if: matrix.package-manager == 'pnpm'
-        run: pnpm add sqlite3 --shamefully-hoist
+        run: pnpm add sqlite3 --shamefully-hoist --force
 
       - name: Rebuild sqlite3
         run: |
@@ -97,6 +97,7 @@ jobs:
         run: node dist/index.test.js
 
   bun:
+    if: github.repository == 'bot-ts/framework'
     name: Test on Bun v1.2.4
 #    needs: node
     runs-on: ubuntu-latest
@@ -117,6 +118,7 @@ jobs:
         run: bun run src/index.test.ts
 
   deno:
+    if: github.repository == 'bot-ts/framework'
     name: Test on Deno v2.2.2
 #    needs: node
     runs-on: ubuntu-latest
