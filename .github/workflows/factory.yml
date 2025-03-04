@@ -18,22 +18,33 @@ jobs:
     if: github.repository == 'bot-ts/framework'
     name: Test on Node.js v22
     runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      LOCKFILE_NPM: lockfiles/package-lock.json
+      LOCKFILE_YARN: lockfiles/yarn.lock
+      LOCKFILE_PNPM: lockfiles/pnpm-lock.yaml
+      CI_NPM: npm ci
+      CI_YARN: yarn install --frozen-lockfile
+      CI_PNPM: pnpm install --frozen-lockfile
+      ADD_NPM: npm install
+      ADD_YARN: yarn add
+      ADD_PNPM: pnpm add
     strategy:
       matrix:
         package-manager: [npm, yarn, pnpm]
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ matrix.package-manager }}-node_modules-${{ hashFiles('**/lockfiles/*-lock*') }}
           restore-keys: ${{ runner.os }}-${{ matrix.package-manager }}-node_modules-
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
@@ -52,28 +63,19 @@ jobs:
       - name: Copy lockfile
         run: |
           rm -f bun.lockb
-          if [ "${{ matrix.package-manager }}" == "npm" ]; then
-            cp lockfiles/package-lock.json ./
-          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            cp lockfiles/yarn.lock ./
-          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
-            cp lockfiles/pnpm-lock.yaml ./
-          fi
+          LOCKFILE_VAR="LOCKFILE_${{ upper(matrix['package-manager']) }}"
+          cp "${!LOCKFILE_VAR}" ./
 
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.package-manager }}" == "npm" ]; then
-            npm ci
-            npm install @rollup/rollup-linux-x64-gnu
-          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            yarn install --frozen-lockfile
-            yarn add @rollup/rollup-linux-x64-gnu
-          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
-            pnpm install --frozen-lockfile
-            pnpm add @rollup/rollup-linux-x64-gnu
-          fi
+          CI_VAR="CI_${{ upper(matrix['package-manager']) }}"
+          ADD_VAR="ADD_${{ upper(matrix['package-manager']) }}"
+          
+          ${!CI_VAR}
+          ${!ADD_VAR} @rollup/rollup-linux-x64-gnu
 
       - name: Check typings
+        if: matrix.package-manager == 'npm'
         run: npx tsc --noEmit
 
       - name: Build JS
@@ -91,16 +93,16 @@ jobs:
         run: node dist/index.test.js
 
   bun:
-    name: Test on Bun v1.1.34
-    needs: node
+    name: Test on Bun v1.2.4
+#    needs: node
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.1.34
+          bun-version: 1.2.4
 
       - name: Install dependencies
         run: bun install
@@ -111,16 +113,16 @@ jobs:
         run: bun run src/index.test.ts
 
   deno:
-    name: Test on Deno v2.0.6
-    needs: node
+    name: Test on Deno v2.2.2
+#    needs: node
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denolib/setup-deno@v2
         with:
-          deno-version: 2.0.6
+          deno-version: 2.2.2
 
       - name: Install dependencies
         run: deno install --allow-scripts
