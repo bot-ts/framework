@@ -1,6 +1,6 @@
 {
   "name": "@ghom/bot.ts",
-  "version": "v8.0.0-Capi",
+  "version": "v9.0.0-Nirbose",
   "author": "ghom",
   "description": "A Discord bot in TypeScript made with [bot.ts](https://ghom.gitbook.io/bot-ts/)",
   "main": "dist/index.js",
