@@ -1,5 +1,4 @@
-import fs from "node:fs"
-import path from "node:path"
+import pg from "pg"
 
 import config from "#config"
 import env from "#core/env"
@@ -7,20 +6,22 @@ import * as logger from "#core/logger"
 import * as util from "#core/util"
 import * as orm from "@ghom/orm"
 
-const dataDirectory = util.rootPath("data")
-
-if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+setTypeParsers()
 
 const client = new orm.ORM({
   tableLocation: util.srcPath("tables"),
   backups: {
-    location: path.join(dataDirectory, "backups"),
+    location: util.rootPath("data", "backups"),
   },
   database: {
-    client: "sqlite3",
+    client: "pg",
     useNullAsDefault: true,
     connection: {
-      filename: path.join(dataDirectory, "sqlite3.db"),
+      port: env.DB_PORT ?? 5432,
+      host: env.DB_HOST ?? "127.0.0.1",
+      user: env.DB_USER ?? "postgres",
+      password: env.DB_PASSWORD,
+      database: env.DB_DATABASE ?? "postgres",
 
       timezone: env.BOT_TIMEZONE || "UTC",
     },
@@ -30,3 +31,14 @@ const client = new orm.ORM({
 })
 
 export default client
+
+function setTypeParsers() {
+  const int = (value: string) => parseInt(value)
+  const float = (value: string) => parseFloat(value)
+
+  pg.types.setTypeParser(pg.types.builtins.INT2, int)
+  pg.types.setTypeParser(pg.types.builtins.INT4, int)
+  pg.types.setTypeParser(pg.types.builtins.INT8, int)
+  pg.types.setTypeParser(pg.types.builtins.FLOAT4, float)
+  pg.types.setTypeParser(pg.types.builtins.FLOAT8, float)
+}

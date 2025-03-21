@@ -34,20 +34,20 @@ jobs:
       matrix:
         package-manager: [npm, yarn, pnpm]
 
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+#    services:
+#      postgres:
+#        image: postgres:13
+#        env:
+#          POSTGRES_PASSWORD: postgres
+#          POSTGRES_USER: postgres
+#          POSTGRES_DB: test_db
+#        ports:
+#          - 5432:5432
+#        options: >-
+#          --health-cmd pg_isready
+#          --health-interval 10s
+#          --health-timeout 5s
+#          --health-retries 5
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -91,16 +91,13 @@ jobs:
       - name: Build JS
         run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
 
-      - name: Use the pg client
-        run: npm exec -y -- @ghom/bot.ts-cli@latest config database --client pg
-
       - name: Start the bot
-        env:
-          DB_PASSWORD: postgres
-          DB_USER: postgres
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_DATABASE: test_db
+#        env:
+#          DB_PASSWORD: postgres
+#          DB_USER: postgres
+#          DB_HOST: localhost
+#          DB_PORT: 5432
+#          DB_DATABASE: test_db
         run: node dist/index.test.js
 
   bun:
