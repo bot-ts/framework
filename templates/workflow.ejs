@@ -12,11 +12,23 @@ jobs:
     if: github.repository != 'bot-ts/framework'
     name: Test on Node.js v22
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package-manager: [<%= packageManager %>]
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@vv4
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -25,11 +37,11 @@ jobs:
 
       - name: Install package manager
         run: |
-          if [ "${{ matrix.package-manager }}" != "npm" ]; then
-            if [ "${{ matrix.package-manager }}" == "yarn" ]; then
+          if [ "<%= packageManager %>" != "npm" ]; then
+            if [ "<%= packageManager %>" == "yarn" ]; then
               npm install -g yarn@latest
             else
-              npm install -g ${{ matrix.package-manager }}@latest
+              npm install -g <%= packageManager %>@latest
             fi
           else
             echo "npm is already installed"
@@ -37,16 +49,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.package-manager }}" == "npm" ]; then
+          if [ "<%= packageManager %>" == "npm" ]; then
             npm ci
             npm install @rollup/rollup-linux-x64-gnu
-          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
+          elif [ "<%= packageManager %>" == "yarn" ]; then
             yarn install --frozen-lockfile
             yarn add @rollup/rollup-linux-x64-gnu
-          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
+          elif [ "<%= packageManager %>" == "pnpm" ]; then
             pnpm install --frozen-lockfile
             pnpm add @rollup/rollup-linux-x64-gnu --install-strategy=hoisted
-            # pnpm add sqlite3 --install-strategy=hoisted
           fi
 
       - name: Check typings
@@ -55,13 +66,16 @@ jobs:
       - name: Build JS
         run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
 
-      - name: Rebuild sqlite3
-        run: |
-          if [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            npm rebuild sqlite3
-          else
-            ${{ matrix.package-manager }} rebuild sqlite3
-          fi
+      - name: Use the pg client
+        run: npm exec -y -- @ghom/bot.ts-cli@latest config database --client pg
+
+      - name: Start the bot
+        env:
+          DB_PASSWORD: postgres
+          DB_USER: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: test_db
 
       - name: Start the bot
         run: node dist/index.test.js

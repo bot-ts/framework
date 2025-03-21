@@ -29,19 +29,29 @@ jobs:
       ADD_npm: npm install
       ADD_yarn: yarn add
       ADD_pnpm: pnpm add
+
     strategy:
       matrix:
         package-manager: [npm, yarn, pnpm]
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-#      - name: Cache node modules
-#        uses: actions/cache@v4
-#        with:
-#          path: node_modules
-#          key: ${{ runner.os }}-${{ matrix.package-manager }}-node_modules-${{ hashFiles('**/lockfiles/*-lock*') }}
-#          restore-keys: ${{ runner.os }}-${{ matrix.package-manager }}-node_modules-
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -81,25 +91,21 @@ jobs:
       - name: Build JS
         run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
 
-#      - name: Install locally sqlite3
-#        if: matrix.package-manager == 'pnpm'
-#        run: pnpm add sqlite3 --install-strategy=hoisted
-
-      - name: Rebuild sqlite3
-        run: |
-          if [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            npm rebuild sqlite3 # yarn doesn't have a rebuild command (but with @berry version)
-          else
-            ${{ matrix.package-manager }} rebuild sqlite3
-          fi
+      - name: Use the pg client
+        run: npm exec -y -- @ghom/bot.ts-cli@latest config database --client pg
 
       - name: Start the bot
+        env:
+          DB_PASSWORD: postgres
+          DB_USER: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: test_db
         run: node dist/index.test.js
 
   bun:
     if: github.repository == 'bot-ts/framework'
     name: Test on Bun v1.2.4
-#    needs: node
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -120,7 +126,6 @@ jobs:
   deno:
     if: github.repository == 'bot-ts/framework'
     name: Test on Deno v2.2.2
-#    needs: node
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

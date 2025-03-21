@@ -1,12 +1,11 @@
-// system file, please don't modify it
+import fs from "node:fs"
+import path from "node:path"
 
 import config from "#config"
 import env from "#core/env"
 import * as logger from "#core/logger"
 import * as util from "#core/util"
 import * as orm from "@ghom/orm"
-import fs from "node:fs"
-import path from "node:path"
 
 const dataDirectory = util.rootPath("data")
 
@@ -22,6 +21,7 @@ const client = new orm.ORM({
     useNullAsDefault: true,
     connection: {
       filename: path.join(dataDirectory, "sqlite3.db"),
+
       timezone: env.BOT_TIMEZONE || "UTC",
     },
   },
