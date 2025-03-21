@@ -42,15 +42,17 @@ function generateLockfile(packageManager, lockfileName) {
       path.join(tempDir, "package.json"),
     )
 
-    // If package-lock.json exists and this is npm, copy it too (for faster resolution)
-    if (
-      packageManager === "npm" &&
-      fs.existsSync(path.join(dirname, "package-lock.json"))
-    ) {
+    // If lockfile exists, copy it and skip installation
+    if (fs.existsSync(path.join(dirname, lockfileName))) {
       fs.copyFileSync(
-        path.join(dirname, "package-lock.json"),
-        path.join(tempDir, "package-lock.json"),
+        path.join(dirname, lockfileName),
+        path.join(lockfileDir, lockfileName),
       )
+
+      process.stdout.write(
+        `\r✅ Already generated ${lockfileName}\n`,
+      )
+      return
     }
 
     // Execute install command in the temporary directory
@@ -93,23 +95,9 @@ function generateLockfile(packageManager, lockfileName) {
 }
 
 // Generate lockfiles for each package manager
-Object.keys(compatibility.components.lockfile).forEach((packageManager) => {
+for(const packageManager in compatibility.components.lockfile) {
   const lockfileName = compatibility.components.lockfile[packageManager]
   generateLockfile(packageManager, lockfileName)
-})
-
-// Copy the current package manager lockfile to the root directory
-const currentLockfileName = compatibility.components.lockfile[PACKAGE_MANAGER]
-if (fs.existsSync(path.join(lockfileDir, currentLockfileName))) {
-  fs.copyFileSync(
-    path.join(lockfileDir, currentLockfileName),
-    path.join(dirname, currentLockfileName),
-  )
-  console.log(`✅ Copied ${currentLockfileName} to root directory`)
-} else {
-  console.error(
-    `❌ Failed to find ${currentLockfileName} in the lockfiles directory`,
-  )
 }
 
 console.log("✅ Successfully generated lockfiles")
