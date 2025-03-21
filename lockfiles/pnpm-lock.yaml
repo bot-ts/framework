@@ -44,6 +44,9 @@ importers:
       node-cron:
         specifier: ^3.0.3
         version: 3.0.3
+      pg:
+        specifier: latest
+        version: 8.14.1
       prettier:
         specifier: ^3.2.5
         version: 3.5.3
@@ -56,9 +59,6 @@ importers:
       simple-git:
         specifier: ^3.27.0
         version: 3.27.0
-      sqlite3:
-        specifier: latest
-        version: 5.1.7
       tims:
         specifier: ^2.1.0
         version: 2.1.0
@@ -3230,19 +3230,22 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  base64-js@1.5.1: {}
+  base64-js@1.5.1:
+    optional: true
 
   binary-extensions@2.3.0: {}
 
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
+    optional: true
 
   bl@4.1.0:
     dependencies:
       buffer: 5.7.1
       inherits: 2.0.4
       readable-stream: 3.6.2
+    optional: true
 
   boxen@5.1.2:
     dependencies:
@@ -3272,6 +3275,7 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    optional: true
 
   cacache@15.3.0:
     dependencies:
@@ -3344,9 +3348,11 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  chownr@1.1.4: {}
+  chownr@1.1.4:
+    optional: true
 
-  chownr@2.0.0: {}
+  chownr@2.0.0:
+    optional: true
 
   clean-stack@2.2.0:
     optional: true
@@ -3428,10 +3434,12 @@ snapshots:
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
+    optional: true
 
   deeks@3.1.0: {}
 
-  deep-extend@0.6.0: {}
+  deep-extend@0.6.0:
+    optional: true
 
   deep-is@0.1.4: {}
 
@@ -3457,7 +3465,8 @@ snapshots:
   denque@2.1.0:
     optional: true
 
-  detect-libc@2.0.3: {}
+  detect-libc@2.0.3:
+    optional: true
 
   discord-api-types@0.37.119: {}
 
@@ -3753,7 +3762,8 @@ snapshots:
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
 
-  expand-template@2.0.3: {}
+  expand-template@2.0.3:
+    optional: true
 
   external-editor@3.1.0:
     dependencies:
@@ -3785,7 +3795,8 @@ snapshots:
     dependencies:
       flat-cache: 4.0.1
 
-  file-uri-to-path@1.0.0: {}
+  file-uri-to-path@1.0.0:
+    optional: true
 
   filelist@1.0.4:
     dependencies:
@@ -3816,11 +3827,13 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
-  fs-constants@1.0.0: {}
+  fs-constants@1.0.0:
+    optional: true
 
   fs-minipass@2.1.0:
     dependencies:
       minipass: 3.3.6
+    optional: true
 
   fs.realpath@1.0.0:
     optional: true
@@ -3912,7 +3925,8 @@ snapshots:
       is-git-repository: 1.1.1
       path-is-absolute: 1.0.1
 
-  github-from-package@0.0.0: {}
+  github-from-package@0.0.0:
+    optional: true
 
   glob-parent@5.1.2:
     dependencies:
@@ -4016,7 +4030,8 @@ snapshots:
       safer-buffer: 2.1.2
     optional: true
 
-  ieee754@1.2.1: {}
+  ieee754@1.2.1:
+    optional: true
 
   ignore@5.3.2: {}
 
@@ -4039,9 +4054,11 @@ snapshots:
       wrappy: 1.0.2
     optional: true
 
-  inherits@2.0.4: {}
+  inherits@2.0.4:
+    optional: true
 
-  ini@1.3.8: {}
+  ini@1.3.8:
+    optional: true
 
   install@0.13.0: {}
 
@@ -4340,7 +4357,8 @@ snapshots:
 
   mimic-fn@2.1.0: {}
 
-  mimic-response@3.1.0: {}
+  mimic-response@3.1.0:
+    optional: true
 
   minimatch@10.0.1:
     dependencies:
@@ -4392,8 +4410,10 @@ snapshots:
   minipass@3.3.6:
     dependencies:
       yallist: 4.0.0
+    optional: true
 
-  minipass@5.0.0: {}
+  minipass@5.0.0:
+    optional: true
 
   minipass@7.1.2: {}
 
@@ -4401,10 +4421,13 @@ snapshots:
     dependencies:
       minipass: 3.3.6
       yallist: 4.0.0
+    optional: true
 
-  mkdirp-classic@0.5.3: {}
+  mkdirp-classic@0.5.3:
+    optional: true
 
-  mkdirp@1.0.4: {}
+  mkdirp@1.0.4:
+    optional: true
 
   ms@2.1.2: {}
 
@@ -4430,7 +4453,8 @@ snapshots:
       lru-cache: 7.18.3
     optional: true
 
-  napi-build-utils@2.0.0: {}
+  napi-build-utils@2.0.0:
+    optional: true
 
   natural-compare@1.4.0: {}
 
@@ -4440,8 +4464,10 @@ snapshots:
   node-abi@3.74.0:
     dependencies:
       semver: 7.7.1
+    optional: true
 
-  node-addon-api@7.1.1: {}
+  node-addon-api@7.1.1:
+    optional: true
 
   node-cron@3.0.3:
     dependencies:
@@ -4589,11 +4615,9 @@ snapshots:
 
   pg-connection-string@2.6.2: {}
 
-  pg-connection-string@2.7.0:
-    optional: true
+  pg-connection-string@2.7.0: {}
 
-  pg-int8@1.0.1:
-    optional: true
+  pg-int8@1.0.1: {}
 
   pg-numeric@1.0.2:
     optional: true
@@ -4601,10 +4625,8 @@ snapshots:
   pg-pool@3.8.0(pg@8.14.1):
     dependencies:
       pg: 8.14.1
-    optional: true
 
-  pg-protocol@1.8.0:
-    optional: true
+  pg-protocol@1.8.0: {}
 
   pg-types@2.2.0:
     dependencies:
@@ -4613,7 +4635,6 @@ snapshots:
       postgres-bytea: 1.0.0
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
-    optional: true
 
   pg-types@4.0.2:
     dependencies:
@@ -4635,12 +4656,10 @@ snapshots:
       pgpass: 1.0.5
     optionalDependencies:
       pg-cloudflare: 1.1.1
-    optional: true
 
   pgpass@1.0.5:
     dependencies:
       split2: 4.2.0
-    optional: true
 
   php-parser@3.2.2:
     optional: true
@@ -4651,22 +4670,19 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postgres-array@2.0.0:
-    optional: true
+  postgres-array@2.0.0: {}
 
   postgres-array@3.0.4:
     optional: true
 
-  postgres-bytea@1.0.0:
-    optional: true
+  postgres-bytea@1.0.0: {}
 
   postgres-bytea@3.0.0:
     dependencies:
       obuf: 1.1.2
     optional: true
 
-  postgres-date@1.0.7:
-    optional: true
+  postgres-date@1.0.7: {}
 
   postgres-date@2.1.0:
     optional: true
@@ -4674,7 +4690,6 @@ snapshots:
   postgres-interval@1.2.0:
     dependencies:
       xtend: 4.0.2
-    optional: true
 
   postgres-interval@3.0.0:
     optional: true
@@ -4696,6 +4711,7 @@ snapshots:
       simple-get: 4.0.1
       tar-fs: 2.1.2
       tunnel-agent: 0.6.0
+    optional: true
 
   prelude-ls@1.2.1: {}
 
@@ -4729,12 +4745,14 @@ snapshots:
       ini: 1.3.8
       minimist: 1.2.8
       strip-json-comments: 2.0.1
+    optional: true
 
   readable-stream@3.6.2:
     dependencies:
       inherits: 2.0.4
       string_decoder: 1.3.0
       util-deprecate: 1.0.2
+    optional: true
 
   readdirp@3.6.0:
     dependencies:
@@ -4831,7 +4849,8 @@ snapshots:
       has-symbols: 1.1.0
       isarray: 2.0.5
 
-  safe-buffer@5.2.1: {}
+  safe-buffer@5.2.1:
+    optional: true
 
   safe-push-apply@1.0.0:
     dependencies:
@@ -4922,13 +4941,15 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  simple-concat@1.0.1: {}
+  simple-concat@1.0.1:
+    optional: true
 
   simple-get@4.0.1:
     dependencies:
       decompress-response: 6.0.0
       once: 1.4.0
       simple-concat: 1.0.1
+    optional: true
 
   simple-git@3.27.0:
     dependencies:
@@ -4958,8 +4979,7 @@ snapshots:
 
   source-map@0.6.1: {}
 
-  split2@4.2.0:
-    optional: true
+  split2@4.2.0: {}
 
   sprintf-js@1.1.3:
     optional: true
@@ -4975,6 +4995,7 @@ snapshots:
     transitivePeerDependencies:
       - bluebird
       - supports-color
+    optional: true
 
   sqlstring@2.3.3:
     optional: true
@@ -5022,6 +5043,7 @@ snapshots:
   string_decoder@1.3.0:
     dependencies:
       safe-buffer: 5.2.1
+    optional: true
 
   strip-ansi@6.0.1:
     dependencies:
@@ -5037,7 +5059,8 @@ snapshots:
 
   strip-final-newline@2.0.0: {}
 
-  strip-json-comments@2.0.1: {}
+  strip-json-comments@2.0.1:
+    optional: true
 
   strip-json-comments@3.1.1: {}
 
@@ -5053,6 +5076,7 @@ snapshots:
       mkdirp-classic: 0.5.3
       pump: 3.0.2
       tar-stream: 2.2.0
+    optional: true
 
   tar-stream@2.2.0:
     dependencies:
@@ -5061,6 +5085,7 @@ snapshots:
       fs-constants: 1.0.0
       inherits: 2.0.4
       readable-stream: 3.6.2
+    optional: true
 
   tar@6.2.1:
     dependencies:
@@ -5070,6 +5095,7 @@ snapshots:
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
+    optional: true
 
   tarn@3.0.2: {}
 
@@ -5103,6 +5129,7 @@ snapshots:
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
+    optional: true
 
   type-check@0.4.0:
     dependencies:
@@ -5174,7 +5201,8 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  util-deprecate@1.0.2: {}
+  util-deprecate@1.0.2:
+    optional: true
 
   uuid@8.3.2: {}
 
@@ -5260,12 +5288,12 @@ snapshots:
 
   ws@8.18.1: {}
 
-  xtend@4.0.2:
-    optional: true
+  xtend@4.0.2: {}
 
   yallist@2.1.2: {}
 
-  yallist@4.0.0: {}
+  yallist@4.0.0:
+    optional: true
 
   yargs-parser@21.1.1: {}
 
