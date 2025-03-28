@@ -25,6 +25,11 @@ import logger from "#core/logger"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
+export interface Compatibility {
+  templates: Record<string, Record<string, string> | string>
+  components: Record<string, Record<string, string>>
+}
+
 export function getCurrentFilename(importMeta: ImportMeta) {
   return url.fileURLToPath(importMeta.url)
 }
@@ -54,6 +59,10 @@ export function rootPath(..._path: string[]): string {
 export const packageJSON = JSON.parse(
   fs.readFileSync(rootPath("package.json"), "utf-8"),
 ) as PackageJson
+
+export const compatibility = JSON.parse(
+  fs.readFileSync(rootPath("compatibility.json"), "utf-8"),
+) as Compatibility
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
@@ -87,7 +96,7 @@ export async function checkUpdates() {
       `you can update ${util.styleText(
         "blue",
         "@ghom/bot.ts",
-      )} by running ${util.styleText("bold", `gulp update`)}`,
+      )} by running ${util.styleText("bold", `${compatibility.components.run} update`)}`,
     )
     logger.warn(util.styleText("bold", "this update may break your bot!"))
   } else if (
@@ -114,7 +123,7 @@ export async function checkUpdates() {
       `you can update ${util.styleText(
         "blue",
         "@ghom/bot.ts-cli",
-      )} by running ${util.styleText("bold", `gulp update`)}`,
+      )} by running ${util.styleText("bold", `${compatibility.components.run} update`)}`,
     )
     logger.warn(util.styleText("bold", `this update may break your bot!`))
   } else {
@@ -126,6 +135,7 @@ export async function checkUpdates() {
     )
   }
 
+  // todo: remove this because Biome will be implemented
   // check if the eslintrc.json file is present
   if (fs.existsSync(rootPath(".eslintrc.json"))) {
     if (!fs.existsSync(rootPath("eslint.config.mjs"))) {
