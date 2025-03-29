@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import "dotenv/config"
+import dotenv from "dotenv"
 
 import fs from "node:fs"
 import path from "node:path"
@@ -7,7 +7,12 @@ import util from "node:util"
 import { z } from "zod"
 
 import { config } from "#config"
+import { rootPath } from "#core/util"
 import * as logger from "#core/logger"
+
+dotenv.config({
+  path: rootPath('.env')
+})
 
 const localeList: { key: string; name: string }[] = JSON.parse(
   fs.readFileSync(
