@@ -8,8 +8,6 @@ import ejs from "ejs"
 import glob from "fast-glob"
 import gitCommitInfo from "git-commit-info"
 
-/*global process, fetch, console*/
-
 const filename = url.fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const rootDir = path.join(dirname, "..")
@@ -18,6 +16,7 @@ dotenv.config({
 	path: path.join(rootDir, ".env"),
 })
 
+if (!process.env.RUNTIME) process.env.RUNTIME = "node"
 if (!process.env.PACKAGE_MANAGER) process.env.PACKAGE_MANAGER = "npm"
 
 const compatibility = JSON.parse(
@@ -163,8 +162,35 @@ async function _updatePackageJSON() {
 	localPackageJSON.type = remotePackageJSON.type
 	localPackageJSON.version = remotePackageJSON.version
 	localPackageJSON.engines = remotePackageJSON.engines
-	localPackageJSON.scripts = remotePackageJSON.scripts
 	localPackageJSON.imports = remotePackageJSON.imports
+
+	const { templates, components } = compatibility
+
+	const replaceTags = (template) => {
+		return template.replace(/{([a-z-]+)}/g, (_, tag) => {
+			if (components[tag]) {
+				if ("node" in components[tag]) {
+					return components[tag][process.env.RUNTIME]
+				}
+
+				return components[tag][process.env.PACKAGE_MANAGER]
+			}
+
+			throw new Error(
+				`Tag "${tag}" not found in compatibility.json, please remove the tag from the file.`,
+			)
+		})
+	}
+
+	for (const [key, value] of Object.entries(templates)) {
+		if (typeof value === "string") {
+			localPackageJSON.scripts[key] = replaceTags(value)
+		} else if (typeof value === "object") {
+			localPackageJSON.scripts[key] = replaceTags(
+				value[process.env.RUNTIME] ?? value.default,
+			)
+		}
+	}
 
 	for (const baseKey of ["dependencies", "devDependencies"]) {
 		const dependencies = localPackageJSON[baseKey]

@@ -6,8 +6,6 @@ import discord from "discord.js"
 import dotenv from "dotenv"
 import ejs from "ejs"
 
-/*global process, console */
-
 const filename = url.fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const rootDir = (...segments) => path.join(dirname, "..", ...segments)
