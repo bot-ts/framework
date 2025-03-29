@@ -41,7 +41,7 @@ export default new Command({
 
     try {
       const output = cp.execSync(message.rest, {
-        cwd: process.cwd(),
+        cwd: util.rootPath(),
         encoding: "utf-8",
       })
 

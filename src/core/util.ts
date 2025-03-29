@@ -49,11 +49,11 @@ export function relativeRootPath(..._path: string[]): string {
  * Make a path from the "src" (or "dist") folder (or dist if compiled) and return it
  */
 export function srcPath(..._path: string[]): string {
-  return path.join(getCurrentDirname(import.meta), '..', ..._path)
+  return path.join(getCurrentDirname(import.meta), "..", ..._path)
 }
 
 export function rootPath(..._path: string[]): string {
-  return path.join(getCurrentDirname(import.meta), '..', '..', ..._path)
+  return path.join(getCurrentDirname(import.meta), "..", "..", ..._path)
 }
 
 export const packageJSON = JSON.parse(
@@ -428,7 +428,7 @@ export function convertDistPathToSrc(path: string) {
 }
 
 export async function getGitURL(): Promise<string | undefined> {
-  const git = simpleGit(process.cwd())
+  const git = simpleGit(rootPath())
 
   try {
     const remotes = await git.getRemotes(true)
@@ -445,7 +445,7 @@ export async function getGitURL(): Promise<string | undefined> {
 export async function getFileGitURL(
   filepath: string,
 ): Promise<string | undefined> {
-  const git = simpleGit(process.cwd())
+  const git = simpleGit(rootPath())
 
   try {
     const remotes = await git.getRemotes(true)
