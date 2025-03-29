@@ -46,10 +46,10 @@ export function relativeRootPath(..._path: string[]): string {
 }
 
 /**
- * Make a path from the "src" folder (or dist if compiled) and return it
+ * Make a path from the "src" (or "dist") folder (or dist if compiled) and return it
  */
 export function srcPath(..._path: string[]): string {
-  return path.join(rootPath(), "src", ..._path)
+  return path.join(getCurrentDirname(import.meta), '..', ..._path)
 }
 
 export function rootPath(..._path: string[]): string {
