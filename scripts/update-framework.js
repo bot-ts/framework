@@ -283,10 +283,19 @@ async function _showWarnings() {
 async function _formatGeneratedFiles() {
 	process.stdout.write("Formatting files...")
 
-	execSync("npm run format", { cwd: rootDir, stdio: "ignore" })
+	try {
+		execSync("npm run format", { cwd: rootDir, stdio: "ignore" })
 
-	clearLastLine()
-	console.log("✅ Formatted files")
+		clearLastLine()
+		console.log("✅ Formatted files")
+	} catch (error) {
+		clearLastLine()
+
+		console.error(error)
+		console.error(
+			"⚠️ Some files could not be fixed automatically (check the output above)",
+		)
+	}
 }
 
 try {
