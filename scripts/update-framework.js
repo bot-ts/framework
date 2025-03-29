@@ -284,16 +284,19 @@ async function _showWarnings() {
 async function _formatGeneratedFiles() {
 	process.stdout.write("Formatting files...")
 
+	const { components } = JSON.parse(
+		fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
+	)
+
 	try {
-		execSync("npm run format", { cwd: rootDir, stdio: "ignore" })
+		execSync(`${components.run[process.env.PACKAGE_MANAGER]} format`, {
+			cwd: rootDir,
+			stdio: "ignore",
+		})
 
 		clearLastLine()
 		console.log("✅ Formatted files")
 	} catch {
-		const { components } = JSON.parse(
-			fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
-		)
-
 		clearLastLine()
 		console.error(
 			`⚠️ Some files could not be fixed automatically, please run the ${util.styleText(
