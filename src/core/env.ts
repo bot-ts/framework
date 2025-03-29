@@ -130,7 +130,6 @@ let env: Env //=> envSchema (pas bon, il manque les custom values)
 
 if (process.env.BOT_MODE !== "test") {
   try {
-    // @ts-ignore
     env = {
       ...envSchema.parse(process.env),
       ...("envSchema" in config.options
