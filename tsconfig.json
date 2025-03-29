@@ -1,37 +1,33 @@
 {
-  "compilerOptions": {
-    "moduleResolution": "Node",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "module": "esnext",
-    "target": "ES2020",
-    "lib": ["ES2023"],
-    "strict": true,
-    "noEmit": true,
-    "sourceMap": true,
-    "declaration": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "noImplicitOverride": true,
-    "allowImportingTsExtensions": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      // Your configuration
-      "#config": ["./src/config.ts"],
-      "#types": ["./src/types.ts"],
+	"compilerOptions": {
+		"moduleResolution": "Node",
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"module": "esnext",
+		"target": "ES2020",
+		"lib": ["ES2023"],
+		"strict": true,
+		"noEmit": true,
+		"sourceMap": true,
+		"declaration": false,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"noImplicitOverride": true,
+		"allowImportingTsExtensions": false,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"#config": ["./src/config.ts"],
+			"#types": ["./src/types.ts"],
 
-      // Shortcut to core folder
-      "#core/*": ["./src/core/*"],
+			"#core/*": ["./src/core/*"],
 
-      // Importable objects
-      "#tables/*": ["./src/tables/*"],
-      "#buttons/*": ["./src/buttons/*"],
-      "#namespaces/*": ["./src/namespaces/*"],
+			"#tables/*": ["./src/tables/*"],
+			"#buttons/*": ["./src/buttons/*"],
+			"#namespaces/*": ["./src/namespaces/*"],
 
-      // Grouped import
-      "#all": ["./src/core/index.ts"]
-    }
-  },
-  "include": ["src/**/*"]
+			"#all": ["./src/core/index.ts"]
+		}
+	},
+	"include": ["src/**/*"]
 }

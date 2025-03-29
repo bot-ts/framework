@@ -1,10 +1,10 @@
+import fs from "node:fs"
+import path from "node:path"
+import url from "node:url"
 import { Handler } from "@ghom/handler"
 import discord from "discord.js"
 import dotenv from "dotenv"
 import ejs from "ejs"
-import fs from "node:fs"
-import path from "node:path"
-import url from "node:url"
 
 /*global process, console */
 
@@ -13,47 +13,45 @@ const dirname = path.dirname(filename)
 const rootDir = (...segments) => path.join(dirname, "..", ...segments)
 
 dotenv.config({
-  path: rootDir(".env"),
+	path: rootDir(".env"),
 })
 
 const client = new discord.Client({
-  intents: [],
+	intents: [],
 })
 
 await client.login(process.env.BOT_TOKEN)
 
-const avatar =
-  client.user.displayAvatarURL({ extension: "png", size: 128 }) +
-  "&fit=cover&mask=circle"
+const avatar = `${client.user.displayAvatarURL({ extension: "png", size: 128 })}&fit=cover&mask=circle`
 
 const config = await import("../dist/config.js").then(
-  (config) => config.default,
+	(config) => config.default,
 )
 
 const invitation = client.application.botPublic
-  ? client.generateInvite({
-      scopes: [
-        discord.OAuth2Scopes.Bot,
-        discord.OAuth2Scopes.ApplicationsCommands,
-      ],
-      permissions: config.permissions,
-    })
-  : null
+	? client.generateInvite({
+			scopes: [
+				discord.OAuth2Scopes.Bot,
+				discord.OAuth2Scopes.ApplicationsCommands,
+			],
+			permissions: config.permissions,
+		})
+	: null
 
 await client.destroy()
 
 const packageJSON = JSON.parse(
-  await fs.promises.readFile(rootDir("package.json"), { encoding: "utf8" }),
+	await fs.promises.readFile(rootDir("package.json"), { encoding: "utf8" }),
 )
 const database = ["mysql2", "sqlite3", "pg"].find(
-  (name) => name in packageJSON.dependencies,
+	(name) => name in packageJSON.dependencies,
 )
 const configFile = await fs.promises.readFile(rootDir("src", "config.ts"), {
-  encoding: "utf8",
+	encoding: "utf8",
 })
 const template = await fs.promises.readFile(
-  rootDir("templates", "readme.ejs"),
-  { encoding: "utf8" },
+	rootDir("templates", "readme.ejs"),
+	{ encoding: "utf8" },
 )
 
 /**
@@ -61,31 +59,31 @@ const template = await fs.promises.readFile(
  * @return {Promise<Map<any>>}
  */
 const handle = async (dirname) => {
-  const handler = new Handler(rootDir("dist", dirname), {
-    pattern: /\.js$/i,
-    loader: async (filepath) => {
-      return (await import(`file://${filepath}`)).default
-    },
-  })
+	const handler = new Handler(rootDir("dist", dirname), {
+		pattern: /\.js$/i,
+		loader: async (filepath) => {
+			return (await import(`file://${filepath}`)).default
+		},
+	})
 
-  await handler.init()
+	await handler.init()
 
-  // crop all the paths from the root directory
+	// crop all the paths from the root directory
 
-  const output = new Map()
+	const output = new Map()
 
-  for (const [_path, value] of handler.elements) {
-    output.set(
-      path
-        .relative(rootDir(), _path)
-        .replace("dist", "src")
-        .replace(/\\/g, "/")
-        .replace(/\.js$/, ".ts"),
-      value,
-    )
-  }
+	for (const [_path, value] of handler.elements) {
+		output.set(
+			path
+				.relative(rootDir(), _path)
+				.replace("dist", "src")
+				.replace(/\\/g, "/")
+				.replace(/\.js$/, ".ts"),
+			value,
+		)
+	}
 
-  return output
+	return output
 }
 
 const slash = await handle("slash")
@@ -97,26 +95,26 @@ const cronJobs = await handle("cron")
 const buttons = await handle("buttons")
 
 const readme = ejs.compile(template)({
-  avatar,
-  invitation,
-  database,
-  configFile,
-  slash,
-  commands,
-  listeners,
-  namespaces,
-  tables,
-  cronJobs,
-  buttons,
-  packageJSON,
-  client,
+	avatar,
+	invitation,
+	database,
+	configFile,
+	slash,
+	commands,
+	listeners,
+	namespaces,
+	tables,
+	cronJobs,
+	buttons,
+	packageJSON,
+	client,
 })
 
 await fs.promises.writeFile(
-  `${process.env.BOT_MODE === "factory" ? "." : ""}readme.md`,
-  readme,
-  { encoding: "utf8" },
+	`${process.env.BOT_MODE === "factory" ? "." : ""}readme.md`,
+	readme,
+	{ encoding: "utf8" },
 )
 
-console.log(`✅ Successfully generated readme.md`)
+console.log("✅ Successfully generated readme.md")
 process.exit(0)

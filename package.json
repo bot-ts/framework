@@ -1,120 +1,85 @@
 {
-  "name": "@ghom/bot.ts",
-  "version": "v9.0.0-Nirbose",
-  "author": "ghom",
-  "description": "A Discord bot in TypeScript made with [bot.ts](https://ghom.gitbook.io/bot-ts/)",
-  "main": "dist/index.js",
-  "type": "module",
-  "style": "options",
-  "imports": {
-    "#config": [
-      "./src/config.ts",
-      "./dist/config.js"
-    ],
-    "#types": [
-      "./src/types.ts",
-      "./dist/types.js"
-    ],
-    "#core/*": [
-      "./src/core/*.ts",
-      "./dist/core/*.js"
-    ],
-    "#tables/*": [
-      "./src/tables/*.ts",
-      "./dist/tables/*.js"
-    ],
-    "#buttons/*": [
-      "./src/buttons/*.ts",
-      "./dist/buttons/*.js"
-    ],
-    "#namespaces/*": [
-      "./src/namespaces/*.ts",
-      "./dist/namespaces/*.js"
-    ],
-    "#all": [
-      "./src/core/index.ts",
-      "./dist/core/index.js"
-    ]
-  },
-  "scripts": {
-    "bot": "bunx @ghom/bot.ts-cli",
-    "build": "rimraf dist && bunx rollup -c && bun run scripts/copy-keepers.js",
-    "final": "rimraf node_modules && bun install --production && bun run build",
-    "watch": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "start.test": "bun run src/index.test.ts",
-    "format": "bunx prettier --write src scripts",
-    "lint": "bunx eslint src/**/*.ts --fix",
-    "update": "bun run scripts/update-framework.js",
-    "readme": "bun run build && bun run scripts/generate-readme.js",
-    "test": "bun run lint && tsc --noEmit && bun run start.test"
-  },
-  "prettier": {
-    "semi": false,
-    "endOfLine": "crlf"
-  },
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bot-ts/framework.git"
-  },
-  "bugs": {
-    "url": "https://github.com/bot-ts/framework/issues"
-  },
-  "homepage": "https://github.com/bot-ts/framework#readme",
-  "dependencies": {
-    "@ghom/handler": "^3.1.0",
-    "@ghom/logger": "^2.0.2",
-    "@ghom/orm": "^1.9.1",
-    "dayjs": "^1.11.13",
-    "discord-eval.ts": "1.1.3",
-    "discord.js": "^14.18.0",
-    "dotenv": "^16.0.1",
-    "ejs": "^3.1.10",
-    "ghom-prettify": "^3.0.0",
-    "install": "^0.13.0",
-    "knex": "^3.0.1",
-    "node-cron": "^3.0.3",
-    "prettier": "^3.2.5",
-    "regex-parser": "^2.2.11",
-    "rimraf": "^6.0.1",
-    "simple-git": "^3.27.0",
-    "tims": "^2.1.0",
-    "types-package-json": "^2.0.39",
-    "yargs-parser": "^21.0.1",
-    "zod": "^3.23.8",
-    "pg": "latest"
-  },
-  "devDependencies": {
-    "@eslint/compat": "^1.2.0",
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.12.0",
-    "@ghom/bot.ts-cli": "9.0.13",
-    "@rollup/plugin-alias": "^5.1.1",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "@rollup/plugin-typescript": "^12.1.1",
-    "@types/node": "^22.7.6",
-    "@types/node-cron": "^3.0.11",
-    "@types/prettier": "^2.6.3",
-    "@types/rollup": "^0.51.4",
-    "@types/yargs-parser": "^21.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.11.0",
-    "@typescript-eslint/parser": "^8.11.0",
-    "discord-api-types": "^0.37.102",
-    "eslint": "^9.12.0",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-import": "^2.31.0",
-    "fast-glob": "3.3.2",
-    "git-commit-info": "2.0.2",
-    "rollup": "^4.24.4",
-    "typescript": "^5.6.3"
-  },
-  "optionalDependencies": {
-    "@types/pg": "^8.11.10"
-  },
-  "engines": {
-    "node": ">=22.x.x",
-    "npm": ">=10.x.x",
-    "yarn": ">=1.22.22"
-  }
+	"name": "@ghom/bot.ts",
+	"version": "v9.0.0-Nirbose",
+	"author": "ghom",
+	"description": "A Discord bot in TypeScript made with [bot.ts](https://ghom.gitbook.io/bot-ts/)",
+	"main": "dist/index.js",
+	"type": "module",
+	"style": "options",
+	"imports": {
+		"#config": ["./src/config.ts", "./dist/config.js"],
+		"#types": ["./src/types.ts", "./dist/types.js"],
+		"#core/*": ["./src/core/*.ts", "./dist/core/*.js"],
+		"#tables/*": ["./src/tables/*.ts", "./dist/tables/*.js"],
+		"#buttons/*": ["./src/buttons/*.ts", "./dist/buttons/*.js"],
+		"#namespaces/*": ["./src/namespaces/*.ts", "./dist/namespaces/*.js"],
+		"#all": ["./src/core/index.ts", "./dist/core/index.js"]
+	},
+	"scripts": {
+		"bot": "bunx @ghom/bot.ts-cli",
+		"build": "rimraf dist && bunx rollup -c && bun run scripts/copy-keepers.js",
+		"final": "rimraf node_modules && bun install --production && bun run build",
+		"watch": "bun run --watch src/index.ts",
+		"start": "bun run src/index.ts",
+		"start.test": "bun run src/index.test.ts",
+		"format": "bunx biome check --write src scripts",
+		"update": "bun run scripts/update-framework.js",
+		"readme": "bun run build && bun run scripts/generate-readme.js",
+		"test": "bun run format && tsc --noEmit && bun run start.test"
+	},
+	"license": "ISC",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bot-ts/framework.git"
+	},
+	"bugs": {
+		"url": "https://github.com/bot-ts/framework/issues"
+	},
+	"homepage": "https://github.com/bot-ts/framework#readme",
+	"dependencies": {
+		"@ghom/handler": "^3.1.0",
+		"@ghom/logger": "^2.0.2",
+		"@ghom/orm": "^1.9.1",
+		"dayjs": "^1.11.13",
+		"discord-eval.ts": "1.1.3",
+		"discord.js": "^14.18.0",
+		"dotenv": "^16.0.1",
+		"ejs": "^3.1.10",
+		"ghom-prettify": "^3.0.0",
+		"install": "^0.13.0",
+		"knex": "^3.0.1",
+		"node-cron": "^3.0.3",
+		"regex-parser": "^2.2.11",
+		"rimraf": "^6.0.1",
+		"simple-git": "^3.27.0",
+		"tims": "^2.1.0",
+		"types-package-json": "^2.0.39",
+		"yargs-parser": "^21.0.1",
+		"zod": "^3.23.8",
+		"pg": "latest"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@ghom/bot.ts-cli": "9.0.13",
+		"@rollup/plugin-alias": "^5.1.1",
+		"@rollup/plugin-node-resolve": "^15.3.0",
+		"@rollup/plugin-typescript": "^12.1.1",
+		"@types/node": "^22.7.6",
+		"@types/node-cron": "^3.0.11",
+		"@types/rollup": "^0.51.4",
+		"@types/yargs-parser": "^21.0.0",
+		"discord-api-types": "^0.37.102",
+		"fast-glob": "3.3.2",
+		"git-commit-info": "2.0.2",
+		"rollup": "^4.24.4",
+		"typescript": "^5.6.3"
+	},
+	"optionalDependencies": {
+		"@types/pg": "^8.11.10"
+	},
+	"engines": {
+		"node": ">=22.x.x",
+		"npm": ">=10.x.x",
+		"yarn": ">=1.22.22"
+	}
 }

@@ -9,22 +9,22 @@ const srcDir = path.join(__dirname, "..", "src")
 const destDir = path.join(__dirname, "..", "dist")
 
 function copyKeepFiles(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true })
-  }
+	if (!fs.existsSync(dest)) {
+		fs.mkdirSync(dest, { recursive: true })
+	}
 
-  const files = fs.readdirSync(src, { withFileTypes: true })
+	const files = fs.readdirSync(src, { withFileTypes: true })
 
-  files.forEach((file) => {
-    const srcPath = path.join(src, file.name)
-    const destPath = path.join(dest, file.name)
+	files.forEach((file) => {
+		const srcPath = path.join(src, file.name)
+		const destPath = path.join(dest, file.name)
 
-    if (file.isDirectory()) {
-      copyKeepFiles(srcPath, destPath)
-    } else if (file.name === ".keep") {
-      fs.copyFileSync(srcPath, destPath)
-    }
-  })
+		if (file.isDirectory()) {
+			copyKeepFiles(srcPath, destPath)
+		} else if (file.name === ".keep") {
+			fs.copyFileSync(srcPath, destPath)
+		}
+	})
 }
 
 copyKeepFiles(srcDir, destDir)

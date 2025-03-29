@@ -5,11 +5,11 @@ import { Listener } from "#core/listener"
 import * as slash from "#core/slash"
 
 export default new Listener({
-  event: "ready",
-  description: "Deploy the slash commands",
-  once: true,
-  async run(client) {
-    if (env.BOT_GUILD) return slash.registerSlashCommands(client, env.BOT_GUILD)
-    return slash.registerSlashCommands(client)
-  },
+	event: "ready",
+	description: "Deploy the slash commands",
+	once: true,
+	async run(client) {
+		if (env.BOT_GUILD) return slash.registerSlashCommands(client, env.BOT_GUILD)
+		return slash.registerSlashCommands(client)
+	},
 })

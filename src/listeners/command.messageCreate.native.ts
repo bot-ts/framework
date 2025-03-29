@@ -10,156 +10,159 @@ import * as util from "#core/util"
 import yargsParser from "yargs-parser"
 
 export default new Listener({
-  event: "messageCreate",
-  description: "Handle the messages for commands",
-  async run(message) {
-    if (config.ignoreBots && message.author.bot) return
+	event: "messageCreate",
+	description: "Handle the messages for commands",
+	async run(message) {
+		if (config.ignoreBots && message.author.bot) return
 
-    if (!command.isAnyMessage(message)) return
+		if (!command.isAnyMessage(message)) return
 
-    const prefix = config.getPrefix
-      ? await config.getPrefix(message)
-      : env.BOT_PREFIX
+		const prefix = config.getPrefix
+			? await config.getPrefix(message)
+			: env.BOT_PREFIX
 
-    if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
-      return message.channel
-        .send(
-          await util.getSystemMessage("default", `My prefix is \`${prefix}\``),
-        )
-        .catch()
+		if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
+			return message.channel
+				.send(
+					await util.getSystemMessage("default", `My prefix is \`${prefix}\``),
+				)
+				.catch()
 
-    message.usedAsDefault = false
-    message.isFromBotOwner = message.author.id === env.BOT_OWNER
+		message.usedAsDefault = false
+		message.isFromBotOwner = message.author.id === env.BOT_OWNER
 
-    util.emitMessage(message.channel, message)
-    util.emitMessage(message.author, message)
+		util.emitMessage(message.channel, message)
+		util.emitMessage(message.author, message)
 
-    if (command.isGuildMessage(message)) {
-      message.isFromGuildOwner =
-        message.isFromBotOwner || message.guild.ownerId === message.author.id
+		if (command.isGuildMessage(message)) {
+			message.isFromGuildOwner =
+				message.isFromBotOwner || message.guild.ownerId === message.author.id
 
-      util.emitMessage(message.guild, message)
-      util.emitMessage(message.member, message)
-    }
+			util.emitMessage(message.guild, message)
+			util.emitMessage(message.member, message)
+		}
 
-    let dynamicContent = message.content
+		let dynamicContent = message.content
 
-    const cut = function (key: string) {
-      dynamicContent = dynamicContent.slice(key.length).trim()
-    }
+		const cut = (key: string) => {
+			dynamicContent = dynamicContent.slice(key.length).trim()
+		}
 
-    const mentionRegex = new RegExp(`^(<@!?${message.client.user.id}>) ?`)
+		const mentionRegex = new RegExp(`^(<@!?${message.client.user.id}>) ?`)
 
-    if (dynamicContent.startsWith(prefix)) {
-      message.usedPrefix = prefix
-      cut(prefix)
-    } else if (mentionRegex.test(dynamicContent)) {
-      const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
-      message.usedPrefix = `${used} `
-      cut(match)
-    } else if (command.isDirectMessage(message)) {
-      message.usedPrefix = ""
-    } else return
+		if (dynamicContent.startsWith(prefix)) {
+			message.usedPrefix = prefix
+			cut(prefix)
+		} else if (mentionRegex.test(dynamicContent)) {
+			const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
+			message.usedPrefix = `${used} `
+			cut(match)
+		} else if (command.isDirectMessage(message)) {
+			message.usedPrefix = ""
+		} else return
 
-    let key = dynamicContent.split(/\s+/)[0]
+		let key = dynamicContent.split(/\s+/)[0]
 
-    // turn ON/OFF
-    if (
-      key !== "turn" &&
-      !util.cache.ensure<boolean>("turn", true) &&
-      message.author.id !== env.BOT_OWNER
-    )
-      return
+		// turn ON/OFF
+		if (
+			key !== "turn" &&
+			!util.cache.ensure<boolean>("turn", true) &&
+			message.author.id !== env.BOT_OWNER
+		)
+			return
 
-    let cmd = command.commands.resolve(key)
+		let cmd = command.commands.resolve(key)
 
-    if (!cmd) {
-      if (command.defaultCommand) {
-        key = ""
-        cmd = command.defaultCommand
-        message.usedAsDefault = true
-      } else return null
-    }
+		if (!cmd) {
+			if (command.defaultCommand) {
+				key = ""
+				cmd = command.defaultCommand
+				message.usedAsDefault = true
+			} else return null
+		}
 
-    // check sub commands
-    {
-      let cursor = 0
-      let depth = 0
+		// check sub commands
+		{
+			let cursor = 0
+			let depth = 0
 
-      while (cmd.options.subs && cursor < cmd.options.subs.length) {
-        const subKey = dynamicContent.split(/\s+/)[depth + 1]
+			while (cmd.options.subs && cursor < cmd.options.subs.length) {
+				const subKey = dynamicContent.split(/\s+/)[depth + 1]
 
-        for (const sub of cmd.options.subs) {
-          if (sub.options.name === subKey) {
-            key += ` ${subKey}`
-            cursor = 0
-            cmd = sub
-            depth++
-            break
-          } else if (sub.options.aliases) {
-            let found = false
+				for (const sub of cmd.options.subs) {
+					if (sub.options.name === subKey) {
+						key += ` ${subKey}`
+						cursor = 0
+						cmd = sub
+						depth++
+						break
+					}
 
-            for (const alias of sub.options.aliases) {
-              if (alias === subKey) {
-                key += ` ${subKey}`
-                cursor = 0
-                cmd = sub
-                depth++
-                found = true
-                break
-              }
-            }
+					if (sub.options.aliases) {
+						let found = false
 
-            if (found) break
-          }
-          cursor++
-        }
-      }
-    }
+						for (const alias of sub.options.aliases) {
+							if (alias === subKey) {
+								key += ` ${subKey}`
+								cursor = 0
+								cmd = sub
+								depth++
+								found = true
+								break
+							}
+						}
 
-    cut(key.trim())
+						if (found) break
+					}
 
-    const baseContent = dynamicContent
+					cursor++
+				}
+			}
+		}
 
-    // parse CommandMessage arguments
-    const parsedArgs = yargsParser(dynamicContent)
-    const restPositional = (parsedArgs._?.slice() ?? []).map(String)
+		cut(key.trim())
 
-    message.args = restPositional.map((positional) => {
-      if (/^(?:".+"|'.+')$/.test(positional))
-        return positional.slice(1, positional.length - 1)
-      return positional
-    })
+		const baseContent = dynamicContent
 
-    // handle help argument
-    if (parsedArgs.help || parsedArgs.h)
-      return command.sendCommandDetails(message, cmd)
+		// parse CommandMessage arguments
+		const parsedArgs = yargsParser(dynamicContent)
+		const restPositional = (parsedArgs._?.slice() ?? []).map(String)
 
-    // prepare command
-    const prepared = await command.prepareCommand(message, cmd, {
-      restPositional,
-      baseContent,
-      parsedArgs,
-      key,
-    })
+		message.args = restPositional.map((positional) => {
+			if (/^(?:".+"|'.+')$/.test(positional))
+				return positional.slice(1, positional.length - 1)
+			return positional
+		})
 
-    if (typeof prepared !== "boolean")
-      return message.channel
-        .send({ ...prepared, allowedMentions: { parse: [] } })
-        .catch()
+		// handle help argument
+		if (parsedArgs.help || parsedArgs.h)
+			return command.sendCommandDetails(message, cmd)
 
-    if (!prepared) return
+		// prepare command
+		const prepared = await command.prepareCommand(message, cmd, {
+			restPositional,
+			baseContent,
+			parsedArgs,
+			key,
+		})
 
-    try {
-      await cmd.options.run.bind(cmd)(message)
-    } catch (error: any) {
-      logger.error(error, cmd.filepath!, true)
+		if (typeof prepared !== "boolean")
+			return message.channel
+				.send({ ...prepared, allowedMentions: { parse: [] } })
+				.catch()
 
-      message.channel
-        .send(await util.getSystemMessage("error", error))
-        .catch((error) => {
-          logger.error(error, cmd!.filepath!, true)
-        })
-    }
-  },
+		if (!prepared) return
+
+		try {
+			await cmd.options.run.bind(cmd)(message)
+		} catch (error: any) {
+			logger.error(error, cmd.filepath!, true)
+
+			message.channel
+				.send(await util.getSystemMessage("error", error))
+				.catch((error) => {
+					logger.error(error, cmd!.filepath!, true)
+				})
+		}
+	},
 })
