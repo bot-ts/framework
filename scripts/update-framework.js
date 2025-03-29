@@ -47,7 +47,10 @@ async function _checkUpdater() {
 		clearLastLine()
 		console.log("✅ Updated updater")
 
-		execSync(process.argv.join(" "), { cwd: rootDir, stdio: "inherit" })
+		execSync(`${compatibility.run[process.env.PACKAGE_MANAGER]} update`, {
+			cwd: rootDir,
+			stdio: "inherit",
+		})
 
 		process.exit(0)
 	} else {
