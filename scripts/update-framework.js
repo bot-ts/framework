@@ -297,8 +297,8 @@ async function _formatGeneratedFiles() {
 		clearLastLine()
 		console.error(
 			`⚠️ Some files could not be fixed automatically, please run the ${util.styleText(
-				`${components.run[process.env.PACKAGE_MANAGER]} format`,
 				"yellow",
+				`${components.run[process.env.PACKAGE_MANAGER]} format`,
 			)} command.`,
 		)
 	}
