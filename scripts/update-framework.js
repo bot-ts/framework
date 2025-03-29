@@ -19,10 +19,6 @@ dotenv.config({
 if (!process.env.RUNTIME) process.env.RUNTIME = "node"
 if (!process.env.PACKAGE_MANAGER) process.env.PACKAGE_MANAGER = "npm"
 
-const compatibility = JSON.parse(
-	fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
-)
-
 const warnings = []
 
 function clearLastLine() {
@@ -46,6 +42,10 @@ async function _checkUpdater() {
 
 		clearLastLine()
 		console.log("✅ Updated updater")
+
+		const compatibility = JSON.parse(
+			fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
+		)
 
 		execSync(`${compatibility.run[process.env.PACKAGE_MANAGER]} update`, {
 			cwd: rootDir,
@@ -167,7 +167,9 @@ async function _updatePackageJSON() {
 	localPackageJSON.engines = remotePackageJSON.engines
 	localPackageJSON.imports = remotePackageJSON.imports
 
-	const { templates, components } = compatibility
+	const { templates, components } = JSON.parse(
+		fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
+	)
 
 	const replaceTags = (template) => {
 		return template.replace(/{([a-z-]+)}/g, (_, tag) => {
@@ -224,6 +226,10 @@ async function _updatePackageJSON() {
 async function _updateDependencies() {
 	process.stdout.write(
 		`Updating dependencies with ${process.env.PACKAGE_MANAGER}...`,
+	)
+
+	const compatibility = JSON.parse(
+		fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
 	)
 
 	execSync(compatibility.components.install[process.env.PACKAGE_MANAGER], {
