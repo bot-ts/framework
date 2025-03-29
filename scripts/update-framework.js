@@ -43,11 +43,11 @@ async function _checkUpdater() {
 		clearLastLine()
 		console.log("✅ Updated updater")
 
-		const compatibility = JSON.parse(
+		const { components } = JSON.parse(
 			fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
 		)
 
-		execSync(`${compatibility.run[process.env.PACKAGE_MANAGER]} update`, {
+		execSync(`${components.run[process.env.PACKAGE_MANAGER]} update`, {
 			cwd: rootDir,
 			stdio: "inherit",
 		})
