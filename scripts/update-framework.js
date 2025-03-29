@@ -3,6 +3,7 @@ import fs from "node:fs"
 import path from "node:path"
 import readline from "node:readline"
 import url from "node:url"
+import util from "node:util"
 import dotenv from "dotenv"
 import ejs from "ejs"
 import glob from "fast-glob"
@@ -289,9 +290,16 @@ async function _formatGeneratedFiles() {
 		clearLastLine()
 		console.log("✅ Formatted files")
 	} catch {
+		const { components } = JSON.parse(
+			fs.readFileSync(path.join(rootDir, "compatibility.json"), "utf-8"),
+		)
+
 		clearLastLine()
 		console.error(
-			"⚠️ Some files could not be fixed automatically (check the output above)",
+			`⚠️ Some files could not be fixed automatically, please run the ${util.styleText(
+				`${components.run[process.env.PACKAGE_MANAGER]} format`,
+				"yellow",
+			)} command.`,
 		)
 	}
 }
