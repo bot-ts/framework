@@ -42,18 +42,18 @@ export function getCurrentDirname(importMeta: ImportMeta) {
  * Make a path from root of project and return it
  */
 export function relativeRootPath(..._path: string[]): string {
-  return path.relative(process.cwd(), path.join(..._path))
+  return path.relative(rootPath(), path.join(..._path))
 }
 
 /**
  * Make a path from the "src" folder (or dist if compiled) and return it
  */
 export function srcPath(..._path: string[]): string {
-  return path.join(getCurrentDirname(import.meta), "..", ..._path)
+  return path.join(rootPath(), "src", ..._path)
 }
 
 export function rootPath(..._path: string[]): string {
-  return path.join(process.cwd(), ..._path)
+  return path.join(getCurrentDirname(import.meta), '..', '..', ..._path)
 }
 
 export const packageJSON = JSON.parse(
