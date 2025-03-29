@@ -288,10 +288,8 @@ async function _formatGeneratedFiles() {
 
 		clearLastLine()
 		console.log("✅ Formatted files")
-	} catch (error) {
+	} catch {
 		clearLastLine()
-
-		console.error(error)
 		console.error(
 			"⚠️ Some files could not be fixed automatically (check the output above)",
 		)
