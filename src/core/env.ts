@@ -126,7 +126,7 @@ type CustomSchema = (typeof config)["options"]["envSchema"]
 
 type Env = z.infer<typeof envSchema> & z.infer<CustomSchema>
 
-let env: Env //=> envSchema (pas bon, il manque les custom values)
+let env: Env
 
 if (process.env.BOT_MODE !== "test") {
 	try {
@@ -135,7 +135,7 @@ if (process.env.BOT_MODE !== "test") {
 			...("envSchema" in config.options
 				? config.options.envSchema?.parse(process.env)
 				: {}),
-		}
+		} as Env
 	} catch (error) {
 		const { errors } = error as z.ZodError
 		errors.forEach((err) => logger.error(err.message, ".env"))
