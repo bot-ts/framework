@@ -345,6 +345,28 @@ export function generateDebugName(data: {
 	return `${capitalize(data.type)}:${data.category ? `${capitalize(data.category)}/` : ""}${capitalize(data.name)}${data.secondary ? `(${data.secondary})` : ""}`
 }
 
+export const pathRegex =
+	/(\w+:[\\/][\s\S]+?(?:$|\n))|(\/[\s\S]+?(?:$|\n))|(^(?:https?:)?\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[\w()]{1,6}\b[-\w()@:%+.~#?&\/=]*(?:$|\n))/g
+
+export function beautifyJavaScriptError(callstack: string): string {
+	callstack = callstack.replace(/at <anonymous> \((.+)\)/g, "at $1")
+	callstack = callstack.replace(/file:\/\//g, "")
+
+	// start all path from the rootPath and short the node_module paths with `module(MODULE_NAME):path/in/module`
+	const nodeModules = "node_modules"
+	callstack = callstack.replace(pathRegex, (match) => {
+		if (match.includes(nodeModules)) {
+			const [moduleName, ...path] = match
+				.slice(match.lastIndexOf(nodeModules) + nodeModules.length)
+				.split(/[\\/]+/)
+			return `module(${moduleName}):${path.join("/")}`
+		}
+		return relativeRootPath(match)
+	})
+
+	return callstack
+}
+
 /**
  * Resolve `T` value from `T | (() => T)`
  * @param item - resolvable
@@ -544,14 +566,16 @@ export async function getSystemMessage(
 	if (typeof message !== "string" && "body" in message) {
 		output.content =
 			message.body instanceof Error
-				? options?.stack
-					? (message.body.stack ?? message.body.message)
-					: message.body.message
+				? beautifyJavaScriptError(
+						options?.stack
+							? (message.body.stack ?? message.body.message)
+							: message.body.message,
+					)
 				: message.body
 	} else if (message instanceof Error) {
-		output.content = options?.stack
-			? (message.stack ?? message.message)
-			: message.message
+		output.content = beautifyJavaScriptError(
+			options?.stack ? (message.stack ?? message.message) : message.message,
+		)
 	} else {
 		output.content = message
 	}
