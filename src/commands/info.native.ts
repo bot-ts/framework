@@ -66,7 +66,13 @@ export default new Command({
 							`database: ${databaseClient}@${
 								util.packageJSON.dependencies?.[databaseClient] ?? "unknown"
 							}`,
-							`${env.RUNTIME}: ${process.version}`,
+							`${env.RUNTIME}: ${
+								typeof Bun !== "undefined"
+									? Bun.version
+									: typeof Deno !== "undefined"
+										? Deno.version.deno
+										: process.version
+							}`,
 						].join("\n"),
 					}),
 					inline: true,

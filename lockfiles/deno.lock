@@ -9,6 +9,8 @@
     "npm:@rollup/plugin-alias@^5.1.1": "5.1.1_rollup@4.38.0",
     "npm:@rollup/plugin-node-resolve@^15.3.0": "15.3.1_rollup@4.38.0",
     "npm:@rollup/plugin-typescript@^12.1.1": "12.1.2_rollup@4.38.0_typescript@5.8.2",
+    "npm:@types/bun@^1.2.10": "1.2.10",
+    "npm:@types/deno@^2.2.0": "2.2.0",
     "npm:@types/node-cron@^3.0.11": "3.0.11",
     "npm:@types/node@^22.7.6": "22.13.14",
     "npm:@types/rollup@~0.51.4": "0.51.4",
@@ -474,6 +476,15 @@
         "acorn"
       ]
     },
+    "@types/bun@1.2.10": {
+      "integrity": "sha512-eilv6WFM3M0c9ztJt7/g80BDusK98z/FrFwseZgT4bXCq2vPhXD4z8R3oddmAn+R/Nmz9vBn4kweJKmGTZj+lg==",
+      "dependencies": [
+        "bun-types"
+      ]
+    },
+    "@types/deno@2.2.0": {
+      "integrity": "sha512-4x6M/ZSyoQy6fJeMArP0dvvNT4IOolfySyukuqqKhsLmSXDV4wGanqXIZ+xFihw3TlReS6JTa4hRG9nAZInpmw=="
+    },
     "@types/estree@1.0.7": {
       "integrity": "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="
     },
@@ -623,6 +634,12 @@
       "dependencies": [
         "base64-js",
         "ieee754"
+      ]
+    },
+    "bun-types@1.2.10": {
+      "integrity": "sha512-b5ITZMnVdf3m1gMvJHG+gIfeJHiQPJak0f7925Hxu6ZN5VKA8AGy4GZ4lM+Xkn6jtWxg5S3ldWvfmXdvnkp3GQ==",
+      "dependencies": [
+        "@types/node@22.12.0"
       ]
     },
     "camelcase@6.3.0": {
@@ -1813,6 +1830,8 @@
         "npm:@rollup/plugin-alias@^5.1.1",
         "npm:@rollup/plugin-node-resolve@^15.3.0",
         "npm:@rollup/plugin-typescript@^12.1.1",
+        "npm:@types/bun@^1.2.10",
+        "npm:@types/deno@^2.2.0",
         "npm:@types/node-cron@^3.0.11",
         "npm:@types/node@^22.7.6",
         "npm:@types/rollup@~0.51.4",

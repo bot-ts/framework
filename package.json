@@ -64,6 +64,8 @@
 		"@rollup/plugin-alias": "^5.1.1",
 		"@rollup/plugin-node-resolve": "^15.3.0",
 		"@rollup/plugin-typescript": "^12.1.1",
+		"@types/bun": "^1.2.10",
+		"@types/deno": "^2.2.0",
 		"@types/node": "^22.7.6",
 		"@types/node-cron": "^3.0.11",
 		"@types/rollup": "^0.51.4",
