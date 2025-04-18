@@ -358,6 +358,13 @@ export function validateCommand(
 		command.options.name,
 	)
 
+	Object.defineProperty(command.options.run, "name", {
+		value: util.generateDebugName({
+			name: commandBreadcrumb(command, "/"),
+			type: "command",
+		}),
+	})
+
 	logger.log(
 		`loaded command ${styleText("blueBright", commandBreadcrumb(command))}${
 			command.native ? ` ${styleText("green", "native")}` : ""

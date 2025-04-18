@@ -142,6 +142,13 @@ export function validateSlashCommand(command: ISlashCommand) {
 
 	debugSlashCommandBuilder(command.builder)
 
+	Object.defineProperty(command.options.run, "name", {
+		value: util.generateDebugName({
+			name: command.options.name,
+			type: "slash",
+		}),
+	})
+
 	logger.log(
 		`loaded command ${styleText("blueBright", `/${command.options.name}`)}${
 			command.native ? styleText("green", " native") : ""

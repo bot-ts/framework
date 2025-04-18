@@ -44,6 +44,13 @@ export const cronList = new (class CronCollection extends discord.Collection<
 		// cron has good format
 		cronConfigToPattern(cron.options.schedule)
 
+		Object.defineProperty(cron.options.run, "name", {
+			value: util.generateDebugName({
+				name: cron.options.name,
+				type: "cron",
+			}),
+		})
+
 		logger.log(
 			`loaded cron ${styleText("blueBright", cron.options.name)}${
 				cron.native ? ` ${styleText("green", "native")}` : ""

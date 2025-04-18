@@ -312,6 +312,9 @@ export async function limitDataToShow(
 	return `${out}...`
 }
 
+/**
+ * @deprecated will be removed in v10 and can be replaced by `String.prototype.padStart` or `String.prototype.padEnd`
+ */
 export function forceTextSize(
 	text: string | number,
 	size: number,
@@ -327,6 +330,19 @@ export function forceTextSize(
 	if (text.length > size) return text.slice(0, size)
 
 	return text
+}
+
+export function capitalize(string: string): string {
+	return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+export function generateDebugName(data: {
+	type: string
+	name: string
+	category?: string
+	secondary?: string
+}): string {
+	return `${capitalize(data.type)}:${data.category ? `${capitalize(data.category)}/` : ""}${capitalize(data.name)}${data.secondary ? `(${data.secondary})` : ""}`
 }
 
 /**

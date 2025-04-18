@@ -46,6 +46,13 @@ export const buttons = new (class ButtonCollection extends discord.Collection<
 			button.options.name,
 		)
 
+		Object.defineProperty(button.options.run, "name", {
+			value: util.generateDebugName({
+				name: button.options.name,
+				type: "button",
+			}),
+		})
+
 		logger.log(
 			`loaded button ${styleText("blueBright", button.options.name)}${
 				button.native ? ` ${styleText("green", "native")}` : ""

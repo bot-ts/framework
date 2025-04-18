@@ -56,6 +56,14 @@ export const listenerHandler = new handler.Handler<Listener<any>>(
 				.filter((x) => x !== "native" && x !== listener.options.event)
 				.join(" ")
 
+			Object.defineProperty(listener.options.run, "name", {
+				value: util.generateDebugName({
+					name: listener.options.event,
+					type: "listener",
+					category,
+				}),
+			})
+
 			logger.log(
 				`loaded listener ${styleText("magenta", category)} ${styleText(
 					"yellow",
