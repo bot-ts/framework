@@ -18,7 +18,7 @@
 			"bun": "bun run --watch src/index.ts",
 			"deno": "deno -A --watch src/index.ts"
 		},
-		"format": "{exec} biome check --write src scripts",
+		"format": "{exec} biome check --write src scripts package.json",
 		"update": "{start} scripts/update-framework.js",
 		"readme": "{run} build && {start} scripts/generate-readme.js",
 		"test": "{run} format && tsc --noEmit && {run} start.test"
