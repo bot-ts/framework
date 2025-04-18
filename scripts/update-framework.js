@@ -162,7 +162,6 @@ async function _updatePackageJSON() {
 		}),
 	)
 
-	localPackageJSON.main = remotePackageJSON.main
 	localPackageJSON.type = remotePackageJSON.type
 	localPackageJSON.version = remotePackageJSON.version
 	localPackageJSON.engines = remotePackageJSON.engines
