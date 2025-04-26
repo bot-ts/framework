@@ -10,6 +10,7 @@ import { rootPath } from "#core/util"
 
 dotenv.config({
 	path: rootPath(".env"),
+	override: false,
 })
 
 const localeList: { key: string; name: string }[] = JSON.parse(
