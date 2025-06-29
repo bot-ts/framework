@@ -647,7 +647,7 @@ export async function prepareCommand(
 
 		if (cmd.options.flags) {
 			for (const flag of cmd.options.flags) {
-				let { nameIsGiven, value } = argument.resolveGivenArgument(
+				let { given, value } = argument.resolveGivenArgument(
 					context.parsedArgs,
 					flag,
 				)
@@ -657,7 +657,7 @@ export async function prepareCommand(
 					value = v
 				}
 
-				if (!nameIsGiven) set(false)
+				if (!given) set(false)
 				else if (typeof value === "boolean") set(value)
 				else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
 				else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)

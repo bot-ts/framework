@@ -62,7 +62,7 @@ export default new Command({
 							`memory: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
 								2,
 							)}mb`,
-							`ping: ${message.client.ws.ping}ms`,
+							`ping: ${Math.max(0, Date.now() - message.createdTimestamp) * 2}ms`,
 							`database: ${databaseClient}@${
 								util.packageJSON.dependencies?.[databaseClient] ?? "unknown"
 							}`,

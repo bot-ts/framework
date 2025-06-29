@@ -12,6 +12,7 @@ WORKDIR /app
 
 # Copy the necessary files for dependency installation
 COPY package.json .
+COPY <%- lockfile %> .
 
 # Install dependencies based on the package manager
 <% if (packageManager === 'bun') { %>

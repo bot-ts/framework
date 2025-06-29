@@ -189,10 +189,7 @@ export async function prepareSlashCommand(
 			"This command can only be used by the bot owner",
 		)
 
-	if (
-		cmd.options.guildOnly ||
-		(cmd.options.guildOnly !== false && cmd.options.channelType !== "dm")
-	) {
+	if (cmd.options.guildOnly) {
 		if (!interaction.inGuild() || !interaction.guild)
 			throw new SlashCommandError("This command can only be used in a guild")
 
