@@ -8,8 +8,9 @@ import logger from "#core/logger"
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-listener listener guide} for more information.
  */
 export default new Listener({
-	event: "ready",
+	event: "clientReady",
 	description: "Launch all cron jobs",
+	once: true,
 	async run() {
 		let launched = 0
 

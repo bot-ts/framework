@@ -5,7 +5,7 @@ import { Listener } from "#core/listener"
 import * as slash from "#core/slash"
 
 export default new Listener({
-	event: "ready",
+	event: "clientReady",
 	description: "Deploy the slash commands",
 	once: true,
 	async run(client) {

@@ -13,7 +13,10 @@ import * as util from "#core/util"
 
 import { styleText } from "node:util"
 
-const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
+const readyListeners = new discord.Collection<
+	Listener<"clientReady">,
+	boolean
+>()
 
 export const listenerHandler = new handler.Handler<Listener<any>>(
 	util.srcPath("listeners"),
@@ -25,7 +28,7 @@ export const listenerHandler = new handler.Handler<Listener<any>>(
 			throw new Error(`${filepath}: default export must be a Listener instance`)
 		},
 		onLoad: async (filepath, listener) => {
-			if (listener.options.event === "ready")
+			if (listener.options.event === "clientReady")
 				readyListeners.set(listener, false)
 
 			client[listener.options.once ? "once" : "on"](
@@ -34,7 +37,7 @@ export const listenerHandler = new handler.Handler<Listener<any>>(
 					try {
 						await listener.options.run(...args)
 
-						if (listener.options.event === "ready") {
+						if (listener.options.event === "clientReady") {
 							readyListeners.set(listener, true)
 
 							if (readyListeners.every((launched) => launched)) {
@@ -81,7 +84,8 @@ export interface MoreClientEvents {
 	afterReady: [discord.Client<true>]
 }
 
-export type AllClientEvents = discord.ClientEvents & MoreClientEvents
+export type AllClientEvents = Omit<discord.ClientEvents, "ready"> &
+	MoreClientEvents
 
 export type ListenerOptions<EventName extends keyof AllClientEvents> = {
 	event: EventName

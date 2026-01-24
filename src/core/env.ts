@@ -139,7 +139,14 @@ if (process.env.BOT_MODE !== "test") {
 		} as Env
 	} catch (error) {
 		const { errors } = error as z.ZodError
-		errors.forEach((err) => logger.error(err.message, ".env"))
+		errors.forEach((err) => {
+			const key = err.path.join(".")
+			const message =
+				err.message === "Required"
+					? `Missing required environment variable: ${key}`
+					: err.message
+			logger.error(message, ".env")
+		})
 		process.exit(1)
 	}
 } else {
