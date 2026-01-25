@@ -82,6 +82,28 @@ function _downloadTemp() {
 	console.log("✅ Downloaded update files")
 }
 
+async function _removeObsoleteNativeFiles() {
+	const localNativeFiles = glob.sync("src/**/*.native.ts", { cwd: rootDir })
+	const remoteNativeFiles = glob.sync("temp/src/**/*.native.ts", { cwd: rootDir })
+
+	// Convertir les chemins distants en chemins locaux équivalents
+	const remoteAsLocal = new Set(
+		remoteNativeFiles.map((file) =>
+			file.replace(`temp${path.sep}`, "").replace("temp/", ""),
+		),
+	)
+
+	for (const localFile of localNativeFiles) {
+		if (!remoteAsLocal.has(localFile)) {
+			const fullPath = path.join(rootDir, localFile)
+
+			await fs.promises.unlink(fullPath)
+
+			console.log(`🗑️ Removed obsolete '${localFile}'`)
+		}
+	}
+}
+
 async function _overrideNativeFiles() {
 	process.stdout.write("Installing new files...")
 
@@ -310,6 +332,7 @@ try {
 	await _checkUpdater()
 	await _cleanTemp()
 	await _downloadTemp()
+	await _removeObsoleteNativeFiles()
 	await _overrideNativeFiles()
 	await _copyConfig()
 	await _removeDuplicates()
