@@ -84,7 +84,9 @@ function _downloadTemp() {
 
 async function _removeObsoleteNativeFiles() {
 	const localNativeFiles = glob.sync("src/**/*.native.ts", { cwd: rootDir })
-	const remoteNativeFiles = glob.sync("temp/src/**/*.native.ts", { cwd: rootDir })
+	const remoteNativeFiles = glob.sync("temp/src/**/*.native.ts", {
+		cwd: rootDir,
+	})
 
 	// Convertir les chemins distants en chemins locaux équivalents
 	const remoteAsLocal = new Set(
