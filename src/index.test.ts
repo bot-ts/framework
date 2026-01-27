@@ -6,7 +6,7 @@ import * as core from "#all"
 
 try {
 	await core.cronHandler.init()
-	await core.database.handler.init()
+	await core.database.handler?.init()
 	await core.buttonHandler.init()
 	await core.commandHandler.init()
 	await core.slashCommandHandler.init()

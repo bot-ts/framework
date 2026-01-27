@@ -63,9 +63,14 @@ export default new Command({
 								2,
 							)}mb`,
 							`ping: ${Math.max(0, Date.now() - message.createdTimestamp) * 2}ms`,
-							`database: ${databaseClient}@${
-								util.packageJSON.dependencies?.[databaseClient] ?? "unknown"
-							}`,
+							...(databaseClient
+								? [
+										`database: ${databaseClient}@${
+											util.packageJSON.dependencies?.[databaseClient] ??
+											"unknown"
+										}`,
+									]
+								: []),
 							`${env.RUNTIME}: ${
 								typeof Bun !== "undefined"
 									? Bun.version

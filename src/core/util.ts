@@ -222,11 +222,11 @@ export const emojiRegex =
 
 export const blankChar = "\u200b"
 
-export function getDatabaseDriverName() {
+export function getDatabaseDriverName(): "pg" | "mysql2" | "sqlite3" | null {
 	if (packageJSON?.dependencies?.pg) return "pg"
 	if (packageJSON?.dependencies?.mysql2) return "mysql2"
 	if (packageJSON?.dependencies?.sqlite3) return "sqlite3"
-	throw new Error("No database driver found in package.json")
+	return null
 }
 
 export async function whileLoop<Value>(options: {

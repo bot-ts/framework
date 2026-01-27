@@ -15,14 +15,14 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       '@ghom/orm':
-        specifier: ^1.9.2
-        version: 1.9.2
+        specifier: ^1.10.0
+        version: 1.10.0
       dayjs:
         specifier: ^1.11.13
         version: 1.11.19
       discord-eval.ts:
-        specifier: 1.1.3
-        version: 1.1.3
+        specifier: 1.1.4
+        version: 1.1.4
       discord.js:
         specifier: ^14.25.1
         version: 14.25.1
@@ -32,21 +32,9 @@ importers:
       ejs:
         specifier: ^3.1.10
         version: 3.1.10
-      ghom-prettify:
-        specifier: ^3.0.0
-        version: 3.0.0
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      knex:
-        specifier: ^3.1.0
-        version: 3.1.0(mysql2@3.16.2)(pg@8.17.2)(sqlite3@5.1.7)
       node-cron:
         specifier: ^3.0.3
         version: 3.0.3
-      pg:
-        specifier: latest
-        version: 8.17.2
       regex-parser:
         specifier: ^2.3.1
         version: 2.3.1
@@ -73,8 +61,8 @@ importers:
         specifier: 1.9.4
         version: 1.9.4
       '@ghom/bot.ts-cli':
-        specifier: 9.0.14
-        version: 9.0.14(@types/node@22.19.7)
+        specifier: ^9.1.0
+        version: 9.1.0(@types/node@22.19.7)
       '@rollup/plugin-alias':
         specifier: ^5.1.1
         version: 5.1.1(rollup@4.57.0)
@@ -208,8 +196,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@ghom/bot.ts-cli@9.0.14':
-    resolution: {integrity: sha512-Axd8kA4C3xhzEIKwzplQ/7kQfp6ViPTxvV7w2oxRjH1l9H6S1dSWeIUOjkbOPea2TcUqXfFq9oVcoHx5Ph4kfQ==}
+  '@ghom/bot.ts-cli@9.1.0':
+    resolution: {integrity: sha512-SgHxwMeUI/ZCGpxEIVGx31qkb5bcisHdwuqg0BqjX51pfQhVWYgOMj5Y+kca4F8TnmICHZz1yWx5fPV3N8ga6Q==}
     engines: {node: '>=22.x.x'}
     hasBin: true
 
@@ -219,8 +207,8 @@ packages:
   '@ghom/logger@2.0.2':
     resolution: {integrity: sha512-Aq00KlZdQns2R24eJgsX3jqsJJYcdWoI0vEC0W70F7rnacRVUXjvX19MJtk6TdPUk/QEzerUGgh5yoVXPC5yYA==}
 
-  '@ghom/orm@1.9.2':
-    resolution: {integrity: sha512-KP2AWtmft+5h+4cgovy5lw5MUfEt2nrH/VOCDm4yNFQknN2EBLTEUB4KMBNC6uzBdy1b6QjmvbXtlogV9EY/kQ==}
+  '@ghom/orm@1.10.0':
+    resolution: {integrity: sha512-806Fkg743TFJt7qnbhvcgScYruPZj9vgkjRoaNCvCp1Q+hiLNgf9emHZyeAlDB2sAw0xqjRBBVd70JPAd4U4ng==}
     engines: {node: '>=22.0.0'}
 
   '@ghom/query@1.0.0':
@@ -868,8 +856,8 @@ packages:
   discord-api-types@0.38.37:
     resolution: {integrity: sha512-Cv47jzY1jkGkh5sv0bfHYqGgKOWO1peOrGMkDFM4UmaGMOTgOW8QSexhvixa9sVOiz8MnVOBryWYyw/CEVhj7w==}
 
-  discord-eval.ts@1.1.3:
-    resolution: {integrity: sha512-vLwOgAHimzY5wtVsmMHuO9fSZ3M4VmtPQOpE7HmgG4ypfLY7E+bkKV0sqcwR4eT7p6lu0ECY1VydvfQWRCWs4w==}
+  discord-eval.ts@1.1.4:
+    resolution: {integrity: sha512-Yg8PYl3dEW4VjPKo2o1moC7TFfhS4e2PSVR+XnXBRCifkEjlwYhKkyi4VH3NGFGeUA7xMO6apeTYJEx39QFdBQ==}
 
   discord.js@14.25.1:
     resolution: {integrity: sha512-2l0gsPOLPs5t6GFZfQZKnL1OJNYFcuC/ETWsW4VtKVD/tg4ICa9x+jb9bkPffkMdRpRpuUaO/fKkHCBeiCKh8g==}
@@ -1080,10 +1068,6 @@ packages:
 
   ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
-
-  install@0.13.0:
-    resolution: {integrity: sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==}
-    engines: {node: '>= 0.10'}
 
   interpret@2.2.0:
     resolution: {integrity: sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==}
@@ -1885,7 +1869,7 @@ snapshots:
   '@gar/promisify@1.1.3':
     optional: true
 
-  '@ghom/bot.ts-cli@9.0.14(@types/node@22.19.7)':
+  '@ghom/bot.ts-cli@9.1.0(@types/node@22.19.7)':
     dependencies:
       '@inquirer/prompts': 7.10.1(@types/node@22.19.7)
       boxen: 5.1.2
@@ -1911,7 +1895,7 @@ snapshots:
       chalk: 4.1.2
       dayjs: 1.11.19
 
-  '@ghom/orm@1.9.2':
+  '@ghom/orm@1.10.0':
     dependencies:
       '@ghom/handler': 3.1.0
       '@ghom/query': 1.0.0
@@ -2523,10 +2507,11 @@ snapshots:
 
   discord-api-types@0.38.37: {}
 
-  discord-eval.ts@1.1.3:
+  discord-eval.ts@1.1.4:
     dependencies:
       discord.js: 14.25.1
       ghom-eval: 1.2.1
+      ghom-prettify: 3.0.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2790,8 +2775,6 @@ snapshots:
 
   ini@1.3.8:
     optional: true
-
-  install@0.13.0: {}
 
   interpret@2.2.0: {}
 
@@ -3127,17 +3110,21 @@ snapshots:
   pg-cloudflare@1.3.0:
     optional: true
 
-  pg-connection-string@2.10.1: {}
+  pg-connection-string@2.10.1:
+    optional: true
 
   pg-connection-string@2.6.2: {}
 
-  pg-int8@1.0.1: {}
+  pg-int8@1.0.1:
+    optional: true
 
   pg-pool@3.11.0(pg@8.17.2):
     dependencies:
       pg: 8.17.2
+    optional: true
 
-  pg-protocol@1.11.0: {}
+  pg-protocol@1.11.0:
+    optional: true
 
   pg-types@2.2.0:
     dependencies:
@@ -3146,6 +3133,7 @@ snapshots:
       postgres-bytea: 1.0.1
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
+    optional: true
 
   pg@8.17.2:
     dependencies:
@@ -3156,10 +3144,12 @@ snapshots:
       pgpass: 1.0.5
     optionalDependencies:
       pg-cloudflare: 1.3.0
+    optional: true
 
   pgpass@1.0.5:
     dependencies:
       split2: 4.2.0
+    optional: true
 
   php-parser@3.2.5:
     optional: true
@@ -3170,15 +3160,19 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  postgres-array@2.0.0: {}
+  postgres-array@2.0.0:
+    optional: true
 
-  postgres-bytea@1.0.1: {}
+  postgres-bytea@1.0.1:
+    optional: true
 
-  postgres-date@1.0.7: {}
+  postgres-date@1.0.7:
+    optional: true
 
   postgres-interval@1.2.0:
     dependencies:
       xtend: 4.0.2
+    optional: true
 
   prebuild-install@7.1.3:
     dependencies:
@@ -3372,7 +3366,8 @@ snapshots:
 
   source-map@0.6.1: {}
 
-  split2@4.2.0: {}
+  split2@4.2.0:
+    optional: true
 
   sqlite3@5.1.7:
     dependencies:
@@ -3527,7 +3522,8 @@ snapshots:
 
   ws@8.19.0: {}
 
-  xtend@4.0.2: {}
+  xtend@4.0.2:
+    optional: true
 
   yallist@2.1.2: {}
 

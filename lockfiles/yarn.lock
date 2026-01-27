@@ -128,10 +128,10 @@
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
 
-"@ghom/bot.ts-cli@9.0.14":
-  version "9.0.14"
-  resolved "https://registry.yarnpkg.com/@ghom/bot.ts-cli/-/bot.ts-cli-9.0.14.tgz#c1b64da85e92ea9ec1310eb870ee1b294c179284"
-  integrity sha512-Axd8kA4C3xhzEIKwzplQ/7kQfp6ViPTxvV7w2oxRjH1l9H6S1dSWeIUOjkbOPea2TcUqXfFq9oVcoHx5Ph4kfQ==
+"@ghom/bot.ts-cli@^9.1.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@ghom/bot.ts-cli/-/bot.ts-cli-9.1.0.tgz#e362baa3914b97ae6fc93a62c76795e8829eb5f5"
+  integrity sha512-SgHxwMeUI/ZCGpxEIVGx31qkb5bcisHdwuqg0BqjX51pfQhVWYgOMj5Y+kca4F8TnmICHZz1yWx5fPV3N8ga6Q==
   dependencies:
     "@inquirer/prompts" "^7.1.0"
     boxen "=5.1.2"
@@ -161,10 +161,10 @@
     chalk "=4.1.2"
     dayjs "^1.11.7"
 
-"@ghom/orm@^1.9.2":
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/@ghom/orm/-/orm-1.9.2.tgz#fae46a37c7c29b0f9a804c42cb126d887dc2ec8c"
-  integrity sha512-KP2AWtmft+5h+4cgovy5lw5MUfEt2nrH/VOCDm4yNFQknN2EBLTEUB4KMBNC6uzBdy1b6QjmvbXtlogV9EY/kQ==
+"@ghom/orm@^1.10.0":
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/@ghom/orm/-/orm-1.10.0.tgz#18eeeb1469299065bd378e7efbfcb5410a04fc8f"
+  integrity sha512-806Fkg743TFJt7qnbhvcgScYruPZj9vgkjRoaNCvCp1Q+hiLNgf9emHZyeAlDB2sAw0xqjRBBVd70JPAd4U4ng==
   dependencies:
     "@ghom/handler" "^3.1.0"
     "@ghom/query" "1.0.0"
@@ -1086,15 +1086,16 @@ discord-api-types@^0.38.1, discord-api-types@^0.38.16, discord-api-types@^0.38.3
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.38.37.tgz#0e9fa948e8483b0ff3b63a1902ea9a9c9b748921"
   integrity sha512-Cv47jzY1jkGkh5sv0bfHYqGgKOWO1peOrGMkDFM4UmaGMOTgOW8QSexhvixa9sVOiz8MnVOBryWYyw/CEVhj7w==
 
-discord-eval.ts@1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/discord-eval.ts/-/discord-eval.ts-1.1.3.tgz#85b98fa2ec08aa0bd847da957eba85aadaa791b5"
-  integrity sha512-vLwOgAHimzY5wtVsmMHuO9fSZ3M4VmtPQOpE7HmgG4ypfLY7E+bkKV0sqcwR4eT7p6lu0ECY1VydvfQWRCWs4w==
+discord-eval.ts@1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/discord-eval.ts/-/discord-eval.ts-1.1.4.tgz#782f8b7168a140d87a784107c76b826be34ead27"
+  integrity sha512-Yg8PYl3dEW4VjPKo2o1moC7TFfhS4e2PSVR+XnXBRCifkEjlwYhKkyi4VH3NGFGeUA7xMO6apeTYJEx39QFdBQ==
   dependencies:
-    discord.js "^14.17.3"
+    discord.js "^14.25.1"
     ghom-eval "^1.2.1"
+    ghom-prettify "3.0.0"
 
-discord.js@^14.17.3, discord.js@^14.25.1:
+discord.js@^14.25.1:
   version "14.25.1"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-14.25.1.tgz#ef8a298b814de2377776fcc732429cc53444d8ad"
   integrity sha512-2l0gsPOLPs5t6GFZfQZKnL1OJNYFcuC/ETWsW4VtKVD/tg4ICa9x+jb9bkPffkMdRpRpuUaO/fKkHCBeiCKh8g==
@@ -1333,7 +1334,7 @@ ghom-eval@^1.2.1:
     prettier "^3.3.3"
     typescript "^5.6.3"
 
-ghom-prettify@^3.0.0:
+ghom-prettify@3.0.0, ghom-prettify@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/ghom-prettify/-/ghom-prettify-3.0.0.tgz#b289f37ff0cf43581d4932a3a20eb7f76c6b2b10"
   integrity sha512-wFFnlIuFdJibu0Lw4txk9fwNZnUpQ6L39bPleXl8uNMBdStU/lw7bsk1KwnOPzPe9VdvbPJmIc641bkHWAOORQ==
@@ -1494,11 +1495,6 @@ ini@~1.3.0:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
-install@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/install/-/install-0.13.0.tgz#6af6e9da9dd0987de2ab420f78e60d9c17260776"
-  integrity sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==
-
 interpret@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.2.0.tgz#1a78a0b5965c40a5416d007ad6f50ad27c417df9"
@@ -1605,7 +1601,7 @@ json-2-csv@^5.5.6:
     deeks "3.1.0"
     doc-path "4.1.1"
 
-knex@^3.0.1, knex@^3.1.0:
+knex@^3.0.1:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/knex/-/knex-3.1.0.tgz#b6ddd5b5ad26a6315234a5b09ec38dc4a370bd8c"
   integrity sha512-GLoII6hR0c4ti243gMs5/1Rb3B+AjwMOfjYm97pu0FOQa7JH56hgBxYf5WK2525ceSbBY1cjeZ9yk99GPMB6Kw==
@@ -2059,7 +2055,7 @@ pg-types@2.2.0, pg-types@^2.2.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@^8.11.3, pg@latest:
+pg@^8.11.3:
   version "8.17.2"
   resolved "https://registry.yarnpkg.com/pg/-/pg-8.17.2.tgz#8df8c039c36bb97016be276094fc4991e8683963"
   integrity sha512-vjbKdiBJRqzcYw1fNU5KuHyYvdJ1qpcQg1CeBrHFqV1pWgHeVR6j/+kX0E1AAXfyuLUGY1ICrN2ELKA/z2HWzw==

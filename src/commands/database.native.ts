@@ -3,7 +3,7 @@
 import * as discordEval from "discord-eval.ts"
 import discord from "discord.js"
 
-import { Command } from "#core/command"
+import { type AnyMessage, Command, Middleware } from "#core/command"
 import database from "#core/database"
 import * as util from "#core/util"
 
@@ -13,6 +13,14 @@ export default new Command({
 	aliases: ["query", "db", "sql", "?"],
 	botOwnerOnly: true,
 	channelType: "all",
+	middlewares: [
+		new Middleware<AnyMessage>("database", () => ({
+			result: util.getDatabaseDriverName()
+				? true
+				: "No database driver is installed.",
+			data: {},
+		})),
+	],
 	rest: {
 		name: "query",
 		description: "SQL query",

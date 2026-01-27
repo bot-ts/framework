@@ -1,3 +1,10 @@
+<% if (!client) { %>
+import * as orm from "@ghom/orm"
+
+const client = new orm.ORM(false)
+
+export default client
+<% } else { %>
 <% if (client === "sqlite3") { %>
 import fs from "node:fs"
 import path from "node:path"
@@ -57,4 +64,5 @@ function setTypeParsers() {
   pg.types.setTypeParser(pg.types.builtins.FLOAT4, float)
   pg.types.setTypeParser(pg.types.builtins.FLOAT8, float)
 }
+<% } %>
 <% } %>

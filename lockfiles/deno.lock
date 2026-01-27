@@ -2,10 +2,10 @@
   "version": "5",
   "specifiers": {
     "npm:@biomejs/biome@1.9.4": "1.9.4",
-    "npm:@ghom/bot.ts-cli@9.0.14": "9.0.14_@types+node@22.19.7",
+    "npm:@ghom/bot.ts-cli@^9.1.0": "9.1.0_@types+node@22.19.7",
     "npm:@ghom/handler@^3.1.0": "3.1.0",
     "npm:@ghom/logger@^2.0.2": "2.0.2",
-    "npm:@ghom/orm@^1.9.2": "1.9.2",
+    "npm:@ghom/orm@^1.10.0": "1.10.0",
     "npm:@rollup/plugin-alias@^5.1.1": "5.1.1_rollup@4.57.0",
     "npm:@rollup/plugin-node-resolve@^15.3.1": "15.3.1_rollup@4.57.0",
     "npm:@rollup/plugin-typescript@^12.1.2": "12.3.0_rollup@4.57.0_typescript@5.9.3",
@@ -17,17 +17,13 @@
     "npm:@types/yargs-parser@^21.0.3": "21.0.3",
     "npm:dayjs@^1.11.13": "1.11.19",
     "npm:discord-api-types@~0.37.120": "0.37.120",
-    "npm:discord-eval.ts@1.1.3": "1.1.3",
+    "npm:discord-eval.ts@1.1.4": "1.1.4",
     "npm:discord.js@^14.25.1": "14.25.1",
     "npm:dotenv@^16.5.0": "16.6.1",
     "npm:ejs@^3.1.10": "3.1.10",
     "npm:fast-glob@3.3.2": "3.3.2",
-    "npm:ghom-prettify@3": "3.0.0_prettier@3.8.1",
     "npm:git-commit-info@2.0.2": "2.0.2",
-    "npm:install@0.13": "0.13.0",
-    "npm:knex@^3.1.0": "3.1.0",
     "npm:node-cron@^3.0.3": "3.0.3",
-    "npm:pg@latest": "8.17.2",
     "npm:regex-parser@^2.3.1": "2.3.1",
     "npm:rimraf@^6.0.1": "6.1.2",
     "npm:rollup@^4.40.0": "4.57.0",
@@ -152,8 +148,8 @@
         "ws"
       ]
     },
-    "@ghom/bot.ts-cli@9.0.14_@types+node@22.19.7": {
-      "integrity": "sha512-Axd8kA4C3xhzEIKwzplQ/7kQfp6ViPTxvV7w2oxRjH1l9H6S1dSWeIUOjkbOPea2TcUqXfFq9oVcoHx5Ph4kfQ==",
+    "@ghom/bot.ts-cli@9.1.0_@types+node@22.19.7": {
+      "integrity": "sha512-SgHxwMeUI/ZCGpxEIVGx31qkb5bcisHdwuqg0BqjX51pfQhVWYgOMj5Y+kca4F8TnmICHZz1yWx5fPV3N8ga6Q==",
       "dependencies": [
         "@inquirer/prompts",
         "boxen",
@@ -183,8 +179,8 @@
         "dayjs"
       ]
     },
-    "@ghom/orm@1.9.2": {
-      "integrity": "sha512-KP2AWtmft+5h+4cgovy5lw5MUfEt2nrH/VOCDm4yNFQknN2EBLTEUB4KMBNC6uzBdy1b6QjmvbXtlogV9EY/kQ==",
+    "@ghom/orm@1.10.0": {
+      "integrity": "sha512-806Fkg743TFJt7qnbhvcgScYruPZj9vgkjRoaNCvCp1Q+hiLNgf9emHZyeAlDB2sAw0xqjRBBVd70JPAd4U4ng==",
       "dependencies": [
         "@ghom/handler",
         "@ghom/query",
@@ -915,11 +911,12 @@
     "discord-api-types@0.38.37": {
       "integrity": "sha512-Cv47jzY1jkGkh5sv0bfHYqGgKOWO1peOrGMkDFM4UmaGMOTgOW8QSexhvixa9sVOiz8MnVOBryWYyw/CEVhj7w=="
     },
-    "discord-eval.ts@1.1.3": {
-      "integrity": "sha512-vLwOgAHimzY5wtVsmMHuO9fSZ3M4VmtPQOpE7HmgG4ypfLY7E+bkKV0sqcwR4eT7p6lu0ECY1VydvfQWRCWs4w==",
+    "discord-eval.ts@1.1.4": {
+      "integrity": "sha512-Yg8PYl3dEW4VjPKo2o1moC7TFfhS4e2PSVR+XnXBRCifkEjlwYhKkyi4VH3NGFGeUA7xMO6apeTYJEx39QFdBQ==",
       "dependencies": [
         "discord.js",
-        "ghom-eval"
+        "ghom-eval",
+        "ghom-prettify"
       ]
     },
     "discord.js@14.25.1": {
@@ -1146,9 +1143,6 @@
     },
     "ini@1.3.8": {
       "integrity": "sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew=="
-    },
-    "install@0.13.0": {
-      "integrity": "sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA=="
     },
     "interpret@2.2.0": {
       "integrity": "sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw=="
@@ -1917,10 +1911,10 @@
     "packageJson": {
       "dependencies": [
         "npm:@biomejs/biome@1.9.4",
-        "npm:@ghom/bot.ts-cli@9.0.14",
+        "npm:@ghom/bot.ts-cli@^9.1.0",
         "npm:@ghom/handler@^3.1.0",
         "npm:@ghom/logger@^2.0.2",
-        "npm:@ghom/orm@^1.9.2",
+        "npm:@ghom/orm@^1.10.0",
         "npm:@rollup/plugin-alias@^5.1.1",
         "npm:@rollup/plugin-node-resolve@^15.3.1",
         "npm:@rollup/plugin-typescript@^12.1.2",
@@ -1932,17 +1926,13 @@
         "npm:@types/yargs-parser@^21.0.3",
         "npm:dayjs@^1.11.13",
         "npm:discord-api-types@~0.37.120",
-        "npm:discord-eval.ts@1.1.3",
+        "npm:discord-eval.ts@1.1.4",
         "npm:discord.js@^14.25.1",
         "npm:dotenv@^16.5.0",
         "npm:ejs@^3.1.10",
         "npm:fast-glob@3.3.2",
-        "npm:ghom-prettify@3",
         "npm:git-commit-info@2.0.2",
-        "npm:install@0.13",
-        "npm:knex@^3.1.0",
         "npm:node-cron@^3.0.3",
-        "npm:pg@latest",
         "npm:regex-parser@^2.3.1",
         "npm:rimraf@^6.0.1",
         "npm:rollup@^4.40.0",
