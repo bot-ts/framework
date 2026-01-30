@@ -7,7 +7,7 @@
       "dependencies": {
         "@ghom/handler": "^3.1.0",
         "@ghom/logger": "^2.0.2",
-        "@ghom/orm": "^1.10.0",
+        "@ghom/orm": "2.0.0",
         "dayjs": "^1.11.13",
         "discord-eval.ts": "1.1.4",
         "discord.js": "^14.25.1",
@@ -87,7 +87,7 @@
 
     "@ghom/logger": ["@ghom/logger@2.0.2", "", { "dependencies": { "chalk": "=4.1.2", "dayjs": "^1.11.7" } }, "sha512-Aq00KlZdQns2R24eJgsX3jqsJJYcdWoI0vEC0W70F7rnacRVUXjvX19MJtk6TdPUk/QEzerUGgh5yoVXPC5yYA=="],
 
-    "@ghom/orm": ["@ghom/orm@1.10.0", "", { "dependencies": { "@ghom/handler": "^3.1.0", "@ghom/query": "1.0.0", "csv-parser": "^3.0.0", "json-2-csv": "^5.5.6", "knex": "^3.0.1" }, "optionalDependencies": { "mysql2": "^3.6.2", "pg": "^8.11.3", "sqlite3": "^5.1.6" } }, "sha512-806Fkg743TFJt7qnbhvcgScYruPZj9vgkjRoaNCvCp1Q+hiLNgf9emHZyeAlDB2sAw0xqjRBBVd70JPAd4U4ng=="],
+    "@ghom/orm": ["@ghom/orm@2.0.0", "", { "dependencies": { "@ghom/handler": "^3.1.0", "@ghom/query": "1.0.0", "csv-parser": "^3.0.0", "json-2-csv": "^5.5.6", "knex": "^3.0.1" }, "optionalDependencies": { "mysql2": "^3.6.2", "pg": "^8.11.3", "sqlite3": "^5.1.6" } }, "sha512-QtEqL+8bhmSFaenlaa2/PsHaQTBBU+Q1yVANEe8ulsSj99Abfg9xtFPduE4Ibf6TRht/iIXg36S5wbRuQGBtCg=="],
 
     "@ghom/query": ["@ghom/query@1.0.0", "", {}, "sha512-bREXfCIoAz+/krACRzG9O074dn0VngJDZW3KWyYrwiQrxZ27j4A0NwmjY86AxbYVJdSLEcKx0NytITB+BmOTdA=="],
 

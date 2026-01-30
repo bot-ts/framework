@@ -39,7 +39,7 @@
 	"dependencies": {
 		"@ghom/handler": "^3.1.0",
 		"@ghom/logger": "^2.0.2",
-		"@ghom/orm": "^1.10.0",
+		"@ghom/orm": "2.0.0",
 		"dayjs": "^1.11.13",
 		"discord-eval.ts": "1.1.4",
 		"discord.js": "^14.25.1",
