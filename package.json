@@ -80,5 +80,8 @@
 		"npm": ">=10.x.x",
 		"yarn": ">=1.22.22"
 	},
-	"trustedDependencies": ["@biomejs/biome"]
+	"trustedDependencies": ["@biomejs/biome", "sqlite3"],
+	"pnpm": {
+		"onlyBuiltDependencies": ["@biomejs/biome", "sqlite3"]
+	}
 }
