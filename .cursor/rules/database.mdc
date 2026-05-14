@@ -1,0 +1,184 @@
+---
+description: Rules for database tables, ORM usage, and caching in bot.ts
+globs: ["src/tables/**/*.ts", "src/namespaces/**/*.ts", "src/commands/**/*.ts", "src/slash/**/*.ts"]
+alwaysApply: false
+---
+
+# bot.ts Database Rules
+
+This project uses `@ghom/orm`, a Knex-based ORM. Database tables are defined in `src/tables/` and imported via the `#tables/*` alias.
+
+## Table definition
+
+```typescript
+import { Table } from "@ghom/orm"
+
+export interface MyEntity {
+  id: number
+  name: string
+  score?: number         // optional = nullable column
+  created_at: Date
+}
+
+export default new Table<MyEntity>({
+  name: "my_entities",
+  description: "Description for logs",
+  setup: (table) => {
+    table.increments("id").primary().unsigned()
+    table.string("name").notNullable()
+    table.integer("score").defaultTo(0)
+    table.timestamp("created_at").defaultTo(table.client.fn.now())
+  },
+})
+```
+
+## Migrations
+
+Add new columns without breaking existing data:
+
+```typescript
+export default new Table<MyEntity>({
+  name: "my_entities",
+  setup: (table) => {
+    table.increments("id").primary().unsigned()
+    table.string("name").notNullable()
+  },
+  migrations: {
+    1: (table) => table.integer("score").defaultTo(0),
+    2: (table) => table.boolean("is_premium").defaultTo(false),
+  },
+})
+```
+
+- Migrations run in ascending numeric order on every bot start
+- Never remove or renumber existing migration keys
+- Only add new keys with higher numbers
+
+## Table loading priority
+
+```typescript
+export default new Table<MyEntity>({
+  name: "my_entities",
+  priority: 10, // higher = loads/migrates first (useful for FK dependencies)
+  setup: (table) => { /* ... */ },
+})
+```
+
+## Querying
+
+Import your table and use `.query` (typed Knex query builder):
+
+```typescript
+import myEntitiesTable from "#tables/my_entities"
+
+// SELECT one
+const entity = await myEntitiesTable.query.where("id", 1).first()
+
+// SELECT many
+const entities = await myEntitiesTable.query.where("score", ">", 100).orderBy("score", "desc")
+
+// INSERT
+await myEntitiesTable.query.insert({ name: "Alice", score: 50 })
+
+// UPDATE
+await myEntitiesTable.query.where("id", 1).update({ score: 100 })
+
+// DELETE
+await myEntitiesTable.query.where("id", 1).delete()
+
+// Increment/Decrement
+await myEntitiesTable.query.where("id", 1).increment("score", 10)
+
+// Count
+const [{ count }] = await myEntitiesTable.query.count("id as count")
+```
+
+Full Knex API: https://knexjs.org/guide/query-builder.html
+
+## Caching
+
+Enable caching per-table with the `caching` option (value = TTL in ms):
+
+```typescript
+export default new Table<MyEntity>({
+  name: "my_entities",
+  caching: 600_000, // cache results for 10 minutes
+  setup: (table) => { /* ... */ },
+})
+```
+
+Use the cache in your code:
+
+```typescript
+// GET with cache (cache miss → runs query, stores result)
+const entity = await myEntitiesTable.cache.get(
+  `entity:${id}`,           // cache key
+  (query) => query.where("id", id) // query to run on miss
+)
+
+// SET (runs mutation + invalidates cache entries)
+await myEntitiesTable.cache.set(
+  (query) => query.where("id", id).update({ score: newScore })
+)
+```
+
+## Knex column type reference
+
+```typescript
+// Numeric
+table.increments("id")        // auto-increment INTEGER PK
+table.integer("count")        // INTEGER
+table.bigInteger("discord_id") // BIGINT (use string in TS interface for Discord IDs)
+table.float("ratio")          // FLOAT
+table.decimal("amount", 10, 2) // DECIMAL
+
+// Text
+table.string("name")          // VARCHAR(255)
+table.string("name", 64)      // VARCHAR(64)
+table.text("content")         // TEXT
+
+// Boolean
+table.boolean("active")       // BOOLEAN / TINYINT(1)
+
+// Date/time
+table.timestamp("created_at") // TIMESTAMP
+table.date("birthday")        // DATE
+table.time("starts_at")       // TIME
+
+// Other
+table.json("metadata")        // JSON
+table.uuid("uuid")            // UUID
+
+// Modifiers (chainable)
+.notNullable()
+.nullable()
+.defaultTo(value)
+.unique()
+.unsigned()
+.index()
+.references("id").inTable("other_table").onDelete("cascade")
+```
+
+## TypeScript interface conventions
+
+```typescript
+export interface MyEntity {
+  id: number               // auto-increment PK
+  discord_id: string       // Discord snowflake IDs as strings (not number)
+  name: string             // notNullable column
+  description?: string     // nullable column (? makes it optional)
+  score: number            // has defaultTo() → always present
+  created_at: Date         // timestamp
+}
+```
+
+## Database configuration
+
+Change the database engine with the CLI:
+
+```bash
+bot config database
+```
+
+Default: SQLite3. Supported: PostgreSQL, MySQL, SQLite3.
+Connection details are configured via `DB_*` env vars in `.env`.
