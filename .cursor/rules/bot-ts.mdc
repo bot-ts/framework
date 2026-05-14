@@ -1,0 +1,73 @@
+---
+description: Core rules for working in the bot.ts Discord bot framework project
+globs: ["src/**/*.ts", "*.ts", "*.json"]
+alwaysApply: true
+---
+
+# bot.ts Framework Rules
+
+This project is a TypeScript Discord bot built with the **bot.ts** framework (`@ghom/bot.ts`), which wraps [discord.js](https://discord.js.org) with a file-based, auto-loading architecture.
+
+## Project structure
+
+```
+src/
+├── index.ts          # Bootstrap — do not modify unless necessary
+├── config.ts         # Discord.js client config + env Zod schema
+├── types.ts          # Custom argument type resolvers
+├── core/             # Framework internals — NEVER EDIT *.native.ts files
+├── commands/         # Prefix (textual) commands
+├── slash/            # Slash commands (Discord native)
+├── listeners/        # Discord event listeners (category.event.ts)
+├── buttons/          # Button interaction handlers
+├── cron/             # Scheduled cron jobs
+├── tables/           # Database table definitions (@ghom/orm)
+└── namespaces/       # Shared utilities, constants, middlewares
+```
+
+## Path aliases — always use these, never relative imports into src/core
+
+| Alias | Resolves to |
+|---|---|
+| `#core/command` | `src/core/command.ts` |
+| `#core/slash` | `src/core/slash.ts` |
+| `#core/listener` | `src/core/listener.ts` |
+| `#core/button` | `src/core/button.ts` |
+| `#core/cron` | `src/core/cron.ts` |
+| `#core/logger` | `src/core/logger.ts` |
+| `#config` | `src/config.ts` |
+| `#types` | `src/types.ts` |
+| `#tables/*` | `src/tables/*` |
+| `#buttons/*` | `src/buttons/*` |
+| `#namespaces/*` | `src/namespaces/*` |
+| `#all` | re-exports all core modules |
+
+## Native files rule
+
+Files ending in `.native.ts` are **framework core files**. Never modify them. To customize, copy the file and remove `.native` from the name — the framework loads the custom version automatically.
+
+## CLI scaffold commands
+
+Always prefer the CLI for generating new files:
+
+```bash
+bot add command     # src/commands/<name>.ts
+bot add slash       # src/slash/<name>.ts
+bot add listener    # src/listeners/<category>.<event>.ts
+bot add button      # src/buttons/<key>.ts
+bot add cron        # src/cron/<name>.ts
+bot add table       # src/tables/<name>.ts
+bot add namespace   # src/namespaces/<name>.ts
+```
+
+## Key runtime scripts
+
+```bash
+bun run build     # Compile src/ → dist/ (Rollup)
+bun run start     # Build + run bot
+bun run watch     # Build + run + watch
+bun run test      # TypeScript check + boot test
+bun run format    # Biome format src/
+bun run lint      # Biome lint src/
+bun run update    # Update framework core/native files
+```

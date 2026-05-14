@@ -1,0 +1,118 @@
+---
+description: TypeScript and Biome code style rules for the bot.ts project
+globs: ["src/**/*.ts"]
+alwaysApply: true
+---
+
+# TypeScript & Biome Style Rules
+
+This project uses **Biome** for formatting and linting. All generated or edited code must comply.
+
+## Formatting rules (biome.json)
+
+- **Indentation**: tabs (not spaces)
+- **Semicolons**: none — no trailing semicolons
+- **Quotes**: double quotes `"string"` for strings, backticks for templates
+- **Trailing commas**: always in multi-line objects and arrays
+- **Line width**: 80 characters
+
+## TypeScript strictness
+
+These Biome lint rules are enforced — never violate them:
+
+```typescript
+// ❌ WRONG
+const x: any = getValue()
+const el = document.getElementById("foo")!  // non-null assertion
+function doSomething(): void {}              // void return type
+
+// ✅ CORRECT
+const x: unknown = getValue()
+const el = document.getElementById("foo")   // handle null explicitly
+function doSomething(): undefined {}
+```
+
+- **No `any`** — use `unknown` and narrow with type guards
+- **No non-null assertions** (`!`) — use optional chaining or explicit null checks
+- **No `void` type** — use `undefined` for explicit return types
+- **Organize imports** — Biome auto-sorts; run `bun run format` to apply
+
+## Import order (managed by Biome)
+
+1. Node built-ins
+2. External packages (discord.js, @ghom/*, etc.)
+3. Internal aliases (`#core/*`, `#tables/*`, `#namespaces/*`)
+
+## Naming conventions
+
+| Thing | Convention | Example |
+|---|---|---|
+| Files | kebab-case | `daily-reward.ts` |
+| Variables/functions | camelCase | `getUserScore` |
+| Classes/interfaces/types | PascalCase | `GuildMember`, `UserTable` |
+| Constants | SCREAMING_SNAKE_CASE | `MAX_SCORE` |
+| Discord IDs | string (not number) | `"712345678901234567"` |
+| Enum values | PascalCase | `CooldownType.Global` |
+
+## Async/await patterns
+
+```typescript
+// ✅ Always await Discord.js API calls
+await interaction.reply("...")
+await message.channel.send("...")
+
+// ✅ Return the promise from run() when there's nothing after it
+async run(interaction) {
+  return interaction.reply("...")
+}
+
+// ❌ Don't forget to await — silent failures
+interaction.reply("...")
+```
+
+## Error handling
+
+```typescript
+// ✅ In commands/listeners — let the framework catch and log
+async run(message) {
+  const result = await riskyOperation()  // framework catches thrown errors
+  await message.channel.send(result)
+}
+
+// ✅ Custom error handling when needed
+async run(message) {
+  try {
+    await riskyOperation()
+  } catch (error) {
+    await message.channel.send("Something went wrong.")
+    app.error(error, import.meta.url)
+  }
+}
+```
+
+## discord.js patterns
+
+```typescript
+// ✅ Check for null before using optional guild properties
+const channel = member.guild.systemChannel
+if (!channel) return
+
+// ✅ Use optional chaining for uncertain properties
+await member.guild.systemChannel?.send("...")
+
+// ✅ Embed builder pattern
+const embed = new discord.EmbedBuilder()
+  .setTitle("Title")
+  .setDescription("Description")
+  .setColor(0x5865f2)
+
+// ✅ Ephemeral replies for private responses
+await interaction.reply({ content: "Only you can see this", ephemeral: true })
+```
+
+## Run Biome after any edits
+
+```bash
+bun run format   # fix formatting
+bun run lint     # check lint errors
+```

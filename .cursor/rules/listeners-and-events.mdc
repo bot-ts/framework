@@ -1,0 +1,184 @@
+---
+description: Rules for creating event listeners, buttons, and cron jobs in bot.ts
+globs: ["src/listeners/**/*.ts", "src/buttons/**/*.ts", "src/cron/**/*.ts"]
+alwaysApply: false
+---
+
+# bot.ts Listeners, Buttons & Cron Rules
+
+## Event Listeners (`src/listeners/`)
+
+File naming convention: `<category>.<eventName>.ts`
+The category prefix is extracted and shown in logs — use it semantically (e.g. `welcome`, `modlog`, `stats`).
+
+### Minimal structure
+
+```typescript
+import { Listener } from "#core/listener"
+
+export default new Listener({
+  event: "guildMemberAdd",
+  description: "Welcome new members",
+  async run(member) {
+    await member.guild.systemChannel?.send(`Welcome ${member}!`)
+  },
+})
+```
+
+### With `once: true` (fires only once)
+
+```typescript
+import { Listener } from "#core/listener"
+import logger from "#core/logger"
+
+export default new Listener({
+  event: "afterReady",
+  description: "Log startup completion",
+  once: true,
+  async run(client) {
+    logger.success(`Bot ready as ${client.user.tag}`)
+  },
+})
+```
+
+### Common events
+
+| Event | Description | Key args |
+|---|---|---|
+| `messageCreate` | Message sent | `message: Message` |
+| `messageDelete` | Message deleted | `message: Message \| PartialMessage` |
+| `messageUpdate` | Message edited | `oldMessage, newMessage` |
+| `guildMemberAdd` | Member joined | `member: GuildMember` |
+| `guildMemberRemove` | Member left | `member: GuildMember \| PartialGuildMember` |
+| `interactionCreate` | Any interaction | `interaction: Interaction` |
+| `voiceStateUpdate` | Voice state changed | `oldState, newState: VoiceState` |
+| `guildCreate` | Bot joined a guild | `guild: Guild` |
+| `clientReady` | Bot connected | `client: Client<true>` |
+| `afterReady` | *(bot.ts)* After all ready listeners | `client: Client<true>` |
+| `raw` | *(bot.ts)* Raw gateway packet | `packet: GatewayDispatchPayload` |
+
+**Prefer `afterReady` over `clientReady`** — it fires after all other ready listeners have completed, making it safe for post-initialization work.
+
+### Native listeners — do not modify
+
+`.native.ts` listener files are framework core. To customize one:
+1. Copy the file: `src/listeners/command.messageCreate.native.ts` → `src/listeners/command.messageCreate.ts`
+2. The framework loads the custom version automatically
+
+### Error handling
+
+Errors thrown inside listeners are automatically caught and logged by the framework. No need for try/catch unless you want custom error handling.
+
+---
+
+## Button Handlers (`src/buttons/`)
+
+```typescript
+import { Button } from "#core/button"
+
+export type BuyButtonParams = {
+  articleId: string
+  quantity: number
+}
+
+export default new Button<BuyButtonParams>({
+  key: "buy",
+  description: "Purchase button",
+  builder: (builder) =>
+    builder.setLabel("Buy").setStyle(ButtonStyle.Success),
+  async run(interaction, { articleId, quantity }) {
+    await interaction.deferUpdate()
+    // perform purchase logic
+    await interaction.followUp({
+      content: `Bought ${quantity}x article ${articleId}!`,
+      ephemeral: true,
+    })
+  },
+})
+```
+
+### Creating button instances in commands/listeners
+
+```typescript
+import discord, { ButtonStyle } from "discord.js"
+import buyButton from "#buttons/buy"
+
+await channel.send({
+  content: "Confirm purchase?",
+  components: [
+    new discord.ActionRowBuilder<discord.MessageActionRowComponentBuilder>().addComponents(
+      buyButton.create({ articleId: "sword-001", quantity: 1 })
+    ),
+  ],
+})
+```
+
+### Button rules
+
+- `key` must be unique across all button files
+- Parameters are serialized into the button `customId` — keep them short (total ≤ 100 chars)
+- Always call `interaction.deferUpdate()` or `interaction.deferReply()` at the start of `run`
+- Use `interaction.followUp()` for responses after deferral
+- `ButtonStyle` is imported from `discord.js`
+
+---
+
+## Cron Jobs (`src/cron/`)
+
+```typescript
+import { Cron } from "#core/cron"
+
+export default new Cron({
+  name: "cleanup",
+  description: "Clean up expired data every 6 hours",
+  schedule: { type: "hour", duration: 6 },
+  runOnStart: false,
+  async run() {
+    // cleanup logic
+  },
+})
+```
+
+### Schedule formats
+
+```typescript
+// Interval key (simplest)
+schedule: "minutely" // | "hourly" | "daily" | "weekly" | "monthly" | "yearly"
+
+// Simple interval
+schedule: { type: "hour", duration: 6 }
+// type: "minute" | "hour" | "day" | "week" | "month" | "year"
+
+// Advanced (cron-style)
+import { CronDayOfWeek, CronMonth } from "#core/cron"
+schedule: {
+  minute: 0,
+  hour: 8,
+  dayOfWeek: CronDayOfWeek.Monday,
+}
+```
+
+### Accessing the Discord client in cron
+
+```typescript
+import { Cron } from "#core/cron"
+import * as app from "#all"
+
+export default new Cron({
+  name: "status-update",
+  description: "Rotate bot status every hour",
+  schedule: "hourly",
+  runOnStart: true,
+  async run() {
+    const guildCount = app.client.guilds.cache.size
+    app.client.user?.setActivity(`${guildCount} servers`, { type: 0 })
+  },
+})
+```
+
+### Cron rules
+
+- Timezone uses `BOT_TIMEZONE` from `.env` (e.g. `Europe/Paris`)
+- `runOnStart: true` executes the cron immediately when the bot boots
+- `this.ranCount` tracks how many times the cron has run
+- Crons start automatically via `cron.clientReady.native.ts`

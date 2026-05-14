@@ -1,0 +1,203 @@
+---
+description: Rules for creating textual commands and slash commands in bot.ts
+globs: ["src/commands/**/*.ts", "src/slash/**/*.ts"]
+alwaysApply: false
+---
+
+# bot.ts Commands Rules
+
+## Textual commands (`src/commands/`)
+
+Import from `#core/command`. The file name must match the command `name`.
+
+### Minimal structure
+
+```typescript
+import { Command } from "#core/command"
+
+export default new Command({
+  name: "ping",
+  description: "Replies with Pong!",
+  channelType: "all",
+  async run(message) {
+    await message.channel.send("Pong!")
+  },
+})
+```
+
+### Full structure with all options
+
+```typescript
+import { Command, CooldownType } from "#core/command"
+import { requireAdmin } from "#namespaces/middlewares"
+
+export default new Command({
+  name: "my-command",
+  description: "Does something useful",
+  channelType: "guild",         // "guild" | "dm" | "all"
+  botOwnerOnly: false,          // restrict to bot owner
+  cooldown: {
+    duration: 5000,             // 5 seconds in ms
+    type: CooldownType.Global,  // Global | PerUser
+  },
+  middlewares: [requireAdmin],
+  positional: [
+    {
+      name: "target",
+      description: "The target member",
+      type: "member",
+      required: true,
+    },
+  ],
+  options: [
+    {
+      name: "reason",
+      description: "Reason for the action",
+      type: "string",
+    },
+  ],
+  flags: [
+    {
+      name: "silent",
+      flag: "s",
+      description: "Don't send a confirmation message",
+    },
+  ],
+  rest: {
+    name: "message",
+    description: "Additional message content",
+    required: false,
+  },
+  async run(message) {
+    const target = message.args.target     // GuildMember
+    const reason = message.args.reason     // string | null
+    const silent = message.args.silent     // boolean
+    const msg    = message.args.message    // string | null
+
+    message.triggerCoolDown()              // must call if cooldown is defined
+
+    await message.channel.send(`Done: ${target} — ${reason ?? "no reason"}`)
+  },
+})
+```
+
+### Argument types
+
+| Type | Returns |
+|---|---|
+| `string` | `string \| null` |
+| `number` | `number \| null` |
+| `boolean` | `boolean \| null` |
+| `regex` | `RegExp \| null` |
+| `date` | `Date \| null` |
+| `duration` | `number \| null` (ms) |
+| `json` | `object \| null` |
+| `array` | `string[] \| null` |
+| `string[]` | `string[] \| null` |
+| `number[]` | `number[] \| null` |
+| `user` | `User \| null` |
+| `member` | `GuildMember \| null` |
+| `channel` | `Channel \| null` |
+| `role` | `Role \| null` |
+| `emote` | `GuildEmoji \| null` |
+| `invite` | `Invite \| null` |
+| `command` | `Command \| null` |
+| `slashCommand` | `SlashCommand \| null` |
+
+Required args (`required: true`) never return `null`.
+
+## Slash commands (`src/slash/`)
+
+Import from `#core/slash`. File name = command name.
+
+### Minimal structure
+
+```typescript
+import { SlashCommand } from "#core/slash"
+
+export default new SlashCommand({
+  name: "hello",
+  description: "Say hello",
+  async run(interaction) {
+    await interaction.reply("Hello!")
+  },
+})
+```
+
+### With options
+
+```typescript
+import { SlashCommand } from "#core/slash"
+
+export default new SlashCommand({
+  name: "kick",
+  description: "Kick a member",
+  guildOnly: true,
+  userPermissions: ["KickMembers"],
+  build(builder) {
+    builder
+      .addUserOption((opt) =>
+        opt.setName("target").setDescription("Member to kick").setRequired(true)
+      )
+      .addStringOption((opt) =>
+        opt.setName("reason").setDescription("Reason for kick")
+      )
+  },
+  async run(interaction) {
+    const target = interaction.options.getMember("target")
+    const reason = interaction.options.getString("reason") ?? "No reason provided"
+
+    if (!target) return interaction.reply({ content: "Member not found", ephemeral: true })
+
+    await (target as GuildMember).kick(reason)
+    await interaction.reply(`Kicked ${target}. Reason: ${reason}`)
+  },
+})
+```
+
+### With subcommands
+
+```typescript
+import { SlashCommand } from "#core/slash"
+
+export default new SlashCommand({
+  name: "config",
+  description: "Bot configuration",
+  build(builder) {
+    builder
+      .addSubcommand((sub) =>
+        sub.setName("show").setDescription("Show current config")
+      )
+      .addSubcommand((sub) =>
+        sub
+          .setName("set")
+          .setDescription("Update config")
+          .addStringOption((opt) =>
+            opt.setName("key").setDescription("Config key").setRequired(true)
+          )
+          .addStringOption((opt) =>
+            opt.setName("value").setDescription("New value").setRequired(true)
+          )
+      )
+  },
+  async run(interaction) {
+    const sub = interaction.options.getSubcommand()
+    if (sub === "show") {
+      return interaction.reply("Config: ...")
+    }
+    if (sub === "set") {
+      const key = interaction.options.getString("key", true)
+      const value = interaction.options.getString("value", true)
+      return interaction.reply(`Set ${key} = ${value}`)
+    }
+  },
+})
+```
+
+## Key constraints
+
+- Cooldowns **require** calling `message.triggerCoolDown()` inside `run` — a warning appears in logs if forgotten
+- Slash commands do not support custom argument types (use `build()` with discord.js option builders)
+- Custom types for textual commands go in `src/types.ts`
+- Use `interaction.deferReply()` + `interaction.editReply()` for operations taking > 3 seconds
+- Slash commands register globally (up to 1h) unless `BOT_GUILD` is set in `.env` (instant)
